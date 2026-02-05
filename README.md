@@ -1,6 +1,6 @@
-# Ionic Start Theme (v2.0.0)
+# Pinaka POS Retail – WordPress Admin App
 
-**Ionic(Angular) start theme** Latest Ionic version (6+) starter theme with Angular. Experiencing the best of new features to start your project. 
+**Pinaka POS Retail is a WordPress + WooCommerce** based POS Admin application designed to manage retail and restaurant operations.
 
 ## Built with
 * Ionic CLI 6+
@@ -13,16 +13,24 @@
 
 ---
 
-## General features
-* **15+ Pages**
-* Guards sample
-* Tabs structure
-* Services sample
-* Lazy loading
-* Android/iOS ready
-* Components and Actions samples
-
+## ✨ Key features
+* Role-based access (Merchant, Manager, Cashier, Kitchen, Captain)
+* Device-based authentication & limits
+* POS order creation & management via API
+* Custom discount engine (mix & match, quantity-based)
+* Shift & cash management (open/close, safe drops)
+* Sales reports & activity logs
+* WooCommerce REST API extensions
+* Mobile-app–friendly API responses
 ---
+## 🧰 Tech Stack
+
+* WordPress (Plugin)
+* WooCommerce
+* PHP
+* MySQL
+* REST API
+* JavaScript / jQuery
 
 ## Requirements
 * Node 16+
