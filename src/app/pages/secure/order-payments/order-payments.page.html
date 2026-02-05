@@ -1,0 +1,89 @@
+<ion-header class="shift-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Order Payments</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button>
+        <ion-icon name="funnel-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Search -->
+  <div class="search-wrapper">
+    <ion-icon name="search-outline"></ion-icon>
+    <input
+      placeholder="Search order / transaction"
+      (input)="onSearch($event)"
+    />
+  </div>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-card *ngFor="let p of payments; trackBy: trackByPaymentId" class="payment-card">
+
+    <!-- Header -->
+    <ion-item lines="none">
+      <ion-label>
+        <h2>Order #{{ p.meta.order_id }}</h2>
+        <p>{{ p.created_at || p.time }}</p>
+      </ion-label>
+
+      <ion-badge [color]="getStatusColor(p.payment_status)">
+        {{ p.payment_status | uppercase }}
+      </ion-badge>
+    </ion-item>
+
+    <!-- Summary -->
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6">
+          <div class="label">Amount</div>
+          <div class="value"> {{ p.meta.amount | currency}}</div>
+        </ion-col>
+
+        <ion-col size="6">
+          <div class="label">Method</div>
+          <div class="value">{{ p.title }}</div>
+        </ion-col>
+
+        <ion-col size="6" *ngIf="p.transaction_id">
+          <div class="label">Transaction ID</div>
+          <div class="value small">{{ p.transaction_id }}</div>
+        </ion-col>
+
+        <ion-col size="6" *ngIf="p.vendor_name">
+          <div class="label">Vendor</div>
+          <div class="value">{{ p.vendor_name }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- Notes -->
+    <ion-item lines="none" *ngIf="p.note">
+      <ion-label>
+        <p class="note">{{ p.note }}</p>
+      </ion-label>
+    </ion-item>
+
+  </ion-card>
+
+  <!-- Infinite Scroll -->
+  <ion-infinite-scroll
+    threshold="100px"
+    (ionInfinite)="loadPayments($event)"
+    [disabled]="!hasMore">
+
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+      loadingText="Loading more payments...">
+    </ion-infinite-scroll-content>
+
+  </ion-infinite-scroll>
+
+</ion-content>

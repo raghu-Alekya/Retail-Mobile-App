@@ -1,0 +1,108 @@
+<ion-header class="products-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Reports</ion-title>
+  </ion-toolbar>
+
+  <!-- Search -->
+</ion-header>
+
+<ion-content class="reports-content">
+
+  <!-- Compact Date Input -->
+  <ion-item lines="none" class="date-input">
+    <ion-icon name="calendar-outline" slot="start"></ion-icon>
+    <ion-input 
+      class="date-input-field"
+      type="date"
+      [(ngModel)]="date"
+      (ionChange)="loadAll()">
+    </ion-input>
+  </ion-item>
+
+  <!-- Tabs -->
+  <ion-segment
+  [(ngModel)]="activeTab"
+  (ionChange)="onTabChange($event)" class="report-tabs">
+    <ion-segment-button value="sales">Sales</ion-segment-button>
+    <ion-segment-button value="staff">Staff</ion-segment-button>
+    <ion-segment-button value="inventory">Inventory</ion-segment-button>
+  </ion-segment>
+
+  <!-- SALES -->
+  <ng-container *ngIf="activeTab === 'sales'">
+    <ion-card class="summary-card">
+      <ion-card-content>
+        <h3>Total Sales</h3>
+        <h1>₹ {{ sales?.total_sales || 0 | number:'1.2-2' }}</h1> 
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Hourly Sales Chart</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="chart-container">
+              <canvas #hourlyChart></canvas>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Hourly Sales</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="hour-row" *ngFor="let h of sales?.hourly">
+          <span>{{ h.hour }}:00</span>
+          <strong>₹ {{ h.total | number:'1.2-2' }}</strong>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </ng-container>
+
+  <!-- STAFF -->
+  <ng-container *ngIf="activeTab === 'staff'">
+    <ion-card *ngFor="let e of employeeSales" class="staff-card">
+      <ion-card-content>
+        <h3>{{ e.employee }}</h3>
+        <p>₹ {{ e.total | number:'1.2-2' }}</p>
+      </ion-card-content>
+    </ion-card>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Employee Sales Chart</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="chart-container">
+          <canvas #employeeChart></canvas>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </ng-container>
+
+  <!-- INVENTORY -->
+  <ng-container *ngIf="activeTab === 'inventory'">
+    <ion-list>
+      <ion-item *ngFor="let p of inventory">
+        <ion-label>
+          <strong>{{ p.product }}</strong>
+          <p>Opening: {{ p.opening }} | Sold: {{ p.sold }} | Remaining: {{ p.remaining }}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+    <ion-infinite-scroll
+      *ngIf="inventoryHasMore"
+      threshold="100px"
+      (ionInfinite)="loadInventory($event)">
+      <ion-infinite-scroll-content
+        loadingSpinner="crescent"
+        loadingText="Loading inventory...">
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  </ng-container>
+
+</ion-content>

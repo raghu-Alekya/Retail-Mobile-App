@@ -1,0 +1,49 @@
+.shift-card {
+  border-radius: 16px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+}
+
+.label {
+  font-size: 12px;
+  color: #777;
+}
+
+.value {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+ion-badge {
+  text-transform: capitalize;
+}
+
+
+.shift-header {
+  ion-toolbar {
+    --background: #34465d;
+    --color: #fff;
+  }
+}
+
+.search-wrapper {
+  margin: 10px 16px;
+  background: #9aa7b8;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  gap: 10px;
+
+  input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: #fff;
+    outline: none;
+  }
+
+  ion-icon {
+    color: #fff;
+  }
+}

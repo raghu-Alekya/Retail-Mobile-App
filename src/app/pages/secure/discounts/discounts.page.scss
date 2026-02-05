@@ -1,0 +1,53 @@
+.coupon-content {
+  --background: #f4f5f8;
+}
+
+.coupon-card {
+  margin: 10px;
+  border-left: 4px solid #3880ff;
+}
+
+.coupon-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.actions ion-icon {
+  font-size: 20px;
+  margin-left: 12px;
+  cursor: pointer;
+}
+
+.form-content {
+  padding: 16px;
+}
+
+.products-header {
+  ion-toolbar {
+    --background: #34465d;
+    --color: #fff;
+  }
+}
+
+.search-wrapper {
+  margin: 10px 16px;
+  background: #9aa7b8;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  gap: 10px;
+
+  input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: #fff;
+    outline: none;
+  }
+
+  ion-icon {
+    color: #fff;
+  }
+}

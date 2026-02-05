@@ -1,0 +1,81 @@
+<ion-content class="welcome-content">
+  <swiper
+    class="swiper-welcome"
+    #swiper
+    [config]="config"
+    (reachEnd)="onLastSlide()"
+  >
+
+    <!-- Slide 1 -->
+    <ng-template swiperSlide>
+      <div class="slide">
+        <ion-icon name="storefront-outline" class="slide-icon slide-in-top"></ion-icon>
+
+        <h2 class="slide-title fade-in">
+          PINAKA POS
+        </h2>
+
+        <p class="slide-text fade-in-delay">
+          Smart billing & order management system built for
+          restaurants and retail businesses.
+        </p>
+      </div>
+    </ng-template>
+
+    <!-- Slide 2 -->
+    <ng-template swiperSlide>
+      <div class="slide">
+        <ion-icon name="flash-outline" class="slide-icon slide-in-top"></ion-icon>
+
+        <h2 class="slide-title fade-in">
+          Fast Orders & Billing
+        </h2>
+
+        <p class="slide-text fade-in-delay">
+          Create orders in seconds, manage tables, send
+          orders to kitchen and generate instant bills.
+        </p>
+      </div>
+    </ng-template>
+
+    <!-- Slide 3 -->
+    <ng-template swiperSlide>
+      <div class="slide">
+        <ion-icon name="bar-chart-outline" class="slide-icon slide-in-top"></ion-icon>
+
+        <h2 class="slide-title fade-in">
+          Reports & Control
+        </h2>
+
+        <p class="slide-text fade-in-delay">
+          Track daily sales, staff performance and inventory
+          with powerful real-time reports.
+        </p>
+      </div>
+    </ng-template>
+
+  </swiper>
+</ion-content>
+
+<ion-footer class="welcome-footer ion-padding">
+  <ion-button
+    expand="block"
+    size="large"
+    color="secondary"
+    (click)="nextSlide()"
+    *ngIf="!last_slide"
+  >
+    Next
+    <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+  </ion-button>
+
+  <ion-button
+    expand="block"
+    size="large"
+    color="secondary"
+    (click)="getStarted()"
+    *ngIf="last_slide"
+  >
+    Get Started
+  </ion-button>
+</ion-footer>

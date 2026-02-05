@@ -1,0 +1,192 @@
+<ion-header>
+  <ion-toolbar class="dark-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/products-list"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>
+      {{ isEdit ? 'Edit product' : 'Add product' }}
+    </ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button color="light" (click)="publishProduct()">Publish</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <!-- Sold Individually -->
+  <ion-card>
+    <ion-item>
+      <ion-label>Sold individually</ion-label>
+      <ion-toggle [(ngModel)]="product.sold_individually"></ion-toggle>
+    </ion-item>
+  </ion-card>
+
+  <!-- Title -->
+  <ion-card>
+    <ion-item>
+      <ion-label position="stacked">Title</ion-label>
+      <ion-input [(ngModel)]="product.name"></ion-input>
+    </ion-item>
+  </ion-card>
+
+  <!-- Description -->
+  <ion-card>
+    <ion-item>
+      <ion-label position="stacked">Description</ion-label>
+      <ion-textarea rows="4" [(ngModel)]="product.description"></ion-textarea>
+    </ion-item>
+  </ion-card>
+
+  <!-- Categories -->
+  <ion-card>
+    <ion-item>
+      <ion-label>Product categories</ion-label>
+      <ion-select multiple="true" [(ngModel)]="product.category_ids">
+        <ion-select-option *ngFor="let cat of categories" [value]="cat.id">
+          {{ cat.name }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-card>
+
+  <!-- Tags -->
+  <ion-card>
+    <ion-item>
+      <ion-label>Product Tags</ion-label>
+      <ion-select multiple="true" [(ngModel)]="product.tag_ids">
+        <ion-select-option *ngFor="let tag of tags" [value]="tag.id">
+          {{ tag.name }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-card>
+
+  <!-- Image Upload -->
+  <ion-card class="image-card">
+    <input
+      type="file"
+      #fileInput
+      hidden
+      accept="image/*"
+      (change)="onFileSelected($event)"
+    />
+
+    <div class="upload-box" (click)="fileInput.click()">
+      <ion-icon name="add-outline"></ion-icon>
+      <p>Tap to upload featured photo</p>
+    </div>
+
+    <!-- Preview -->
+    <ion-img *ngIf="imagePreview" [src]="imagePreview" class="image-preview"></ion-img>
+  </ion-card>
+
+  <!-- Type -->
+  <ion-card>
+    <ion-item>
+      <ion-label>Type</ion-label>
+      <ion-select [(ngModel)]="product.type" (ionChange)="onProductTypeChange()">
+        <ion-select-option value="simple">Simple Product</ion-select-option>
+        <ion-select-option value="variable">Variable Product</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-card>
+
+  <!-- ATTRIBUTES (VARIABLE PRODUCT ONLY) -->
+  <ion-card *ngIf="product.type === 'variable'">
+    <ion-item>
+      <ion-label><strong>Attributes</strong></ion-label>
+    </ion-item>
+    
+    <ion-card-content *ngIf="attributes.length === 0">
+      <ion-text color="medium">
+        Loading attributes...
+      </ion-text>
+    </ion-card-content>
+    
+    <div *ngFor="let attr of attributes">
+      <ion-item>
+        <ion-label>{{ attr.name }}</ion-label>
+        <ion-select
+          multiple="true"
+          [(ngModel)]="selectedAttributes[attr.id]"
+          (ionChange)="logSelectedAttributes()"
+        >
+          <ion-select-option *ngFor="let term of attr.terms" [value]="term.name">
+            {{ term.name }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+    </div>
+    
+    <ion-item *ngIf="attributes.length > 0 && getSelectedAttributesCount() === 0">
+      <ion-text color="warning">
+        Select at least one attribute option to create variations
+      </ion-text>
+    </ion-item>
+    
+    <ion-item *ngIf="getSelectedAttributesCount() > 0">
+      <ion-text>
+        <small>{{ getCombinationCount() }} variation(s) will be created</small>
+      </ion-text>
+    </ion-item>
+  </ion-card>
+
+  <!-- Status -->
+  <ion-card>
+    <ion-item>
+      <ion-label>Status</ion-label>
+      <ion-select [(ngModel)]="product.status">
+        <ion-select-option value="publish">Publish</ion-select-option>
+        <ion-select-option value="draft">Draft</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-card>
+
+  <!-- Featured -->
+  <ion-card>
+    <ion-item>
+      <ion-label>Featured</ion-label>
+      <ion-toggle [(ngModel)]="product.featured"></ion-toggle>
+    </ion-item>
+  </ion-card>
+
+  <!-- SKU -->
+  <ion-card>
+    <ion-item>
+      <ion-label position="stacked">SKU</ion-label>
+      <ion-input [(ngModel)]="product.sku"></ion-input>
+      <ion-icon name="barcode-outline" slot="end"></ion-icon>
+      <ion-button size="small" slot="end" (click)="scanSku()">Scan</ion-button>
+    </ion-item>
+  </ion-card>
+
+  <!-- Price -->
+  <ion-card>
+    <ion-item>
+      <ion-label position="stacked">Regular Price</ion-label>
+      <ion-input [(ngModel)]="product.regular_price"></ion-input>
+    </ion-item>
+  </ion-card>
+
+  <ion-card>
+    <ion-item>
+      <ion-label position="stacked">Sale Price</ion-label>
+      <ion-input [(ngModel)]="product.sale_price" placeholder="Optional"></ion-input>
+    </ion-item>
+  </ion-card>
+
+  <!-- DELETE BUTTON (EDIT ONLY) -->
+  <ion-button
+    *ngIf="isEdit"
+    expand="block"
+    color="danger"
+    class="delete-btn"
+    (click)="confirmDelete()"
+  >
+    Delete Product
+  </ion-button>
+
+</ion-content>

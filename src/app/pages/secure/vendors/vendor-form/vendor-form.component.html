@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      {{ mode === 'add' ? 'Add Vendor' : 'Edit Vendor' }}
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="close()">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-list lines="full">
+
+    <ion-item>
+      <ion-label position="stacked">Vendor Name</ion-label>
+      <ion-input name="title" [(ngModel)]="form.title"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Phone</ion-label>
+      <ion-input name="phone" [(ngModel)]="form.phone"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Email</ion-label>
+      <ion-input name="email" [(ngModel)]="form.email"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Address</ion-label>
+      <ion-textarea name="address" [(ngModel)]="form.address"></ion-textarea>
+    </ion-item>
+
+  </ion-list>
+
+</ion-content>
+
+<ion-footer>
+  <ion-button expand="block" (click)="save()">
+    {{ mode === 'add' ? 'Create Vendor' : 'Update Vendor' }}
+  </ion-button>
+</ion-footer>

@@ -1,0 +1,188 @@
+<ion-header class="dark-toolbar">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Shop Settings</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="settings-content">
+  <!-- General Settings -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>
+        <ion-icon name="settings-outline"></ion-icon>
+        General settings
+      </ion-card-title>
+    </ion-card-header>
+
+     <ion-accordion-group>
+      <ion-accordion value="address">
+        <ion-item slot="header" button detail>
+          <ion-label>Shop Address</ion-label>
+          <ion-note slot="end">{{ settings.address.country }}</ion-note>
+        </ion-item>
+
+        <div class="accordion-body" slot="content">
+          <ion-item>
+            <ion-input label="Store Name" placeholder="Enter store name" [(ngModel)]="settings.address.pinaka_pos_name"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input label="Emial" placeholder="Enter Emial" [(ngModel)]="settings.address.pinaka_pos_email"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input label="Phone" placeholder="Enter Phone" [(ngModel)]="settings.address.pinaka_pos_phone"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input label="Address line 1" placeholder="Enter address line 1" [(ngModel)]="settings.address.pinaka_pos_business_address"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input label="City" placeholder="Enter city" [(ngModel)]="settings.address.pinaka_pos_business_city"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input label="State" placeholder="Enter State" [(ngModel)]="settings.address.pinaka_pos_business_state"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input label="Postcode" placeholder="Enter postcode" [(ngModel)]="settings.address.pinaka_pos_business_postcode"></ion-input>
+          </ion-item>
+          <ion-button expand="full" (click)="saveAddress()">Save Address</ion-button>
+        </div>
+      </ion-accordion>
+    </ion-accordion-group>
+
+      <ion-item lines="none">
+        <ion-label>Enable Safe</ion-label>
+        <ion-toggle
+          [(ngModel)]="settings.enable_safes"
+          (ionChange)="onToggleChange($event, 'enable_safes')"
+        ></ion-toggle>
+      </ion-item>
+
+      <ion-item lines="none">
+        <ion-label>Enable Safe Drop</ion-label>
+        <ion-toggle
+          [(ngModel)]="settings.enable_safes_drop"
+          (ionChange)="onToggleChange($event, 'enable_safes_drop')"
+        ></ion-toggle>
+      </ion-item>
+
+    <ion-item lines="none">
+      <ion-label>Enable taxes</ion-label>
+      <ion-toggle
+        [(ngModel)]="settings.enableTaxes"
+        (ionChange)="onToggleChange($event, 'enableTaxes')"
+      ></ion-toggle>
+    </ion-item>
+
+    <ion-item lines="none">
+      <ion-label>Enable coupons</ion-label>
+      <ion-toggle
+        [(ngModel)]="settings.enableCoupons"
+        (ionChange)="onToggleChange($event, 'enableCoupons')"
+      ></ion-toggle>
+    </ion-item>
+
+    <ion-item lines="none" [disabled]="!settings.enableCoupons">
+      <ion-label>Calculate coupon discounts sequentially</ion-label>
+      <ion-toggle
+        [(ngModel)]="settings.sequentialCoupons"
+        (ionChange)="onToggleChange($event, 'sequentialCoupons')"
+      ></ion-toggle>
+    </ion-item>
+
+    <ion-item button detail lines="none" (click)="changeCurrency()">
+      <ion-label>Currency</ion-label>
+      <ion-note slot="end">{{ settings.currency }}</ion-note>
+    </ion-item>
+  </ion-card>
+
+  <!-- Product Settings -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Product settings</ion-card-title>
+    </ion-card-header>
+
+    <ion-accordion-group>
+
+      <!-- Categories -->
+      <ion-accordion value="categories">
+        <ion-item slot="header" button detail>
+          <ion-label>Product Categories</ion-label>
+        </ion-item>
+
+        <div slot="content" class="accordion-body">
+          <ion-item>
+            <ion-input
+              placeholder="New category"
+              [(ngModel)]="newCategory"
+            ></ion-input>
+            <ion-button slot="end" size="small" (click)="addCategory()">Add</ion-button>
+          </ion-item>
+          <ion-item *ngFor="let cat of categories">
+            <ion-label>{{ cat.name }}</ion-label>
+            <ion-button fill="clear" color="danger" slot="end" (click)="removeCategory(cat.id)">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </div>
+      </ion-accordion>
+
+      <!-- Tags -->
+      <ion-accordion value="tags">
+        <ion-item slot="header" button detail>
+          <ion-label>Product Tags</ion-label>
+        </ion-item>
+
+        <div slot="content" class="accordion-body">
+          <ion-item>
+            <ion-input
+              placeholder="New tag"
+              [(ngModel)]="newTag"
+            ></ion-input>
+            <ion-button slot="end" size="small" (click)="addTag()">Add</ion-button>
+          </ion-item>
+
+          <ion-item *ngFor="let tag of tags">
+            <ion-label>{{ tag }}</ion-label>
+            <ion-button fill="clear" color="danger" slot="end" (click)="removeTag(tag)">
+              <ion-icon name="trash-outline"></ion-icon>
+            </ion-button>
+          </ion-item>
+        </div>
+      </ion-accordion>
+
+    </ion-accordion-group>
+  </ion-card>
+
+  <!-- Product Settings -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Other POS Settings</ion-card-title>
+    </ion-card-header>
+     <ion-item lines="none">
+        <ion-label>Enable Cash Back</ion-label>
+        <ion-toggle
+          [(ngModel)]="settings.enable_cashback"
+          (ionChange)="onToggleChange($event, 'enable_cashback')"
+        ></ion-toggle>
+      </ion-item>
+
+      <ion-item lines="none">
+        <ion-label>Service Charge</ion-label>
+        <ion-toggle
+          [(ngModel)]="settings.enable_service_charge"
+          (ionChange)="onToggleChange($event, 'enable_service_charge')"
+        ></ion-toggle>
+      </ion-item>
+
+    <ion-item lines="none">
+      <ion-label>Loyalty Points</ion-label>
+      <ion-toggle
+        [(ngModel)]="settings.enable_loyalty_points"
+        (ionChange)="onToggleChange($event, 'enable_loyalty_points')"
+      ></ion-toggle>
+    </ion-item>
+  </ion-card>
+
+</ion-content>

@@ -1,0 +1,188 @@
+<ion-header class="orders-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Orders</ion-title>
+  </ion-toolbar>
+
+  <!-- Search -->
+   <div class="search-wrapper">
+    <ion-icon name="search-outline"></ion-icon>
+    <input
+      placeholder="Search Orders"
+      (input)="onSearch($event)"
+    />
+  </div>
+</ion-header>
+
+<ion-content class="orders-content ion-padding">
+
+  <div
+    class="order-card"
+    *ngFor="let order of orders; trackBy: trackById"
+    [routerLink]="['/orders', order.id]"
+  >
+
+    <!-- Header -->
+    <div class="order-top">
+      <div>
+        <h3>
+          {{ order.billing?.first_name }}
+          {{ order.billing?.last_name }}
+        </h3>
+        <span class="order-id">#{{ order.id }}</span>
+      </div>
+
+      <ion-button
+        size="small"
+        shape="round"
+        [color]="getStatusColor(order.status)"
+      >
+        {{ order.status | titlecase }}
+      </ion-button>
+    </div>
+
+    <!-- Meta -->
+    <div class="order-meta">
+      {{ timeAgo(order.date_created) }} ·
+      {{ order.line_items.length }} items
+    </div>
+
+    <!-- Product thumbnails -->
+    <div class="product-row">
+      <div
+        class="product-thumb"
+        *ngFor="let item of order.line_items | slice:0:4"
+      >
+        <img
+          [src]="item.image?.src || 'assets/img/placeholder.png'"
+        />
+        <span class="qty">{{ item.quantity }}</span>
+      </div>
+    </div>
+
+    <!-- Customer Note -->
+    <div class="note" *ngIf="order.customer_note">
+      <strong>Customer note</strong>
+      <p>{{ order.customer_note }}</p>
+    </div>
+
+    <!-- Total -->
+    <div class="total">
+      Total: <span>{{currencySymbol}}{{ order.total }}</span>
+    </div>
+
+    <!-- Payment -->
+    <div class="payment">
+      {{ order.payment_method_title }}
+      <span *ngIf="order.shipping_lines?.length">
+        &nbsp; | &nbsp; {{ order.shipping_lines[0].method_title }}
+      </span>
+    </div>
+    <hr class="my-1"/>
+    <!-- Actions -->
+    <div class="actions">
+       <ion-icon
+        name="call-outline"
+        (click)="$event.stopPropagation()"
+      ></ion-icon>
+
+      <ion-icon
+        name="chevron-down-outline"
+        (click)="toggleExpand(order.id); $event.stopPropagation()"
+        [class.rotate]="isExpanded(order.id)"
+      ></ion-icon>
+    </div>
+    <div
+      class="order-expand"
+      *ngIf="isExpanded(order.id)"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- LINE ITEMS -->
+      <div class="expand-section">
+        <h4>Items</h4>
+
+        <div
+          class="expand-item"
+          *ngFor="let item of order.line_items"
+        >
+          <!-- <img [src]="getProductImage(item)" /> -->
+          <div class="info">
+            <div class="name">{{ item.name }}</div>
+            <div class="qty-price">
+              {{ item.quantity }} × {{currencySymbol}}{{ item.product_data.price }}
+            </div>
+            <span *ngFor="let meta of item.meta_data">
+              <span 
+                class="qty-price"
+                *ngIf="meta.key == 'auto_discount_amount'">
+                Auto Discount: {{currencySymbol}}{{ meta.value }}
+              </span>
+              <div class="meta-hr"></div>
+              <span 
+                class="qty-price"
+                *ngIf="meta.key == '_pinaka_multipack_product_discount'">
+                Multipack Discount  : {{currencySymbol}}{{ meta.value }}
+              </span>
+              <div class="meta-hr"></div>
+              <span 
+                class="qty-price"
+                *ngIf="meta.key == 'Discount Applied'">
+                Combo Discount  : {{currencySymbol}}{{ meta.value }}
+              </span>
+              <div class="meta-hr"></div>
+            </span>
+          </div>
+          <div class="total">
+            {{currencySymbol}}{{ item.total }}
+          </div>
+        </div>
+      </div>
+
+      <!-- COUPONS -->
+      <div class="expand-section" *ngIf="order.coupon_lines?.length">
+        <h4>Coupons</h4>
+        <div
+          class="row"
+          *ngFor="let c of order.coupon_lines"
+        >
+          <span>{{ c.code }}</span>
+          <span>-{{currencySymbol}}{{ c.discount }}</span>
+        </div>
+      </div>
+
+      <!-- TAX -->
+      <div class="expand-section" *ngIf="order.total_tax > 0">
+        <div class="row">
+          <span>Tax</span>
+          <span>{{currencySymbol}}{{ order.total_tax }}</span>
+        </div>
+      </div>
+
+      <!-- SUMMARY -->
+      <div class="expand-section summary">
+        <div class="row" *ngIf="order.discount_total > 0">
+          <span>Discount</span>
+          <span>-{{currencySymbol}}{{ order.discount_total }}</span>
+        </div>
+
+        <div class="row total">
+          <strong>Total</strong>
+          <strong>{{currencySymbol}}{{ order.total }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ion-infinite-scroll
+    threshold="100px"
+    (ionInfinite)="loadOrders($event)"
+  >
+    <ion-infinite-scroll-content
+      loadingSpinner="crescent"
+      loadingText="Loading more orders..."
+    >
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>

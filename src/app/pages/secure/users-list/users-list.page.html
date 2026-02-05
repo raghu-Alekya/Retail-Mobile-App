@@ -1,0 +1,89 @@
+<ion-header class="dark-toolbar">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+
+
+    <ion-title>
+      {{ userRole === 'customer' ? 'Customers' : 'Employees' }}
+    </ion-title>
+
+    <ion-buttons slot="end" *ngIf="userRole === 'employee'">
+      <ion-button (click)="openAddUserModal()">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Search -->
+  <div class="search-wrapper">
+    <ion-icon name="search-outline"></ion-icon>
+    <input
+      placeholder="Search..."
+      (input)="onSearch($event)"
+    />
+    <ion-icon name="barcode-outline"></ion-icon>
+  </div>
+</ion-header>
+
+<ion-content class="customers-content">
+
+  <!-- User List -->
+  <div class="customers-list">
+    <div
+      class="customer-card"
+      *ngFor="let user of users; let i = index"
+    >
+      <!-- Avatar -->
+      <div
+        class="avatar"
+        [ngClass]="'avatar-' + (i % 5)"
+      >
+        <ion-icon name="person-outline"></ion-icon>
+      </div>
+
+      <!-- Details -->
+      <div class="details">
+        <div class="title">
+          {{ user.email || user.meta?.phone }}
+        </div>
+        <div class="subtitle" *ngIf="userRole === 'customer'">
+          Redeem Points:
+          <strong>{{ user.meta?.redeem_points || 0 }} Pts</strong>
+        </div>
+        <div class="subtitle" *ngIf="userRole === 'employee'">
+          Login PIN:
+          <strong> {{ user.meta?.emp_login_pin }}</strong>
+        </div>
+        <div class="subtitle" *ngIf="userRole === 'employee'">
+          Role:
+          <!-- roles:["manager"] -->
+          <strong> {{ getRoleLabel(user?.roles) }}</strong>
+        </div>
+      </div>
+
+      <!-- Actions (only for employee screen) -->
+      <div class="actions" *ngIf="userRole === 'employee'">
+        <ion-icon
+          name="create-outline"
+          (click)="openEditUserModal(user)"
+        ></ion-icon>
+        <ion-icon
+          name="trash-outline"
+          color="danger"
+          (click)="confirmDeleteUser(user)"
+        ></ion-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Infinite Scroll -->
+  <ion-infinite-scroll
+    (ionInfinite)="loadMore($event)"
+    [disabled]="page >= totalPages"
+  >
+    <ion-infinite-scroll-content></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
+</ion-content>

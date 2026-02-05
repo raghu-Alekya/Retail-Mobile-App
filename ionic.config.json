@@ -1,0 +1,7 @@
+{
+  "name": "Pinaka WC Admin App",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

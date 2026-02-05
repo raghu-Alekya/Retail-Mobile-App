@@ -1,0 +1,64 @@
+.reports-content {
+  --background: #f4f5f8;
+}
+
+.date-input {
+  margin: 12px;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.report-tabs {
+  margin: 10px;
+}
+
+.summary-card {
+  text-align: center;
+  background: linear-gradient(135deg, #3880ff, #4c8dff);
+  color: #fff;
+}
+
+.hour-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.staff-card {
+  margin: 10px;
+  border-left: 4px solid #3880ff;
+}
+
+.chart-container {
+  height: 260px;
+  position: relative;
+}
+
+.products-header {
+  ion-toolbar {
+    --background: #34465d;
+    --color: #fff;
+  }
+}
+
+.search-wrapper {
+  margin: 10px 16px;
+  background: #9aa7b8;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  gap: 10px;
+
+  input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: #fff;
+    outline: none;
+  }
+
+  ion-icon {
+    color: #fff;
+  }
+}

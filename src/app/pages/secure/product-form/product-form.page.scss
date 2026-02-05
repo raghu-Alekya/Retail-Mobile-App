@@ -1,0 +1,39 @@
+.dark-toolbar {
+  --background: #34465d;
+  --color: #fff;
+}
+
+ion-card {
+  border-radius: 14px;
+  margin: 10px;
+}
+
+.image-card {
+  padding: 20px;
+}
+
+.upload-box {
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+  text-align: center;
+  padding: 30px;
+  color: #777;
+
+  ion-icon {
+    font-size: 32px;
+  }
+}
+
+.delete-btn {
+  margin: 20px;
+}
+
+.alert-success {
+  --background: #e6f9f0;
+  --color: #1e7e34;
+}
+
+.alert-danger {
+  --background: #fdecea;
+  --color: #b02a37;
+}

@@ -1,0 +1,89 @@
+<ion-header collapse="fade" class="dark-toolbar">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title color="light">Settings</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <!-- =========================
+         GENERAL SETTINGS
+    ========================== -->
+    <form [formGroup]="form">
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Safe Drop Settings</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-label>Enable Safes</ion-label>
+          <ion-toggle slot="end" formControlName="enable_safes"></ion-toggle>
+        </ion-item>
+
+        <ion-item lines="none">
+          <ion-label>Enable Safe Drop</ion-label>
+          <ion-toggle slot="end" formControlName="enable_safes_drop"></ion-toggle>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Currency Symbol</ion-label>
+          <ion-input formControlName="currency_symbol"></ion-input>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Cash Back Setting</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-label>Enable/Dissable Cash Back</ion-label>
+          <ion-toggle slot="end" formControlName="pinaka_pos_cashback_settings"></ion-toggle>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Service Charge Setting</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-label>Enable/Dissable Service</ion-label>
+          <ion-toggle slot="end" formControlName="pinaka_pos_service_charge_settings"></ion-toggle>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+     <ion-card>
+      <ion-card-header>
+        <ion-card-title>Loyalty Points Settings</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-label>Enable/Dissable Service</ion-label>
+          <ion-toggle slot="end" formControlName="pinaka_pos_enable_loyalty_points"></ion-toggle>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-button slot="end"
+          expand="block"
+          color="primary"
+          class="ion-margin-top"
+          (click)="save()"
+          size="small"
+        >
+          Save
+        </ion-button>
+  </form>
+
+</ion-content>

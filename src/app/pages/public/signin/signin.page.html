@@ -1,0 +1,67 @@
+<ion-content class="login-content">
+
+  <!-- Top Header -->
+  <div class="login-header">
+    <h2>Welcome Back!</h2>
+    <p>Admin</p>
+  </div>
+
+  <!-- Card -->
+  <div class="login-card">
+
+    <h3>Sign In</h3>
+    <p class="subtitle">Login into your Account</p>
+
+    <form [formGroup]="signin_form" (ngSubmit)="signIn()">
+      
+      <ion-item lines="none" class="input-item">
+        <ion-label position="stacked">Site URL</ion-label>
+        <ion-input
+          type="url"
+          placeholder="Site URL (e.g., example.com)"
+          formControlName="site_url">
+        </ion-input>
+      </ion-item>
+      <ion-item lines="none" class="input-item">
+        <ion-label position="stacked">Email Address</ion-label>
+        <ion-input
+          type="email"
+          placeholder="Email"
+          formControlName="email">
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="none" class="input-item">
+        <ion-label position="stacked">Password</ion-label>
+
+        <ion-input
+          [type]="showPassword ? 'text' : 'password'"
+          placeholder="Password"
+          formControlName="password">
+        </ion-input>
+
+        <!-- Eye Icon -->
+        <ion-icon
+          slot="end"
+          class="password-eye"
+          [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"
+          (click)="togglePassword()">
+        </ion-icon>
+      </ion-item>
+
+      <div class="forgot-wrapper">
+        <a routerLink="/password-reset">Forgot Password?</a>
+      </div>
+
+      <ion-button
+        expand="block"
+        class="login-btn"
+        type="submit">
+        Sign In
+      </ion-button>
+
+    </form>
+
+  </div>
+
+</ion-content>

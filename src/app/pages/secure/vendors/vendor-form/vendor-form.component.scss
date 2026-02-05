@@ -1,0 +1,28 @@
+.shift-header {
+  ion-toolbar {
+    --background: #34465d;
+    --color: #fff;
+  }
+}
+
+.search-wrapper {
+  margin: 10px 16px;
+  background: #9aa7b8;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  gap: 10px;
+
+  input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: #fff;
+    outline: none;
+  }
+
+  ion-icon {
+    color: #fff;
+  }
+}

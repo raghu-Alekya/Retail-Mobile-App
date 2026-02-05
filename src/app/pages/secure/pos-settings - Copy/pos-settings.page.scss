@@ -1,0 +1,76 @@
+/* Page spacing */
+ion-content {
+  --background: #f4f5f8;
+}
+
+/* Card styling */
+ion-card {
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  margin: 16px;
+}
+
+/* Card header */
+ion-card-header {
+  padding-bottom: 8px;
+}
+
+ion-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+/* Card content spacing */
+ion-card-content {
+  padding-top: 4px;
+}
+
+/* Form items */
+ion-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  margin-bottom: 12px;
+  border-radius: 10px;
+}
+
+/* Toggle alignment */
+ion-toggle {
+  transform: scale(0.9);
+}
+
+/* Inputs */
+ion-input {
+  --padding-start: 10px;
+  font-size: 14px;
+}
+
+/* Save button */
+ion-button {
+  margin-top: 12px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* Compact save button inside card */
+ion-card-content ion-button {
+  --padding-top: 6px;
+  --padding-bottom: 6px;
+}
+
+/* Responsive tweaks */
+@media (min-width: 768px) {
+  ion-card {
+    max-width: 600px;
+    margin: 24px auto;
+  }
+}
+
+.dark-toolbar {
+ background: #2f4157;
+
+  ion-toolbar {
+    --background: #2f4157;
+    --color: #fff;
+  }
+}

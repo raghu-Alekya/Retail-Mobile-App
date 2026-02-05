@@ -1,0 +1,114 @@
+<ion-header class="products-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Discounts</ion-title>
+
+    <ion-buttons slot="end">
+      <!-- <ion-button>
+        <ion-icon name="funnel-outline"></ion-icon>
+      </ion-button> -->
+      <ion-button (click)="open">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Search -->
+</ion-header>
+
+
+<ion-content class="coupon-content">
+
+  <!-- Coupon List -->
+  <ion-card *ngFor="let c of discounts" class="coupon-card">
+    <ion-card-content>
+      <div class="coupon-row">
+        <div>
+          <h2>{{ c.code }}</h2>
+          <p>{{ c.discount_type }} - {{ c.coupon_amount }}</p>
+          <small *ngIf="c.expiry_date">Expires: {{ c.expiry_date | date }}</small>
+        </div>
+        <div class="actions">
+          <ion-icon name="create-outline" (click)="openEdit(c)"></ion-icon>
+          <ion-icon name="trash-outline" color="danger" (click)="deleteCoupon(c)"></ion-icon>
+        </div>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Create / Edit Form -->
+  <ion-modal  [isOpen]="showForm"
+  initialBreakpoint="0.95"
+  breakpoints="[0, 0.95]" [isOpen]="showForm" (didDismiss)="showForm=false">
+  <ng-template>
+
+    <ion-header>
+      <ion-toolbar color="primary">
+        <ion-title>
+          {{ editingCoupon ? 'Edit Coupon' : 'Create Coupon' }}
+        </ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="showForm=false">Close</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="form-content">
+
+      <ion-item>
+        <ion-label position="stacked">Coupon Code</ion-label>
+        <ion-input [(ngModel)]="form.code"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Discount Type</ion-label>
+        <ion-select [(ngModel)]="form.discount_type">
+          <ion-select-option value="percent">Percentage</ion-select-option>
+          <ion-select-option value="fixed_cart">Fixed Cart</ion-select-option>
+          <ion-select-option value="fixed_product">Fixed Product</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Amount</ion-label>
+        <ion-input type="number" [(ngModel)]="form.amount"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Expiry Date</ion-label>
+        <ion-input type="date" [(ngModel)]="form.date_expires"></ion-input>
+      </ion-item>
+
+      <ion-item lines="none">
+        <ion-checkbox slot="start" [(ngModel)]="form.individual_use"></ion-checkbox>
+        <ion-label>Individual Use Only</ion-label>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Usage Limit</ion-label>
+        <ion-input type="number" [(ngModel)]="form.usage_limit"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Description</ion-label>
+        <ion-textarea [(ngModel)]="form.description"></ion-textarea>
+      </ion-item>
+
+      <ion-button
+        expand="block"
+        color="primary"
+        class="save-btn"
+        (click)="saveCoupon()">
+        {{ editingCoupon ? 'Update Coupon' : 'Create Coupon' }}
+      </ion-button>
+
+    </ion-content>
+
+  </ng-template>
+</ion-modal>
+
+
+</ion-content>

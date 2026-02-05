@@ -1,0 +1,104 @@
+<ion-header class="products-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Products</ion-title>
+
+    <ion-buttons slot="end">
+      <!-- <ion-button>
+        <ion-icon name="funnel-outline"></ion-icon>
+      </ion-button> -->
+      <ion-button [routerLink]="['/products/add']">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Search -->
+  <div class="search-wrapper">
+    <ion-icon name="search-outline"></ion-icon>
+    <input
+      placeholder="Search on All products"
+      (input)="onSearch($event)"
+    />
+    <ion-icon name="barcode-outline"></ion-icon>
+  </div>
+</ion-header>
+
+<ion-content class="products-content ion-padding">
+
+  <!-- Sort -->
+  <div class="sort-row">
+    <ion-icon name="swap-vertical-outline"></ion-icon>
+    <span>Sort by:</span>
+    <strong>Newest first</strong>
+  </div>
+
+  <!-- Product Card -->
+  <div
+    class="product-card"
+    *ngFor="let product of products; trackBy: trackById" (click)="openProductDetails(product.id)"
+  >
+
+    <div class="product-top">
+      <img
+        [src]="product.images?.[0]?.src || 'assets/img/placeholder.png'"
+      />
+
+      <div class="product-info">
+        <h3>{{ product.name }}</h3>
+        <h6>Regular Price: {{ (product?.regular_price || product?.price || 0) | currency }}</h6>
+        <h6>Sale Price: {{ (product?.sale_price || 0) | currency }}</h6>
+
+        <span
+          class="stock"
+          [class.out]="product.stock_status !== 'instock'"
+        >
+          {{ product.stock_status }}
+        </span>
+
+        <p>Total sales: {{ product.total_sales }}</p>
+      </div>
+    </div>
+
+    <div class="product-bottom">
+      <span>#{{ product.id }}</span>
+
+      <div class="badges">
+        <span class="type">{{ product.type }}</span>
+        <span
+          class="status"
+          [class.publish]="product.status === 'publish'"
+        >
+          {{ product.status }}
+        </span>
+      </div>
+    </div>
+
+  </div>
+
+  <ion-infinite-scroll
+      threshold="100px"
+      (ionInfinite)="loadProducts($event)"
+    >
+      <ion-infinite-scroll-content
+        loadingSpinner="crescent"
+        loadingText="Loading more orders..."
+      >
+      </ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+</ion-content>
+<!-- Bottom Tabs -->
+<ion-footer>
+  <ion-segment
+    value="all"
+    (ionChange)="onStockFilter($event)"
+  >
+    <ion-segment-button value="all">All</ion-segment-button>
+    <ion-segment-button value="instock">Instock</ion-segment-button>
+    <ion-segment-button value="outofstock">Out of stock</ion-segment-button>
+    <ion-segment-button value="onbackorder">Back order</ion-segment-button>
+  </ion-segment>
+</ion-footer>

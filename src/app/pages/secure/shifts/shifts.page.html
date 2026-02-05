@@ -1,0 +1,118 @@
+<ion-header class="shift-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Shifts</ion-title>
+  </ion-toolbar>
+
+  <!-- Search -->
+  <div class="search-wrapper">
+    <ion-icon name="search-outline"></ion-icon>
+    <input
+      placeholder="Search Shift"
+      (input)="onSearch($event)"
+    />
+    <ion-icon name="barcode-outline"></ion-icon>
+  </div>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-card *ngFor="let shift of shifts" class="shift-card">
+
+    <!-- Header -->
+    <ion-item lines="none">
+      <ion-label>
+        <h2>{{ shift.user_name }}</h2>
+        <p>{{ shift.start_time }} → {{ shift.end_time || 'Ongoing' }}</p>
+      </ion-label>
+
+      <ion-badge [color]="getStatusColor(shift.shift_status)">
+        {{ shift.shift_status | uppercase }}
+      </ion-badge>
+    </ion-item>
+
+    <!-- Summary -->
+    <ion-grid>
+      <ion-row>
+        <ion-col size="6">
+          <div class="label">Total Sales</div>
+          <div class="value">{{ shift.total_sales }}</div>
+        </ion-col>
+
+        <ion-col size="6">
+          <div class="label">Sales Amount</div>
+          <div class="value">₹ {{ shift.total_sale_amount }}</div>
+        </ion-col>
+
+        <ion-col size="6">
+          <div class="label">Safe Drops</div>
+          <div class="value">₹ {{ shift.safe_drop_total }}</div>
+        </ion-col>
+
+        <ion-col size="6">
+          <div class="label">Vendor Payout</div>
+          <div class="value">₹ {{ shift.total_vendor_payments }}</div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- Safe Drops -->
+    <ion-item lines="full" *ngIf="shift.safe_drops?.length">
+      <ion-label color="primary">Safe Drops</ion-label>
+    </ion-item>
+
+    <ion-list *ngIf="shift.safe_drops?.length">
+      <ion-item *ngFor="let drop of shift.safe_drops">
+        <ion-label>
+          <h3>₹ {{ drop.total }}</h3>
+          <p>{{ drop.time }}</p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+    <!-- Vendor Payouts -->
+    <ion-item lines="full" *ngIf="shift.vendor_payouts?.length">
+      <ion-label color="danger">Vendor Payouts</ion-label>
+    </ion-item>
+
+    <ion-list *ngIf="shift.vendor_payouts?.length">
+      <ion-item *ngFor="let vendor of shift.vendor_payouts">
+        <ion-label>
+          <h3>{{ vendor.vendor_name }}</h3>
+          <p>
+            ₹ {{ vendor.amount }} • {{ vendor.payment_method }}<br />
+            {{ vendor.time }}
+          </p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+    <!-- Footer -->
+    <ion-item lines="none">
+      <ion-label>
+        <p>Over / Short</p>
+      </ion-label>
+      <ion-note
+        slot="end"
+        [color]="shift.over_short < 0 ? 'danger' : 'success'">
+        ₹ {{ shift.over_short }}
+      </ion-note>
+    </ion-item>
+
+  </ion-card>
+
+  <ion-infinite-scroll
+    threshold="100px"
+    (ionInfinite)="loadShifts($event)"
+    [disabled]="!hasMore">
+
+    <ion-infinite-scroll-content
+      loadingSpinner="bubbles"
+      loadingText="Loading more shifts...">
+    </ion-infinite-scroll-content>
+
+  </ion-infinite-scroll>
+</ion-content>
