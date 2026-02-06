@@ -1,0 +1,60 @@
+<ion-header>
+  <ion-toolbar >
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/profile"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Edit Profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <div class="form-box">
+
+    <ion-item>
+  <ion-label position="floating">Name</ion-label>
+  <ion-input></ion-input>
+</ion-item>
+
+
+    <ion-item>
+  <ion-label position="floating">User Name</ion-label>
+  <ion-input></ion-input>
+</ion-item>
+
+
+   <ion-item>
+  <ion-label position="floating">Gender</ion-label>
+  <ion-select>
+    <ion-select-option value="male">Male</ion-select-option>
+    <ion-select-option value="female">Female</ion-select-option>
+  </ion-select>
+</ion-item>
+
+
+    <ion-item>
+  <ion-label position="floating">Age</ion-label>
+  <ion-input type="number"></ion-input>
+</ion-item>
+
+
+    <ion-item>
+  <ion-label position="floating">Phone Number</ion-label>
+  <ion-input type="tel"></ion-input>
+</ion-item>
+
+<ion-item>
+  <ion-label position="floating">Email Address</ion-label>
+  <ion-input type="email"></ion-input>
+</ion-item>
+
+
+  </div>
+
+  <div class="save-btn">
+    <ion-button expand="block" >
+      Save Changes
+    </ion-button>
+  </div>
+
+</ion-content>
