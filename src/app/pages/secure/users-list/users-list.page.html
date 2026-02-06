@@ -18,12 +18,12 @@
 
   <!-- Search -->
   <div class="search-wrapper">
-    <ion-icon name="search-outline"></ion-icon>
+    <ion-icon name="search"></ion-icon>
     <input
       placeholder="Search..."
       (input)="onSearch($event)"
     />
-    <ion-icon name="barcode-outline"></ion-icon>
+    
   </div>
 </ion-header>
 
@@ -31,6 +31,16 @@
 
   <!-- User List -->
   <div class="customers-list">
+
+    <!-- Customers List Heading -->
+    <div class="list-heading" *ngIf="userRole === 'customer'">
+      Customers List
+    </div>
+
+    <!-- Employees List Heading -->
+    <div class="list-heading" *ngIf="userRole === 'employee'">
+      Employees List
+    </div>
     <div
       class="customer-card"
       *ngFor="let user of users; let i = index"
