@@ -1,14 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { AlertController, ModalController } from '@ionic/angular';
+import { AlertController, ModalController, ToastController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
-
+import { environment } from 'src/environments/environment';
+import axios from 'axios';
+import { ApiConfigService } from 'src/app/services/api-config.service';
 @Component({
   selector: 'app-discounts',
   templateUrl: './discounts.page.html',
   styleUrls: ['./discounts.page.scss'],
 })
-export class DiscountsPage {
-
+export class DiscountsPage implements OnInit {
+    wpBases = '';
+    apiUrl = `${this.wpBases}/wp-json/pinaka-pos/v1/custom-discount/get-all-discounts-for-admin`;
+    filteredDiscounts: any[] = [];
+    activeFilter: string = 'all';
     loading = false;
     showForm = false;
     editingCoupon: any = null;
@@ -16,81 +21,260 @@ export class DiscountsPage {
     perPage = 10;
     hasMore = true;
     discounts: any[] = [];
+    grouped: any = {};
+    productSearch = '';
+    productSuggestions: any[] = [];
+    showSuggestions = false;
+    selectedProductName = '';
+    searchTimeout: any;
+    type: string = '';
+    filter_type: string = '';
+    selectedProductPrice: number | null = null;
+    discountSearch = '';
+    discountSuggestions: any[] = [];
+    selectedDiscountProducts: any[] = [];
+    
     form = {
       code: '',
       discount_type: 'percent',
       amount: '',
+      date_starts : '',
       date_expires: '',
-      individual_use: false,
+      pinaka_discount_auto_apply: 'no',
       usage_limit: '',
-      description: ''
+      product_id:'',
+      product_label: null,
+      type: '',
+      qty: '',
+      selectedProductPrice: '',
+      discount_product_ids: []
     };
   
     formSubmitted = false;
     constructor(
       private auth: AuthService,
       private alertCtrl: AlertController,
-      private modalController: ModalController
+      private toastCtrl: ToastController,
+      private apiConfig: ApiConfigService
     ) {}
-  
-    ionViewWillEnter() {
-      this.loadCoupons();
-    }
-  
-    async loadCoupons(event?: any, reset: boolean = false) {
-      if (this.loading || (!reset && !this.hasMore)) return;
-
+    wpBase = this.apiConfig.getBaseUrl();
+  ngOnInit() {
+    this.loadDiscounts();
+  }
+  async loadDiscounts() {
+    try {
       this.loading = true;
 
-      try {
-        // Reset data and pagination if requested
-        if (reset) {
-          this.discounts = [];
-          this.page = 1;
-          this.hasMore = true;
+      const res = await axios.get(this.apiUrl, {
+        headers: this.getAuthHeaders(),
+        params: {
+          page: 1,
+          per_page: 200
         }
+      });
+      this.grouped = res.data?.data || {};
+      
+      this.discounts = this.flattenAll();
 
-        const res = await this.auth.getDiscounts(this.page, this.perPage);
-        const data = res.data;
+    } catch (err) {
+      this.presentToast('Failed to load discounts');
+    } finally {
+      this.loading = false;
+    }
+  }
+  setFilter(type: string) {
+    this.activeFilter = type;
+    if (type === 'all') {
+      this.discounts = this.flattenAll();
+    } else {
+      this.discounts = this.grouped[type] || [];
+    }
+  }
+  onDiscountTypeChange(event: any)
+  {
+    const value = event.target.value?.trim();
+    this.activeFilter = value;
+  }
+  onProductSearch(event: any) {
+    const value = event.target.value?.trim();
 
-        if (reset) {
-          this.discounts = data.data;
-        } else {
-          this.discounts = [...this.discounts, ...data.data];
+    clearTimeout(this.searchTimeout);
+
+    if (!value) {
+      this.showSuggestions = false;
+      this.productSuggestions = [];
+      return;
+    }
+
+    this.searchTimeout = setTimeout(() => {
+      this.fetchProducts(value);
+    }, 300);
+  }
+
+  async fetchProducts(query: string) {
+    try {
+      const res = await axios.get(
+        `${this.wpBase}/wp-json/wc/v3/products?search=${query}&per_page=10`,
+        {
+          headers: this.getAuthHeaders()
         }
+      );
 
-        // pagination handling
-        this.hasMore = data.pagination.has_more;
-        this.page++;
+      this.productSuggestions = res.data || [];
+      this.showSuggestions = true;
+    } catch (err) {
+      console.error('Product search failed', err);
+    }
+  }
 
-      } catch (err) {
-        console.error('Failed to load discounts', err);
-        this.hasMore = false;
+  selectProduct(p: any) {
+    this.form.product_id = p.id;
+    this.selectedProductName = p.name;
+    this.productSearch = p.name;
+    this.showSuggestions = false;
+  }
+  async onDiscountSearch(event: any) {
+    clearTimeout(this.searchTimeout);
+    const term =
+    event?.detail?.value ??
+    event?.target?.value ??
+    '';
+    this.searchTimeout = setTimeout(async () => {
+      if (!term || term.length < 2) {
+        this.discountSuggestions = [];
+        return;
       }
 
-      this.loading = false;
-      if (event) event.target.complete();
+      try {
+        const res: any = await this.auth.searchProducts(term);
+        this.discountSuggestions = res?.data || [];
+        console.log(this.discountSuggestions);
+      } catch (e) {
+        console.error('Discount product search failed', e);
+        this.discountSuggestions = [];
+      }
+    }, 300);
+  }
+
+  selectDiscountProduct(product: any) {
+    if (this.selectedDiscountProducts.find(p => p.id === product.id)) return;
+
+    this.selectedDiscountProducts.push(product);
+    this.form.discount_product_ids =
+      this.selectedDiscountProducts.map(p => p.id);
+
+    this.discountSearch = '';
+    this.discountSuggestions = [];
+  }
+  removeDiscountProduct(id: number) {
+    this.selectedDiscountProducts =
+      this.selectedDiscountProducts.filter(p => p.id !== id);
+
+    this.form.discount_product_ids =
+      this.selectedDiscountProducts.map(p => p.id);
+  }
+
+  flattenAll(): any[] {
+    const all: any[] = [];
+
+    Object.keys(this.grouped).forEach(key => {
+      if (Array.isArray(this.grouped[key])) {
+        all.push(...this.grouped[key]);
+      }
+    });
+
+    return all;
+  }
+
+  applyFilter() {
+    if (this.activeFilter === 'all') {
+      this.filteredDiscounts = [...this.discounts];
+      return;
     }
+    this.filteredDiscounts = this.discounts.filter(d => {
+      const raw =
+        (d.type || '')
+          .toString()
+          .toLowerCase()
+          .trim();
+      const normalized = raw
+        .replace(/&/g, 'and')
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
+      return normalized === this.activeFilter;
+    });
+  }
   
     openCreate() {
       this.resetForm();
       this.showForm = true;
+      this.productSearch = '';
+      this.selectedProductName = '';
+      this.discountSearch = '';
+      this.discountSuggestions = [];
+      this.selectedDiscountProducts = [];
+      this.form.discount_product_ids = [];
+      this.filter_type = '';
+      this.activeFilter = '';
     }
   
-    openEdit(coupon: any) {
+    async openEdit(coupon: any) {
+      this.filter_type = coupon.type;
       this.editingCoupon = coupon;
       this.form = {
         code: coupon.code,
         discount_type: coupon.discount_type,
         amount: coupon.coupon_amount,
+        date_starts : coupon.start_date?.substring(0, 10),
         date_expires: coupon.expiry_date?.substring(0, 10),
-        individual_use: coupon.individual_use,
+        pinaka_discount_auto_apply: coupon.pinaka_discount_auto_apply,
         usage_limit: coupon.usage_limit,
-        description: coupon.description
+        product_id: coupon.product_id,
+        product_label: coupon.product_label,
+        selectedProductPrice: coupon.product_price,
+        type: coupon.type,
+        qty: coupon.qty,
+        discount_product_ids: coupon.discount_product_ids
       };
+      this.showSuggestions = false;
+      this.productSuggestions = [];
+
+      if (coupon.product_label) {
+        this.restoreProduct(coupon.product_label);
+      } else {
+        this.productSearch = '';
+        this.selectedProductName = '';
+      }
+      if (coupon.discount_product_ids?.length) {
+        try {
+          const res: any = await this.auth.getProductsByIds(
+            coupon.discount_product_ids
+          );
+          this.selectedDiscountProducts = res?.data?.data || [];
+        } catch (e) {
+          console.error('Failed to load discounted products', e);
+        }
+      }
       this.showForm = true;
     }
-  
+    async restoreProduct(query: string) {
+      try {
+        const res = await axios.get(
+        `${this.wpBase}/wp-json/wc/v3/products?search=${query}&per_page=10`,
+        {
+          headers: this.getAuthHeaders()
+        }
+      );
+        if (res.data && res.data.length) {
+          const p = res.data[0];
+          this.selectedProductName = p.name;
+          this.productSearch = p.name;
+        }
+      } catch (e) {
+        console.error('Restore product failed', e);
+      }
+    }
+
     async saveCoupon() {
       this.formSubmitted = true;
 
@@ -105,15 +289,15 @@ export class DiscountsPage {
       }
 
       this.showForm = false;
-      this.resetForm();
-      
-      // Reset and reload the list
-      this.loadCoupons(null, true); // Pass true to reset
+      this.resetForm();      
+      this.loadDiscounts();
     }
   
     isFormValid(): boolean {
       return (
-        this.form.code.trim() !== '' &&
+        this.activeFilter === 'multipack'
+      ? true
+      : !!this.form.code?.trim() &&
         this.form.amount !== '' &&
         Number(this.form.amount) > 0
       );
@@ -121,10 +305,15 @@ export class DiscountsPage {
   
     hasError(field: string): boolean {
       if (!this.formSubmitted) return false;
-  
+      console.log(this.activeFilter);
       switch (field) {
+        case 'type':
+          return !this.form.type.trim();
         case 'code':
-          return !this.form.code.trim();
+          if (this.activeFilter === 'multipack') {
+            return false;
+          }
+          return !this.form.code?.trim();
         case 'amount':
           return !this.form.amount || Number(this.form.amount) <= 0;
         default:
@@ -132,26 +321,26 @@ export class DiscountsPage {
       }
     }
   
-  
     async deleteCoupon(coupon: any) {
       const alert = await this.alertCtrl.create({
-        header: 'Delete Coupon?',
-        message: `Delete coupon <b>${coupon.code}</b>?`,
+        header: 'Delete Discount?',
+        message: `Delete discount <b>${coupon.code}</b>?`,
         buttons: [
           { text: 'Cancel', role: 'cancel' },
           {
             text: 'Delete',
             role: 'destructive',
             handler: async () => {
-              await this.auth.deleteCoupon(coupon.id);
-              // Reset and reload the list after deletion
-              this.loadCoupons(null, true);
+              await this.auth.deleteDiscount(coupon.id, this.activeFilter);
+              this.loadDiscounts();
+              
             }
           }
         ]
       });
 
       alert.present();
+
     }
   
     resetForm() {
@@ -161,10 +350,28 @@ export class DiscountsPage {
         code: '',
         discount_type: 'percent',
         amount: '',
+        date_starts: '',
         date_expires: '',
-        individual_use: false,
+        pinaka_discount_auto_apply: 'no',
         usage_limit: '',
-        description: ''
+        product_id:'',
+        product_label:null,
+        type: '',
+        qty: '',
+        selectedProductPrice: '',
+        discount_product_ids : []
       };
     }
+    async presentToast(message: string) {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2000,
+      position: 'bottom'
+    });
+    toast.present();
+  }
+  getAuthHeaders() {
+    const token = localStorage.getItem('wc_token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
 }
