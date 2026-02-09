@@ -17,12 +17,10 @@
   </ion-toolbar>
   <!-- Search -->
   <div class="search-wrapper">
-    <ion-icon name="search-outline"></ion-icon>
-    <input
-      placeholder="Search on All vendors"
-      (input)="onSearch($event)"
-    />
-    <ion-icon name="barcode-outline"></ion-icon>
+    <ion-searchbar
+      placeholder="Search..."
+      (ionInput)="search($event)">
+    </ion-searchbar>
   </div>
 </ion-header>
 <ion-content>
