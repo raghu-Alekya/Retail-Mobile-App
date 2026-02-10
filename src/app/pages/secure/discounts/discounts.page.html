@@ -21,29 +21,30 @@
 <!-- Filter Tabs -->
 <div class="filter-tabs">
   <ion-chip
-    [class.active]="activeFilter === 'all' ? 'primary' : 'medium'"
-    (click)="setFilter('all')">
-    All
-  </ion-chip>
-  <ion-chip
-    [class.active]="activeFilter === 'auto' ? 'primary' : 'medium'"
-    (click)="setFilter('auto')">
-    Auto Discount
-  </ion-chip>
-  <ion-chip
-    [class.active]="activeFilter === 'mix_match' ? 'primary' : 'medium'"
-    (click)="setFilter('mix_match')">
-    Mix & Match
-  </ion-chip>
-  <ion-chip
-    [class.active]="activeFilter === 'multipack' ? 'primary' : 'medium'"
-    (click)="setFilter('multipack')">
-    Multipack
-  </ion-chip>
+  [class.active]="activeFilter === 'all'"
+  (click)="setFilter('all')">
+  All
+</ion-chip>
+
+<ion-chip
+  [class.active]="activeFilter === 'auto'"
+  (click)="setFilter('auto')">
+  Auto Discount
+</ion-chip>
+
+<ion-chip
+  [class.active]="activeFilter === 'mix_match'"
+  (click)="setFilter('mix_match')">
+  Mix & Match
+</ion-chip>
+
+<ion-chip
+  [class.active]="activeFilter === 'multipack'"
+  (click)="setFilter('multipack')">
+  Multipack
+</ion-chip>
 </div>
 <ion-content class="coupon-content">
-  <!-- Coupon List -->
-  <!-- <ion-card *ngFor="let c of discounts" class="coupon-card"> -->
     <ion-card *ngFor="let c of discounts" class="coupon-card">
     <ion-card-content>
       <div class="coupon-row">
@@ -85,13 +86,6 @@
             placeholder="Search product..."
             [(ngModel)]="productSearch"
             (ionInput)="onProductSearch($event)">
-          </ion-input>
-        </ion-item>
-        <ion-item *ngIf="selectedProductPrice !== null">
-          <ion-label position="stacked">Product Price</ion-label>
-          <ion-input
-            [value]="selectedProductPrice"
-            readonly>
           </ion-input>
         </ion-item>
         <ion-list *ngIf="showSuggestions && productSuggestions.length">
@@ -137,6 +131,10 @@
             type="hidden"
             [(ngModel)]="form.discount_product_ids">
           </ion-input>
+        </ion-item>
+        <ion-item> 
+          <ion-label position="stacked">Product Price</ion-label>
+          <ion-input [value]="form.selectedProductPrice" readonly></ion-input>
         </ion-item>
         <ion-item>
           <ion-label position="stacked">Type</ion-label>
@@ -194,7 +192,7 @@
             </ion-item>
         </div>
         <ion-item>
-          <ion-label position="stacked">Amount</ion-label>
+          <ion-label position="stacked">{{ form.discount_type === 'percent' ? 'Percentage (%)' : 'Amount' }}</ion-label>
           <ion-input type="number" [(ngModel)]="form.amount"></ion-input>
         </ion-item>
         <ion-item>
@@ -205,12 +203,6 @@
           <ion-label position="stacked">Expiry Date</ion-label>
           <ion-input type="date" [(ngModel)]="form.date_expires"></ion-input>
         </ion-item>
-        <!-- <div *ngIf="activeFilter === 'auto'">
-        <ion-item lines="none">
-          <ion-checkbox slot="start" [(ngModel)]="form.individual_use"></ion-checkbox>
-          <ion-label>Individual Use Only</ion-label>
-        </ion-item>
-        </div> -->
         <div *ngIf="filter_type === 'auto' || activeFilter === 'auto'">
           <ion-item lines="none">
             <ion-checkbox
@@ -236,9 +228,6 @@
         </ion-button>
       </div>
     </ion-content>
-
   </ng-template>
 </ion-modal>
-
-
 </ion-content>

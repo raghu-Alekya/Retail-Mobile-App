@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AlertController, ModalController, ToastController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { environment } from 'src/environments/environment';
 import axios from 'axios';
 import { ApiConfigService } from 'src/app/services/api-config.service';
 @Component({
@@ -10,8 +9,6 @@ import { ApiConfigService } from 'src/app/services/api-config.service';
   styleUrls: ['./discounts.page.scss'],
 })
 export class DiscountsPage implements OnInit {
-    wpBases = '';
-    apiUrl = `${this.wpBases}/wp-json/pinaka-pos/v1/custom-discount/get-all-discounts-for-admin`;
     filteredDiscounts: any[] = [];
     activeFilter: string = 'all';
     loading = false;
@@ -29,11 +26,12 @@ export class DiscountsPage implements OnInit {
     searchTimeout: any;
     type: string = '';
     filter_type: string = '';
-    selectedProductPrice: number | null = null;
+    selectedProductPrice: any;
     discountSearch = '';
     discountSuggestions: any[] = [];
     selectedDiscountProducts: any[] = [];
-    
+    validationError: string = '';
+  
     form = {
       code: '',
       discount_type: 'percent',
@@ -57,14 +55,15 @@ export class DiscountsPage implements OnInit {
       private toastCtrl: ToastController,
       private apiConfig: ApiConfigService
     ) {}
-    wpBase = this.apiConfig.getBaseUrl();
+    wpBases = this.apiConfig.getBaseUrl();
   ngOnInit() {
     this.loadDiscounts();
   }
+  
+  apiUrl = `${this.wpBases}/wp-json/pinaka-pos/v1/custom-discount/get-all-discounts-for-admin`;
   async loadDiscounts() {
     try {
       this.loading = true;
-
       const res = await axios.get(this.apiUrl, {
         headers: this.getAuthHeaders(),
         params: {
@@ -73,9 +72,7 @@ export class DiscountsPage implements OnInit {
         }
       });
       this.grouped = res.data?.data || {};
-      
       this.discounts = this.flattenAll();
-
     } catch (err) {
       this.presentToast('Failed to load discounts');
     } finally {
@@ -97,9 +94,7 @@ export class DiscountsPage implements OnInit {
   }
   onProductSearch(event: any) {
     const value = event.target.value?.trim();
-
     clearTimeout(this.searchTimeout);
-
     if (!value) {
       this.showSuggestions = false;
       this.productSuggestions = [];
@@ -114,7 +109,7 @@ export class DiscountsPage implements OnInit {
   async fetchProducts(query: string) {
     try {
       const res = await axios.get(
-        `${this.wpBase}/wp-json/wc/v3/products?search=${query}&per_page=10`,
+        `${this.wpBases}/wp-json/wc/v3/products?search=${query}&per_page=10`,
         {
           headers: this.getAuthHeaders()
         }
@@ -130,6 +125,7 @@ export class DiscountsPage implements OnInit {
   selectProduct(p: any) {
     this.form.product_id = p.id;
     this.selectedProductName = p.name;
+    this.form.selectedProductPrice = p.price;
     this.productSearch = p.name;
     this.showSuggestions = false;
   }
@@ -144,11 +140,9 @@ export class DiscountsPage implements OnInit {
         this.discountSuggestions = [];
         return;
       }
-
       try {
         const res: any = await this.auth.searchProducts(term);
         this.discountSuggestions = res?.data || [];
-        console.log(this.discountSuggestions);
       } catch (e) {
         console.error('Discount product search failed', e);
         this.discountSuggestions = [];
@@ -219,6 +213,7 @@ export class DiscountsPage implements OnInit {
     }
   
     async openEdit(coupon: any) {
+      // console.log(coupon);
       this.filter_type = coupon.type;
       this.editingCoupon = coupon;
       this.form = {
@@ -231,7 +226,7 @@ export class DiscountsPage implements OnInit {
         usage_limit: coupon.usage_limit,
         product_id: coupon.product_id,
         product_label: coupon.product_label,
-        selectedProductPrice: coupon.product_price,
+        selectedProductPrice: coupon.selectedProductPrice,
         type: coupon.type,
         qty: coupon.qty,
         discount_product_ids: coupon.discount_product_ids
@@ -260,7 +255,7 @@ export class DiscountsPage implements OnInit {
     async restoreProduct(query: string) {
       try {
         const res = await axios.get(
-        `${this.wpBase}/wp-json/wc/v3/products?search=${query}&per_page=10`,
+        `${this.wpBases}/wp-json/wc/v3/products?search=${query}&per_page=10`,
         {
           headers: this.getAuthHeaders()
         }
@@ -274,53 +269,104 @@ export class DiscountsPage implements OnInit {
         console.error('Restore product failed', e);
       }
     }
-
     async saveCoupon() {
       this.formSubmitted = true;
 
       if (!this.isFormValid()) {
         return;
       }
-
+      let prevfilter = this.activeFilter;
       if (this.editingCoupon) {
         await this.auth.updateDiscount(this.editingCoupon.id, this.form);
       } else {
         await this.auth.createDiscount(this.form);
+        prevfilter = 'all';
       }
-
+      
       this.showForm = false;
-      this.resetForm();      
-      this.loadDiscounts();
+      this.resetForm();     
+      await this.loadDiscounts();
+      this.setFilter(prevfilter);
     }
-  
     isFormValid(): boolean {
-      return (
-        this.activeFilter === 'multipack'
-      ? true
-      : !!this.form.code?.trim() &&
-        this.form.amount !== '' &&
-        Number(this.form.amount) > 0
-      );
-    }
-  
-    hasError(field: string): boolean {
-      if (!this.formSubmitted) return false;
-      console.log(this.activeFilter);
-      switch (field) {
-        case 'type':
-          return !this.form.type.trim();
-        case 'code':
-          if (this.activeFilter === 'multipack') {
-            return false;
-          }
-          return !this.form.code?.trim();
-        case 'amount':
-          return !this.form.amount || Number(this.form.amount) <= 0;
-        default:
-          return false;
+      const f = this.form;
+      if (!f.product_id) {
+        this.showValidationError('Please select a product');
+        return false;
       }
+      if (f.type === 'mix_match') {
+        if (!f.discount_product_ids || f.discount_product_ids.length === 0) {
+          this.showValidationError(
+            'Please select at least one product for Mix & Match discount'
+          );
+          return false;
+        }
+      }
+      if (!f.type || !f.type.trim()) {
+        this.showValidationError('Please select a discount type');
+        return false;
+      }
+      if (f.type !== 'multipack') {
+        if (!f.code || !f.code.trim()) {
+          this.showValidationError('Please enter a discount code');
+          return false;
+        }
+      }
+      if (f.type === 'multipack') {
+        if (!f.qty || Number(f.qty) <= 0) {
+          this.showValidationError('Please enter valid quantity for multipack');
+          return false;
+        }
+      }
+      const amount = Number(f.amount);
+      if (
+        f.amount === '' ||
+        f.amount === null ||
+        f.amount === undefined ||
+        isNaN(amount) ||
+        amount <= 0
+      ) {
+        this.showValidationError('Discount amount must be greater than 0');
+        return false;
+      }
+      if (f.discount_type === 'percent' && amount > 100) {
+        this.showValidationError('Percentage discount cannot exceed 100%');
+        return false;
+      }
+      if(!f.date_starts)
+      {
+        this.showValidationError('start date is required');
+        return false;
+      }
+      if(!f.date_expires)
+      {
+        this.showValidationError('end date is required');
+        return false;
+      }
+      if (f.date_starts && f.date_expires) {
+        if (new Date(f.date_expires) < new Date(f.date_starts)) {
+          this.showValidationError('Expiry date cannot be before start date');
+          return false;
+        }
+      }
+      if (
+        (f.type === 'multipack' || f.type === 'auto') &&
+        (!f.usage_limit || Number(f.usage_limit) < 0)
+      ) {
+        this.showValidationError('Usage limit is required and cannot be negative');
+        return false;
+      }
+      return true;
     }
-  
+    async showValidationError(message: string) {
+      const toast = await this.toastCtrl.create({
+        message,
+        duration: 2500,
+        color: 'danger',
+        position: 'bottom'
+      });
+      toast.present();
+    }
     async deleteCoupon(coupon: any) {
       const alert = await this.alertCtrl.create({
         header: 'Delete Discount?',
@@ -332,17 +378,15 @@ export class DiscountsPage implements OnInit {
             role: 'destructive',
             handler: async () => {
               await this.auth.deleteDiscount(coupon.id, this.activeFilter);
-              this.loadDiscounts();
-              
+              const prevfilters = this.activeFilter;
+              await this.loadDiscounts();
+              this.setFilter(prevfilters);
             }
           }
         ]
       });
-
       alert.present();
-
     }
-  
     resetForm() {
       this.formSubmitted = false;
       this.editingCoupon = null;
