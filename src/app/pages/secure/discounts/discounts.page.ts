@@ -420,5 +420,4 @@ export class DiscountsPage implements OnInit {
     const token = localStorage.getItem('wc_token');
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
-  
 }
