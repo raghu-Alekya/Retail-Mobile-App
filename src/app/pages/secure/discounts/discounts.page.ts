@@ -47,6 +47,8 @@ export class DiscountsPage implements OnInit {
       selectedProductPrice: '',
       discount_product_ids: []
     };
+
+    
   
     formSubmitted = false;
     constructor(
