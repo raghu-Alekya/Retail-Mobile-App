@@ -15,6 +15,7 @@ export class AuthService {
     private assetsService: AssetsService,
     private apiConfig: ApiConfigService
   ) {
+    this.wpBase = localStorage.getItem('wp_base_url');
     this.loadUserFromStorage();
   }
 
@@ -667,13 +668,25 @@ async loadSales(date: string) {
     );
   }
 
-  async deleteDiscount(id: number) {
-    return axios.delete(
-      `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/delete-discount/${id}`,
-      { headers: this.getAuthHeaders() }
+  // async deleteDiscount(id: number) {
+  //   return axios.delete(
+  //     `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/delete-discount/${id}`,
+  //     { headers: this.getAuthHeaders() }
+  //   );
+  // }
+  async deleteDiscount(id: number,type: string, data: any = {}) {
+    return axios.post(
+      `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/delete-discount`,
+      {
+        ...data,
+        id: id,
+        type : type
+      },
+      {
+        headers: this.getAuthHeaders(),
+      }
     );
   }
-
   async saveBussinessInfo(payload: any) {
     return axios.post(`${this.wpBase}/wp-json/pinaka-pos/v1/settings/business-info`, payload, {
       headers: this.getAuthHeaders()
