@@ -78,6 +78,7 @@ dailyTotals: number[] = [];
 }
 
 
+
   async loadDashboardStats() {
     try {
       const responses = await Promise.all(
