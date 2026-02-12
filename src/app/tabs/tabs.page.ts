@@ -71,7 +71,11 @@ toggle() {
   }
   goToAddEmployee() {
     this.isOpen = false;
-    this.router.navigate(['users/customers']);
+    this.router.navigate(['users/employees'], {
+      state: {
+        autoOpenCreate: true
+      }
+    });
   }
 
   goToAddProduct() {

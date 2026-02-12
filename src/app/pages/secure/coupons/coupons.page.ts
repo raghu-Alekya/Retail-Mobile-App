@@ -40,7 +40,7 @@ export class CouponsPage {
     const state = history.state;
     if (state?.autoOpenCreate) {
       this.openCreate();
-
+      
       history.replaceState({}, '');
     }
     this.loadCoupons();
