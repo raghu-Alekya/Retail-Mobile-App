@@ -10,7 +10,7 @@
       <!-- <ion-button>
         <ion-icon name="funnel-outline"></ion-icon>
       </ion-button> -->
-      <ion-button (click)="open">
+      <ion-button (click)="openCreate()">
         <ion-icon name="add-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -18,12 +18,34 @@
 
   <!-- Search -->
 </ion-header>
+<!-- Filter Tabs -->
+<div class="filter-tabs">
+  <ion-chip
+  [class.active]="activeFilter === 'all'"
+  (click)="setFilter('all')">
+  All
+</ion-chip>
 
+<ion-chip
+  [class.active]="activeFilter === 'auto'"
+  (click)="setFilter('auto')">
+  Auto Discount
+</ion-chip>
 
+<ion-chip
+  [class.active]="activeFilter === 'mix_match'"
+  (click)="setFilter('mix_match')">
+  Mix & Match
+</ion-chip>
+
+<ion-chip
+  [class.active]="activeFilter === 'multipack'"
+  (click)="setFilter('multipack')">
+  Multipack
+</ion-chip>
+</div>
 <ion-content class="coupon-content">
-
-  <!-- Coupon List -->
-  <ion-card *ngFor="let c of discounts" class="coupon-card">
+    <ion-card *ngFor="let c of discounts" class="coupon-card">
     <ion-card-content>
       <div class="coupon-row">
         <div>
@@ -44,71 +66,168 @@
   initialBreakpoint="0.95"
   breakpoints="[0, 0.95]" [isOpen]="showForm" (didDismiss)="showForm=false">
   <ng-template>
-
     <ion-header>
       <ion-toolbar color="primary">
         <ion-title>
-          {{ editingCoupon ? 'Edit Coupon' : 'Create Coupon' }}
+          {{ editingCoupon ? 'Edit Discount' : 'Create Discount' }}
         </ion-title>
         <ion-buttons slot="end">
           <ion-button (click)="showForm=false">Close</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-
     <ion-content class="form-content">
-
-      <ion-item>
-        <ion-label position="stacked">Coupon Code</ion-label>
-        <ion-input [(ngModel)]="form.code"></ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="stacked">Discount Type</ion-label>
-        <ion-select [(ngModel)]="form.discount_type">
-          <ion-select-option value="percent">Percentage</ion-select-option>
-          <ion-select-option value="fixed_cart">Fixed Cart</ion-select-option>
-          <ion-select-option value="fixed_product">Fixed Product</ion-select-option>
-        </ion-select>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="stacked">Amount</ion-label>
-        <ion-input type="number" [(ngModel)]="form.amount"></ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="stacked">Expiry Date</ion-label>
-        <ion-input type="date" [(ngModel)]="form.date_expires"></ion-input>
-      </ion-item>
-
-      <ion-item lines="none">
-        <ion-checkbox slot="start" [(ngModel)]="form.individual_use"></ion-checkbox>
-        <ion-label>Individual Use Only</ion-label>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="stacked">Usage Limit</ion-label>
-        <ion-input type="number" [(ngModel)]="form.usage_limit"></ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-label position="stacked">Description</ion-label>
-        <ion-textarea [(ngModel)]="form.description"></ion-textarea>
-      </ion-item>
-
-      <ion-button
-        expand="block"
-        color="primary"
-        class="save-btn"
-        (click)="saveCoupon()">
-        {{ editingCoupon ? 'Update Coupon' : 'Create Coupon' }}
-      </ion-button>
-
+      <div class="scroll-wrapper">
+        <ion-item>
+          <ion-label position="stacked">
+          {{ filter_type === 'mix_match' || activeFilter === 'mix_match' ? 'Main Product (Trigger)' : 'Product' }}
+        </ion-label>
+          <ion-input
+            placeholder="Search product..."
+            [(ngModel)]="productSearch"
+            (ionInput)="onProductSearch($event)">
+          </ion-input>
+        </ion-item>
+        <ion-list *ngIf="showSuggestions && productSuggestions.length">
+          <ion-item
+            button
+            *ngFor="let p of productSuggestions"
+            (click)="selectProduct(p)">
+            <ion-label>{{ p.name }}</ion-label>
+          </ion-item>
+        </ion-list>
+        <ion-item style="display:none">
+          <ion-input type="hidden" [(ngModel)]="form.product_id"></ion-input>
+        </ion-item>
+        <div *ngIf="filter_type === 'mix_match' || activeFilter === 'mix_match'">
+          <ion-item>
+            <ion-label position="stacked">Discounted Products</ion-label>
+            <ion-input
+              placeholder="Search discounted products..."
+              [(ngModel)]="discountSearch"
+              (ionInput)="onDiscountSearch($event)">
+            </ion-input>
+          </ion-item>
+          <div class="selected-products" *ngIf="selectedDiscountProducts.length">
+            <ion-chip *ngFor="let a of selectedDiscountProducts">
+              <ion-label>{{ a.name }}</ion-label>
+              <ion-icon
+                name="close-circle"
+                (click)="removeDiscountProduct(a.id)">
+              </ion-icon>
+            </ion-chip>
+          </div>
+          <ion-list *ngIf="discountSuggestions && discountSuggestions.length">
+            <ion-item
+              button
+              *ngFor="let a of discountSuggestions"
+              (click)="selectDiscountProduct(a)">
+              <ion-label>{{ a.name }}</ion-label>
+            </ion-item>
+          </ion-list>
+        </div>
+        <ion-item style="display:none">
+          <ion-input
+            type="hidden"
+            [(ngModel)]="form.discount_product_ids">
+          </ion-input>
+        </ion-item>
+        <ion-item> 
+          <ion-label position="stacked">Product Price</ion-label>
+          <ion-input [value]="form.selectedProductPrice" readonly></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Type</ion-label>
+          <ion-select
+            placeholder="Select discount type"
+            [(ngModel)]="form.type" (ionChange)="onDiscountTypeChange($event)">
+            <ion-select-option value="mix_match">
+              Mix & Match Discount
+            </ion-select-option>
+            <ion-select-option value="auto">
+              Auto Discount
+            </ion-select-option>
+            <ion-select-option value="multipack">
+              Multipack Discount
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+        <div *ngIf="filter_type === 'auto' || activeFilter === 'auto' || filter_type === 'mix_match' || activeFilter === 'mix_match'">
+          <ion-item>
+            <ion-label position="stacked">Discount Code</ion-label>
+            <ion-input [(ngModel)]="form.code"></ion-input>
+          </ion-item>
+        </div>
+        <div *ngIf="filter_type === 'auto' || activeFilter === 'auto'">
+          <ion-item>
+            <ion-label position="stacked">Discount Type</ion-label>
+            <ion-select [(ngModel)]="form.discount_type">
+              <ion-select-option value="percent">Percentage</ion-select-option>
+              <ion-select-option value="fixed_cart">Fixed Cart</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+        <div *ngIf="filter_type === 'mix_match' || activeFilter === 'mix_match'">
+          <ion-item>
+            <ion-label position="stacked">Discount Type</ion-label>
+            <ion-select [(ngModel)]="form.discount_type">
+              <ion-select-option value="percent">Percentage</ion-select-option>
+              <ion-select-option value="fixed_item">Fixed item</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+        <div *ngIf="filter_type === 'multipack' || activeFilter === 'multipack'">
+          <ion-item>
+            <ion-label position="stacked">Discount Type</ion-label>
+            <ion-select [(ngModel)]="form.discount_type">
+              <ion-select-option value="percent">Percentage</ion-select-option>
+              <ion-select-option value="price">Price</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </div>
+        <div *ngIf="filter_type === 'multipack' || activeFilter === 'multipack'">
+            <ion-item>
+              <ion-label position="stacked">Quantity</ion-label>
+              <ion-input type="number" [(ngModel)]="form.qty"></ion-input>
+            </ion-item>
+        </div>
+        <ion-item>
+          <ion-label position="stacked">{{ form.discount_type === 'percent' ? 'Percentage (%)' : 'Amount' }}</ion-label>
+          <ion-input type="number" [(ngModel)]="form.amount"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Start Date</ion-label>
+          <ion-input type="date" [(ngModel)]="form.date_starts"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Expiry Date</ion-label>
+          <ion-input type="date" [(ngModel)]="form.date_expires"></ion-input>
+        </ion-item>
+        <div *ngIf="filter_type === 'auto' || activeFilter === 'auto'">
+          <ion-item lines="none">
+            <ion-checkbox
+            slot="start"
+            [checked]="form.pinaka_discount_auto_apply === 'yes'"
+            (ionChange)="form.pinaka_discount_auto_apply = $event.detail.checked ? 'yes' : 'no'">
+          </ion-checkbox>
+            <ion-label>Auto apply</ion-label>
+          </ion-item>
+        </div>
+        <div *ngIf="filter_type === 'auto' || filter_type === 'multipack' || activeFilter === 'auto' || activeFilter === 'multipack'">
+          <ion-item>
+            <ion-label position="stacked">{{ filter_type === 'auto' || activeFilter === 'auto' ? 'Usage Limit' : 'Order Usage' }}</ion-label>
+            <ion-input type="number" [(ngModel)]="form.usage_limit"></ion-input>
+          </ion-item>
+        </div>
+        <ion-button
+          expand="block"
+          color="primary"
+          class="save-btn"
+          (click)="saveCoupon()">
+          {{ editingCoupon ? 'Update Discount' : 'Create Discount' }}
+        </ion-button>
+      </div>
     </ion-content>
-
   </ng-template>
 </ion-modal>
-
-
 </ion-content>
