@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
-
 @Component({
   standalone: true,
   selector: 'app-coupons',
@@ -34,7 +33,16 @@ export class CouponsPage {
     private alertCtrl: AlertController
   ) {}
 
+  // ionViewWillEnter() {
+  //   this.loadCoupons();
+  // }
   ionViewWillEnter() {
+    const state = history.state;
+    if (state?.autoOpenCreate) {
+      this.openCreate();
+      
+      history.replaceState({}, '');
+    }
     this.loadCoupons();
   }
 

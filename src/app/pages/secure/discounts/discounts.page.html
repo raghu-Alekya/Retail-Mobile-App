@@ -79,6 +79,22 @@
     <ion-content class="form-content">
       <div class="scroll-wrapper">
         <ion-item>
+          <ion-label position="stacked">Type</ion-label>
+          <ion-select
+            placeholder="Select discount type"
+            [(ngModel)]="form.type" (ionChange)="onDiscountTypeChange($event)">
+            <ion-select-option value="mix_match">
+              Mix & Match Discount
+            </ion-select-option>
+            <ion-select-option value="auto">
+              Auto Discount
+            </ion-select-option>
+            <ion-select-option value="multipack">
+              Multipack Discount
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-item>
           <ion-label position="stacked">
           {{ filter_type === 'mix_match' || activeFilter === 'mix_match' ? 'Main Product (Trigger)' : 'Product' }}
         </ion-label>
@@ -136,22 +152,7 @@
           <ion-label position="stacked">Product Price</ion-label>
           <ion-input [value]="form.selectedProductPrice" readonly></ion-input>
         </ion-item>
-        <ion-item>
-          <ion-label position="stacked">Type</ion-label>
-          <ion-select
-            placeholder="Select discount type"
-            [(ngModel)]="form.type" (ionChange)="onDiscountTypeChange($event)">
-            <ion-select-option value="mix_match">
-              Mix & Match Discount
-            </ion-select-option>
-            <ion-select-option value="auto">
-              Auto Discount
-            </ion-select-option>
-            <ion-select-option value="multipack">
-              Multipack Discount
-            </ion-select-option>
-          </ion-select>
-        </ion-item>
+        
         <div *ngIf="filter_type === 'auto' || activeFilter === 'auto' || filter_type === 'mix_match' || activeFilter === 'mix_match'">
           <ion-item>
             <ion-label position="stacked">Discount Code</ion-label>
@@ -185,16 +186,16 @@
             </ion-select>
           </ion-item>
         </div>
+        <ion-item>
+          <ion-label position="stacked">{{ form.discount_type === 'percent' ? 'Percentage (%)' : 'Amount' }}</ion-label>
+          <ion-input type="number" [(ngModel)]="form.amount"></ion-input>
+        </ion-item>
         <div *ngIf="filter_type === 'multipack' || activeFilter === 'multipack'">
             <ion-item>
               <ion-label position="stacked">Quantity</ion-label>
               <ion-input type="number" [(ngModel)]="form.qty"></ion-input>
             </ion-item>
         </div>
-        <ion-item>
-          <ion-label position="stacked">{{ form.discount_type === 'percent' ? 'Percentage (%)' : 'Amount' }}</ion-label>
-          <ion-input type="number" [(ngModel)]="form.amount"></ion-input>
-        </ion-item>
         <ion-item>
           <ion-label position="stacked">Start Date</ion-label>
           <ion-input type="date" [(ngModel)]="form.date_starts"></ion-input>
