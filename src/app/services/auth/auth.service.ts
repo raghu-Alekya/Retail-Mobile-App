@@ -82,7 +82,6 @@ export class AuthService {
 
   async getDashboardStats(status: string): Promise<number> {
     const token = localStorage.getItem('wc_token');
-    alert(this.wpBase);
     const res = await axios.get(
       `${this.wpBase}/wp-json/pinaka-pos/v1/orders/order-counts-for-admin-app`,
       {
