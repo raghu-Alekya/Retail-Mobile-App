@@ -16,6 +16,8 @@ export class AuthService {
     private apiConfig: ApiConfigService
   ) {
     this.loadUserFromStorage();
+    this.wpBase = localStorage.getItem('wp_base_url');
+    this.base = localStorage.getItem('wp_base_url');
   }
 
 
@@ -27,23 +29,6 @@ export class AuthService {
     }
   }
 
-  // async login(email: string, password: string) {
-  //   const res = await axios.post(
-  //     `${this.wpBase}/wp-json/pinaka-pos/v1/token/email`,
-  //     { email, password }
-  //   );
-
-  //   const token = res.data.data.token;
-
-  //   localStorage.setItem('wc_token', token);
-  //   localStorage.setItem('user_data', JSON.stringify(res.data.data));
-
-  //   // 🔥 Load assets immediately after login
-  //   await this.assetsService.loadAssets();
-
-  //   return res.data;
-  // }
-
   async login(email: string, password: string, siteUrl: string) {
 
     // 🔥 Set base URL immediately
@@ -51,7 +36,6 @@ export class AuthService {
 
     const baseUrl = this.apiConfig.getBaseUrl();
     this.wpBase = this.apiConfig.getBaseUrl();
-
     const res = await axios.post(
       `${baseUrl}/wp-json/pinaka-pos/v1/token/email`,
       { email, password }
@@ -97,7 +81,7 @@ export class AuthService {
 
   async getDashboardStats(status: string): Promise<number> {
     const token = localStorage.getItem('wc_token');
-
+    alert(this.wpBase);
     const res = await axios.get(
       `${this.wpBase}/wp-json/pinaka-pos/v1/orders/order-counts-for-admin-app`,
       {
