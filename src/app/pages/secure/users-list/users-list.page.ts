@@ -48,6 +48,12 @@ searchDebounce: any;
         this.userRole = 'customer';
       } else if (lastSegment === 'employees') {
         this.userRole = 'employee';
+        const state = history.state;
+        if (state?.autoOpenCreate) {
+          this.openAddUserModal();
+
+          history.replaceState({}, '');
+        }
         this.loadCustomRoles(); // ✅ LOAD ROLES
       }
     this.loadUsers();

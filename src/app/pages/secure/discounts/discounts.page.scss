@@ -51,3 +51,69 @@
     color: #fff;
   }
 }
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  overflow-x: auto;
+}
+
+ion-chip {
+  min-width: max-content;
+}
+.suggestions-box {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin: 5px;
+  background: white;
+  z-index: 999;
+}
+.scroll-wrapper {
+  max-height: 100%;
+  overflow-y: auto;
+  padding-bottom: 80px;
+}
+.selected-products {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.selected-products ion-chip {
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.selected-products ion-label {
+  max-width: 180px;      // 👈 controls chip width
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+}
+
+ion-chip {
+  background: #e0e0e0;
+  color: #333;
+}
+
+ion-chip.active {
+  background: var(--ion-color-primary);
+  color: white;
+}
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}

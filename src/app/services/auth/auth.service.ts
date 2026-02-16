@@ -15,6 +15,7 @@ export class AuthService {
     private assetsService: AssetsService,
     private apiConfig: ApiConfigService
   ) {
+    this.wpBase = localStorage.getItem('wp_base_url');
     this.loadUserFromStorage();
     this.wpBase = localStorage.getItem('wp_base_url');
     this.base = localStorage.getItem('wp_base_url');
@@ -650,14 +651,45 @@ async loadSales(date: string) {
       { headers: this.getAuthHeaders() }
     );
   }
-
-  async deleteDiscount(id: number) {
-    return axios.delete(
-      `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/delete-discount/${id}`,
-      { headers: this.getAuthHeaders() }
+  async getProductsByIds(ids: number[], data: any = {}) {
+    return axios.post(
+      `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/by-ids`,
+      { 
+        ...data,
+        ids: ids 
+      } ,
+      {
+        headers: this.getAuthHeaders(),
+      }
     );
   }
-
+  searchProducts(term: string) {
+    return axios.get(
+      `${this.wpBase}/wp-json/wc/v3/products?search=${encodeURIComponent(term)}`,
+      {
+        headers: this.getAuthHeaders()
+      }
+    );
+  }
+  // async deleteDiscount(id: number) {
+  //   return axios.delete(
+  //     `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/delete-discount/${id}`,
+  //     { headers: this.getAuthHeaders() }
+  //   );
+  // }
+  async deleteDiscount(id: number,type: string, data: any = {}) {
+    return axios.post(
+      `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/delete-discount`,
+      {
+        ...data,
+        id: id,
+        type : type
+      },
+      {
+        headers: this.getAuthHeaders(),
+      }
+    );
+  }
   async saveBussinessInfo(payload: any) {
     return axios.post(`${this.wpBase}/wp-json/pinaka-pos/v1/settings/business-info`, payload, {
       headers: this.getAuthHeaders()
