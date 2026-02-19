@@ -80,21 +80,36 @@ dailyTotals: number[] = [];
 
 
   async loadDashboardStats() {
+
+  const promises = this.statuses.map(async (s) => {
     try {
-      const responses = await Promise.all(
-        this.statuses.map(s =>
-          this.authService.getDashboardStats(s.key)
-        )
+      const count = await this.authService.getDashboardStats(s.key);
+      return { status: 'fulfilled', value: count };
+    } catch (error) {
+      return { status: 'rejected', reason: error };
+    }
+  });
+
+  const responses = await Promise.all(promises);
+
+  responses.forEach((result: any, index: number) => {
+
+    if (result.status === 'fulfilled') {
+      
+      this.statuses[index].count = Number(result.value) || 0;
+    } else {
+      console.error(
+        `Dashboard stat failed: ${this.statuses[index].key}`,
+        result.reason
       );
 
-      responses.forEach((res, index) => {
-        this.statuses[index].count = res ?? 0;
-      });
-
-    } catch (error) {
-      console.error('Dashboard API error', error);
+      this.statuses[index].count = 0;
     }
-  }
+
+  });
+}
+
+
 
   async loadDailySalesChart() {
   const end = new Date();

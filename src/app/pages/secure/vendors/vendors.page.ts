@@ -44,11 +44,10 @@ accentColors: string[] = [
     this.loading = true;
 
     try {
-      const res = await this.authService.getVendors(this.page, this.perPage);
-      const apiVendors = res?.data?.data || [];
+      const res = await this.authService.getVendors(this.page, String(this.perPage));
 
       // 🔥 NORMALIZE DATA FOR UI (CRITICAL FIX)
-      const mapped = apiVendors.map((v: any) => ({
+      const mapped = res.data.map((v: any) => ({
         id: v.id,
         vendor_name: v.vendor_name || v.vendorName || v.title || '',
         amount: v.amount || v.total_amount || v.totalAmount || 0,
