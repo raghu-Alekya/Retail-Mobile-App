@@ -1,49 +1,164 @@
+/* CARD */
 .shift-card {
   border-radius: 16px;
+  padding: 8px;
+  margin-bottom: 14px;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
 }
 
-.label {
-  font-size: 12px;
-  color: #777;
-}
-
-.value {
-  font-size: 18px;
-  font-weight: 600;
-  margin-top: 4px;
-}
-
-ion-badge {
-  text-transform: capitalize;
-}
-
-
+/* HEADER CONTAINER */
 .shift-header {
-  ion-toolbar {
-    --background: #34465d;
-    --color: #fff;
-  }
+  background: #244a6d;
+  padding-bottom: 30px;   /* ⬅ increase blue height */
+}
+/* Bigger back arrow */
+.back-icon {
+  font-size: 26px;   /* increase size */
+  color: #ffffff;
 }
 
-.search-wrapper {
-  margin: 10px 16px;
-  background: #9aa7b8;
+/* TOOLBAR */
+.shift-header ion-toolbar {
+  --background: #244a6d;
+  --color: #ffffff;
+  min-height: 56px;       /* optional: taller toolbar */
+}
+
+/* SEARCH CONTAINER */
+.search-container {
+  margin: 12px 16px 0;   /* ⬅ pushes search down */
+  background: #ffffff;
   border-radius: 12px;
   display: flex;
   align-items: center;
-  padding: 10px;
-  gap: 10px;
+  padding: 12px 14px;    /* ⬅ taller search bar */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
 
-  input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    color: #fff;
-    outline: none;
-  }
 
-  ion-icon {
-    color: #fff;
-  }
+/* SEARCH ICON */
+.search-icon {
+  font-size: 18px;
+  color: #9aa7b8;
+  margin-right: 8px;
+}
+
+/* SEARCH INPUT */
+.search-container input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #333;
+  background: transparent;
+}
+
+/* FILTER ICON */
+ion-toolbar ion-icon {
+  color: #ffffff;
+}
+
+/* TOP ROW */
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* USER SECTION */
+.user {
+  display: flex;
+  gap: 12px;
+}
+
+/* AVATAR */
+.avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar.yellow { background: #f3b431; }
+.avatar.red { background: #f15b5b; }
+.avatar.teal { background: #4db6ac; }
+.avatar.orange { background: #f28b54; }
+.avatar.purple { background: #8b8ee8; }
+
+.avatar ion-icon {
+  font-size: 20px;
+  color: #fff;
+}
+
+
+/* NAME */
+.user h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* MUTED TEXT */
+.muted {
+  margin: 2px 0;
+  font-size: 13px;
+  color: #7a8699;
+}
+
+/* RIGHT SECTION */
+.right {
+  text-align: right;
+  font-size: 13px;
+}
+
+.date {
+  font-size: 12px;
+  color: #9aa7b8;
+  margin-bottom: 4px;
+}
+
+/* DIVIDER */
+.divider {
+  height: 1px;
+  background: #eee;
+  margin: 8px 0;
+}
+
+/* BOTTOM ROW */
+.bottom-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #eef1f5;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* COLOR VARIANTS */
+.yellow {
+  border-bottom:  4px solid #f3b431;
+}
+
+.red {
+ border-bottom:  4px solid #f15b5b;
+}
+
+.teal {
+  border-bottom:  4px solid #4db6ac;
+}
+
+.orange {
+  border-bottom:  4px solid #f28b54;
+}
+
+.purple {
+  border-bottom:  4px solid #8b8ee8;
+}
+.amount {
+  font-weight: 600;   /* bold only value */
+  color: #34465d;     /* slightly darker for emphasis */
 }

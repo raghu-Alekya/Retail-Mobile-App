@@ -1,4 +1,277 @@
+body,
+ion-app,
+ion-content,
+ion-router-outlet {
+  background: #ffffff !important;
+  --background: #ffffff !important;
+}
+
+
 ion-label {
   font-size: 12px;
   font-weight: 500;
 }
+/* ============================
+   TAB BAR BASE
+============================ */
+
+ion-tab-bar {
+  position: relative;
+  height: 60px;
+  background: #083a57 !important;
+  border: none;
+  overflow: visible !important;
+  isolation: isolate;  /* VERY IMPORTANT */
+}
+
+/* Ionic internal layer */
+ion-tab-bar::part(container) {
+  background: #083a57 !important;
+}
+
+
+ion-tab-button {
+  --color: white;
+  --color-selected: white;
+
+  background: transparent !important;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding-top: 10px;
+}
+
+
+
+ion-tab-button ion-label {
+  font-size: 10px;
+  margin-top: 3px;   /* 🔽 smaller gap */
+  line-height: 1;
+}
+
+
+/* ICON */
+ion-tab-button ion-icon {
+  font-size: 22px;
+  margin-bottom: 2px;
+}
+
+
+ion-tab-button ion-icon {
+  font-size: 22px;
+}
+
+
+
+ion-tab-bar::before {
+  content: "";
+  position: absolute;
+  top: -32px;                 /* 🔽 was -36px */
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: 50px;
+  height: 60px;               /* 🔽 was 75px */
+
+  background: #ffffff;
+  border-radius: 0 0 120px 120px;
+
+  z-index: 2;
+  pointer-events: none;
+}
+
+
+/* ============================
+   TABS WRAPPER
+============================ */
+
+ion-tabs {
+  overflow: visible !important;
+}
+
+
+
+ion-tab-button ion-icon {
+  font-size: 22px;
+}
+
+
+
+ion-tabs {
+  overflow: visible !important;
+}
+
+ion-tab-bar {
+  position: relative;
+  z-index: 1;
+}
+
+ion-tab-bar::part(container) {
+  z-index: 0;
+}
+.plus-btn {
+  pointer-events: auto;
+}
+
+ion-tab-bar {
+  overflow: visible !important;
+}
+/* Floating Container */
+.fab-container {
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+}
+
+/* Main + Button */
+.main-fab {
+  width: 40px;
+  height: 40px;
+  background: #083a57;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 26px;
+}
+
+/* ===========================
+   MINI FAB BASE
+=========================== */
+/* ============================
+   FAB CONTAINER
+============================ */
+.fab-container{
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+/* ============================
+   MAIN FAB
+============================ */
+.main-fab{
+  width: 50px;
+  height: 56px;
+  border-radius: 50%;
+  background:#083a57;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:28px;
+}
+
+.main-fab ion-icon{
+  transition: transform .3s ease;
+}
+
+.main-fab ion-icon[name="close"]{
+  transform: rotate(45deg);
+}
+
+/* ============================
+   MINI FAB BASE
+============================ */
+.mini-fab{
+  position:absolute;
+  bottom:0;
+  left:50%;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+
+  opacity:0;
+  pointer-events:none;
+}
+
+/* COLORS */
+.emp{ background:#4caf50; }
+.prod{ background:#2196f3; }
+.coup{ background:#ffc107; }
+
+/* ============================
+   OPEN STATE
+============================ */
+.mini-fab.open{
+  pointer-events:auto;
+}
+
+.mini-fab.emp.open{
+  animation: empPath .45s ease forwards;
+}
+
+.mini-fab.prod.open{
+  animation: prodPath .45s ease forwards;
+}
+
+.mini-fab.coup.open{
+  animation: coupPath .45s ease forwards;
+}
+
+/* ============================
+   CURVE PATH ANIMATION
+============================ */
+
+@keyframes empPath{
+  0%{
+    opacity:0;
+    transform: translateX(-50%) translateY(0) scale(0);
+  }
+  30%{ opacity:1; }
+  100%{
+    transform: translateX(-90px) translateY(-55px) scale(1);
+    opacity:1;
+  }
+}
+
+@keyframes prodPath{
+  0%{
+    opacity:0;
+    transform: translateX(-50%) translateY(0) scale(0);
+  }
+  30%{ opacity:1; }
+  100%{
+    transform: translateX(-50%) translateY(-75px) scale(1);
+    opacity:1;
+  }
+}
+
+@keyframes coupPath{
+  0%{
+    opacity:0;
+    transform: translateX(-50%) translateY(0) scale(0);
+  }
+  30%{ opacity:1; }
+  100%{
+    transform: translateX(40px) translateY(-55px) scale(1);
+    opacity:1;
+  }
+}
+
+
+.mini-fab.prod.open { animation-delay: 0.05s; }
+.mini-fab.coup.open { animation-delay: 0.1s; }
+
+/* ---------- CENTER FAB GAP FIX ---------- */
+/* ===== CLEAN CENTER SPACE FOR FAB ===== */
+
+ion-tab-bar::part(container) {
+  display: grid;
+  grid-template-columns: 1fr 1fr 70px 1fr 1fr;
+  align-items: center;
+}
+
+

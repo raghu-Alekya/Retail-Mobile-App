@@ -77,9 +77,9 @@ export class SigninPage implements OnInit {
       if (!token) {
         throw new Error('Token not stored');
       }
-
+      console.log(token);
       // ✅ Navigate ONLY after token exists
-      await this.router.navigateByUrl('/home', { replaceUrl: true });
+      await this.router.navigateByUrl('tabs/home', { replaceUrl: true });
 
     } catch (error) {
       this.toastService.presentToast(

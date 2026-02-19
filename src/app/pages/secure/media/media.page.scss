@@ -1,32 +1,186 @@
-ion-card img {
-  height: auto;
-  object-fit: cover;
-}
-.shift-header {
-  ion-toolbar {
-    --background: #34465d;
-    --color: #fff;
-  }
+ion-content.media-content {
+  --padding-top: 56px; /* default toolbar height */
 }
 
-.search-wrapper {
-  margin: 10px 16px;
-  background: #9aa7b8;
-  border-radius: 12px;
+
+/* Navy blue header */
+.media-header ion-toolbar {
+  --background: #1d3556;   /* navy blue */
+  --color: #ffffff;
+  min-height: 64px;        /* increased height */
+}
+
+/* Center title vertically */
+.media-header ion-title {
+  font-size: 18px;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+/* Back button styling */
+.media-header ion-back-button {
+  --color: #ffffff;
+}
+
+/* Ensure toolbar content is vertically centered */
+.media-header ion-toolbar {
   display: flex;
   align-items: center;
-  padding: 10px;
-  gap: 10px;
+  min-height: 90px;
+  
+}
 
-  input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    color: #fff;
-    outline: none;
-  }
+:host {
+  display: block;
+}
 
-  ion-icon {
-    color: #fff;
+/* remove ion-content padding */
+ion-content.media-content {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+/* FORCE grid layout */
+.media-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 12px;
+  padding: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.media-item {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #f4f6f8;
+  border-radius: 12px;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.media-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Custom Item */
+.custom-item {
+  background: #5b6f8e;
+  color: #fff;
+  flex-direction: column;
+  font-size: 12px;
+}
+
+.custom-item ion-icon {
+  font-size: 26px;
+  margin-bottom: 6px;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .media-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
   }
+}
+.upload-fab {
+  position: relative;
+}
+
+/* Icon must be visible */
+.upload-fab ion-icon {
+  color: #ffffff;
+  font-size: 30px;
+  z-index: 2;
+}
+
+/* File input stays clickable but invisible */
+.fab-file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  z-index: 3;
+  cursor: pointer;
+}
+/* FAB button → WHITE background */
+ion-fab-button.upload-fab {
+  --background: #ffffff !important;
+  --color: #1f3a5f !important; /* icon fallback */
+  --box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Icon → NAVY BLUE */
+.upload-fab ion-icon {
+  color: #1f3a5f !important;
+  font-size: 35px;
+  z-index: 2;
+}
+
+/* Invisible but clickable file input */
+.fab-file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  z-index: 3;
+  cursor: pointer;
+}
+/* Main FAB (white) */
+ion-fab-button.upload-fab {
+  --background: #ffffff;
+  --color: #1f3a5f;
+  --box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Action buttons */
+ion-fab-button.fab-action {
+  --background: #ffffff;
+  --color: #1f3a5f;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Icon size */
+ion-fab-button ion-icon {
+  font-size: 20px;
+}
+
+/* File input clickable */
+.fab-file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+/* NAVY color variable (optional but clean) */
+:host {
+  --navy-blue: #1f3a5f;
+}
+
+/* Main FAB + all child FABs */
+ion-fab-button.upload-fab,
+ion-fab-button.fab-action {
+  --background: #ffffff !important;
+  --color: var(--navy-blue) !important;
+  --box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+/* Force icon color */
+ion-fab-button.upload-fab ion-icon,
+ion-fab-button.fab-action ion-icon {
+  color: var(--navy-blue) !important;
+  font-size: 20px;
+}
+
+/* Invisible clickable input */
+.fab-file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
 }

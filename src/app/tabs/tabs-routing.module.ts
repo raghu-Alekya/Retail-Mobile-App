@@ -25,9 +25,19 @@ const routes: Routes = [
         loadChildren: () => import('../pages/secure/payments/payments.module').then(m => m.PaymentsPageModule)
       },
       {
+        path: 'profile',
+        loadChildren: () =>import('../pages/secure/profile/profile.module').then(m => m.ProfilePageModule)
+      },
+
+      {
         path: 'styleguide',
         loadChildren: () => import('../pages/secure/styleguide/styleguide.module').then(m => m.StyleguidePageModule)
       },
+      {
+        path: '',
+        redirectTo: '/tabs/home',
+        pathMatch: 'full'
+      }
     ]
   }
 ];

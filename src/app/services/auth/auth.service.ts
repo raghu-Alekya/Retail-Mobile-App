@@ -1065,5 +1065,8 @@ async deleteVendor(id: number) {
   return res.data;
 }
 
+async loadShiftSales( date: string ){
+  
+}
 
 }
