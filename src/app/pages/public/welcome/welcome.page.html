@@ -1,81 +1,57 @@
-<ion-content class="welcome-content">
+<ion-content fullscreen>
+
   <swiper
-    class="swiper-welcome"
     #swiper
     [config]="config"
-    (reachEnd)="onLastSlide()"
-  >
+    (slideChange)="onSlideChange()"
+    class="welcome-swiper">
 
     <!-- Slide 1 -->
     <ng-template swiperSlide>
       <div class="slide">
-        <ion-icon name="storefront-outline" class="slide-icon slide-in-top"></ion-icon>
-
-        <h2 class="slide-title fade-in">
-          PINAKA POS
-        </h2>
-
-        <p class="slide-text fade-in-delay">
-          Smart billing & order management system built for
-          restaurants and retail businesses.
-        </p>
+        <img src="assets/onboarding/slide-1.png" class="slide-image" />
+        <h2>Real-Time Store Control</h2>
+        <p>Manage your store anytime, anywhere.</p>
       </div>
     </ng-template>
 
     <!-- Slide 2 -->
     <ng-template swiperSlide>
       <div class="slide">
-        <ion-icon name="flash-outline" class="slide-icon slide-in-top"></ion-icon>
-
-        <h2 class="slide-title fade-in">
-          Fast Orders & Billing
-        </h2>
-
-        <p class="slide-text fade-in-delay">
-          Create orders in seconds, manage tables, send
-          orders to kitchen and generate instant bills.
-        </p>
+        <img src="assets/onboarding/slide-2.png" class="slide-image slide-2-image" />
+        <h2>Smart Inventory</h2>
+        <p>Track stock levels and sales instantly.</p>
       </div>
     </ng-template>
 
     <!-- Slide 3 -->
     <ng-template swiperSlide>
       <div class="slide">
-        <ion-icon name="bar-chart-outline" class="slide-icon slide-in-top"></ion-icon>
-
-        <h2 class="slide-title fade-in">
-          Reports & Control
-        </h2>
-
-        <p class="slide-text fade-in-delay">
-          Track daily sales, staff performance and inventory
-          with powerful real-time reports.
-        </p>
+        <img src="assets/onboarding/slide-3.png" class="slide-image slide-3-image" />
+        <h2>Start your Admin Journey</h2>
+        <p>Start managing your retail operations efficiently.</p>
       </div>
     </ng-template>
 
   </swiper>
-</ion-content>
 
-<ion-footer class="welcome-footer ion-padding">
+  <!-- ✅ BUTTON OUTSIDE SWIPER -->
   <ion-button
+    *ngIf="currentIndex === 2"
     expand="block"
-    size="large"
-    color="secondary"
-    (click)="nextSlide()"
-    *ngIf="!last_slide"
-  >
-    Next
-    <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
-  </ion-button>
-
-  <ion-button
-    expand="block"
-    size="large"
-    color="secondary"
-    (click)="getStarted()"
-    *ngIf="last_slide"
-  >
+    class="get-started-btn"
+    type="button"
+    (click)="goToSignIn()">
     Get Started
   </ion-button>
+
+</ion-content>
+
+<ion-footer class="welcome-footer" *ngIf="currentIndex !== 2">
+  <div class="footer-container">
+    <span class="skip-btn" (click)="goToLastSlide()">Skip..</span>
+    <div class="next-btn" (click)="nextSlide()">
+      <ion-icon name="arrow-forward-outline"></ion-icon>
+    </div>
+  </div>
 </ion-footer>

@@ -1,30 +1,32 @@
-import { AfterContentChecked, ChangeDetectorRef, Component, ViewChild, ViewEncapsulation } from '@angular/core';
-import { SwiperComponent } from 'swiper/angular';
-import SwiperCore, { SwiperOptions, Pagination } from 'swiper';
-SwiperCore.use([Pagination]);
-
+import { Component, ViewChild, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
-import { IonButton } from '@ionic/angular';
+
+import { SwiperComponent } from 'swiper/angular';
+import SwiperCore, { Pagination, SwiperOptions } from 'swiper';
+
+SwiperCore.use([Pagination]);
 
 @Component({
   selector: 'app-welcome',
   templateUrl: './welcome.page.html',
   styleUrls: ['./welcome.page.scss'],
   encapsulation: ViewEncapsulation.None,
-  imports: [IonButton],
 })
-export class WelcomePage implements AfterContentChecked {
+export class WelcomePage {
 
   language: string = '';
   last_slide: boolean = false;
+  currentIndex: number = 0;
 
-  @ViewChild('swiper') swiper: SwiperComponent;
+  @ViewChild('swiper', { static: false }) swiper!: SwiperComponent;
 
   // Swiper config
   config: SwiperOptions = {
     slidesPerView: 1,
     spaceBetween: 50,
-    allowTouchMove: false,
+    allowTouchMove: true,
+    preventClicks: false,
+    preventClicksPropagation: false,
     pagination: {
       clickable: true
     }
@@ -32,36 +34,29 @@ export class WelcomePage implements AfterContentChecked {
 
   constructor(
     private router: Router,
-    private ref: ChangeDetectorRef
-  ) { }
+    private cd: ChangeDetectorRef
+  ) {}
 
-  ngAfterContentChecked(): void {
+  nextSlide() {
+    this.swiper?.swiperRef.slideNext();
+  }
 
-    if (this.swiper) {
-      this.swiper.updateSwiper({});
+  goToLastSlide() {
+    this.swiper?.swiperRef.slideTo(2);
+  }
+
+  onSlideChange() {
+    if (this.swiper?.swiperRef) {
+      this.currentIndex = this.swiper.swiperRef.activeIndex;
+      this.cd.detectChanges();
     }
   }
 
-  // Trigger swiper slide change
-  swiperSlideChanged(e) {
-    // console.log(e);
-  }
-
-  // Go to next slide
-  nextSlide() {
-    this.swiper.swiperRef.slideNext(500);
-  }
-
-  // Last slide trigger
   onLastSlide() {
     this.last_slide = true;
   }
 
-  // Go to main content
-  async getStarted() {
-
-    // Navigate to /home
-    this.router.navigateByUrl('/signin');
+  goToSignIn() {
+    this.router.navigate(['/signin']);
   }
-
 }

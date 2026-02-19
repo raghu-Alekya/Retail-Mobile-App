@@ -68,9 +68,9 @@ app-welcome .swiper-pagination-bullet-active {
   background: var(--ion-color-light);
 }
 
-app-welcome ion-footer {
-  background: linear-gradient(135deg, var(--ion-color-dark), var(--ion-color-primary));
-}
+// app-welcome ion-footer {
+//   background: linear-gradient(135deg, var(--ion-color-dark), var(--ion-color-primary));
+// }
 
 /* ------------------------------
    PINAKA POS – Swiper Dots
@@ -97,5 +97,142 @@ app-welcome .swiper-pagination-bullet-active {
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
 }
 
+ion-content {
+  --padding-bottom: 0;
+}
+ion-footer {
+  --background: transparent;
+  box-shadow: none !important;
+  border-top: none !important;
+}
+.swiper-welcome {
+  height: 100%;
+  position: relative;
+}
+.slide {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;  /* vertical center */
+  align-items: center;      /* horizontal center */
+  text-align: center;
+  padding: 20px;
+
+
+}
+ion-footer {
+  --background: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-top: 0 !important;
+}
+
+ion-footer::before {
+  display: none !important;
+  background: transparent !important;
+}
+
+ion-content::part(background) {
+  border-bottom: none !important;
+}
+
+ion-content {
+  --border-width: 0px !important;
+}
+
+.welcome-footer {
+  position: absolute;
+  bottom: 50px;   /* 👈 increase this */
+  width: 100%;
+  padding: 0 25px 40px;
+}
+
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skip-btn {
+  font-size: 20px;   /* bigger text */
+  font-weight: 500;
+  color: #333;
+}
+
+
+.next-btn {
+  width: 50px;      /* bigger circle */
+  height: 50px;
+  background: #2d4f7c;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 28px;  /* bigger arrow */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+  transition: all 0.2s ease;
+}
+
+
+
+.slide {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  transform: translateY(-45px);  /* shift entire content up */
+}
+
+.slide-image {
+  width: 120%;
+  max-width: none;
+  // margin-top: -10px;  
+  margin-bottom: 50px;
+}
+.swiper-pagination {
+  position: absolute !important;
+  top: 65%;  
+  left: 0;
+  width: 100%;
+}
+.slide-2-image {
+  width:350px;
+  max-width: 500px;     
+  margin-top: 5px;     
+}
+.get-started-btn {
+  --background: #2d4f7c;
+  --background-hover: #244164;
+  --background-activated: #1f3654;
+  --color: #ffffff;
+
+  height: 65px;         
+  width: 85%;           
+  max-width: 380px;      
+
+  margin-top: 40px;      /* 👈 moves it down */
+  
+  border-radius: 14px;
+  font-size: 20px;      
+  font-weight: 600;
+
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.welcome-content {
+  --padding-bottom: 80px;
+}
+.swiper-slide {
+  pointer-events: auto !important;
+}
+
+ion-button {
+  pointer-events: auto !important;
+}
 
 

@@ -1,83 +1,80 @@
-<ion-header class="shift-header">
+<ion-content class="media-content" fullscreen="true">
+<ion-header class="media-header">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
 
-    <ion-title>Media</ion-title>
-
-    <!-- <ion-buttons slot="end">
-      <ion-button>
-        <ion-icon name="funnel-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons> -->
+    <ion-title>Media Library</ion-title>
   </ion-toolbar>
-
-  <!-- Search -->
-  <!-- <div class="search-wrapper">
-    <ion-icon name="search-outline"></ion-icon>
-    <input
-      placeholder="Search order / transaction"
-      (input)="onSearch($event)"
-    />
-  </div> -->
 </ion-header>
 
-<ion-content>
 
-  <!-- Upload -->
-  <ion-card>
-    <ion-card-content>
-      <input type="file" (change)="onFileSelect($event)">
-      <ion-spinner *ngIf="uploading"></ion-spinner>
-    </ion-card-content>
-  </ion-card>
-   <!-- Pull to refresh -->
+
+  <!-- Pull to refresh -->
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
+
   <!-- Media Grid -->
-  <ion-grid>
-    <ion-row>
-      <ion-col size="4" sizeMd="3" *ngFor="let m of mediaList">
-        <ion-card>
-          <img [src]="m.source_url">
+  <div class="media-grid">
+    <div
+      class="media-item"
+      *ngFor="let m of mediaList"
+      (click)="selectMedia(m)"
+    >
+      <img [src]="m.source_url" />
+    </div>
 
-          <ion-card-content>
-            <ion-input
-              [(ngModel)]="m.title.rendered"
-              placeholder="Title">
-            </ion-input>
+    <!-- Custom Item -->
+    <div class="media-item custom-item">
+      <ion-icon name="image-outline"></ion-icon>
+      <span>Custom Item</span>
+    </div>
+  </div>
 
-            <ion-input
-              [(ngModel)]="m.alt_text"
-              placeholder="Alt text">
-            </ion-input>
-
-            <ion-button size="small" expand="block"
-              (click)="updateMedia(m)">
-              Save
-            </ion-button>
-
-            <ion-button size="small" color="danger" expand="block"
-              (click)="deleteMedia(m.id)">
-              Delete
-            </ion-button>
-          </ion-card-content>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-   <!-- Infinite Scroll -->
+  <!-- Infinite Scroll -->
   <ion-infinite-scroll
     threshold="100px"
     (ionInfinite)="loadMedia($event)"
     [disabled]="!hasMore">
 
     <ion-infinite-scroll-content
-      loadingSpinner="bubbles"
-      loadingText="Loading more media...">
+      loadingSpinner="bubbles">
     </ion-infinite-scroll-content>
 
   </ion-infinite-scroll>
-</ion-content>
+
+  <!-- Floating Upload Button -->
+<!-- <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab-button class="upload-fab">
+    <ion-icon name="image"></ion-icon> -->
+
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab-button class="upload-fab">
+    <ion-icon name="image"></ion-icon>
+  </ion-fab-button>
+
+  <!-- Animated action list -->
+  <ion-fab-list side="top">
+    <!-- Camera -->
+    <ion-fab-button class="fab-action" (click)="openCamera()">
+      <ion-icon name="camera-outline"></ion-icon>
+    </ion-fab-button>
+
+    <!-- Gallery -->
+    <ion-fab-button class="fab-action">
+      <ion-icon name="images-outline"></ion-icon>
+
+      <!-- File input for gallery -->
+      <input
+        type="file"
+        accept="image/*"
+        class="fab-file-input"
+        (change)="onFileSelect($event)"
+      />
+    </ion-fab-button>
+  </ion-fab-list>
+</ion-fab>
+
+

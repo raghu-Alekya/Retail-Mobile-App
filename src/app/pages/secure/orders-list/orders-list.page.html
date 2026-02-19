@@ -1,19 +1,33 @@
 <ion-header class="orders-header">
   <ion-toolbar>
+
+    <!-- Back -->
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
-
+ 
+    <!-- Title -->
     <ion-title>Orders</ion-title>
+
+    <!-- Right icons -->
+    <!-- <ion-buttons slot="end"> -->
+      <!-- Filter (funnel icon) -->
+      <!-- <ion-button fill="clear" (click)="openFilters()">
+        <ion-icon name="funnel-outline"></ion-icon>
+      </ion-button> -->
+
+      <!-- Plus -->
+      <!-- <ion-button fill="clear" (click)="addOrder()">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons> -->
+
   </ion-toolbar>
 
   <!-- Search -->
-   <div class="search-wrapper">
+  <div class="search-wrapper">
     <ion-icon name="search-outline"></ion-icon>
-    <input
-      placeholder="Search Orders"
-      (input)="onSearch($event)"
-    />
+    <input placeholder="Search Orders" (input)="onSearch($event)" />
   </div>
 </ion-header>
 
@@ -22,10 +36,14 @@
   <div
     class="order-card"
     *ngFor="let order of orders; trackBy: trackById"
-    [routerLink]="['/orders', order.id]"
+    
   >
 
-    <!-- Header -->
+
+    <!-- NORMAL CARD (VISIBLE ONLY WHEN NOT EXPANDED) -->
+    <ng-container *ngIf="!isExpanded(order.id)">
+    
+      <!-- Header -->
     <div class="order-top">
       <div>
         <h3>
@@ -83,7 +101,7 @@
     </div>
     <hr class="my-1"/>
     <!-- Actions -->
-    <div class="actions">
+    <!-- <div class="actions">
        <ion-icon
         name="call-outline"
         (click)="$event.stopPropagation()"
@@ -94,26 +112,67 @@
         (click)="toggleExpand(order.id); $event.stopPropagation()"
         [class.rotate]="isExpanded(order.id)"
       ></ion-icon>
+    </div> -->
+
+    <!-- Actions (bottom-right icons) -->
+    <div class="actions">
+      <!-- Call -->
+      <ion-icon
+        name="call-outline"
+        (click)="$event.stopPropagation()"
+      ></ion-icon>
+
+      <!-- Expand / Fullscreen -->
+      <ion-icon
+        name="expand-outline"
+        (click)="toggleExpand(order.id); $event.stopPropagation()"
+      ></ion-icon>
     </div>
-    <div
-      class="order-expand"
-      *ngIf="isExpanded(order.id)"
-      (click)="$event.stopPropagation()"
-    >
+    </ng-container>
+
+    <ng-container *ngIf="isExpanded(order.id)">
+    <div class="order-expand">
       <!-- LINE ITEMS -->
       <div class="expand-section">
-        <h4>Items</h4>
+        <div class="expand-header">
+          <div class="expand-header-left">
+            <h4>#{{ order.id }}</h4>
+            <div class="expand-meta">
+              {{ timeAgo(order.date_created) }} ·
+              {{ order.line_items.length }} items
+            </div>
+          </div>
+
+          <ion-button
+            size="small"
+            shape="round"
+            [color]="getStatusColor(order.status)"
+          >
+            {{ order.status | titlecase }}
+          </ion-button>
+        </div>
 
         <div
           class="expand-item"
           *ngFor="let item of order.line_items"
         >
-          <!-- <img [src]="getProductImage(item)" /> -->
+          <div class="expand-thumb-wrapper">
+            <img
+              class="expand-thumb"
+              [src]="item.image?.src || 'assets/img/placeholder.png'"
+            />
+            <span class="expand-qty">{{ item.quantity }}</span>
+          </div>
+
           <div class="info">
             <div class="name">{{ item.name }}</div>
-            <div class="qty-price">
-              {{ item.quantity }} × {{currencySymbol}}{{ item.product_data.price }}
+            <div class="sku">
+              SKU: {{ item.product_data?.sku || '-' }}
             </div>
+            <div class="qty-price">
+              Price: {{currencySymbol}}{{ item.product_data.price }}
+            </div>
+
             <span *ngFor="let meta of item.meta_data">
               <span 
                 class="qty-price"
@@ -153,14 +212,6 @@
         </div>
       </div>
 
-      <!-- TAX -->
-      <div class="expand-section" *ngIf="order.total_tax > 0">
-        <div class="row">
-          <span>Tax</span>
-          <span>{{currencySymbol}}{{ order.total_tax }}</span>
-        </div>
-      </div>
-
       <!-- SUMMARY -->
       <div class="expand-section summary">
         <div class="row" *ngIf="order.discount_total > 0">
@@ -168,12 +219,48 @@
           <span>-{{currencySymbol}}{{ order.discount_total }}</span>
         </div>
 
-        <div class="row total">
-          <strong>Total</strong>
-          <strong>{{currencySymbol}}{{ order.total }}</strong>
+        <!-- Tax and Total in same row -->
+        <div class="tax-total-row">
+          <div class="tax">
+            Tax: {{currencySymbol}}{{ order.total_tax }}
+          </div>
+          <div class="total">
+            Total: {{currencySymbol}}{{ order.total }}
+          </div>
+        </div>
+      </div>
+
+      <!-- EXPAND FOOTER -->
+
+      <div class="expand-footer">
+        <!-- Left: payment -->
+        <div class="payment">
+          {{ order.payment_method_title }}
+          <span *ngIf="order.shipping_lines?.length">
+            &nbsp; | &nbsp; {{ order.shipping_lines[0].method_title }}
+          </span>
+          <span *ngIf="!order.shipping_lines?.length">
+            &nbsp; | &nbsp; --
+          </span>
+        </div>
+
+        <!-- Right: actions -->
+        <div class="expand-actions">
+          <!-- Call -->
+          <ion-icon
+            name="call-outline"
+            (click)="$event.stopPropagation()"
+          ></ion-icon>
+
+          <!-- Collapse -->
+          <ion-icon
+            name="contract-outline"
+            (click)="toggleExpand(order.id); $event.stopPropagation()"
+          ></ion-icon>
         </div>
       </div>
     </div>
+    </ng-container>
   </div>
   <ion-infinite-scroll
     threshold="100px"
@@ -186,3 +273,16 @@
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
 </ion-content>
+
+<!-- Order Filters-->
+<ion-footer class="order-filter-footer">
+  <div class="order-filter-bar">
+    <button
+      *ngFor="let s of orderStatuses"
+      [class.active]="selectedStatus === s.value"
+      (click)="selectStatus(s.value)"
+    >
+      {{ s.label }}
+    </button>
+  </div>
+</ion-footer>

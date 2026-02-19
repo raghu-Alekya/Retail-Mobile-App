@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { ProductFormPage } from './product-form.page';
+import { SplashPage } from './splash.page';
 
-describe('ProductFormPage', () => {
-  let component: ProductFormPage;
-  let fixture: ComponentFixture<ProductFormPage>;
+describe('SplashPage', () => {
+  let component: SplashPage;
+  let fixture: ComponentFixture<SplashPage>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ ProductFormPage ],
+      declarations: [ SplashPage ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ProductFormPage);
+    fixture = TestBed.createComponent(SplashPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
@@ -21,8 +21,4 @@ describe('ProductFormPage', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-
-  
 });
-
-

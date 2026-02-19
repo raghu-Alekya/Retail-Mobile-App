@@ -490,5 +490,24 @@ export class ProductFormPage implements OnInit {
     }
   }
 
+  /////////////////////////////////////// priya
+  removeImage() {
+    this.imagePreview = null;
+    this.selectedFile = null;
+  }
+
+  taxClasses = [
+    { id: 1, name: 'Standard rate', percentage: 18 },
+    { id: 2, name: 'Reduced rate', percentage: 5 },
+    { id: 3, name: 'Zero rate', percentage: 0 }
+  ];
+
+  selectedTaxClass: any = null;
+
+  editRegularPrice = false;
+  editSalePrice = false;
+  
+  /////////////////////////////////////// priya
+
 }
 

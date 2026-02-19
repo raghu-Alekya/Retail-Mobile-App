@@ -2,6 +2,7 @@
 
   ion-content {
     --background: #f2f2f2;
+  --padding-top: 0px;   // reduce this value
   }
 
   /* Header */
@@ -34,7 +35,7 @@
     background: #fff;
     width: 90%;
     max-width: 400px;
-    margin: -80px auto 0;
+    margin: -200px auto 0;
     padding: 24px;
     border-radius: 16px;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
