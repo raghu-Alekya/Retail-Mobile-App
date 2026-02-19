@@ -98,8 +98,8 @@ export class ReportsPage implements AfterViewInit  {
 
     const res = await this.authService.loadInventory(
       this.date,
-      this.inventoryPage,
-      50
+      String(this.inventoryPage),
+      "50"
     );
 
     this.inventory.push(...res.items);

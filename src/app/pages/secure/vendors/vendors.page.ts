@@ -33,7 +33,7 @@ export class VendorsPage implements OnInit {
     this.loading = true;
 
     try {
-      const res = await this.authService.getVendors(this.page, this.perPage);
+      const res = await this.authService.getVendors(this.page, String(this.perPage));
 
       const data = res.data;
 

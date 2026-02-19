@@ -26,7 +26,7 @@ export class MediaPage implements OnInit {
       this.loading = true;
 
       try {
-        const res = await this.mediaService.getMedia(this.page, this.perPage);
+        const res = await this.mediaService.getMedia(String(this.page), String(this.perPage));
 
         if (res.data.length < this.perPage) {
           this.hasMore = false;
