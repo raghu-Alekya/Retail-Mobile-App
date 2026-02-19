@@ -7,18 +7,21 @@
     <ion-title>Products</ion-title>
 
     <ion-buttons slot="end">
-      <!-- <ion-button>
+      <!-- Filter icon (same as Orders) -->
+      <!-- <ion-button fill="clear" (click)="openProductFilters()">
         <ion-icon name="funnel-outline"></ion-icon>
       </ion-button> -->
-      <ion-button [routerLink]="['/products/add']">
+
+      <!-- Add product -->
+      <ion-button fill="clear" [routerLink]="['/products/add']">
         <ion-icon name="add-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-
+ 
   <!-- Search -->
   <div class="search-wrapper">
-    <ion-icon name="search-outline"></ion-icon>
+    <ion-icon name="search"></ion-icon>
     <input
       placeholder="Search on All products"
       (input)="onSearch($event)"
@@ -26,6 +29,7 @@
     <ion-icon name="barcode-outline"></ion-icon>
   </div>
 </ion-header>
+
 
 <ion-content class="products-content ion-padding">
 
@@ -48,15 +52,27 @@
       />
 
       <div class="product-info">
-        <h3>{{ product.name }}</h3>
-        <h6>Regular Price: {{ (product?.regular_price || product?.price || 0) | currency }}</h6>
-        <h6>Sale Price: {{ (product?.sale_price || 0) | currency }}</h6>
+        <h3 class="product-name">{{ product.name }}</h3>
+        <h6 class="price-text">Regular Price: {{ (product?.regular_price || product?.price || 0) | currency }}</h6>
+        <h6 class="price-text">Sale Price: {{ (product?.sale_price || 0) | currency }}</h6>
 
-        <span
+        <!-- <span
           class="stock"
           [class.out]="product.stock_status !== 'instock'"
         >
           {{ product.stock_status }}
+        </span> -->
+
+        <span class="stock in" *ngIf="product.stock_status === 'instock'">
+          In Stock
+        </span>
+
+        <span class="stock out" *ngIf="product.stock_status === 'outofstock'">
+          Out of Stock
+        </span>
+
+        <span class="stock backorder" *ngIf="product.stock_status === 'onbackorder'">
+          Back Order
         </span>
 
         <p>Total sales: {{ product.total_sales }}</p>

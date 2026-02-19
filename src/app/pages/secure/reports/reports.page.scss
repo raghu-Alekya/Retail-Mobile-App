@@ -28,6 +28,9 @@
   margin: 10px;
   border-left: 4px solid #3880ff;
 }
+ion-card {
+  margin-bottom: 16px;
+}
 
 .chart-container {
   height: 260px;
@@ -62,3 +65,73 @@
     color: #fff;
   }
 }
+.chart-container {
+  position: relative;
+  height: 250px;
+  width: 100%;
+}
+ion-footer {
+  ion-toolbar {
+    --background: #ffffff;
+  }
+
+  ion-segment {
+    padding: 8px;
+  }
+}
+.reports-content {
+  --background: #f4f6fb;
+}
+.reports-content {
+  --background: #f4f6fb;
+}
+
+.summary-card {
+  border-radius: 18px;
+  background: #78a5b9;  /* deep navy */
+  color: white;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  height : 90px;
+}
+.date-input {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 6px 12px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.date-input ion-icon {
+  color: #2e6f89;   /* match your summary card color */
+  font-size: 18px;
+}
+
+.date-input ion-input {
+  font-weight: 500;
+  color: #333;
+}
+.chart-header {
+  padding-bottom: 0;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.month-indicator {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.dot {
+  height: 8px;
+  width: 8px;
+  background: rgb(123, 2, 81);
+  border-radius: 50%;
+  margin-right: 6px;
+}
+

@@ -10,7 +10,7 @@
     --color: #fff;
   }
 }
-
+ 
 /* Search */
 .search-wrapper {
   margin: 14px 16px;
@@ -75,10 +75,10 @@ ion-content.customers-content::part(scroll) {
   border-radius: 16px;
   padding: 14px 16px;
   margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-
+  //display: flex;
+  //align-items: center;
+  //gap: 14px;
+  //position: relative;
   /* subtle card look like screenshot */
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
 
@@ -133,10 +133,24 @@ ion-content.customers-content::part(scroll) {
   }
 }
 
-/* Actions */
+.subtitle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.pin-text {
+  font-size: 13px;
+  color: #6b7c93;
+}
+
+
+/* Actions */ 
 .actions {
   display: flex;
   gap: 12px;
+  flex-shrink: 0;
 
   ion-icon {
     font-size: 18px;
@@ -149,4 +163,30 @@ ion-content.customers-content::part(scroll) {
   color: #11151a;
   padding: 6px 16px 10px;
   text-transform: capitalize;
+}
+
+.role-badge {
+  //position: absolute;
+  //top: 12px;
+  //right: 16px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.role-color-0 .role-badge { color: #ef5350; }
+.role-color-1 .role-badge { color: #26c6da; }
+.role-color-2 .role-badge { color: #2f4157; }
+.role-color-3 .role-badge { color: #2ecc71; }
+.role-color-4 .role-badge { color: #fbc02d; }
+
+.top-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 6px;
+}
+
+.content-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }

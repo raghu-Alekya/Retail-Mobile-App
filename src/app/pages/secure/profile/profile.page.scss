@@ -1,0 +1,137 @@
+.profile-header {
+  text-align: center;
+  margin-top: 25px;
+  
+}
+
+.avatar-wrapper {
+  position: relative;
+  width: 120px;
+  margin: auto;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #1e4f91;
+}
+
+.edit-icon {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: #1e4f91;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 16px;
+}
+ion-toolbar {
+  --background: #083d6a;
+  --color: white;
+}
+.logout-btn ion-button {
+  --background: #083d6a;
+
+  --color: #ffffff;
+}
+
+.avatar-icon {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #083a57;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f6fb;
+}
+
+.avatar-icon ion-icon {
+  font-size: 48px;   /* reduced size */
+  color: #083d6a;
+}
+
+h2 {
+  margin-top: 12px;
+  font-size: 18px;
+  font-weight: 100;   /* normal */
+}
+
+
+p {
+  margin-top: 4px;
+  color: gray;
+}
+
+.menu-list ion-item {
+  margin: 10px 15px;
+  border-radius: 12px;
+  --background: #f5f7fb;
+}
+
+.menu-list ion-icon {
+  color: #425a7a;
+}
+
+.logout-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+
+  padding: 0 20px;
+}
+
+.save-btn ion-button {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+  background: #083a57;
+}
+/* ===== LOGOUT ALERT STYLING ===== */
+/* ========== LOGOUT ALERT STYLING ========== */
+
+.logout-alert .alert-wrapper {
+  border-radius: 14px !important;
+  padding: 12px !important;
+}
+
+.logout-alert .alert-title {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+}
+
+.logout-alert .alert-message {
+  text-align: center !important;
+  color: #777 !important;
+  margin-top: 6px !important;
+}
+
+.logout-alert .alert-button-group {
+  display: flex !important;
+  justify-content: space-between !important;
+  padding: 10px !important;
+}
+
+.logout-alert .cancel-btn {
+  border: 1px solid #ff3b30 !important;
+  color: #ff3b30 !important;
+  border-radius: 6px !important;
+  width: 45% !important;
+}
+
+.logout-alert .confirm-btn {
+  background: #ff3b30 !important;
+  color: white !important;
+  border-radius: 6px !important;
+  width: 45% !important;
+}

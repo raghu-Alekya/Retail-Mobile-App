@@ -69,6 +69,7 @@ dailyTotals: number[] = [];
     this.assetsService.assets$.subscribe(assets => {
       this.currencySymbol = assets?.currency_symbol;
     });
+    
   }
 
   // 🔥 ADD THIS (KEY FIX)
@@ -76,7 +77,6 @@ dailyTotals: number[] = [];
   await this.loadDashboardStats();
   await this.loadDailySalesChart();
 }
-
 
 
   async loadDashboardStats() {

@@ -1,50 +1,78 @@
-<ion-header class="products-header">
-  <ion-toolbar>
+<ion-header>
+  <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
 
-    <ion-title>Vendors</ion-title>
+    <ion-title>Vendor Payouts</ion-title>
 
     <ion-buttons slot="end">
-      <ion-button>
-        <ion-icon name="funnel-outline"></ion-icon>
-      </ion-button>
-      <ion-button (click)="addVendor()">
-        <ion-icon name="add-outline"></ion-icon>
+      <ion-button fill="clear">
+        
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
-  <!-- Search -->
+
   <div class="search-wrapper">
     <ion-searchbar
       placeholder="Search..."
       (ionInput)="search($event)">
-    </ion-searchbar> 
+    </ion-searchbar>
   </div>
 </ion-header>
-<ion-content>
-  <span class="fs-8">Swipe Left to Edit or Delete</span>
-  <ion-list>
-    <ion-item-sliding *ngFor="let v of vendors">
-      <ion-item>
-        <ion-label>
-          <h2>{{ v.title }}</h2>
-          <p>📞 {{ v.meta._vendor_phone || '-' }}</p>
-          <p>✉ {{ v.meta._vendor_email || '-' }}</p>
-          <p>📍 {{ v.meta._vendor_address || '-' }}</p>
-        </ion-label>
-      </ion-item>
 
-      <ion-item-options side="end">
-        <ion-item-option color="primary" (click)="editVendor(v)">
-          Edit
-        </ion-item-option>
-        <ion-item-option color="danger" (click)="deleteVendor(v)">
-          Delete
-        </ion-item-option>
-      </ion-item-options>
-    </ion-item-sliding>
-  </ion-list>
+<ion-content>
+
+  <div
+  class="vendor-card"
+  *ngFor="let v of filteredVendors; let i = index"
+  [style.--accent]="getAccentColor(i)">
+
+
+    <!-- TOP ROW -->
+    <div class="top-row">
+
+      <div class="left">
+        <!-- Avatar -->
+        <div class="avatar">
+          <ion-icon name="bag-handle-outline"></ion-icon>
+        </div>
+
+        <!-- Name -->
+        <div class="name">
+          {{ v.vendor_name }}
+        </div>
+      </div>
+
+      <!-- Type -->
+      <div
+        class="type"
+        [ngClass]="v.type === 'Purchase' ? 'purchase' : 'expense'">
+        • {{ v.type }}
+      </div>
+
+    </div>
+
+    <!-- AMOUNT + PAYMENT (SIDE BY SIDE) -->
+    <div class="middle-row">
+      <div class="amount">
+        Amount: ${{ v.amount }}
+      </div>
+
+      <div class="method">
+        Payment Method: {{ v.payment_method }}
+      </div>
+    </div>
+
+    <!-- DIVIDER -->
+    <div class="divider"></div>
+
+    <!-- NOTE -->
+    <div class="note">
+      Note: {{ v.note }}
+    </div>
+
+  </div>
 
 </ion-content>
+

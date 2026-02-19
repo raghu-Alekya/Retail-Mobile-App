@@ -294,10 +294,9 @@ export class AuthService {
     params.role = 'customer';
   } 
   else if (userRole === 'employee') {
-    // ❌ EXCLUDE customers
     params.role__not_in = ['customer'];
   }
-  const res = await axios.get(`${this.base}/users`, {
+  const res = await axios.get(`${this.wpBase}/users`, {
     headers: this.getAuthHeaders(),
     params,
   });
@@ -531,7 +530,18 @@ async loadSales(date: string) {
     );
     return res.data;
   }
+  async loadShiftSales(date?: string) {
 
+    const res = await axios.get(
+      `${this.wpBase}/wp-json/pinaka-pos/v1/reports-new/shift-sales`,
+      {
+        params: date ? { date: date } : {},
+        headers: this.getAuthHeaders()
+      }
+    );
+
+    return res.data;
+  }
   async loadEmployeeSales(date: string) {
     const res = await axios.get(
       `${this.wpBase}/wp-json/pinaka-pos/v1/reports/employee-sales`,

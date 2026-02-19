@@ -17,7 +17,7 @@ export class ProductsListPage implements OnInit {
   products: any[] = [];
   page = 1;
   search = '';
-  stock = '';
+  stock = ''; 
   loading = false;
   hasMore = true;
 

@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { IonicModule, ToastController } from '@ionic/angular';
+import { IonicModule,NavController, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-shifts',
@@ -9,6 +11,14 @@ import { AuthService } from 'src/app/services/auth/auth.service';
   styleUrls: ['./shifts.page.scss'],
 })
 export class ShiftsPage implements OnInit {
+
+filteredShifts: any[] = [];
+
+colors = ['yellow', 'red', 'teal', 'orange', 'purple'];
+
+
+
+
 
   shifts: any[] = [];
   page = 1;
@@ -20,9 +30,20 @@ export class ShiftsPage implements OnInit {
   isLoading = false;
 
   constructor(
-    private toastCtrl: ToastController,     
-    private authService: AuthService,
-  ) {}
+  private navCtrl: NavController,
+  private router: Router,
+  private toastCtrl: ToastController,
+  private authService: AuthService
+) {}
+
+goBack() {
+  if (this.router.url.includes('/shifts')) {
+    // 🔥 explicit fallback
+    this.navCtrl.navigateRoot('/tabs/home');
+  } else {
+    this.navCtrl.back();
+  }
+}
 
   ngOnInit() {
     this.loadShifts();
@@ -76,6 +97,13 @@ export class ShiftsPage implements OnInit {
       0
     );
   }
+getBorderColor(index: number) {
+  return this.colors[index % this.colors.length];
+}
+
+getAvatarColor(index: number) {
+  return `${this.colors[index % this.colors.length]}-bg`;
+}
 
   /**
    * Calculate total vendor payouts
@@ -140,7 +168,16 @@ export class ShiftsPage implements OnInit {
 
       // ✅ FIX STARTS HERE
       if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
-        this.shifts.push(...res.data);
+        const mapped = res.data.map((s: any) => this.mapShift(s));
+
+this.shifts.push(...mapped);
+this.filteredShifts = [...this.shifts];
+
+this.page++;
+this.hasMore = res.pagination?.has_more ?? false;
+
+        this.filteredShifts = [...this.shifts];
+
         this.page++;
         this.hasMore = res.pagination?.has_more ?? false;
       } else {
@@ -199,6 +236,52 @@ export class ShiftsPage implements OnInit {
     // reset pagination + data
     this.loadShifts(undefined, true);
   }
+  filterShifts(event: any) {
+  const value = event.target.value?.toLowerCase().trim() || '';
 
+  // If search box is empty → show all shifts
+  if (!value) {
+    this.filteredShifts = [...this.shifts];
+    return;
+  }
+
+  // Filter from ORIGINAL list (important!)
+  this.filteredShifts = this.shifts.filter(shift =>
+    shift.staffName?.toLowerCase().includes(value)
+  );
+}
+
+
+mapShift(apiShift: any) {
+  const opening = this.getSafeDropTotal(apiShift);
+  const sales = Number(apiShift.total_sale_amount || 0);
+  const vendor = this.getVendorTotal(apiShift);
+
+  return {
+    staffName: apiShift.user_name,
+    date: apiShift.start_time,
+
+    openingBalance: opening,
+    closingBalance: opening + sales - vendor,
+
+    sales: sales,
+    overShort: Number(apiShift.over_short || 0),
+
+    startTime: apiShift.start_time?.split(' ')[1] || '—',
+    endTime: apiShift.end_time
+      ? apiShift.end_time.split(' ')[1]
+      : '—',
+
+    duration: apiShift.end_time ? 'Completed' : 'Ongoing',
+  };
+}
+
+
+openShift(shift: any) {
+  console.log('Shift clicked:', shift);
+
+  // temporary test
+  this.showToast(`Opening shift: ${shift.staffName}`);
+}
 
 }

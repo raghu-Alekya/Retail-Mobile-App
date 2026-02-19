@@ -2,23 +2,36 @@ import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
 import { PublicGuard } from './guards/public.guard';
-
+ 
 const routes: Routes = [
-
-  // 🔐 Secure home
+ 
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'tabs/home',
     pathMatch: 'full'
   },
-
-  {
-    path: 'home',
+    {
+    path: 'tabs',
     loadChildren: () =>
-      import('./pages/secure/home/home.module').then(m => m.HomePageModule),
+      import('./tabs/tabs.module').then(m => m.TabsPageModule),
     canActivate: [AuthGuard]
   },
-
+ 
+ 
+  // 🔐 Secure home
+  // {
+  //   path: '',
+  //   redirectTo: 'home',
+  //   pathMatch: 'full'
+  // },
+ 
+  // {
+  //   path: 'home',
+  //   loadChildren: () =>
+  //     import('./pages/secure/home/home.module').then(m => m.HomePageModule),
+  //   canActivate: [AuthGuard]
+  // },
+ 
   // 🔓 Public pages
   {
     path: 'welcome',
@@ -45,7 +58,7 @@ const routes: Routes = [
         .then(m => m.PasswordResetPageModule),
     canActivate: [PublicGuard]
   },
-
+ 
   // 🔐 Other secure pages
   {
     path: 'orders-list',
@@ -110,8 +123,8 @@ const routes: Routes = [
         .then(m => m.ReportsPageModule),
     canActivate: [AuthGuard]
   },
-  { path: "order-payments", 
-    loadChildren: () => import("./pages/secure/order-payments/order-payments.module").then(m => m.OrderPaymentsPageModule), 
+  { path: "order-payments",
+    loadChildren: () => import("./pages/secure/order-payments/order-payments.module").then(m => m.OrderPaymentsPageModule),
     canActivate: [AuthGuard]
   },
   {
@@ -121,8 +134,8 @@ const routes: Routes = [
         .then(m => m.MediaPageModule),
     canActivate: [AuthGuard]
   },
-  { path: "vendors", 
-    loadChildren: () => import("./pages/secure/vendors/vendors.module").then(m => m.VendorsPageModule), 
+  { path: "vendors",
+    loadChildren: () => import("./pages/secure/vendors/vendors.module").then(m => m.VendorsPageModule),
     canActivate: [AuthGuard]
   },
   {
@@ -153,6 +166,19 @@ const routes: Routes = [
         .then(m => m.DiscountsPageModule),
     canActivate: [AuthGuard]  
   },
+  // {
+  //   path: 'devices',
+  //   loadChildren: () =>
+  //     import('./pages/secure/settings/devices/devices.module').then(m => m.DevicesPageModule)
+ 
+  //   },
+  {
+  path: 'secure',
+  loadChildren: () =>
+    import('./pages/secure/secure.module')
+      .then(m => m.SecureModule)
+}
+ 
 ];
 @NgModule({
   imports: [
