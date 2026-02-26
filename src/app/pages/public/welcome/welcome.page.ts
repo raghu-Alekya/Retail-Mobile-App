@@ -17,6 +17,8 @@ export class WelcomePage {
   language: string = '';
   last_slide: boolean = false;
   currentIndex: number = 0;
+  isDarkBg = false;
+
 
   @ViewChild('swiper', { static: false }) swiper!: SwiperComponent;
 
@@ -49,8 +51,9 @@ export class WelcomePage {
     if (this.swiper?.swiperRef) {
       this.currentIndex = this.swiper.swiperRef.activeIndex;
       this.cd.detectChanges();
-    }
   }
+}
+
 
   onLastSlide() {
     this.last_slide = true;
@@ -59,4 +62,7 @@ export class WelcomePage {
   goToSignIn() {
     this.router.navigate(['/signin']);
   }
+
+
+
 }

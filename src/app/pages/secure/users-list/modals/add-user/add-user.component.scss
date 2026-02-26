@@ -1,0 +1,35 @@
+.dark-toolbar {
+  --background: #2f5378;
+  --color: #ffffff;
+}
+
+ion-content {
+  --background: #f5f7fa;
+}
+
+ion-item {
+  --background: #ffffff;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+/* Fix ion-select arrow alignment */
+ion-select {
+  width: 100%;
+  --padding-start: 12px;
+  --padding-end: 12px;
+}
+
+/* Make sure item has proper layout */
+ion-item {
+  --inner-padding-end: 0;
+}
+
+/* If using custom background */
+.custom-item {
+  --background: #e1e4ea;
+  border-radius: 12px;
+}
+ion-input {
+  --placeholder-color: #777;
+  --placeholder-opacity: 1;
+}

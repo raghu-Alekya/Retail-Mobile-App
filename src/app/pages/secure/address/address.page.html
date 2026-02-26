@@ -1,0 +1,56 @@
+<ion-header>
+  <ion-toolbar>
+
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/profile"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Address</ion-title>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <!-- Saved Address -->
+  <div *ngIf="savedAddress && !isEditing">
+
+    <h4 style="margin:16px; display:flex; justify-content:space-between; align-items:center;">
+      Saved Address
+
+      <!-- Edit Button -->
+      <ion-button fill="clear" size="small" (click)="startAdd()">
+        Edit
+      </ion-button>
+    </h4>
+
+    <div class="address-card">
+      {{ savedAddress }}
+    </div>
+
+  </div>
+
+  <!-- Add / Edit Address -->
+  <div style="margin:16px">
+
+
+    <h4>Add New Address</h4>
+
+    <ion-item>
+      <ion-input [(ngModel)]="newAddress"></ion-input>
+
+      <ion-button fill="clear">
+        <ion-icon name="add"></ion-icon>
+      </ion-button>
+    </ion-item>
+
+    <ion-button
+      expand="block"
+      class="save-btn"
+      (click)="addAddress()">
+      Save Address
+    </ion-button>
+
+  </div>
+
+</ion-content>

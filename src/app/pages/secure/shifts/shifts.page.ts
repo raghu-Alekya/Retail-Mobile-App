@@ -139,63 +139,51 @@ getAvatarColor(index: number) {
    * Mock data – remove after API integration
    */
 
-  async loadShifts(event?: any, reset = false) {
-    if (this.loading || !this.hasMore) {
-      event?.target.complete();
-      return;
-    }
+ async loadShifts(event?: any, reset = false) {
 
-    if (reset) {
-      this.page = 1;
-      this.shifts = [];
-      this.hasMore = true;
-
-      if (event) {
-        event.target.disabled = false;
-      }
-    }
-
-    this.loading = true;
-
-    try {
-      const res = await this.authService.getShifts(
-        this.page,
-        this.search,
-        this.status
-      );
-
-      console.log('Shifts API response:', res);
-
-      // ✅ FIX STARTS HERE
-      if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
-        const mapped = res.data.map((s: any) => this.mapShift(s));
-
-this.shifts.push(...mapped);
-this.filteredShifts = [...this.shifts];
-
-this.page++;
-this.hasMore = res.pagination?.has_more ?? false;
-
-        this.filteredShifts = [...this.shifts];
-
-        this.page++;
-        this.hasMore = res.pagination?.has_more ?? false;
-      } else {
-        this.hasMore = false;
-        if (event) {
-          event.target.disabled = true;
-        }
-      }
-      // ✅ FIX ENDS HERE
-
-    } catch (err) {
-      console.error('Shift load failed', err);
-    }
-
-    this.loading = false;
+  if (this.loading || !this.hasMore) {
     event?.target.complete();
+    return;
   }
 
+  if (reset) {
+    this.page = 1;
+    this.shifts = [];
+    this.hasMore = true;
+  }
+
+  this.loading = true;
+
+  try {
+    const res = await this.authService.getShifts(
+      this.page,
+      this.search,
+      this.status
+    );
+
+    console.log('Shifts API response:', res);
+
+    if (res?.data?.length) {
+
+      const mapped = res.data.map((s: any) => this.mapShift(s));
+
+      this.shifts.push(...mapped);
+      this.filteredShifts = [...this.shifts];
+
+      this.page++;   // ✅ load next page next time
+      this.hasMore = res.pagination?.has_more ?? false;
+
+    } else {
+      this.hasMore = false;
+    }
+
+  } catch (err) {
+    console.error('Shift load failed', err);
+  }
+
+  this.loading = false;
+  event?.target.complete();
+}
 
   getMockShifts() {
     

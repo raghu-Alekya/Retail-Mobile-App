@@ -135,59 +135,78 @@ async getDashboardStats(status: string): Promise<number> {
 
 
 
-   async getOrders(page: number, search: string = '') {
+async getOrders(page: number, search: string = '') {
 
-    const token = localStorage.getItem('wc_token');
+  const token = localStorage.getItem('wc_token');
+  this.wpBase = this.apiConfig.getBaseUrl();
 
-    const res = await Http.request({
-      method: 'GET',
-      url: `${this.wpBase}/wp-json/wc/v3/orders`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      },
-      params: {
-        page: String(page),
-        per_page: '10',
-        orderby: 'date',
-        order: 'desc',
-        search: search || undefined
-      }
-    });
+  const params: any = {
+    page: String(page),
+    per_page: '10',
+    orderby: 'date',
+    order: 'desc',
+  };
 
-    // Capacitor may return JSON as string
-    const data =
-      typeof res.data === 'string'
-        ? JSON.parse(res.data)
-        : res.data;
-
-    return data;
+  // ⭐ detect order ID search
+  if (search) {
+    if (!isNaN(Number(search))) {
+      params.include = search;   // search by order ID
+    } else {
+      params.search = search;    // search by name/email
+    }
   }
 
+  const res = await Http.request({
+    method: 'GET',
+    url: `${this.wpBase}/wp-json/wc/v3/orders`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    },
+    params
+  });
 
-  async getProducts(page: number, search: string = '', stock: string = '') {  
-    const token = localStorage.getItem('wc_token');
-    const res = await Http.request({
-      method: 'GET',
-      url: `${this.wpBase}/wp-json/wc/v3/products`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
-      },
-      params: {
-        page: String(page),
-        per_page: '10',
-        orderby: 'date',
-        order: 'desc',
-        search: search || undefined
-      }
-    });
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
+}
 
-    return res.data;
+ async getProducts(page: number, search: string = '', stock: string = '') {
+
+  const token = localStorage.getItem('wc_token');
+  this.wpBase = this.apiConfig.getBaseUrl();
+
+  const params: any = {
+    page: String(page),
+    per_page: '10',
+    orderby: 'date',
+    order: 'desc',
+  };
+
+  // ✅ search only if typed
+  if (search) {
+    params.search = search;
   }
 
+  // ✅ stock filter
+  if (stock) {
+    params.stock_status = stock;
+  }
+
+  const res = await Http.request({
+    method: 'GET',
+    url: `${this.wpBase}/wp-json/wc/v3/products`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    },
+    params
+  });
+
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
+}
 async createProduct(product: any) {
 
   const token = localStorage.getItem('wc_token');
@@ -295,22 +314,25 @@ private fileToBase64(file: File): Promise<string> {
 
 async uploadMedia(file: File) {
 
-  const base64Data = await this.fileToBase64(file);
+  const formData = new FormData();
+  formData.append('file', file, file.name);
 
-  const res = await Http.request({
+  const res = await fetch(`${this.wpBase}/wp-json/wp/v2/media`, {
     method: 'POST',
-    url: `${this.wpBase}/wp-json/wp/v2/media`,
     headers: {
-      ...this.getAuthHeaders(),
-      'Content-Type': file.type,
-      'Content-Disposition': `attachment; filename="${file.name}"`
+      ...this.getAuthHeaders()
+     
     },
-    data: base64Data
+    body: formData
   });
 
-  return typeof res.data === 'string'
-    ? JSON.parse(res.data)
-    : res.data;
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error('Upload error:', errorText);
+    throw new Error('Upload failed');
+  }
+
+  return await res.json();
 }
 
 async getCategories(page = 1, perPage = 100) {
@@ -356,12 +378,10 @@ async createUser(newUser: any) {
     ? JSON.parse(res.data)
     : res.data;
 }
-
 async getUsers(
   role = '',
   page = 1,
   perPage = 10,
-  userRole = '',
   search = ''
 ) {
 
@@ -373,12 +393,6 @@ async getUsers(
 
   if (search) params.search = search;
   if (role) params.role = role;
-
-  if (userRole === 'customer') {
-    params.role = 'customer';
-  } else if (userRole === 'employee') {
-    params.role__not_in = ['customer'];
-  }
 
   const res = await Http.request({
     method: 'GET',
@@ -393,7 +407,7 @@ async getUsers(
       : res.data;
 
   return {
-    users: data,
+    users: Array.isArray(data) ? data : [],
     totalPages: Number(res.headers?.['x-wp-totalpages'] || 1)
   };
 }
@@ -435,15 +449,15 @@ async getUsers(
 }
 
 
-async getCustomRoles() {
-  const res = await Http.request({
-    method: 'GET',
-    url: `${this.wpBase}/wp-json/pinaka-pos/v1/orders/custom-user-roles`,
-    headers: this.getAuthHeaders(),
-  });
+// async getCustomRoles() {
+//   const res = await Http.request({
+//     method: 'GET',
+//     url: `${this.wpBase}/wp-json/pinaka-pos/v1/orders/custom-user-roles`,
+//     headers: this.getAuthHeaders(),
+//   });
 
-  return res.data;
-}
+//   return res.data;
+// }
 
 
 async updateUser(id: number, data: any) {
@@ -542,21 +556,6 @@ async updateMedia(id: number, data: any) {
 }
 
 
-// Delete Media
-async deleteMedia(id: number) {
-  const res = await Http.request({
-    method: 'DELETE',
-    url: `${this.wpBase}/wp-json/wp/v2/media/${id}`,
-    headers: this.getAuthHeaders(),
-    params: {
-      force: "1",
-    },
-  });
-
-  return res.data;
-}
-
-
 // Vendors
 async getVendors(page = 1, perPage = "10") {
   const res = await Http.request({
@@ -597,6 +596,7 @@ async getAttributeTerms(attributeId: number) {
 
 
 async createVariation(productId: number, data: any) {
+  console.log()
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/wc/v3/products/${productId}/variations`,
@@ -660,7 +660,49 @@ async getCustomerRoles() {
     return [];
   }
 }
+async getCustomRoles() {
+  const res = await Http.request({
+    method: 'GET',
+    url: `${this.wpBase}/wp-json/pinaka-pos/v1/roles/custom-user-roles`,
+    headers: this.getAuthHeaders()
+  });
 
+  let data = res.data;
+
+  // If string → parse
+  if (typeof data === 'string') {
+    try {
+      data = JSON.parse(data);
+    } catch (e) {
+      console.error('JSON parse error:', e);
+      return [];
+    }
+  }
+
+  console.log('SERVICE RETURN:', data);
+
+  return Array.isArray(data) ? data : [];
+}
+
+async deleteMedia(id: number) {
+  const res = await Http.request({
+    method: 'DELETE',
+    url: `${this.wpBase}/wp-json/wp/v2/media/${id}?force=true`,
+    headers: this.getAuthHeaders()
+  });
+
+  return res.data;
+}
+
+async getUserById(id: number) {
+  const res = await Http.request({
+    method: 'GET',
+    url: `${this.wpBase}/wp-json/wp/v2/users/${id}`,
+    headers: this.getAuthHeaders()
+  });
+
+  return res.data;
+}
 
 // Daily Sales (WooCommerce)
 async getDailySales(startDate: string, endDate: string) {
@@ -680,59 +722,29 @@ async getDailySales(startDate: string, endDate: string) {
   return res.data;
 }
 
-
-// Reports - Sales
-async loadSales(date: string) {
-
+async loadSales(type: 'daily' | 'weekly' | 'monthly') {
   const res = await Http.request({
     method: 'GET',
-    url: `${this.wpBase}/wp-json/pinaka-pos/v1/reports/sales`,
+    url: `${this.wpBase}/wp-json/pinaka-pos/v1/reports-new/sales`,
     headers: this.getAuthHeaders(),
-    params: { date }
+    params: { type }
   });
 
   return res.data;
 }
-
 
 // Reports - Employee Sales
 async loadEmployeeSales(date: string) {
 
   const res = await Http.request({
     method: 'GET',
-    url: `${this.wpBase}/wp-json/pinaka-pos/v1/reports/employee-sales`,
+    url: `${this.wpBase}/wp-json/pinaka-pos/v1/reports-new/shift-sales`,
     headers: this.getAuthHeaders(),
     params: { date }
   });
 
   return res.data;
-}
-
-
-// Reports - Item Sales
-async loadItemSales(date: string) {
-
-  const res = await Http.request({
-    method: 'GET',
-    url: `${this.wpBase}/wp-json/pinaka-pos/v1/reports/item-sales`,
-    headers: this.getAuthHeaders(),
-    params: { date }
-  });
-
-  return res.data;
-}
-
-// Inventory
-async loadInventory(date: string, page = "1", per_page = "50") {
-  const res = await Http.request({
-    method: 'GET',
-    url: `${this.wpBase}/wp-json/pinaka-pos/v1/reports/inventory`,
-    headers: this.getAuthHeaders(),
-    params: { date, page, per_page }
-  });
-
-  return res.data;
-}
+} 
 
 
 // Coupons

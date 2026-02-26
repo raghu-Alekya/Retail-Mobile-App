@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AuthService } from 'src/app/services/auth/auth.service'; 
+import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
   selector: 'app-media',
@@ -14,6 +14,8 @@ export class MediaPage implements OnInit {
   perPage = 20;
   hasMore = true;
   loading = false;
+  selectedMedia: any = null;
+
   constructor(private mediaService: AuthService) {}
 
   ngOnInit() {
@@ -21,57 +23,69 @@ export class MediaPage implements OnInit {
   }
 
   async loadMedia(event?: any) {
-      if (this.loading || !this.hasMore) return;
+    if (this.loading || !this.hasMore) return;
 
-      this.loading = true;
+    this.loading = true;
 
-      try {
-        const res = await this.mediaService.getMedia(String(this.page), String(this.perPage));
+    try {
+      const res = await this.mediaService.getMedia(
+        String(this.page),
+        String(this.perPage)
+      );
 
-        if (res.data.length < this.perPage) {
-          this.hasMore = false;
-        }
+      if (!Array.isArray(res)) {
+        console.error("Invalid media response:", res);
+        this.hasMore = false;
+        return;
+      }
 
-        this.mediaList = [...this.mediaList, ...res.data];
-        this.page++;
-
-      } catch (e) {
+      if (res.length < this.perPage) {
         this.hasMore = false;
       }
 
-      this.loading = false;
-      if (event) event.target.complete();
+      this.mediaList = [...this.mediaList, ...res];
+      this.page++;
+
+    } catch (e) {
+      console.error("MEDIA ERROR:", e);
+      this.hasMore = false;
     }
 
-    async refresh(event: any) {
-      this.page = 1;
-      this.mediaList = [];
-      this.hasMore = true;
-      await this.loadMedia();
-      event.target.complete();
-    }
+    this.loading = false;
+    if (event) event.target.complete();
+  }
 
   async onFileSelect(event: any) {
     const file = event.target.files[0];
     if (!file) return;
 
-    this.uploading = true;
-    await this.mediaService.uploadMedia(file);
-    this.uploading = false;
-    this.loadMedia();
+    try {
+      await this.mediaService.uploadMedia(file);
+
+      // Reload after upload
+      this.page = 1;
+      this.mediaList = [];
+      this.hasMore = true;
+      await this.loadMedia();
+
+    } catch (error) {
+      console.error('Upload failed', error);
+    }
   }
 
-  async updateMedia(item: any) {
-    await this.mediaService.updateMedia(item.id, {
-      title: item.title.rendered,
-      alt_text: item.alt_text
-    });
-    alert('Updated');
+  selectMedia(media: any) {
+    this.selectedMedia = media;
   }
 
-  async deleteMedia(id: number) {
+  async handleDelete(id: number) {
     if (!confirm('Delete this media?')) return;
-    await this.mediaService.deleteMedia(id);
-    this.loadMedia();
+
+    try {
+      await this.mediaService.deleteMedia(id);
+      this.mediaList = this.mediaList.filter(m => m.id !== id);
+      this.selectedMedia = null;
+    } catch (error) {
+      console.error('Delete failed', error);
+    }
   }
 }
