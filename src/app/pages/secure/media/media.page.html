@@ -2,7 +2,7 @@
 <ion-header class="media-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
     </ion-buttons>
 
     <ion-title>Media Library</ion-title>
@@ -76,5 +76,55 @@
     </ion-fab-button>
   </ion-fab-list>
 </ion-fab>
+<ion-modal 
+  [isOpen]="!!selectedMedia"
+  (didDismiss)="selectedMedia = null"
+  cssClass="custom-media-modal">
 
+  <ng-template>
+    <div class="media-popup">
 
+      <!-- Top Dark Section -->
+      <div class="popup-top">
+
+        <img 
+          class="popup-image"
+          [src]="selectedMedia?.source_url" 
+          alt="Media Image" />
+
+        <h2>{{ selectedMedia?.title?.rendered || 'Custom Item' }}</h2>
+
+        <div class="file-delete-row">
+          <div class="file-name">
+            {{ selectedMedia?.source_url?.split('/').pop() }}
+          </div>
+
+          <ion-button
+          class="delete-btn"
+          fill="solid"
+          color="danger"
+          (click)="handleDelete(selectedMedia.id)">
+
+          <ion-icon name="trash-outline" slot="start" class="delete-icon"></ion-icon>
+          <span class="delete-text">Delete</span>
+
+        </ion-button>
+        </div>
+
+      </div> <!-- ✅ CLOSE popup-top properly -->
+
+      <!-- Bottom White Section -->
+      <div class="popup-bottom">
+        <p>
+          File type: {{ selectedMedia?.mime_type }}
+        </p>
+
+        <a [href]="selectedMedia?.source_url" target="_blank">
+          {{ selectedMedia?.source_url }}
+        </a>
+      </div>
+
+    </div>
+  </ng-template>
+
+</ion-modal>

@@ -18,17 +18,28 @@ const routes: Routes = [
       },
       {
         path: 'charts',
-        loadChildren: () => import('../pages/secure/charts/charts.module').then(m => m.ChartsPageModule)
+        loadChildren: () => import('../pages/secure/reports/reports.module').then(m => m.ReportsPageModule)
       },
       {
         path: 'payments',
-        loadChildren: () => import('../pages/secure/payments/payments.module').then(m => m.PaymentsPageModule)
+        loadChildren: () => import('../pages/secure/order-payments/order-payments.module').then(m => m.OrderPaymentsPageModule)
       },
       {
         path: 'profile',
         loadChildren: () =>import('../pages/secure/profile/profile.module').then(m => m.ProfilePageModule)
       },
-
+      {
+        path: 'editprofile',
+        loadChildren: () =>import('../pages/secure/profile/edit/edit.module').then(m => m.EditPageModule)
+      },
+      {
+          path: 'change-password',
+          loadChildren: () =>import('../pages/secure/change-password/change-password.module').then(m => m.ChangePasswordPageModule),
+      },
+      {
+        path: 'address',
+        loadChildren: () =>import('../pages/secure/address/address.module').then(m => m.AddressPageModule)
+      },
       {
         path: 'styleguide',
         loadChildren: () => import('../pages/secure/styleguide/styleguide.module').then(m => m.StyleguidePageModule)

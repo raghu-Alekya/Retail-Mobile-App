@@ -4,108 +4,191 @@
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
 
+    <ion-title>Employees</ion-title>
 
-    <ion-title>
-      {{ userRole === 'customer' ? 'Customers' : 'Employees' }}
-    </ion-title>
-
-    <ion-buttons slot="end" *ngIf="userRole === 'employee'">
-      <ion-button (click)="openAddUserModal()">
+    <ion-buttons slot="end">
+      <ion-button (click)="openAddEmployee()">
         <ion-icon name="add-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-  </ion-toolbar> 
-  
+  </ion-toolbar>
+
+
   <!-- Search -->
   <div class="search-wrapper">
-    <ion-icon name="search"></ion-icon>
+    <ion-icon name="search-outline"></ion-icon>
     <input
+      type="text"
       placeholder="Search..."
       (input)="onSearch($event)"
     />
-    
   </div>
 </ion-header>
 
-<ion-content class="customers-content">
+<ion-content class="employees-content">
 
-  <!-- User List -->
-  <div class="customers-list">
 
-    <!-- Customers List Heading -->
-    <div class="list-heading" *ngIf="userRole === 'customer'">
-      Customers List
-    </div>
+  <div class="list-heading">
+    Employee List
+  </div>
+  <div class="swipe-hint">
+  <ion-icon name="swap-horizontal-outline"></ion-icon>
+  Swipe left to edit or delete the user
+</div>
 
-    <!-- Employees List Heading -->
-    <div class="list-heading" *ngIf="userRole === 'employee'">
-      Employees List
-    </div>
-    <div
-      class="customer-card"
-      *ngFor="let user of users; let i = index"
-      [ngClass]="'role-color-' + (i % 5)"
-    >
+<ion-list>
 
-    <!-- TOP ROW (Role only) -->
-    <div class="top-row" *ngIf="userRole === 'employee'">
-      <div class="role-badge">
-        • {{ getRoleLabel(user?.roles) }}
-      </div>
-    </div>
+  <ion-item-sliding *ngFor="let user of users; let i = index">
 
-    <!-- MAIN CONTENT ROW -->
-    <div class="content-row">
-    
-      <!-- Avatar -->
-      <div
-        class="avatar"
-        [ngClass]="'avatar-' + (i % 5)"
-      >
-        <ion-icon name="person-outline"></ion-icon>
-      </div>
+    <!-- CARD CONTENT -->
+    <ion-item lines="none">
 
-      <!-- Details -->
-      <div class="details">
-        <div class="title">
-          {{ user.email || user.meta?.phone }}
+      <div class="employee-card"
+           [ngClass]="'card-color-' + (i % 5)">
+
+        <div class="role-label">
+          • {{ getRoleLabel(user.roles) }}
         </div>
-        <div class="subtitle" *ngIf="userRole === 'customer'">
-          Redeem Points:
-          <strong>{{ user.meta?.redeem_points || 0 }} Pts</strong>
-        </div>
-        <div class="subtitle-row" *ngIf="userRole === 'employee'">
 
-          <div class="pin-text">
-            Login PIN:
-            <strong>{{ user.meta?.emp_login_pin }}</strong>
+        <div class="card-content">
+          <div class="avatar" [ngClass]="'avatar-' + (i % 5)">
+            <ion-icon name="person-outline"></ion-icon>
           </div>
 
-          <div class="actions">
-            <ion-icon
-              name="create-outline"
-              (click)="openEditUserModal(user)">
-            </ion-icon>
-
-            <ion-icon
-              name="trash-outline"
-              color="danger"
-              (click)="confirmDeleteUser(user)">
-            </ion-icon>
+          <div class="details">
+            <div class="name">{{ user.name }}</div>
+            <div class="login-id">
+            Login Pin: {{ user.meta?.emp_login_pin || 'Not Set' }}
           </div>
-        </div>
+          </div>
         </div>
 
       </div>
+
+    </ion-item>
+
+    <!-- SWIPE BUTTONS -->
+    <ion-item-options side="end">
+
+
+
+  <ion-item-option color="success"
+                   (click)="openEditUser(user)">
+    EDIT
+  </ion-item-option>
+
+  <ion-item-option color="danger"
+                   (click)="deleteUser(user)">
+    DELETE
+  </ion-item-option>
+
+</ion-item-options>
+
+   
+
+  </ion-item-sliding>
+
+</ion-list>
+<!-- EDIT POPUP -->
+<div class="edit-overlay" *ngIf="editingUserId">
+
+  <div class="edit-popup">
+
+    <div class="popup-header">
+      <h3>Edit Employee</h3>
     </div>
+
+    <ion-list>
+
+      <ion-item>
+        <ion-label position="stacked">User Name</ion-label>
+        <ion-input
+          placeholder="User Name"
+          [(ngModel)]="editedUser.username"
+          (ionInput)="checkChanges()">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Email</ion-label>
+        <ion-input
+          placeholder="Email ID"
+          [(ngModel)]="editedUser.email"
+          (ionInput)="checkChanges()">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">First Name</ion-label>
+        <ion-input
+          placeholder="First Name"
+          [(ngModel)]="editedUser.first_name"
+          (ionInput)="checkChanges()">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Last Name</ion-label>
+        <ion-input
+          placeholder="Last Name"
+          [(ngModel)]="editedUser.last_name"
+          (ionInput)="checkChanges()">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Role</ion-label>
+        <ion-select
+          placeholder="Employee Role"
+          [(ngModel)]="editedUser.role"
+          (ionChange)="checkChanges()">
+
+          <ion-select-option value="manager">Manager</ion-select-option>
+          <ion-select-option value="administrator">Administrator</ion-select-option>
+          <ion-select-option value="shop_manager">Shop Manager</ion-select-option>
+          <ion-select-option value="merchant">Merchant</ion-select-option>
+
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">Phone</ion-label>
+        <ion-input
+          placeholder="Phone Number"
+          [(ngModel)]="editedUser.phone"
+          (ionInput)="checkChanges()">
+        </ion-input>
+      </ion-item>
+
+     
+        <ion-item>
+  <ion-label position="stacked">Login Pin</ion-label>
+  <ion-input
+    type="text"
+    placeholder="6-Digit Login Pin"
+    [(ngModel)]="editedUser.emp_login_pin"
+    (ionInput)="checkChanges()">
+  </ion-input>
+</ion-item>
+      
+
+    </ion-list>
+
+    <ion-button
+      expand="block"
+      *ngIf="isChanged"
+      (click)="saveChanges()">
+      Save Changes
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      fill="clear"
+      (click)="cancelEdit()">
+      Cancel
+    </ion-button>
+
   </div>
 
-  <!-- Infinite Scroll -->
-  <ion-infinite-scroll
-    (ionInfinite)="loadMore($event)"
-    [disabled]="page >= totalPages"
-  >
-    <ion-infinite-scroll-content></ion-infinite-scroll-content>
-  </ion-infinite-scroll>
-
+</div>
 </ion-content>

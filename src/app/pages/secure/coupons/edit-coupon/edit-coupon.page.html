@@ -1,0 +1,96 @@
+<ion-header>
+  <ion-toolbar class="custom-header">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/coupons"></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Edit Coupon</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button fill="clear" class="update-btn" (click)="updateCoupon()">
+        Update
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="coupon-content">
+
+  <!-- Last Modified -->
+  <div class="last-modified">
+    Last modified: {{coupon?.modifiedDate}}
+    <span class="coupon-id">#{{coupon?.code}}</span>
+  </div>
+
+  <!-- Code & Description -->
+  <div class="card">
+    <div class="row">
+      <div>
+        <div class="label">Code:</div>
+        <div class="value">{{coupon?.code}}</div>
+      </div>
+      <ion-icon name="pencil-outline" (click)="enableEdit('code')"></ion-icon>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="row">
+      <div>
+        <div class="label">Description:</div>
+        <div class="value">{{coupon?.description}}</div>
+      </div>
+      <ion-icon name="pencil-outline" (click)="enableEdit('description')"></ion-icon>
+    </div>
+  </div>
+
+  <!-- Status & Amount -->
+  <div class="card">
+    <div class="row space-between">
+      <div class="label">Status</div>
+      <div class="publish-badge">{{coupon?.status}}</div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="row">
+      <div>
+        <div class="label">Amount:</div>
+        <div class="value">{{coupon?.amount}}</div>
+      </div>
+      <ion-icon name="pencil-outline" (click)="enableEdit('amount')"></ion-icon>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="row space-between">
+      <div class="label">Type</div>
+      <div class="value">{{coupon?.type}}</div>
+    </div>
+  </div>
+
+  <!-- Usage -->
+  <div class="card">
+    <div class="row space-between">
+      <div class="label">Individual use</div>
+      <ion-toggle [(ngModel)]="coupon.individualUse"></ion-toggle>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="row">
+      <div>
+        <div class="label">Usage limit:</div>
+        <div class="value">{{coupon?.usageLimit}}</div>
+      </div>
+      <ion-icon name="pencil-outline"></ion-icon>
+    </div>
+  </div>
+
+  <!-- Delete Button -->
+  <div class="delete-wrapper">
+    <ion-button expand="block" fill="outline" class="delete-btn">
+      Delete coupon
+    </ion-button>
+  </div>
+
+</ion-content>

@@ -1,0 +1,115 @@
+.coupon-content {
+  --background: #f3f3f3;
+  padding: 12px;
+}
+// .coupon-content {
+//   --background: #eef1f4;   /* soft grey background */
+//   padding: 16px 14px 30px 14px;
+// }
+ion-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #2c2c2c;
+}
+
+ion-label span {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+ion-icon {
+  font-size: 18px;
+  color: #7a7a7a;
+}
+ion-icon:active {
+  transform: scale(0.9);
+}
+.editable-row {
+  position: relative;
+}
+
+.hidden {
+  display: none;
+}
+
+.coupon-card {
+  background: #f7f7f7;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+}
+
+ion-item {
+  --background: transparent;
+  --padding-start: 18px;
+  --inner-padding-end: 16px;
+  --min-height: 54px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+ion-item:last-child {
+  border-bottom: none;
+}
+
+
+ion-item {
+  --background: transparent;
+}
+
+ion-label {
+  font-size: 14px;
+  color: #333;
+}
+
+.coupon-card ion-icon {
+  font-size: 18px;
+  color: #666;
+  cursor: pointer;
+}
+
+.custom-header {
+  --background: #2f4f6f;
+  --color: #ffffff;
+  height: 64px; /* increase height */
+  padding-top: 6px;
+}
+
+ion-title {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+ion-back-button {
+  --color: #ffffff;
+}
+
+.custom-header ion-icon {
+  color: #ffffff;
+}
+
+
+/* Save Button Styling */
+.save-btn {
+  --background: #ffffff;
+  --color: #2f4f6f;
+  --border-radius: 6px;
+  font-weight: 500;
+  height: 32px;
+}
+.value-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+ion-input {
+  --padding-start: 0px;
+}
+
+ion-item {
+  --highlight-height: 0;
+}
+
+ion-item.item-has-focus {
+  --highlight-color-focused: #2f4f6f;
+}

@@ -1,60 +1,59 @@
 <ion-header>
-  <ion-toolbar >
+  <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/profile"></ion-back-button>
+      <ion-back-button defaultHref="/profile"></ion-back-button>
     </ion-buttons>
     <ion-title>Edit Profile</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="edit-content">
 
-  <div class="form-box">
+  <form [formGroup]="editForm">
 
-    <ion-item>
-  <ion-label position="floating">Name</ion-label>
-  <ion-input></ion-input>
-</ion-item>
+    <div class="form-container">
 
+      <!-- Name -->
+      <ion-item lines="none" class="input-box">
+        <ion-label position="stacked">Name</ion-label>
+        <ion-input formControlName="first_name"></ion-input>
+      </ion-item>
 
-    <ion-item>
-  <ion-label position="floating">User Name</ion-label>
-  <ion-input></ion-input>
-</ion-item>
+      <!-- Username -->
+      <ion-item lines="none" class="input-box">
+        <ion-label position="stacked">User Name</ion-label>
+        <ion-input formControlName="username" disabled></ion-input>
+      </ion-item>
 
+      <!-- Gender -->
+      <ion-item lines="none" class="input-box">
+        <ion-label position="stacked">Gender</ion-label>
+        <ion-select formControlName="gender">
+          <ion-select-option value="male">Male</ion-select-option>
+          <ion-select-option value="female">Female</ion-select-option>
+        </ion-select>
+      </ion-item>
 
-   <ion-item>
-  <ion-label position="floating">Gender</ion-label>
-  <ion-select>
-    <ion-select-option value="male">Male</ion-select-option>
-    <ion-select-option value="female">Female</ion-select-option>
-  </ion-select>
-</ion-item>
+      <!-- Phone -->
+      <ion-item lines="none" class="input-box">
+        <ion-label position="stacked">Phone Number</ion-label>
+        <ion-input type="tel" formControlName="phone"></ion-input>
+      </ion-item>
 
+      <!-- Email -->
+      <ion-item lines="none" class="input-box">
+        <ion-label position="stacked">Email Address</ion-label>
+        <ion-input type="email" formControlName="email" disabled></ion-input>
+      </ion-item>
 
-    <ion-item>
-  <ion-label position="floating">Age</ion-label>
-  <ion-input type="number"></ion-input>
-</ion-item>
+    </div>
 
+    <div class="btn-container">
+      <ion-button expand="block" class="save-btn" (click)="saveProfile()">
+        Save Changes
+      </ion-button>
+    </div>
 
-    <ion-item>
-  <ion-label position="floating">Phone Number</ion-label>
-  <ion-input type="tel"></ion-input>
-</ion-item>
-
-<ion-item>
-  <ion-label position="floating">Email Address</ion-label>
-  <ion-input type="email"></ion-input>
-</ion-item>
-
-
-  </div>
-
-  <div class="save-btn">
-    <ion-button expand="block" >
-      Save Changes
-    </ion-button>
-  </div>
+  </form>
 
 </ion-content>
