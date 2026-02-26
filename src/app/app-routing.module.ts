@@ -7,8 +7,12 @@ const routes: Routes = [
  
   {
     path: '',
-    redirectTo: 'tabs/home',
+    redirectTo: 'splash',
     pathMatch: 'full'
+  },
+  {
+    path: 'splash',
+    loadChildren: () => import('./pages/public/splash/splash.module').then(m => m.SplashPageModule)
   },
     {
     path: 'tabs',
@@ -88,13 +92,13 @@ const routes: Routes = [
         .then(m => m.ProductFormPageModule),
     canActivate: [AuthGuard]
   },
-  {
-    path: 'users/customers',
-    loadChildren: () =>
-      import('./pages/secure/users-list/users-list.module')
-        .then(m => m.UsersListPageModule),
-     canActivate: [AuthGuard]
-  },
+  // {
+  //   path: 'customers',
+  //   loadChildren: () =>
+  //     import('./pages/secure/customers/customers.module')
+  //       .then(m => m.CustomersPageModule),
+  //   canActivate: [AuthGuard]
+  // },
   {
     path: 'users/employees',
     loadChildren: () =>
@@ -166,6 +170,32 @@ const routes: Routes = [
         .then(m => m.DiscountsPageModule),
     canActivate: [AuthGuard]  
   },
+  
+  {
+    path: 'profile',
+     loadChildren: () =>import('./pages/secure/profile/profile.module').then(m => m.ProfilePageModule)
+  },
+
+  {
+    path: 'address',
+    loadChildren: () =>
+      import('./pages/secure/address/address.module')
+        .then(m => m.AddressPageModule),
+    canActivate: [AuthGuard]  
+  },
+  {
+    path: 'add-coupon',
+    loadChildren: () => import('./pages/secure/coupons/add-coupon/add-coupon.module')
+      .then(m => m.AddCouponPageModule)
+  },
+  {
+    path: 'change-password',
+    loadChildren: () =>
+      import('./pages/secure/change-password/change-password.module')
+        .then(m => m.ChangePasswordPageModule),
+    canActivate: [AuthGuard]  
+  },
+
   // {
   //   path: 'devices',
   //   loadChildren: () =>

@@ -1,7 +1,7 @@
 <ion-header class="products-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
     </ion-buttons>
     <ion-title>Reports</ion-title>
   </ion-toolbar>
@@ -39,7 +39,7 @@
     <ion-card class="summary-card">
       <ion-card-content>
         <h3>Total Sales</h3>
-        <h1>₹ {{ sales?.total_sales || 0 | number:'1.2-2' }}</h1>
+        <h1>$ {{ sales?.total_sales || 0 | number:'1.2-2' }}</h1>
       </ion-card-content>
     </ion-card>
 
@@ -106,7 +106,7 @@
   <ion-card class="summary-card">
     <ion-card-content>
       <h3>Total Sales</h3>
-      <h1>₹ {{ shiftData?.total_sales || 0 | number:'1.2-2' }}</h1>
+      <h1>$ {{ shiftData?.total_sales || 0 | number:'1.2-2' }}</h1>
       <p>Total Orders: {{ shiftData?.total_orders || 0 }}</p>
     </ion-card-content>
   </ion-card>

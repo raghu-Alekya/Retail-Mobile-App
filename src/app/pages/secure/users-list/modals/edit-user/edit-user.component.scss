@@ -1,0 +1,42 @@
+.custom-toolbar {
+  --background: #2f5378;
+  --color: white;
+  --min-height: 60px;
+}
+
+.custom-content {
+  --background: #f3f4f6;
+}
+
+.form-container {
+  padding: 20px;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+}
+
+.custom-input {
+  --background: #e9edf3;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  border-radius: 10px;
+  height: 48px;
+}
+
+ion-select.custom-input {
+  --background: #e9edf3;
+  border-radius: 10px;
+}
+
+.save-btn {
+  margin-top: 20px;
+  --background: #2f5378;
+}

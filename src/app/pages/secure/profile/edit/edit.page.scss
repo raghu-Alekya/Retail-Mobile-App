@@ -1,45 +1,42 @@
-.form-box ion-item {
-  margin: 12px 16px;
-  border-radius: 10px;
-  --background: #f5f7fb;
+.header-toolbar {
+  --background: #274472;
+  --color: #ffffff;
 }
 
-.save-btn {
+.edit-content {
+  --background: #f2f2f2;
+}
+
+.form-container {
   padding: 20px;
 }
+
+.input-box {
+  background: #e9edf2;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  padding: 8px 10px;
+}
+
 ion-label {
-  font-weight: 500 !important;
-  color: #666;
+  font-weight: 500;
+  color: #333;
 }
 
-ion-input, ion-select {
-  font-weight: 400;
-}
-/* Header color */
-ion-toolbar {
-  --background: #083d6a !important;
-  --color: white !important;
+ion-input,
+ion-select {
+  --background: transparent;
+  --padding-start: 0;
+  font-size: 14px;
 }
 
-/* Back arrow color */
-ion-back-button {
-  color: white !important;
+.btn-container {
+  padding: 20px;
 }
 
-/* Save button color */
 .save-btn {
-  position: fixed;
-  bottom: 20px;
-  left: 0;
-  right: 0;
-
-  padding: 0 20px;
-}
-
-.save-btn ion-button {
+  --background: #274472;
+  --border-radius: 10px;
   height: 48px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 10px;
-   --background: #083d6a ;
+  font-weight: 500;
 }

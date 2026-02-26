@@ -1,5 +1,6 @@
-<ion-content fullscreen>
-
+<ion-content
+  [ngClass]="isDarkBg ? 'dark-bg' : 'light-bg'"
+  fullscreen>
   <swiper
     #swiper
     [config]="config"

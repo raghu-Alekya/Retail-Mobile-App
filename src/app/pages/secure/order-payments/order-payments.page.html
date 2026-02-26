@@ -1,11 +1,11 @@
 <ion-header class="shift-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
     </ion-buttons>
 
     <ion-title>Order Payments</ion-title>
-
+ 
     <ion-buttons slot="end">
       <ion-button>
         <ion-icon name="funnel-outline"></ion-icon>
@@ -25,8 +25,16 @@
 
 <ion-content class="ion-padding">
 
-  <ion-card *ngFor="let p of payments; trackBy: trackByPaymentId" class="payment-card">
-
+  <ion-card
+  *ngFor="let p of payments; let i = index; trackBy: trackByPaymentId"
+  class="payment-card"
+  [ngClass]="[
+    i % 5 === 0 ? 'border-yellow' :
+    i % 5 === 1 ? 'border-red' :
+    i % 5 === 2 ? 'border-teal' :
+    i % 5 === 3 ? 'border-orange' :
+                  'border-purple'
+  ]">
     <!-- Header -->
     <ion-item lines="none">
       <ion-label>

@@ -1,17 +1,54 @@
-.payment-card {
-  border-radius: 16px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+/* ===============================
+   PAGE BACKGROUND
+================================ */
+ion-content {
+  --background: #f4f6f8;
 }
 
+
+
+/* ===============================
+   PAYMENT CARDS
+================================ */
+.payment-card {
+  background: #ffffff;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  padding: 4px;
+
+  box-shadow:
+    0 6px 14px rgba(0,0,0,0.06),
+    0 2px 4px rgba(0,0,0,0.04);
+
+  border-bottom: 4px solid transparent;
+}
+
+/* rotating border colors */
+.border-yellow { border-bottom-color: #f3b431; }
+.border-red    { border-bottom-color: #f15b5b; }
+.border-teal   { border-bottom-color: #4db6ac; }
+.border-orange { border-bottom-color: #f28b54; }
+.border-purple { border-bottom-color: #8b8ee8; }
+
+/* remove ion-item background inside cards */
+.payment-card ion-item {
+  --background: transparent;
+}
+
+
+/* ===============================
+   TEXT STYLING
+================================ */
 .label {
   font-size: 12px;
-  color: #777;
+  color: #7a8699;
 }
 
 .value {
   font-size: 16px;
   font-weight: 600;
   margin-top: 4px;
+  color: #1f2933;
 }
 
 .value.small {
@@ -21,35 +58,72 @@
 
 .note {
   font-size: 13px;
-  color: #555;
+  color: #6b7280;
 }
 
 
+/* ===============================
+   HEADER (CURVED CUT STYLE)
+================================ */
 .shift-header {
-  ion-toolbar {
-    --background: #34465d;
-    --color: #fff;
-  }
+  background: #345a7f;
+  padding-bottom: 34px;
+  
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.10);
+
+  position: relative;
+  z-index: 10;
 }
 
+/* transparent toolbar */
+.shift-header ion-toolbar {
+  --background: transparent;
+  --color: #ffffff;
+}
+
+/* title styling */
+.shift-header ion-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+
+/* ===============================
+   SEARCH BAR
+================================ */
 .search-wrapper {
-  margin: 10px 16px;
-  background: #9aa7b8;
+  margin: 12px 16px 0;
+  background: #ffffff;
   border-radius: 12px;
   display: flex;
   align-items: center;
-  padding: 10px;
-  gap: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
 
-  input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    color: #fff;
-    outline: none;
-  }
+/* search icon */
+.search-wrapper ion-icon {
+  font-size: 18px;
+  color: #7a8699;
+  margin-right: 8px;
+}
 
-  ion-icon {
-    color: #fff;
-  }
+/* search input */
+.search-wrapper input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #1f2933;
+  background: transparent;
+}
+
+
+/* ===============================
+   CREATE "CUT" EFFECT
+   (content slides under header)
+================================ */
+ion-content::part(scroll) {
+  margin-top: -18px;
 }

@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { Router } from '@angular/router';
+
+
 @Component({
   standalone: true,
   selector: 'app-coupons',
@@ -28,14 +31,17 @@ export class CouponsPage {
   };
 
   formSubmitted = false;
-  constructor(
-    private auth: AuthService,
-    private alertCtrl: AlertController
-  ) {}
 
-  // ionViewWillEnter() {
-  //   this.loadCoupons();
-  // }
+  constructor(
+  private auth: AuthService,
+  private alertCtrl: AlertController,
+  private router: Router
+) {}
+
+goToAddCoupon() {
+  this.router.navigate(['/add-coupon']);
+}
+
   ionViewWillEnter() {
     const state = history.state;
     if (state?.autoOpenCreate) {
@@ -45,7 +51,6 @@ export class CouponsPage {
     }
     this.loadCoupons();
   }
-
   async loadCoupons() {
     this.loading = true;
     try {

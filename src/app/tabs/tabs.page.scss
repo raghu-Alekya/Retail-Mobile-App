@@ -66,21 +66,23 @@ ion-tab-button ion-icon {
 
 
 
-ion-tab-bar::before {
-  content: "";
-  position: absolute;
-  top: -32px;                 /* 🔽 was -36px */
-  left: 50%;
-  transform: translateX(-50%);
+ion-tab-bar::before{
+  content:"";
+  position:absolute;
+  top:-1px;
+  left:50%;
+  transform:translateX(-50%);
 
-  width: 50px;
-  height: 60px;               /* 🔽 was 75px */
+  width:80px;          /* width of dip */
+  height:40px;          /* depth of dip */
 
-  background: #ffffff;
-  border-radius: 0 0 120px 120px;
+  background:#ffffff;   /* page background */
 
-  z-index: 2;
-  pointer-events: none;
+  border-bottom-left-radius:60px;
+  border-bottom-right-radius:60px;
+
+
+  z-index:2;
 }
 
 
@@ -159,19 +161,24 @@ ion-tab-bar {
    MAIN FAB
 ============================ */
 .main-fab{
-  width: 50px;
-  height: 56px;
-  border-radius: 50%;
+  width: 60px;
+  height: 60px;          /* same as width */
+  border-radius: 50%;    /* perfect circle */
   background:#083a57;
+
   display:flex;
   align-items:center;
   justify-content:center;
+
   color:#fff;
   font-size:28px;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25); /* optional depth */
 }
 
 .main-fab ion-icon{
   transition: transform .3s ease;
+  font-size: 30px;
 }
 
 .main-fab ion-icon[name="close"]{
@@ -275,3 +282,8 @@ ion-tab-bar::part(container) {
 }
 
 
+
+
+.hidden-tabbar {
+  display: none;
+}
