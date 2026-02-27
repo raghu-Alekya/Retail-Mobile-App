@@ -21,6 +21,11 @@ export class ProductFormPage implements OnInit {
   tags: any[] = [];
   attributes: any[] = [];
   selectedAttributes: { [key: number]: string[] } = {};
+  attributePrices: {
+      [key: string]: number;
+    } = {};
+  // isEditMode = false;
+  savedVariationOptions: { [key: string]: boolean } = {};
 
   product: any = {
     name: '',
@@ -63,9 +68,49 @@ export class ProductFormPage implements OnInit {
       await this.loadAttributes();
     }
   }
+  // onAttributeToggle(attrId: number, option: string, event: any) {
 
+  //   if (!this.selectedAttributes[attrId]) {
+  //     this.selectedAttributes[attrId] = [];
+  //   }
+
+  //   if (event.detail.checked) {
+  //     // add
+  //     if (!this.selectedAttributes[attrId].includes(option)) {
+  //       this.selectedAttributes[attrId].push(option);
+  //     }
+  //   } else {
+  //     // remove
+  //     this.selectedAttributes[attrId] =
+  //       this.selectedAttributes[attrId].filter(o => o !== option);
+
+  //     // remove price
+  //     delete this.attributePrices[`${attrId}_${option}`];
+  //   }
+  // }
+  onAttributeToggle(attrId: number, option: string, event: any) {
+    // ensure array exists
+    if (!this.selectedAttributes[attrId]) {
+      this.selectedAttributes[attrId] = [];
+    }
+
+    if (event.detail.checked) {
+      // add option
+      if (!this.selectedAttributes[attrId].includes(option)) {
+        this.selectedAttributes[attrId].push(option);
+      }
+    } else {
+      // remove option
+      this.selectedAttributes[attrId] =
+        this.selectedAttributes[attrId].filter(o => o !== option);
+
+      // remove price
+      delete this.attributePrices[`${attrId}_${option}`];
+    }
+  }
   async loadProduct() {
     try {
+      // this.isEditMode = !!this.productId;
       const res = await this.authService.getProductById(this.productId);
 
       this.product = {
@@ -104,13 +149,43 @@ export class ProductFormPage implements OnInit {
             }
           });
         }
+        const variations =
+        await this.authService.getProductVariations(this.productId);
+        // Map variation data to UI
+        this.mapVariationsToUI(variations);
       }
 
     } catch (e) {
       console.error('Failed to load product', e);
     }
   }
+  mapVariationsToUI(variations: any[]) {
+    for (const variation of variations) {
 
+      const price = Number(variation.regular_price || 0);
+
+      for (const attr of variation.attributes) {
+
+        const attrId = attr.id;
+        const optionSlug = attr.option;
+
+        // init array
+        if (!this.selectedAttributes[attrId]) {
+          this.selectedAttributes[attrId] = [];
+        }
+
+        // check checkbox
+        if (!this.selectedAttributes[attrId].includes(optionSlug)) {
+          this.selectedAttributes[attrId].push(optionSlug);
+        }
+
+        // set price
+        this.attributePrices[`${attrId}_${optionSlug}`] = price;
+        this.savedVariationOptions[`${attrId}_${optionSlug}`] = true;
+        console.log(this.savedVariationOptions);
+      }
+    }
+  }
   async loadCategories() {
     const res = await this.authService.getCategories();
     this.categories = res;
@@ -323,8 +398,26 @@ export class ProductFormPage implements OnInit {
       const combinations = this.generateCombinations();
       
       for (const combo of combinations) {
+        let price: number | undefined;
+
+        // Single-attribute case (most common)
+        if (combo.length === 1) {
+          const attr = combo[0];
+          price = this.attributePrices[`${attr.id}_${attr.option}`];
+        }
+
+        // Multi-attribute case (take first attribute price or extend later)
+        if (!price && combo.length > 1) {
+          const firstAttr = combo[0];
+          price = this.attributePrices[`${firstAttr.id}_${firstAttr.option}`];
+        }
+
+        if (!price) {
+          price = 0;
+        }
         const variationPayload = {
-          regular_price: this.product.regular_price || '0',
+          // regular_price: this.product.regular_price || '0',
+          regular_price: price.toString(),
           attributes: combo
         };
         

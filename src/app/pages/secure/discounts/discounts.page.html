@@ -64,7 +64,7 @@
   <!-- Create / Edit Form -->
   <ion-modal  [isOpen]="showForm"
   initialBreakpoint="0.95"
-  breakpoints="[0, 0.95]" [isOpen]="showForm" (didDismiss)="showForm=false">
+  breakpoints="[0, 0.95]" (didDismiss)="showForm=false">
   <ng-template>
     <ion-header>
       <ion-toolbar color="primary">
@@ -159,7 +159,7 @@
             <ion-input [(ngModel)]="form.code"></ion-input>
           </ion-item>
         </div>
-        <div *ngIf="filter_type === 'auto' || activeFilter === 'auto'">
+        <!-- <div *ngIf="filter_type === 'auto' || activeFilter === 'auto'">
           <ion-item>
             <ion-label position="stacked">Discount Type</ion-label>
             <ion-select [(ngModel)]="form.discount_type">
@@ -185,6 +185,34 @@
               <ion-select-option value="price">Price</ion-select-option>
             </ion-select>
           </ion-item>
+        </div> -->
+        <div *ngIf="form.type">
+          <ion-item>
+            <ion-label position="stacked">Discount Type</ion-label>
+
+            <ion-select [(ngModel)]="form.discount_type">
+
+              <!-- Auto -->
+              <ng-container *ngIf="form.type === 'auto'">
+                <ion-select-option value="percent">Percentage</ion-select-option>
+                <ion-select-option value="fixed_cart">Fixed Cart</ion-select-option>
+              </ng-container>
+
+              <!-- Mix Match -->
+              <ng-container *ngIf="form.type === 'mix_match'">
+                <ion-select-option value="percent">Percentage</ion-select-option>
+                <ion-select-option value="fixed_item">Fixed Item</ion-select-option>
+              </ng-container>
+
+              <!-- Multipack -->
+              <ng-container *ngIf="form.type === 'multipack'">
+                <ion-select-option value="percent">Percentage</ion-select-option>
+                <ion-select-option value="price">Price</ion-select-option>
+              </ng-container>
+
+            </ion-select>
+          </ion-item>
+
         </div>
         <ion-item>
           <ion-label position="stacked">{{ form.discount_type === 'percent' ? 'Percentage (%)' : 'Amount' }}</ion-label>
@@ -214,7 +242,8 @@
             <ion-label>Auto apply</ion-label>
           </ion-item>
         </div>
-        <div *ngIf="filter_type === 'auto' || filter_type === 'multipack' || activeFilter === 'auto' || activeFilter === 'multipack'">
+        <!-- <div *ngIf="filter_type === 'auto' || filter_type === 'multipack' || activeFilter === 'auto' || activeFilter === 'multipack'"> -->
+          <div *ngIf="form.type === 'auto' || form.type === 'multipack'">
           <ion-item>
             <ion-label position="stacked">{{ filter_type === 'auto' || activeFilter === 'auto' ? 'Usage Limit' : 'Order Usage' }}</ion-label>
             <ion-input type="number" [(ngModel)]="form.usage_limit"></ion-input>

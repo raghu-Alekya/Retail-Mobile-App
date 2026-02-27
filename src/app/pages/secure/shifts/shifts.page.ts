@@ -260,16 +260,38 @@ mapShift(apiShift: any) {
       ? apiShift.end_time.split(' ')[1]
       : '—',
 
-    duration: apiShift.end_time ? 'Completed' : 'Ongoing',
+    duration: this.getDuration(
+      apiShift.start_time,
+      apiShift.end_time
+    ),
   };
 }
+getDuration(start: string, end: string): string {
+  if (!start || !end) return '-';
 
+  const startDate = new Date(start);
+  const endDate = new Date(end);
 
-openShift(shift: any) {
-  console.log('Shift clicked:', shift);
+  const diffMs = endDate.getTime() - startDate.getTime();
 
-  // temporary test
-  this.showToast(`Opening shift: ${shift.staffName}`);
+  if (diffMs <= 0) return '-';
+
+  const totalSeconds = Math.floor(diffMs / 1000);
+
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const pad = (n: number) => n.toString().padStart(2, '0');
+
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 }
+
+// openShift(shift: any) {
+//   console.log('Shift clicked:', shift);
+
+//   // temporary test
+//   this.showToast(`Opening shift: ${shift.staffName}`);
+// }
 
 }

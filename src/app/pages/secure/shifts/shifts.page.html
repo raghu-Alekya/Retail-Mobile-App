@@ -36,9 +36,7 @@
   <ion-card
     *ngFor="let shift of filteredShifts; let i = index"
     class="shift-card"
-    [ngClass]="getBorderColor(i)"
-    button
-    (click)="openShift(shift)">
+    [ngClass]="getBorderColor(i)">
 
     <ion-card-content>
 

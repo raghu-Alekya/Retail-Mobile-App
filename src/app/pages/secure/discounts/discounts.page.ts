@@ -218,10 +218,12 @@ export class DiscountsPage implements OnInit {
       this.discountSuggestions = [];
       this.selectedDiscountProducts = [];
       this.form.discount_product_ids = [];
+      this.activeFilter = '';
     }
   
     async openEdit(coupon: any) {
       // console.log(coupon);
+      this.activeFilter = '';
       this.filter_type = coupon.type;
       this.editingCoupon = coupon;
       this.form = {

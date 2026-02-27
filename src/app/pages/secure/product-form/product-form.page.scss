@@ -314,4 +314,22 @@ ion-note.stock-badge {
   font-weight: 600;
 }
 
+// .attribute-row {
+//   display: flex;
+//   align-items: center;
+// }
 
+// .option-label {
+//   flex: 1; /* pushes price input to right */
+// }
+
+.price-input {
+  width: 80px;
+  text-align: right;
+  margin-left: 10px;
+
+  --padding-start: 6px;
+  --padding-end: 6px;
+  --background: #f5f5f5;
+  border-radius: 6px;
+}

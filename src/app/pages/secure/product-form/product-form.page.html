@@ -278,7 +278,7 @@
       </ion-text>
     </ion-card-content>
     
-    <div *ngFor="let attr of attributes">
+    <!-- <div *ngFor="let attr of attributes">
       <ion-item>
         <ion-label>{{ attr.name }}</ion-label>
         <ion-select
@@ -291,19 +291,48 @@
           </ion-select-option>
         </ion-select>
       </ion-item>
+    </div> -->
+    <div *ngFor="let attr of attributes" class="attribute-row">
+
+    <!-- Attribute name -->
+    <ion-item lines="full">
+      <ion-label><strong>{{ attr.name }}</strong></ion-label>
+    </ion-item>
+
+      <!-- Attribute options -->
+      <div *ngFor="let term of attr.terms" style="padding-left: 16px;">
+
+        <ion-item lines="none">
+
+          <!-- Checkbox -->
+          <ion-checkbox
+            slot="start"
+            [checked]="selectedAttributes[attr.id]?.includes(term.name)"
+            (ionChange)="onAttributeToggle(attr.id, term.name, $event)"
+            [disabled]="savedVariationOptions[attr.id + '_' + term.slug]"
+          ></ion-checkbox>
+
+          <!-- Option name -->
+          <ion-label>
+            {{ term.name }}
+          </ion-label>
+
+          <!-- Price input -->
+          <ion-input
+            *ngIf="selectedAttributes[attr.id]?.includes(term.name)"
+            type="number"
+            placeholder="Price"
+            [(ngModel)]="attributePrices[attr.id + '_' + term.name]"
+            [readonly]="savedVariationOptions[attr.id + '_' + term.slug]"
+            style="max-width: 90px; margin-left: 10px;"
+            class="price-input"
+          ></ion-input>
+
+        </ion-item>
+
+      </div>
+
     </div>
-    
-    <ion-item *ngIf="attributes.length > 0 && getSelectedAttributesCount() === 0">
-      <ion-text color="warning">
-        Select at least one attribute option to create variations
-      </ion-text>
-    </ion-item>
-    
-    <ion-item *ngIf="getSelectedAttributesCount() > 0">
-      <ion-text>
-        <small>{{ getCombinationCount() }} variation(s) will be created</small>
-      </ion-text>
-    </ion-item>
   </ion-card>
 
   <!-- Pricing -->
