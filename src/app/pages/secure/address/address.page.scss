@@ -1,0 +1,64 @@
+.section {
+  margin: 20px 16px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+}
+
+.address-card {
+  margin-top: 10px;
+  background: #f5f7fb;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.add-box {
+  margin-top: 10px;
+  background: #f5f7fb;
+  border-radius: 12px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+}
+
+.add-box ion-input {
+  flex: 1;
+}
+
+.add-box ion-button {
+  color: #083d6a;
+}
+
+.save-btn {
+  margin-top: 15px;
+}
+ion-toolbar {
+  --background: #083d6a;
+  --color: white;
+}
+
+ion-back-button {
+  color: white;
+}
+.save-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+
+  padding: 0 20px;
+}
+
+.save-btn {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+   --background: #083d6a ;
+}
+

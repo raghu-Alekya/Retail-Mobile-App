@@ -1,221 +1,155 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { IonicModule, AlertController, LoadingController, ModalController } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
+import { Component } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { AddUserModal } from './modals/add-user/add-user.component';
-import { EditUserModal } from './modals/edit-user/edit-user.component';
-import { Router } from '@angular/router';
+import { ModalController } from '@ionic/angular';
+import { AddUserComponent } from './modals/add-user/add-user.component';
 
 @Component({
   selector: 'app-users-list',
   templateUrl: './users-list.page.html',
   styleUrls: ['./users-list.page.scss'],
-  imports: [IonicModule, CommonModule, FormsModule],
 })
-export class UsersListPage implements OnInit {
+export class UsersListPage {
+
   users: any[] = [];
-  roleFilter = '';
-  userRole = '';
-  searchTerm = '';
-searchDebounce: any;
-  customRoles: any[] = [];
+  filteredUsers: any[] = [];
 
+  editingUserId: number | null = null;
+  editedUser: any = {};
+  originalUser: any = {};
+  isChanged = false;
 
-  newUser = {
-    username: '',
-    email: '',
-    password: '',
-    role: 'subscriber',
-  };
-
-  page = 1;
-  totalPages = 1;
-  perPage = 10;
+  private searchTimeout: any;
 
   constructor(
     private authService: AuthService,
-    private alertCtrl: AlertController,
-    private loadingCtrl: LoadingController,
     private modalCtrl: ModalController,
-    private router: Router
-  ) { }
+  ) {}
 
-  ngOnInit() {
-      const url = this.router.url; 
-      const lastSegment = url.split('/').pop();
-      if (lastSegment === 'customers') {
-        this.userRole = 'customer';
-      } else if (lastSegment === 'employees') {
-        this.userRole = 'employee';
-        const state = history.state;
-        if (state?.autoOpenCreate) {
-          this.openAddUserModal();
-
-          history.replaceState({}, '');
-        }
-        this.loadCustomRoles(); // ✅ LOAD ROLES
-      }
+  ionViewDidEnter() {
     this.loadUsers();
   }
 
-  async loadUsers(reset = true) {
-    if (reset) {
-      this.page = 1;
-      this.users = [];
-    }
-
-    const loading = await this.loadingCtrl.create({ message: 'Loading...' });
-    await loading.present();
-
-    try {
-      const res = await this.authService.getUsers(
-        this.roleFilter,
-        this.page,
-        this.perPage,
-        this.userRole,
-        this.searchTerm   // ✅ add this
-      );
-      this.users = [...this.users, ...res.users];
-      this.totalPages = res.totalPages;
-
-    } finally {
-      loading.dismiss();
-    }
-  }
-
-
-  async showAlert(header: string, message: string) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: ['OK'],
-    });
-    await alert.present();
-  }
-
-  async openAddUserModal() {
+  // ✅ Add User Modal
+  async openAddEmployee() {
     const modal = await this.modalCtrl.create({
-      component: AddUserModal,
-    });
-
-    modal.onDidDismiss().then(res => {
-      if (res.data) {
-        this.loadUsers();
+      component: AddUserComponent,
+      componentProps: {
+        userRole: 'employee'
       }
     });
 
     await modal.present();
+
+    // ✅ reload after close
+    const { data } = await modal.onDidDismiss();
+    if (data?.refresh) {
+      this.loadUsers();
+    }
   }
 
-    async loadMore(event: any) {
-      this.page++;
-      await this.loadUsers(false);
-      event.target.complete();
-    }
-
-    async openEditUserModal(user: any) {
-      const modal = await this.modalCtrl.create({
-        component: EditUserModal,
-        componentProps: {
-          user: {
-            id: user.id,
-            username: user.slug,
-            email: user.email,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            role: user.roles?.[0],
-            description: user.description,
-            emp_login_pin: user.meta?.emp_login_pin || '',
-          },
-        },
-      });
-
-      modal.onDidDismiss().then(res => {
-        if (res.data) {
-          this.loadUsers();
-        }
-      });
-      await modal.present();
-    }
-
-    async confirmDeleteUser(user: any) {
-      const alert = await this.alertCtrl.create({
-        header: 'Confirm Delete',
-        message: `Are you sure you want to delete user "${user.slug}"?`,
-        buttons: [
-          {
-            text: 'Cancel',
-            role: 'cancel',
-          },
-          {
-            text: 'Delete',
-            role: 'destructive',
-            handler: () => this.deleteUser(user.id),
-          },
-        ],
-      });
-      await alert.present();
-    }
-
-    async deleteUser(userId: number) {
-      const loading = await this.loadingCtrl.create({ message: 'Deleting user...' });
-      await loading.present();
-
-      try {
-        await this.authService.deleteUser(userId);
-        this.showAlert('Success', 'User deleted successfully.');
-        this.loadUsers();
-      } catch (error) {
-        this.showAlert('Error', 'Failed to delete user.');
-      } finally {
-        loading.dismiss();
-      }
-    }
-    onSearch(event: any) {
-      const value = event.target.value || '';
-
-      clearTimeout(this.searchDebounce);
-
-      this.searchDebounce = setTimeout(() => {
-        this.searchTerm = value.trim();
-        this.loadUsers(true); // reset list
-      }, 400);
-    }
-
-  async loadCustomRoles() {
-    const loading = await this.loadingCtrl.create({
-      message: 'Loading roles...',
-    });
-    await loading.present();
-
+  // ✅ Load Users
+  async loadUsers() {
     try {
-      this.customRoles = await this.authService.getCustomRoles();
+      const data = await this.authService.getUsers("1", "50", '');
 
-    } catch (e) {
-      this.showAlert('Error', 'Failed to load user roles');
-    } finally {
-      loading.dismiss();
+      console.log('RAW USERS:', data);
+
+      // ✅ FIX: API returns array directly
+      const usersArray = Array.isArray(data) ? data : [];
+
+      // ✅ remove customers
+      this.users = usersArray.filter((user: any) =>
+        user.roles && !user.roles.includes('customer')
+      );
+
+      this.filteredUsers = [...this.users];
+
+    } catch (error) {
+      console.error('Error loading users', error);
     }
   }
 
-  getRoleLabel(roles: string[] = []): string {
-    if (!roles || roles.includes('customer')) {
-      return '';
-    }
+  // ✅ Edit User
+  openEditUser(user: any) {
+    this.editingUserId = user.id;
 
-    const roleMap: any = {
-      administrator: 'Administrator',
-      shop_manager: 'Shop Manager',
-      manager: 'Manager',
-      shop_keeper: 'Shop Keeper',
-      cashier: 'Cashier',
-      employee: 'Employee',
+    this.editedUser = {
+      username: user.username || user.name,
+      email: user.email,
+      first_name: user.first_name || '',
+      last_name: user.last_name || '',
+      role: user.roles?.[0] || '',
+      phone: user.description || '',
+      emp_login_pin: user.meta?.emp_login_pin || ''
     };
 
-    // Return first matching known role
-    const role = roles.find(r => roleMap[r]);
+    this.originalUser = { ...this.editedUser };
+    this.isChanged = false;
+  }
 
-    return role ? roleMap[role] : roles[0];
+  // ✅ Detect changes
+  checkChanges() {
+    this.isChanged =
+      JSON.stringify(this.originalUser) !==
+      JSON.stringify(this.editedUser);
+  }
+
+  // ✅ Save User
+  async saveChanges() {
+    try {
+      const payload = {
+        username: this.editedUser.username,
+        email: this.editedUser.email,
+        first_name: this.editedUser.first_name,
+        last_name: this.editedUser.last_name,
+        roles: [this.editedUser.role],
+        description: this.editedUser.phone,
+        meta: {
+          emp_login_pin: this.editedUser.emp_login_pin
+        }
+      };
+
+      await this.authService.updateUser(this.editingUserId!, payload);
+
+      this.cancelEdit(); // ✅ reset state
+      this.loadUsers();
+
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
+  }
+
+  // ✅ Cancel Edit
+  cancelEdit() {
+    this.editingUserId = null;
+    this.editedUser = {};
+    this.originalUser = {};
+    this.isChanged = false;
+  }
+
+  // ✅ Debounced Search
+  onSearch(event: any) {
+    const value = event.target.value?.toLowerCase() || '';
+
+    clearTimeout(this.searchTimeout);
+
+    this.searchTimeout = setTimeout(() => {
+      if (!value) {
+        this.filteredUsers = [...this.users];
+        return;
+      }
+
+      this.filteredUsers = this.users.filter(user =>
+        user.name?.toLowerCase().includes(value) ||
+        user.email?.toLowerCase().includes(value) ||
+        user.id?.toString().includes(value)
+      );
+    }, 300);
+  }
+
+  // ✅ Role Label
+  getRoleLabel(roles: string[]) {
+    if (!roles || roles.length === 0) return '';
+    return roles[0].replace('_', ' ');
   }
 }

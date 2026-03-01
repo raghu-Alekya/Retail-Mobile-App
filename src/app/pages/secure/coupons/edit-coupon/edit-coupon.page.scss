@@ -1,0 +1,82 @@
+.custom-header {
+  --background: #2f4f6f;
+  --color: #ffffff;
+  height: 60px;
+
+  ion-title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+}
+
+.update-btn {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.coupon-content {
+  --background: #f2f3f5;
+  padding: 12px;
+}
+
+.last-modified {
+  font-size: 12px;
+  color: #6c757d;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.label {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.value {
+  font-size: 15px;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.divider {
+  height: 1px;
+  background: #e0e0e0;
+  margin: 12px 0;
+}
+
+.publish-badge {
+  background: #d4f4dd;
+  color: #2e7d32;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.delete-wrapper {
+  margin-top: 20px;
+}
+
+.delete-btn {
+  --border-color: #ff3b30;
+  --color: #ff3b30;
+  border-radius: 8px;
+}

@@ -1,152 +1,131 @@
-/* Swiper bundle */
 @import 'swiper/css/bundle';
 
-app-welcome {
-  background-color: var(--ion-color-dark);
+/* --------------------------------
+   BACKGROUND
+-------------------------------- */
+
+ion-content {
+  --background: #f4f6f9;   /* light clean background */
+  --padding-bottom: 140px;
 }
 
-app-welcome h2{
-  color: #112533;
-}
+/* --------------------------------
+   SWIPER
+-------------------------------- */
 
-
-app-welcome ion-content {
-  --background: linear-gradient(360deg, var(--ion-color-dark), var(--ion-color-primary));
-}
-
-app-welcome .swiper-welcome {
-  text-align: center;
-}
-
-app-welcome .swiper {
-  width: 100%;
+.welcome-swiper {
   height: 100%;
 }
 
-app-welcome .swiper-slide {
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* --------------------------------
+   SLIDE CONTENT
+-------------------------------- */
+
+.slide {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 0 20px;
+  text-align: center;
+
+  padding-top: 40px;
 }
 
-app-welcome h3 {
-  font-size: 32px;
-  line-height: 32px;
-  font-weight: 800;
-  margin: 40px 0 12px 0;
+/* --------------------------------
+   IMAGE (ZOOMED + MOVED UP)
+-------------------------------- */
+
+.slide-image {
+  width: 520px;     /* zoom image */
+  max-width: 95%;
+  margin-top: -40px;  /* move up */
+  margin-bottom: 20px;
 }
 
-app-welcome p {
-  font-size: 16px;
-  line-height: 26px;
-  color: var(--ion-color-tertiary);
+/* --------------------------------
+   DOTS (MOVED UP COMPLETELY)
+-------------------------------- */
+
+.swiper-pagination {
+  position: absolute !important;
+  top: 75%;    /* move dots up */
+  left: 0;
+  width: 100%;
 }
 
-app-welcome swiper img {
-  max-width: 200px;
-  margin-bottom: 10px;
-}
-
-app-welcome swiper ion-icon {
-  color: var(--ion-color-light-shade);
-  font-size: 82px;
-  border-radius: 50%;
-  width: 100px;
-  height: 100px;
-  padding: 30px;
-  border: 4px solid hsl(215deg 20% 58% / 25%);
-  background-color: var(--ion-color-primary)
-}
-
-app-welcome .swiper-pagination-bullet {
-  background: var(--ion-color-primary) !important;
-}
-
-app-welcome .swiper-pagination-bullet-active {
-  background: var(--ion-color-light);
-}
-
-// app-welcome ion-footer {
-//   background: linear-gradient(135deg, var(--ion-color-dark), var(--ion-color-primary));
-// }
-
-/* ------------------------------
-   PINAKA POS – Swiper Dots
---------------------------------*/
-
-app-welcome .swiper-pagination {
-  bottom: 20px !important; /* above footer */
-}
-
-app-welcome .swiper-pagination-bullet {
-  width: 10px;
-  height: 10px;
-  margin: 0 6px !important;
-  background: rgba(255, 255, 255, 0.35);
+.swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  margin: 0 5px !important;
+  background: #b0b8c1;
   opacity: 1;
   border-radius: 50%;
-  transition: all 0.3s ease;
 }
 
-app-welcome .swiper-pagination-bullet-active {
-  width: 22px;
+.swiper-pagination-bullet-active {
+  width: 20px;
   border-radius: 12px;
-  background: var(--ion-color-secondary);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+  background: #2d4f7c;
 }
 
-ion-content {
-  --padding-bottom: 0;
+/* --------------------------------
+   TEXT
+-------------------------------- */
+
+.swiper-slide:first-child h2 {
+  margin-top: 90px;   /* pushes title down */
 }
-ion-footer {
-  --background: transparent;
-  box-shadow: none !important;
-  border-top: none !important;
+
+.swiper-slide:first-child p {
+  margin-top: 10px;
 }
-.swiper-welcome {
-  height: 100%;
-  position: relative;
-}
-.slide {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;  /* vertical center */
-  align-items: center;      /* horizontal center */
-  text-align: center;
-  padding: 20px;
 
 
+.slide h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 30px;
+  margin-bottom: 8px;
+  // color: #ffffff !important;
 }
+
+.slide p {
+  font-size: 14px;
+  // color: #ffffff !important;
+}
+
+/* --------------------------------
+   FOOTER FIX (NO LINE)
+-------------------------------- */
+
 ion-footer {
   --background: transparent !important;
   background: transparent !important;
   box-shadow: none !important;
-  border-top: 0 !important;
+  border-top: none !important;
 }
 
 ion-footer::before {
-  display: none !important;
-  background: transparent !important;
+  display: none !important;   /* removes that line */
 }
 
-ion-content::part(background) {
-  border-bottom: none !important;
-}
-
-ion-content {
-  --border-width: 0px !important;
-}
+/* --------------------------------
+   SKIP + NEXT ALIGNMENT
+-------------------------------- */
 
 .welcome-footer {
-  position: absolute;
-  bottom: 50px;   /* 👈 increase this */
+  position: fixed;
+  bottom: 30px;
+  left: 0;
   width: 100%;
-  padding: 0 25px 40px;
+  padding: 0 24px;
 }
-
 
 .footer-container {
   display: flex;
@@ -154,85 +133,78 @@ ion-content {
   align-items: center;
 }
 
+/* Skip button */
+
 .skip-btn {
-  font-size: 20px;   /* bigger text */
+  font-size: 16px;
   font-weight: 500;
-  color: #333;
+  color: #2d4f7c;
 }
 
+/* Next arrow button */
 
 .next-btn {
-  width: 50px;      /* bigger circle */
-  height: 50px;
+  width: 52px;
+  height: 52px;
   background: #2d4f7c;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   color: white;
-  font-size: 28px;  /* bigger arrow */
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
-  transition: all 0.2s ease;
+  font-size: 22px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
 }
 
-
-
-.slide {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-
-  transform: translateY(-45px);  /* shift entire content up */
+.next-btn:active {
+  transform: scale(0.95);
 }
 
-.slide-image {
-  width: 120%;
-  max-width: none;
-  // margin-top: -10px;  
-  margin-bottom: 50px;
-}
-.swiper-pagination {
-  position: absolute !important;
-  top: 65%;  
-  left: 0;
-  width: 100%;
-}
-.slide-2-image {
-  width:350px;
-  max-width: 500px;     
-  margin-top: 5px;     
-}
+/* --------------------------------
+   GET STARTED BUTTON
+-------------------------------- */
+
 .get-started-btn {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 88%;
+  max-width: 380px;
+  height: 56px;
+
   --background: #2d4f7c;
-  --background-hover: #244164;
-  --background-activated: #1f3654;
   --color: #ffffff;
 
-  height: 65px;         
-  width: 85%;           
-  max-width: 380px;      
-
-  margin-top: 40px;      /* 👈 moves it down */
-  
   border-radius: 14px;
-  font-size: 20px;      
+  font-size: 18px;
   font-weight: 600;
 
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+:host-context(.dark-bg) .swiper-slide h2,
+:host-context(.dark-bg) .swiper-slide p,
+:host-context(.dark-bg) .skip-btn {
+  color: #ffffff !important;
 }
 
-.welcome-content {
-  --padding-bottom: 80px;
-}
-.swiper-slide {
-  pointer-events: auto !important;
-}
-
-ion-button {
-  pointer-events: auto !important;
+:host-context(.light-bg) .swiper-slide h2,
+:host-context(.light-bg) .swiper-slide p,
+:host-context(.light-bg) .skip-btn {
+  color: #111111 !important;
 }
 
 
+/* LIGHT BACKGROUND */
+.light-bg .slide h2,
+.light-bg .slide p,
+.light-bg .skip-btn {
+  color: #111;
+}
+
+/* DARK BACKGROUND */
+.dark-bg .slide h2,
+.dark-bg .slide p,
+.dark-bg .skip-btn {
+  color: #ffffff;
+}

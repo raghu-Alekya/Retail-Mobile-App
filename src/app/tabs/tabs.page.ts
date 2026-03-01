@@ -26,7 +26,9 @@ toggle() {
  
   this.hideTabBar =
     url.includes('/tabs/profile') ||
-    url.includes('/tabs/edit-profile') ||
+    url.includes('/tabs/edit') ||
+    url.includes('/tabs/charts') ||
+    url.includes('/tabs/payments') ||
     url.startsWith('/tabs/address') ||
     url.startsWith('/tabs/change-password');
  

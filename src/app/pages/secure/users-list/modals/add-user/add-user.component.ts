@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
 import {
   IonicModule,
   ModalController,
@@ -10,8 +11,11 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { Router } from '@angular/router';
 
+
 @Component({
   selector: 'app-add-user-modal',
+   templateUrl: './add-user.component.html',
+  styleUrls: ['./add-user.component.scss'],
   standalone: true,
   imports: [IonicModule, CommonModule, FormsModule],
   // template: `
@@ -256,7 +260,7 @@ import { Router } from '@angular/router';
 
   `]
 })
-export class AddUserModal implements OnInit {
+export class AddUserComponent implements OnInit {
 
   customRoles: any[] = [];
   userRole = '';
@@ -268,6 +272,18 @@ export class AddUserModal implements OnInit {
     description: '',
     emp_login_pin: '',
   };
+ 
+get isFormDirty(): boolean {
+  return (
+    this.user.username ||
+    this.user.email ||
+    this.user.first_name ||
+    this.user.last_name ||
+    this.user.role ||
+    this.user.phone ||
+    this.user.emp_login_pin
+  );
+}
 
   constructor(
     private modalCtrl: ModalController,
@@ -279,43 +295,39 @@ export class AddUserModal implements OnInit {
   ) {}
 
   async ngOnInit() {
-    const url = this.router.url; 
-      const lastSegment = url.split('/').pop();
-      if (lastSegment === 'customers') {
-        this.userRole = 'customer';
-      } else if (lastSegment === 'employees') {
-        this.userRole = 'employee';
-      }
-    await this.loadCustomRoles();
-  }
+  await this.loadCustomRoles();
+}
+// async loadCustomRoles() {
+//   try {
+//     this.customRoles = await this.authService.getCustomRoles();
 
-  async loadCustomRoles() {
-    const loading = await this.loadingCtrl.create({
-      message: 'Loading roles...',
-    });
-    await loading.present();
+//     if (this.customRoles.length) {
+//       this.user.role = this.customRoles[0].key;
+//     }
+//   } catch (e) {
+//     this.showAlert('Error', 'Failed to load user roles');
+//   }
+// }
+  
+// async loadCustomRoles() {
+//   this.customRoles = await this.authService.getCustomRoles();
 
-    try {
-      this.customRoles = await this.authService.getCustomRoles();
+//   console.log('ROLES IN COMPONENT:', this.customRoles);
 
-      // ✅ Set default role safely
-      if (this.customRoles.length) {
-        this.user.role = this.customRoles[0].key;
-      }
-
-    } catch (e) {
-      this.showAlert('Error', 'Failed to load user roles');
-    } finally {
-      loading.dismiss();
-    }
-  }
-
+//   if (this.customRoles.length) {
+//     this.user.role = this.customRoles[0].key;
+//   }
+// }
+async loadCustomRoles() {
+  const roles = await this.authService.getCustomRoles();
+  this.customRoles = Array.isArray(roles) ? roles : [];
+}
   close() {
     this.modalCtrl.dismiss(false);
   }
 
   async submit() {
-    if (!this.user.username || !this.user.email || !this.user.password) {
+    if (!this.user.username || !this.user.email) {
       this.showAlert(
         'Validation Error',
         'Username, Email & Password are required'

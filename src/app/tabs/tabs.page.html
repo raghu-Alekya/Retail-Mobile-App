@@ -1,76 +1,78 @@
 <ion-tabs>
- 
+
+  <ion-router-outlet></ion-router-outlet>
   <ion-tab-bar slot="bottom" *ngIf="!hideTabBar">
- 
+
     <span class="notch"></span>
- 
+
     <ion-tab-button tab="home">
       <ion-icon name="home-outline"></ion-icon>
       <ion-label>Home</ion-label>
     </ion-tab-button>
- 
+
     <ion-tab-button tab="charts">
       <ion-icon name="pie-chart-outline"></ion-icon>
       <ion-label>Charts</ion-label>
     </ion-tab-button>
- 
+
     <ion-tab-button tab="payments">
       <ion-icon name="card-outline"></ion-icon>
       <ion-label>Payments</ion-label>
     </ion-tab-button>
- 
+
     <ion-tab-button tab="profile" routerLink="/tabs/profile">
   <ion-icon name="person-outline"></ion-icon>
   <ion-label>Profile</ion-label>
 </ion-tab-button>
- 
- 
- 
+
+
+
   </ion-tab-bar>
- 
+
   <!-- FLOATING BUTTON -->
   <div class="plus-btn" *ngIf="!hideTabBar">
   <ion-icon name="add"></ion-icon>
 </div>
- 
- 
+
+
 </ion-tabs>
 <!-- FLOATING ACTION BUTTON -->
 <ion-tabs>
- 
+
   <ion-tab-bar slot="bottom" *ngIf="!hideTabBar">
- 
+
     <span class="notch"></span>
- 
+
     <ion-tab-button tab="home">
       <ion-icon name="home-outline"></ion-icon>
       <ion-label>Home</ion-label>
     </ion-tab-button>
- 
+
     <ion-tab-button tab="charts">
       <ion-icon name="pie-chart-outline"></ion-icon>
       <ion-label>Charts</ion-label>
     </ion-tab-button>
- 
+
     <ion-tab-button tab="payments">
       <ion-icon name="card-outline"></ion-icon>
       <ion-label>Payments</ion-label>
     </ion-tab-button>
- 
+
     <ion-tab-button tab="profile" routerLink="/tabs/profile">
   <ion-icon name="person-outline"></ion-icon>
   <ion-label>Profile</ion-label>
 </ion-tab-button>
- 
- 
+
+
+
   </ion-tab-bar>
- 
+
   <!-- FLOATING BUTTON -->
-  <!-- <div class="plus-btn" *ngIf="!hideTabBar"> -->
-  <!-- <ion-icon name="add"></ion-icon> -->
-<!-- </div> -->
- 
- 
+  <!-- <div class="plus-btn" *ngIf="!hideTabBar">
+  <ion-icon name="add"></ion-icon>
+</div> -->
+
+
 </ion-tabs>
 <!-- FLOATING ACTION BUTTON -->
 <div class="fab-container" *ngIf="!hideTabBar">
@@ -87,6 +89,7 @@
     <ion-icon name="pricetag-outline"></ion-icon>
   </div>
 
+  <!-- THIS is the real + button -->
   <div class="main-fab" (click)="toggle()">
     <ion-icon [name]="isOpen ? 'close' : 'add'"></ion-icon>
   </div>

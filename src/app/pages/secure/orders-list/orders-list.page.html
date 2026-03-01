@@ -27,7 +27,10 @@
   <!-- Search -->
   <div class="search-wrapper">
     <ion-icon name="search-outline"></ion-icon>
-    <input placeholder="Search Orders" (input)="onSearch($event)" />
+    <input
+      placeholder="Search Orders"
+      (input)="onSearch($event.target.value)"
+    />
   </div>
 </ion-header>
 

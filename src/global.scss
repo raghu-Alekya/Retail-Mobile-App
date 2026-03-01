@@ -52,6 +52,12 @@ ion-label {
   font-size: 16px;
   font-weight: 700;
 }
+//////add-user//////
+.add-user-modal {
+  --width: 100%;
+  --height: 100%;
+  --border-radius: 0px;
+}
 
 // Action Sheet styles
 ion-action-sheet {
@@ -125,4 +131,13 @@ hr {
   &.hr-medium {
     margin: 32px 0;
   }
+}
+
+ion-back-button {
+  color: var(--ion-toolbar-color) !important;
+}
+
+ion-toolbar {
+  --background: var(--ion-toolbar-background);
+  --color: var(--ion-toolbar-color);
 }
