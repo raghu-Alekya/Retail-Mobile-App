@@ -24,37 +24,45 @@
   </div>
 
   <div
-    class="employee-card"
-    *ngFor="let user of customers; let i = index"
-    [ngClass]="'card-color-' + (i % 5)"
-  >
+  class="employee-card"
+  *ngFor="let user of customers; let i = index"
+  [ngClass]="'card-color-' + (i % 5)"
+>
+  <div class="card-content">
 
-    <div class="card-content">
+    <div class="avatar" [ngClass]="'avatar-' + (i % 5)">
+      <ion-icon name="person-outline"></ion-icon>
+    </div>
 
-      <div class="avatar" [ngClass]="'avatar-' + (i % 5)">
-        <ion-icon name="person-outline"></ion-icon>
+    <div class="details">
+
+      <div class="name">
+        {{
+          ((user.first_name || '') + ' ' + (user.last_name || '')).trim()
+          || user.name
+          || user.email
+          || 'No Name'
+        }}
       </div>
 
-      <div class="details">
-
-        <!-- Email OR Phone -->
-        <div class="name">
-  {{
-    (user.first_name + ' ' + user.last_name).trim()
-      || user.name
-      || user.email
-  }}
-</div>
-
-        <!-- Redeem Points -->
-        <div class="login-id">
-          Redeem Points:
-          <strong>{{ user.meta?.redeem_points || 0 }} Pts</strong>
-        </div>
-
+      <div class="login-id">
+        Redeem Points:
+        <strong>{{ user?.meta?.redeem_points ?? 0 }} Pts</strong>
       </div>
 
     </div>
-  </div>
 
+  </div>
+</div>
+<ion-infinite-scroll
+  threshold="100px"
+  (ionInfinite)="loadMore($event)"
+  *ngIf="hasMore"
+>
+  <ion-infinite-scroll-content
+    loadingSpinner="bubbles"
+    loadingText="Loading more customers..."
+  >
+  </ion-infinite-scroll-content>
+</ion-infinite-scroll>
 </ion-content>
