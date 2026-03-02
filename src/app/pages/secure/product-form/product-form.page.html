@@ -58,13 +58,13 @@
   </ion-item>
 
   <!-- Featured -->
-  <ion-item lines="full">
+  <!-- <ion-item lines="full">
     <ion-label>Featured</ion-label>
     <ion-toggle slot="end" [(ngModel)]="product.featured"></ion-toggle>
-  </ion-item>
+  </ion-item> -->
 
   <!-- SKU -->
-  <ion-item lines="none" class="editable-item">
+  <!-- <ion-item lines="none" class="editable-item">
     <ion-label position="stacked">SKU</ion-label>
 
     <ion-textarea
@@ -79,8 +79,15 @@
         <ion-icon name="barcode-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-  </ion-item>
-
+  </ion-item> -->
+  <ion-card>
+    <ion-item>
+      <ion-label position="stacked">SKU</ion-label>
+      <ion-input [(ngModel)]="product.sku"></ion-input>
+      <ion-icon name="barcode-outline" slot="end"></ion-icon>
+      <ion-button size="small" slot="end" (click)="scanSku()">Scan</ion-button>
+    </ion-item>
+  </ion-card>
 
 </ion-card>
 
@@ -151,16 +158,16 @@
   <ion-card class="settings-card">
 
     <!-- Header row -->
-    <ion-item lines="full">
-      <ion-label class="tax-title">
+    <!-- <ion-item lines="full"> -->
+      <!-- <ion-label class="tax-title">
         Tax Class
         <ion-icon name="settings-outline"></ion-icon>
-      </ion-label>
+      </ion-label> -->
 
-      <ion-button fill="clear" slot="end">
+      <!-- <ion-button fill="clear" slot="end">
         <ion-icon name="add-outline"></ion-icon>
       </ion-button>
-    </ion-item>
+    </ion-item> -->
 
     <!-- Value row -->
     <ion-item lines="none">
@@ -436,7 +443,7 @@
   <ion-card class="settings-card">
 
     <!-- Manage Stock -->
-    <ion-item lines="full">
+    <!-- <ion-item lines="full">
       <ion-label>
         Manage Stock
       </ion-label>
@@ -445,7 +452,7 @@
         slot="end"
         [(ngModel)]="product.manage_stock"
       ></ion-toggle>
-    </ion-item>
+    </ion-item> -->
 
     <!-- Stock Status -->
 <ion-item lines="none" class="dropdown-item">
@@ -458,11 +465,8 @@
     [ngClass]="product.stock_status"
   >
     {{
-      product.stock_status === 'instock'
-        ? 'In stock'
-        : product.stock_status === 'outofstock'
-        ? 'Out of stock'
-        : 'Stock status'
+      product.stock_quantity > 0
+        ? 'In stock' : 'Out of stock'
     }}
     
   </ion-note>

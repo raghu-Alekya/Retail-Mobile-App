@@ -26,6 +26,7 @@ export class ProductFormPage implements OnInit {
   expandedAttributes: { [key: number]: boolean } = {};
   private attributesLoaded = false;
   private isLoadingAttributes = false;
+  stock_quantity : any = null;
   // selectedTaxClass: any = null;
 
   product: any = {
@@ -38,7 +39,7 @@ export class ProductFormPage implements OnInit {
     sale_price: '',
     sku: '',
     weight: '',
-    featured: false,
+    // featured: false,
     sold_individually: false,
     reviews_allowed: true,
     selectedTaxClass:''
@@ -66,13 +67,28 @@ export class ProductFormPage implements OnInit {
       await this.loadAttributes();
     }
   }
-  buildVariationKey(combo: any[]): string {
-    return combo
-      .map(a => `${a.id}_${a.option}`)
-      .sort()
+  // buildVariationKey(combo: any[]): string {
+  //   return combo
+  //     .map(a => `${a.id}_${a.option}`)
+  //     .sort()
+  //     .join('|');
+  // }
+  // buildVariationKey(attributes: any[]): string {
+  //   return attributes
+  //     .map(attr => `${attr.id}_${attr.option}`)
+  //     .sort()
+  //     .join('|');
+  // }
+  buildVariationKey(attributes: any[]): string {
+    return attributes
+      .sort((a, b) => a.id - b.id) // sort by attribute id
+      .map(attr => {
+        const termObj = this.getTermByName(attr.id, attr.option);
+        const slug = termObj?.slug || attr.option;
+        return `${attr.id}_${slug}`;
+      })
       .join('|');
   }
-
   getComboLabel(combo: any[]): string {
     return combo.map(a => a.option).join(' + ');
   }
@@ -146,12 +162,14 @@ export class ProductFormPage implements OnInit {
         sale_price: res.sale_price,
         sku: res.sku,
         weight: res.weight,
-        featured: res.featured,
+        // featured: res.featured,
         sold_individually: res.sold_individually,
         reviews_allowed: res.reviews_allowed,
         category_ids: res.categories?.map((c: any) => c.id) || [],
         tag_ids: res.tags?.map((t: any) => t.id) || [],
       };
+      this.stock_quantity = res.stock_quantity;
+      // console.log(res);
       this.selectedTaxClass = this.taxClasses.find(
         tax => tax.slug === res.tax_class
       ) || null;
@@ -192,11 +210,11 @@ export class ProductFormPage implements OnInit {
 
         variations.forEach((variation: any) => {
 
-          const key = variation.attributes
-            .map((attr: any) => `${attr.id}_${attr.option}`)
-            .sort()
-            .join('|');
-
+          // const key = variation.attributes
+          //   .map((attr: any) => `${attr.id}_${attr.option}`)
+          //   .sort()
+          //   .join('|');
+          const key = this.buildVariationKey(variation.attributes);
           this.variationPrices[key] =
             Number(variation.regular_price);
         });
@@ -379,7 +397,7 @@ export class ProductFormPage implements OnInit {
         sale_price: this.product.sale_price || '',
         sku: this.product.sku,
         weight: this.product.weight,
-        featured: this.product.featured,
+        // featured: this.product.featured,
         sold_individually: this.product.sold_individually,
         reviews_allowed: this.product.reviews_allowed,
         tax_status: this.selectedTaxClass ? 'taxable' : 'none',
@@ -417,7 +435,9 @@ export class ProductFormPage implements OnInit {
       if (this.selectedFile) {
         try {
           const media = await this.authService.uploadMedia(this.selectedFile);
+          console.log(media);
           payload.images = [{ id: media.id }];
+          console.log(payload.images);
         } catch (error) {
           console.error('Failed to upload image', error);
         }
@@ -562,11 +582,11 @@ export class ProductFormPage implements OnInit {
       const variationMap = new Map<string, any>();
 
       existingVariations.forEach((variation: any) => {
-        const key = variation.attributes
-          .map((attr: any) => `${attr.id}_${attr.option}`)
-          .sort()
-          .join('|');
-
+        // const key = variation.attributes
+        //   .map((attr: any) => `${attr.id}_${attr.option}`)
+        //   .sort()
+        //   .join('|');
+        const key = this.buildVariationKey(variation.attributes);
         variationMap.set(key, variation);
       });
 
@@ -574,7 +594,7 @@ export class ProductFormPage implements OnInit {
 
         const key = this.buildVariationKey(combo);
         const price = this.variationPrices[key] ?? 0;
-        // console.log(price);
+        // console.log('Creating variation combo:', key);
         if (variationMap.has(key)) {
 
           await this.authService.updateVariation(
@@ -589,10 +609,18 @@ export class ProductFormPage implements OnInit {
             productId,
             {
               regular_price: price.toString(),
-              attributes: combo.map(attr => ({
-                id: attr.id,
-                option: attr.option
-              }))
+              // attributes: combo.map(attr => ({
+              //   id: attr.id,
+              //   option: attr.option
+              // }))
+              attributes: combo.map(attr => {
+                const termObj = this.getTermByName(attr.id, attr.option);
+
+                return {
+                  id: attr.id,
+                  option: termObj?.slug || attr.option
+                };
+              })
             }
           );
         }

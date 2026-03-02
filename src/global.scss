@@ -132,3 +132,12 @@ hr {
     margin: 32px 0;
   }
 }
+
+ion-back-button {
+  color: var(--ion-toolbar-color) !important;
+}
+
+ion-toolbar {
+  --background: var(--ion-toolbar-background);
+  --color: var(--ion-toolbar-color);
+}
