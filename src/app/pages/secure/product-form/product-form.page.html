@@ -15,9 +15,7 @@
 </ion-header>
 
 <ion-content>
-
   <ion-card class="settings-card image-block">
-
   <!-- Hidden file input -->
   <input
     type="file"
@@ -50,14 +48,7 @@
   </div>
 
 </ion-card>
-
-
-
-
-
-  <ion-card class="settings-card">
-
-  <!-- Status -->
+<ion-card class="settings-card">
   <ion-item lines="full">
     <ion-label>Status</ion-label>
     <ion-select [(ngModel)]="product.status" interface="popover">
@@ -267,74 +258,123 @@
 
 
   <!-- ATTRIBUTES (VARIABLE PRODUCT ONLY) -->
-  <ion-card *ngIf="product.type === 'variable'" class="settings-card">
-    <ion-item>
-      <ion-label><strong>Attributes</strong></ion-label>
-    </ion-item>
-    
-    <ion-card-content *ngIf="attributes.length === 0">
-      <ion-text color="medium">
-        Loading attributes...
-      </ion-text>
-    </ion-card-content>
-    
-    <!-- <div *ngFor="let attr of attributes">
-      <ion-item>
-        <ion-label>{{ attr.name }}</ion-label>
-        <ion-select
-          multiple="true"
-          [(ngModel)]="selectedAttributes[attr.id]"
-          (ionChange)="logSelectedAttributes()"
-        >
-          <ion-select-option *ngFor="let term of attr.terms" [value]="term.name">
-            {{ term.name }}
-          </ion-select-option>
-        </ion-select>
-      </ion-item>
-    </div> -->
-    <div *ngFor="let attr of attributes" class="attribute-row">
+  <!-- ATTRIBUTES (VARIABLE PRODUCT ONLY) -->
+<ion-card *ngIf="product.type === 'variable'" class="settings-card">
 
-    <!-- Attribute name -->
-    <ion-item lines="full">
-      <ion-label><strong>{{ attr.name }}</strong></ion-label>
+  <ion-item>
+    <ion-label><strong>Attributes</strong></ion-label>
+  </ion-item>
+
+  <ion-card-content *ngIf="attributes.length === 0">
+    <ion-text color="medium">
+      Loading attributes...
+    </ion-text>
+  </ion-card-content>
+
+  <!-- Attribute Loop -->
+  <div *ngFor="let attr of attributes" class="attribute-row">
+
+    <!-- Header -->
+    <ion-item lines="full"
+              (click)="toggleAttribute(attr.id)"
+              style="cursor:pointer;">
+
+      <ion-label>
+        <strong>{{ attr.name }}</strong>
+      </ion-label>
+
+      <ion-icon
+        slot="end"
+        [name]="expandedAttributes[attr.id]
+          ? 'chevron-up-outline'
+          : 'chevron-down-outline'">
+      </ion-icon>
+
     </ion-item>
 
-      <!-- Attribute options -->
-      <div *ngFor="let term of attr.terms" style="padding-left: 16px;">
+    <!-- Terms -->
+    <div *ngIf="expandedAttributes[attr.id]">
+
+      <div *ngFor="let term of attr.terms">
 
         <ion-item lines="none">
 
-          <!-- Checkbox -->
           <ion-checkbox
             slot="start"
             [checked]="selectedAttributes[attr.id]?.includes(term.name)"
             (ionChange)="onAttributeToggle(attr.id, term.name, $event)"
-            [disabled]="savedVariationOptions[attr.id + '_' + term.slug]"
-          ></ion-checkbox>
+            >
+          </ion-checkbox>
 
-          <!-- Option name -->
           <ion-label>
             {{ term.name }}
           </ion-label>
-
-          <!-- Price input -->
-          <ion-input
-            *ngIf="selectedAttributes[attr.id]?.includes(term.name)"
-            type="number"
-            placeholder="Price"
-            [(ngModel)]="attributePrices[attr.id + '_' + term.name]"
-            [readonly]="savedVariationOptions[attr.id + '_' + term.slug]"
-            style="max-width: 90px; margin-left: 10px;"
-            class="price-input"
-          ></ion-input>
 
         </ion-item>
 
       </div>
 
     </div>
-  </ion-card>
 
+  </div>
+
+</ion-card>
+  <!-- Variation Pricing -->
+  <!-- <ion-card
+    *ngIf="product.type === 'variable' &&
+        generatedCombinations.length > 0"
+    class="variation-card settings-card">
+
+    <ion-item class="variation-header">
+      <ion-label><strong>Variations</strong></ion-label>
+    </ion-item>
+
+    <div *ngFor="let combo of generatedCombinations" lines="none"
+      class="variation-item">
+
+      <ion-label class="variation-label">
+        <h3>{{ getComboLabel(combo) }}</h3>
+      </ion-label>
+
+      <ion-input
+        type="number"
+        placeholder="Enter variation price"
+        class="variation-price"
+        [ngModel]="getVariationPrice(combo)"
+        (ngModelChange)="setVariationPrice(combo, $event)">
+      </ion-input>
+
+    </div>
+
+  </ion-card> -->
+  <ion-card
+  *ngIf="product.type === 'variable' && generatedCombinations.length > 0"
+  class="variation-card settings-card">
+
+  <ion-item class="variation-header" lines="none">
+    <ion-label><strong>Variations</strong></ion-label>
+  </ion-item>
+
+  <div
+    *ngFor="let combo of generatedCombinations"
+    class="variation-item">
+
+    <div class="variation-row">
+      <div class="variation-label">
+        {{ getComboLabel(combo) }}
+      </div>
+
+      <ion-input
+        type="number"
+        placeholder="Price"
+        class="variation-price"
+        [ngModel]="getVariationPrice(combo)"
+        (ngModelChange)="setVariationPrice(combo, $event)">
+      </ion-input>
+    </div>
+
+  </div>
+</ion-card>
   <!-- Pricing -->
   <ion-card class="settings-card">
 

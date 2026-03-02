@@ -20,12 +20,13 @@ export class ProductFormPage implements OnInit {
   categories: any[] = [];
   tags: any[] = [];
   attributes: any[] = [];
+  generatedCombinations: any[] = [];
+  variationPrices: { [key: string]: number } = {};
   selectedAttributes: { [key: number]: string[] } = {};
-  attributePrices: {
-      [key: string]: number;
-    } = {};
-  // isEditMode = false;
-  savedVariationOptions: { [key: string]: boolean } = {};
+  expandedAttributes: { [key: number]: boolean } = {};
+  private attributesLoaded = false;
+  private isLoadingAttributes = false;
+  // selectedTaxClass: any = null;
 
   product: any = {
     name: '',
@@ -40,6 +41,7 @@ export class ProductFormPage implements OnInit {
     featured: false,
     sold_individually: false,
     reviews_allowed: true,
+    selectedTaxClass:''
   };
 
   constructor(
@@ -52,67 +54,88 @@ export class ProductFormPage implements OnInit {
 
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    
-    // Load initial data
     await this.loadCategories();
     await this.loadTags();
-    
+    await this.loadTaxClasses();
     if (id) {
       this.isEdit = true;
       this.productId = +id;
       await this.loadProduct();
     }
-    
-    // Load attributes only after product type is known
     if (this.product.type === 'variable') {
       await this.loadAttributes();
     }
   }
-  // onAttributeToggle(attrId: number, option: string, event: any) {
+  buildVariationKey(combo: any[]): string {
+    return combo
+      .map(a => `${a.id}_${a.option}`)
+      .sort()
+      .join('|');
+  }
+
+  getComboLabel(combo: any[]): string {
+    return combo.map(a => a.option).join(' + ');
+  }
+
+  getVariationPrice(combo: any[]) {
+    return this.variationPrices[
+      this.buildVariationKey(combo)
+    ] || '';
+  }
+
+  setVariationPrice(combo: any[], value: any) {
+    const key = this.buildVariationKey(combo);
+    this.variationPrices[key] = Number(value || 0);
+    // console.log(this.variationPrices);
+  }
+  toggleAttribute(attrId: number) {
+    this.expandedAttributes[attrId] =
+      !this.expandedAttributes[attrId];
+  }
+  // onAttributeToggle(attrId: number, term: string, event: any) {
 
   //   if (!this.selectedAttributes[attrId]) {
   //     this.selectedAttributes[attrId] = [];
   //   }
 
   //   if (event.detail.checked) {
-  //     // add
-  //     if (!this.selectedAttributes[attrId].includes(option)) {
-  //       this.selectedAttributes[attrId].push(option);
+  //     if (!this.selectedAttributes[attrId].includes(term)) {
+  //       this.selectedAttributes[attrId].push(term);
   //     }
   //   } else {
-  //     // remove
   //     this.selectedAttributes[attrId] =
-  //       this.selectedAttributes[attrId].filter(o => o !== option);
-
-  //     // remove price
-  //     delete this.attributePrices[`${attrId}_${option}`];
+  //       this.selectedAttributes[attrId]
+  //         .filter(t => t !== term);
   //   }
+
+  //   this.generatedCombinations =
+  //     this.generateCombinations();
   // }
-  onAttributeToggle(attrId: number, option: string, event: any) {
-    // ensure array exists
+  onAttributeToggle(attrId: number, term: string, event: any) {
     if (!this.selectedAttributes[attrId]) {
       this.selectedAttributes[attrId] = [];
     }
 
     if (event.detail.checked) {
-      // add option
-      if (!this.selectedAttributes[attrId].includes(option)) {
-        this.selectedAttributes[attrId].push(option);
+      if (!this.selectedAttributes[attrId].includes(term)) {
+        this.selectedAttributes[attrId].push(term);
       }
     } else {
-      // remove option
       this.selectedAttributes[attrId] =
-        this.selectedAttributes[attrId].filter(o => o !== option);
-
-      // remove price
-      delete this.attributePrices[`${attrId}_${option}`];
+        this.selectedAttributes[attrId]
+          .filter(t => t !== term);
     }
+
+    this.generatedCombinations =
+      this.generateCombinations();
+
+    console.log('Generated:', this.generatedCombinations);
   }
   async loadProduct() {
     try {
       // this.isEditMode = !!this.productId;
       const res = await this.authService.getProductById(this.productId);
-
+      await this.loadExistingVariations();
       this.product = {
         name: res.name,
         description: this.stripHtml(res.description),
@@ -129,7 +152,9 @@ export class ProductFormPage implements OnInit {
         category_ids: res.categories?.map((c: any) => c.id) || [],
         tag_ids: res.tags?.map((t: any) => t.id) || [],
       };
-
+      this.selectedTaxClass = this.taxClasses.find(
+        tax => tax.slug === res.tax_class
+      ) || null;
       // Set image preview
       if (res.images && res.images.length > 0) {
         this.imagePreview = res.images[0].src;
@@ -146,17 +171,75 @@ export class ProductFormPage implements OnInit {
               this.selectedAttributes[attr.id] = Array.isArray(attr.options) 
                 ? attr.options 
                 : [attr.options];
+                const optionsArray = Array.isArray(attr.options)
+                ? attr.options
+                : [attr.options];
+                // this.assignedAttributeTerms[attr.id] = [...optionsArray];
             }
           });
         }
         const variations =
-        await this.authService.getProductVariations(this.productId);
-        // Map variation data to UI
+          await this.authService.getProductVariations(this.productId);
+
+        this.generatedCombinations = variations.map((variation: any) =>
+          variation.attributes.map((attr: any) => ({
+            id: attr.id,
+            option: attr.option
+          }))
+        );
+
+        this.variationPrices = {};
+
+        variations.forEach((variation: any) => {
+
+          const key = variation.attributes
+            .map((attr: any) => `${attr.id}_${attr.option}`)
+            .sort()
+            .join('|');
+
+          this.variationPrices[key] =
+            Number(variation.regular_price);
+        });
+        // console.log('selected attributes');
+        // console.log(this.selectedAttributes);
         this.mapVariationsToUI(variations);
       }
 
     } catch (e) {
       console.error('Failed to load product', e);
+    }
+  }
+  async loadExistingVariations() {
+    try {
+      const response =
+        await this.authService.getProductVariations(this.productId);
+
+      const variations = Array.isArray(response)
+        ? response
+        : response?.data || [];
+
+      this.generatedCombinations = [];
+      this.variationPrices = {};
+
+      variations.forEach((variation: any) => {
+
+        if (!variation.attributes) return;
+
+        const combo = variation.attributes.map((attr: any) => ({
+          id: attr.id,
+          option: attr.option
+        }));
+
+        this.generatedCombinations.push(combo);
+
+        const key = this.buildVariationKey(combo);
+
+        this.variationPrices[key] =
+          Number(variation.regular_price || 0);
+      });
+
+    } catch (error) {
+      console.error('Load variations failed', error);
     }
   }
   mapVariationsToUI(variations: any[]) {
@@ -169,20 +252,13 @@ export class ProductFormPage implements OnInit {
         const attrId = attr.id;
         const optionSlug = attr.option;
 
-        // init array
         if (!this.selectedAttributes[attrId]) {
           this.selectedAttributes[attrId] = [];
         }
 
-        // check checkbox
         if (!this.selectedAttributes[attrId].includes(optionSlug)) {
           this.selectedAttributes[attrId].push(optionSlug);
         }
-
-        // set price
-        this.attributePrices[`${attrId}_${optionSlug}`] = price;
-        this.savedVariationOptions[`${attrId}_${optionSlug}`] = true;
-        console.log(this.savedVariationOptions);
       }
     }
   }
@@ -196,41 +272,101 @@ export class ProductFormPage implements OnInit {
     this.tags = res;
   }
 
-  async loadAttributes() {
-    try {
-      this.attributes = [];
-      const attrs = await this.authService.getAttributes();
+  // async loadAttributes() {
+  //   try {
+  //     this.attributes = [];
+  //     const attrs = await this.authService.getAttributes();
       
-      for (const attr of attrs.data || attrs) {
+  //     for (const attr of attrs.data || attrs) {
+  //       try {
+  //         const terms = await this.authService.getAttributeTerms(attr.id);
+          
+  //         // Fix the terms data structure
+  //         const termsArray = terms.data || terms || [];
+          
+  //         this.attributes.push({
+  //           id: attr.id,
+  //           name: attr.name,
+  //           slug: attr.slug,
+  //           type: attr.type,
+  //           terms: Array.isArray(termsArray) ? termsArray : []
+  //         });
+  //       } catch (error) {
+  //         console.error(`Failed to load terms for attribute ${attr.id}`, error);
+  //         this.attributes.push({
+  //           id: attr.id,
+  //           name: attr.name,
+  //           slug: attr.slug,
+  //           type: attr.type,
+  //           terms: []
+  //         });
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to load attributes', error);
+  //   }
+  // }
+  async loadAttributes(forceReload: boolean = false) {
+
+    // Prevent multiple calls
+    if ((this.attributesLoaded || this.isLoadingAttributes) && !forceReload) {
+      console.log('Attributes already loaded. Skipping API call.');
+      return;
+    }
+
+    this.isLoadingAttributes = true;
+
+    try {
+      console.log('Loading attributes from API...');
+
+      const attrsResponse = await this.authService.getAttributes();
+      const attributeList = attrsResponse?.data || attrsResponse || [];
+
+      if (!Array.isArray(attributeList)) {
+        console.error('Invalid attribute response format');
+        this.attributes = [];
+        return;
+      }
+      
+      const attributePromises = attributeList.map(async (attr: any) => {
         try {
-          const terms = await this.authService.getAttributeTerms(attr.id);
-          
-          // Fix the terms data structure
-          const termsArray = terms.data || terms || [];
-          
-          this.attributes.push({
+          const termsResponse = await this.authService.getAttributeTerms(attr.id);
+          const termsArray = termsResponse?.data || termsResponse || [];
+
+          return {
             id: attr.id,
             name: attr.name,
             slug: attr.slug,
             type: attr.type,
             terms: Array.isArray(termsArray) ? termsArray : []
-          });
+          };
+
         } catch (error) {
           console.error(`Failed to load terms for attribute ${attr.id}`, error);
-          this.attributes.push({
+
+          return {
             id: attr.id,
             name: attr.name,
             slug: attr.slug,
             type: attr.type,
             terms: []
-          });
+          };
         }
-      }
+      });
+
+      this.attributes = await Promise.all(attributePromises);
+
+      this.attributesLoaded = true;
+
+      console.log('Attributes loaded successfully:', this.attributes);
+
     } catch (error) {
       console.error('Failed to load attributes', error);
+      this.attributes = [];
+    } finally {
+      this.isLoadingAttributes = false;
     }
   }
-
   async publishProduct() {
     try {
       const payload: any = {
@@ -246,6 +382,8 @@ export class ProductFormPage implements OnInit {
         featured: this.product.featured,
         sold_individually: this.product.sold_individually,
         reviews_allowed: this.product.reviews_allowed,
+        tax_status: this.selectedTaxClass ? 'taxable' : 'none',
+        tax_class: this.selectedTaxClass?.slug || '',
       };
 
       if(this.product.name === '') {
@@ -288,33 +426,51 @@ export class ProductFormPage implements OnInit {
         payload.images = [{ src: this.imagePreview }];
       }
 
-      // Add attributes for variable product
       if (this.product.type === 'variable') {
+
         const attributes = [];
-        
+
         for (const attrId in this.selectedAttributes) {
-          if (this.selectedAttributes[attrId]?.length) {
-            attributes.push({
-              id: Number(attrId),
-              name: this.getAttributeName(Number(attrId)),
-              variation: true,
-              visible: true,
-              options: this.selectedAttributes[attrId]
-            });
-          }
+
+          const selectedTerms = this.selectedAttributes[attrId];
+          if (!selectedTerms?.length) continue;
+
+          const mergedOptions = [
+            ...new Set([
+              ...selectedTerms
+            ])
+          ];
+
+          attributes.push({
+            id: Number(attrId),
+            name: this.getAttributeName(Number(attrId)),
+            variation: true,
+            visible: true,
+            options: mergedOptions
+          });
         }
-        
+
         if (attributes.length > 0) {
           payload.attributes = attributes;
         }
       }
-
       let createdProduct: any;
 
-      if (this.isEdit) {
+      if (this.isEdit) 
+      {
+        console.log(payload);
         createdProduct = await this.authService.updateProduct(this.productId, payload);
-        
-        // Create variations if variable product
+        payload.attributes?.forEach(attr => {
+          attr.options.forEach((option: string) => {
+
+            const termObj = this.getTermByName(attr.id, option);
+            if (!termObj) return;
+
+            // const key = this.buildVariationKey(attr.id, termObj.slug);
+            const key = `${attr.id}_${termObj.slug}`;
+            // this.savedVariationOptions[key] = true;
+          });
+        });
         if (this.product.type === 'variable' && this.attributes?.length) {
           await this.createVariations(createdProduct.id || this.productId);
         }
@@ -325,10 +481,11 @@ export class ProductFormPage implements OnInit {
           'success',
           () => this.navigateToProductList()
         );
-      } else {
+      } 
+      else 
+      {
+        console.log(payload);
         createdProduct = await this.authService.createProduct(payload);
-        
-        // Create variations if variable product
         if (this.product.type === 'variable' && this.attributes?.length) {
           await this.createVariations(createdProduct.id);
         }
@@ -340,7 +497,6 @@ export class ProductFormPage implements OnInit {
           () => this.navigateToProductList()
         ); 
       }
-
     } catch (error: any) {
       console.error('Operation failed:', error);
       await this.showAlert(
@@ -350,17 +506,22 @@ export class ProductFormPage implements OnInit {
       );
     }
   }
+  getTermByName(attrId: number, termName: string) {
+    if (!this.attributes?.length) return null;
 
-  // New method to navigate to product list
+    const attribute = this.attributes.find((a: any) => a.id === attrId);
+    if (!attribute?.terms?.length) return null;
+
+    return attribute.terms.find((t: any) =>
+      t.name?.toLowerCase().trim() === termName?.toLowerCase().trim()
+    ) || null;
+  }
   navigateToProductList() {
-    // Use replaceUrl: true to replace current page in history
     this.router.navigate(['/products-list'], { 
       replaceUrl: true,
       queryParams: { refresh: true, timestamp: Date.now() } // Add timestamp to force refresh
     });
   }
-
-  // Alternative: Alert with callback for success cases
   async showAlertWithCallback(
     header: string,
     message: string,
@@ -385,8 +546,6 @@ export class ProductFormPage implements OnInit {
 
     await alert.present();
   }
-
-
   getAttributeName(attrId: number): string {
     const attr = this.attributes.find(a => a.id === attrId);
     return attr?.name || `Attribute ${attrId}`;
@@ -394,81 +553,96 @@ export class ProductFormPage implements OnInit {
 
   async createVariations(productId: number) {
     try {
-      // Get all combinations
+
       const combinations = this.generateCombinations();
-      
-      for (const combo of combinations) {
-        let price: number | undefined;
+      // console.log(combinations);
+      const existingVariations =
+        await this.authService.getProductVariations(productId);
+      // console.log(existingVariations);
+      const variationMap = new Map<string, any>();
 
-        // Single-attribute case (most common)
-        if (combo.length === 1) {
-          const attr = combo[0];
-          price = this.attributePrices[`${attr.id}_${attr.option}`];
-        }
+      existingVariations.forEach((variation: any) => {
+        const key = variation.attributes
+          .map((attr: any) => `${attr.id}_${attr.option}`)
+          .sort()
+          .join('|');
 
-        // Multi-attribute case (take first attribute price or extend later)
-        if (!price && combo.length > 1) {
-          const firstAttr = combo[0];
-          price = this.attributePrices[`${firstAttr.id}_${firstAttr.option}`];
-        }
-
-        if (!price) {
-          price = 0;
-        }
-        const variationPayload = {
-          // regular_price: this.product.regular_price || '0',
-          regular_price: price.toString(),
-          attributes: combo
-        };
-        
-        await this.authService.createVariation(productId, variationPayload);
-      }
-    } catch (error) {
-      console.error('Failed to create variations', error);
-    }
-  }
-
-  generateCombinations(): any[] {
-    const attributeEntries = Object.entries(this.selectedAttributes);
-    
-    if (attributeEntries.length === 0) {
-      return [];
-    }
-
-    // Generate all combinations of selected attribute options
-    return attributeEntries.reduce((acc: any[], [attrId, options]) => {
-      if (!Array.isArray(options) || options.length === 0) {
-        return acc;
-      }
-
-      if (acc.length === 0) {
-        // First attribute - create initial array of arrays
-        return options.map(option => [{ 
-          id: Number(attrId), 
-          name: this.getAttributeName(Number(attrId)),
-          option 
-        }]);
-      }
-
-      // For existing combinations, create new combinations with each option
-      const newCombinations: any[] = [];
-      
-      acc.forEach(existing => {
-        options.forEach(option => {
-          newCombinations.push([
-            ...existing,
-            { 
-              id: Number(attrId), 
-              name: this.getAttributeName(Number(attrId)),
-              option 
-            }
-          ]);
-        });
+        variationMap.set(key, variation);
       });
-      
-      return newCombinations;
-    }, []);
+
+      for (const combo of combinations) {
+
+        const key = this.buildVariationKey(combo);
+        const price = this.variationPrices[key] ?? 0;
+        // console.log(price);
+        if (variationMap.has(key)) {
+
+          await this.authService.updateVariation(
+            productId,
+            variationMap.get(key).id,
+            { regular_price: price.toString() }
+          );
+
+        } else {
+
+          await this.authService.createVariation(
+            productId,
+            {
+              regular_price: price.toString(),
+              attributes: combo.map(attr => ({
+                id: attr.id,
+                option: attr.option
+              }))
+            }
+          );
+        }
+      }
+
+    } catch (error) {
+      console.error('Variation sync failed', error);
+    }
   }
+  // generateCombinations(): any[] {
+  //   const attributeEntries = Object.entries(this.selectedAttributes);
+    
+  //   if (attributeEntries.length === 0) {
+  //     return [];
+  //   }
+
+  //   // Generate all combinations of selected attribute options
+  //   return attributeEntries.reduce((acc: any[], [attrId, options]) => {
+  //     if (!Array.isArray(options) || options.length === 0) {
+  //       return acc;
+  //     }
+
+  //     if (acc.length === 0) {
+  //       // First attribute - create initial array of arrays
+  //       return options.map(option => [{ 
+  //         id: Number(attrId), 
+  //         name: this.getAttributeName(Number(attrId)),
+  //         option 
+  //       }]);
+  //     }
+
+  //     // For existing combinations, create new combinations with each option
+  //     const newCombinations: any[] = [];
+      
+  //     acc.forEach(existing => {
+  //       options.forEach(option => {
+  //         newCombinations.push([
+  //           ...existing,
+  //           { 
+  //             id: Number(attrId), 
+  //             name: this.getAttributeName(Number(attrId)),
+  //             option 
+  //           }
+  //         ]);
+  //       });
+  //     });
+      
+  //     return newCombinations;
+  //   }, []);
+  // }
 
   // Watch for product type changes
   onProductTypeChange() {
@@ -478,7 +652,124 @@ export class ProductFormPage implements OnInit {
       this.selectedAttributes = {};
     }
   }
+  // generateCombinations(): any[] {
 
+  //   const attributeEntries: any[] = [];
+
+  //   for (const attrId in this.selectedAttributes) {
+  //     const options = this.selectedAttributes[attrId];
+
+  //     if (options && options.length > 0) {
+  //       attributeEntries.push({
+  //         id: Number(attrId),
+  //         options
+  //       });
+  //     }
+  //   }
+
+  //   if (attributeEntries.length === 0) {
+  //     return [];
+  //   }
+
+  //   const result: any[] = [];
+
+  //   const helper = (current: any[], index: number) => {
+
+  //     if (index === attributeEntries.length) {
+  //       result.push(current);
+  //       return;
+  //     }
+
+  //     const attribute = attributeEntries[index];
+
+  //     for (const option of attribute.options) {
+  //       helper(
+  //         [...current, { id: attribute.id, option }],
+  //         index + 1
+  //       );
+  //     }
+  //   };
+
+  //   helper([], 0);
+
+  //   return result;
+  // }
+  // generateCombinations(): any[] {
+  //   const attributeEntries: any[] = [];
+  //   for (const attr of this.attributes) {
+  //     const options =
+  //       this.selectedAttributes[attr.id];
+  //     if (!options || options.length === 0) {
+  //       return [];
+  //     }
+
+  //     attributeEntries.push({
+  //       id: attr.id,
+  //       options
+  //     });
+      
+  //   }
+  //   console.log(attributeEntries);
+  //   const result: any[] = [];
+  //   const helper = (current: any[], index: number) => {
+  //     if (index === attributeEntries.length) {
+  //       result.push(current);
+  //       return;
+  //     }
+
+  //     const attribute = attributeEntries[index];
+
+  //     for (const option of attribute.options) {
+  //       helper(
+  //         [...current, { id: attribute.id, option }],
+  //         index + 1
+  //       );
+  //     }
+  //   };
+  //   helper([], 0);
+  //   return result;
+  // }
+  generateCombinations(): any[] {
+    const attributeEntries: any[] = [];
+    // console.log(this.selectedAttributes);
+    for (const attrId in this.selectedAttributes) {
+      const options = this.selectedAttributes[attrId];
+
+      if (options && options.length > 0) {
+        attributeEntries.push({
+          id: Number(attrId),
+          options
+        });
+      }
+    }
+
+    if (attributeEntries.length === 0) {
+      return [];
+    }
+
+    const result: any[] = [];
+
+    const helper = (current: any[], index: number) => {
+
+      if (index === attributeEntries.length) {
+        result.push(current);
+        return;
+      }
+
+      const attribute = attributeEntries[index];
+
+      for (const option of attribute.options) {
+        helper(
+          [...current, { id: attribute.id, option }],
+          index + 1
+        );
+      }
+    };
+
+    helper([], 0);
+
+    return result;
+  }
   saveDraft() {
     this.product.status = 'draft';
     this.publishProduct();
@@ -542,7 +833,39 @@ export class ProductFormPage implements OnInit {
 
     await alert.present();
   }
+  async loadTaxClasses() {
+    try {
+      const classesRes = await this.authService.getTaxClasses();
+      const ratesRes = await this.authService.getTaxRates();
 
+      const classes = classesRes.data;
+      const rates = ratesRes.data;
+
+      // Add Standard manually (WooCommerce does not return it)
+      const formattedClasses = [
+        { slug: '', name: 'Standard rate' },
+        ...classes
+      ];
+
+      this.taxClasses = formattedClasses.map(cls => {
+
+        const matchingRate = rates.find(
+          (rate: any) => rate.class === cls.slug
+        );
+
+        return {
+          name: cls.name,
+          slug: cls.slug,
+          percentage: matchingRate ? Number(matchingRate.rate) : 0
+        };
+      });
+
+      console.log('Loaded Tax Classes:', this.taxClasses);
+
+    } catch (error) {
+      console.error('Failed to load tax classes', error);
+    }
+  }
   async deleteProduct() {
     try {
       await this.authService.deleteProduct(this.productId);
@@ -566,12 +889,16 @@ export class ProductFormPage implements OnInit {
     console.log('Selected attributes:', this.selectedAttributes);
   }
 
+  // getSelectedAttributesCount(): number {
+  //   return Object.values(this.selectedAttributes)
+  //     .filter(options => options && options.length > 0)
+  //     .length;
+  // }
   getSelectedAttributesCount(): number {
     return Object.values(this.selectedAttributes)
-      .filter(options => options && options.length > 0)
+      .filter((options: any) => Array.isArray(options) && options.length > 0)
       .length;
   }
-
   getCombinationCount(): number {
     return this.generateCombinations().length;
   }
@@ -583,24 +910,19 @@ export class ProductFormPage implements OnInit {
     }
   }
 
-  /////////////////////////////////////// priya
   removeImage() {
     this.imagePreview = null;
     this.selectedFile = null;
   }
 
-  taxClasses = [
-    { id: 1, name: 'Standard rate', percentage: 18 },
-    { id: 2, name: 'Reduced rate', percentage: 5 },
-    { id: 3, name: 'Zero rate', percentage: 0 }
-  ];
-
+  // taxClasses = [
+  //   { id: 1, name: 'Standard rate', percentage: 18, slug: '' },
+  //   { id: 2, name: 'Reduced rate', percentage: 5, slug: 'reduced-rate' },
+  //   { id: 3, name: 'Zero rate', percentage: 0, slug: 'zero-rate' }
+  // ];
+  taxClasses: any[] = [];
   selectedTaxClass: any = null;
 
   editRegularPrice = false;
   editSalePrice = false;
-  
-  /////////////////////////////////////// priya
-
 }
-

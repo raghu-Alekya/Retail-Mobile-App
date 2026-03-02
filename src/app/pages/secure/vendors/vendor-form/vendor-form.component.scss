@@ -1,28 +1,76 @@
-.shift-header {
-  ion-toolbar {
-    --background: #34465d;
-    --color: #fff;
-  }
+/* Header */
+/* HEADER CONTAINER */
+.vendor-header {
+  background: #3f5065;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  overflow: hidden; /* prevents cut edges */
 }
 
-.search-wrapper {
-  margin: 10px 16px;
-  background: #9aa7b8;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  gap: 10px;
+/* TOOLBAR */
+.vendor-header ion-toolbar {
+  --background: transparent;
+  --color: #fff;
+}
 
-  input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    color: #fff;
-    outline: none;
-  }
+/* fix side padding so icons aren't clipped */
+.vendor-header ion-toolbar {
+  padding-left: 6px;
+  padding-right: 6px;
+}
 
-  ion-icon {
-    color: #fff;
-  }
+/* Background */
+.vendor-content {
+  --background: #fff;
+}
+
+/* Wrapper Card */
+.form-wrapper {
+  background: #fff;
+  margin: 16px;
+  padding: 18px;
+  border-radius: 14px;
+}
+
+/* Form Fields */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 6px;
+  display: block;
+  font-weight: 500;
+}
+
+/* Grey Input Blocks */
+.form-group ion-input,
+.form-group ion-textarea {
+  --background: #d8dde3;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+/* remove borders */
+ion-input,
+ion-textarea {
+  --border-width: 0;
+}
+
+/* Footer Button */
+.vendor-footer {
+  padding: 14px;
+  background: transparent;
+}
+
+.vendor-footer ion-button {
+  --background: #3f5065;
+  --border-radius: 10px;
+  font-weight: 600;
+  height: 48px;
+  letter-spacing: 0.5px;
 }
