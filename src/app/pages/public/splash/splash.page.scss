@@ -1,0 +1,64 @@
+.splash-content {
+  --background: linear-gradient(135deg, #1d3556, #457b9d);
+  perspective: 1000px;
+}
+.splash-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transform-style: preserve-3d;
+}
+
+/* Logo Depth Animation */
+.logo {
+  width: 240px;
+  opacity: 0;
+  transform: translateZ(-300px) scale(0.5);
+  filter: blur(8px);
+  animation: logoFromInside 1.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Tagline */
+.tagline {
+  margin-top: -30px;
+  font-size: 15px;
+  color: #e2e8f0;
+  opacity: 0;
+  animation: taglineFade 1s ease forwards 1.8s;
+  text-align: center;
+}
+
+/* Animations */
+
+@keyframes logoFromInside {
+  0% {
+    opacity: 0;
+    transform: translateZ(-300px) scale(0.5);
+    filter: blur(8px);
+  }
+
+  60% {
+    opacity: 1;
+    transform: translateZ(50px) scale(1.05);
+    filter: blur(0px);
+  }
+
+  100% {
+    transform: translateZ(0px) scale(1);
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+@keyframes taglineFade {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

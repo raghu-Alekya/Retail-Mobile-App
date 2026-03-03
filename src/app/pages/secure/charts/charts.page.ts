@@ -30,7 +30,7 @@ export class ChartsPage implements OnInit {
           color: this.helperService.getColorVariable('tertiary'),
           font: {
             family: 'Inter',
-            weight: '500'
+            weight: 500,
           }
         }
       },
@@ -114,7 +114,7 @@ export class ChartsPage implements OnInit {
           color: this.helperService.getColorVariable('tertiary'),
           font: {
             family: 'Inter',
-            weight: '500'
+            weight: 500,
           }
         }
       },

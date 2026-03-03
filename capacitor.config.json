@@ -1,5 +1,5 @@
 {
-	"appId": "com.ionic.pinakswcadmin",
+	"appId": "com.pinaka.wcadmin",
 	"appName": "Pinaka WC",
 	"webDir": "www",
 	"bundledWebRuntime": false,

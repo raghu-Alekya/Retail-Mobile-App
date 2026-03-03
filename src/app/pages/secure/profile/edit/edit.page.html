@@ -1,66 +1,59 @@
-<ion-header collapse="fade" [translucent]="true">
-  <ion-toolbar color="dark">
+<ion-header>
+  <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button color="secondary" text="Settings" defaultHref="/settings">
-      </ion-back-button>
+      <ion-back-button defaultHref="/profile"></ion-back-button>
     </ion-buttons>
-
-    <ion-title color="light">
-      Profile
-    </ion-title>
-
-    <ion-buttons slot="end">
-      <form [formGroup]="edit_profile_form" (ngSubmit)="submit()">
-        <ion-button color="secondary" type="submit">
-          Done
-        </ion-button>
-      </form>
-    </ion-buttons>
+    <ion-title>Edit Profile</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content class="edit-content">
 
-  <ion-card class="ion-no-margin profile-card">
-    <ion-card-content>
-      <ion-avatar>
-        <img src="../../../../assets/card-media.png">
-      </ion-avatar>
+  <form [formGroup]="editForm">
 
-      <h1>
-        <ion-text color="tertiary"><strong>John Doe</strong></ion-text>
-      </h1>
+    <div class="form-container">
 
-      <p>
-        <ion-text color="medium">john.doe@mail.com</ion-text>
-      </p>
+      <!-- Name -->
+      <ion-item lines="none" class="input-box">
+        <ion-label position="stacked">Name</ion-label>
+        <ion-input formControlName="first_name"></ion-input>
+      </ion-item>
 
-      <ion-button class="ion-button-small" color="primary" (click)="updateProfilePicture()">
-        Update profile picture
+      <!-- Username -->
+      <ion-item lines="none" class="input-box">
+        <ion-label position="stacked">User Name</ion-label>
+        <ion-input formControlName="username" disabled></ion-input>
+      </ion-item>
+
+      <!-- Gender -->
+      <ion-item lines="none" class="input-box">
+        <ion-label position="stacked">Gender</ion-label>
+        <ion-select formControlName="gender">
+          <ion-select-option value="male">Male</ion-select-option>
+          <ion-select-option value="female">Female</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Phone -->
+      <ion-item lines="none" class="input-box">
+        <ion-label position="stacked">Phone Number</ion-label>
+        <ion-input type="tel" formControlName="phone"></ion-input>
+      </ion-item>
+
+      <!-- Email -->
+      <ion-item lines="none" class="input-box">
+        <ion-label position="stacked">Email Address</ion-label>
+        <ion-input type="email" formControlName="email" disabled></ion-input>
+      </ion-item>
+
+    </div>
+
+    <div class="btn-container">
+      <ion-button expand="block" class="save-btn" (click)="saveProfile()">
+        Save Changes
       </ion-button>
-    </ion-card-content>
-  </ion-card>
+    </div>
 
-
-  <div class="ion-padding">
-    <form class="form-default" [formGroup]="edit_profile_form" (submit)="submit()">
-
-      <ion-item color="dark" class="animate__animated animate__fadeInUp">
-        <ion-label position="floating">
-          First name
-        </ion-label>
-        <ion-input color="secondary" formControlName="name_first" placeholder="First name"></ion-input>
-      </ion-item>
-
-      <ion-item color="dark" class="animate__animated animate__fadeInUp">
-        <ion-label position="floating">
-          Last name
-        </ion-label>
-        <ion-input color="secondary" formControlName="name_last" placeholder="Last name"></ion-input>
-      </ion-item>
-
-    </form>
-
-  </div>
+  </form>
 
 </ion-content>

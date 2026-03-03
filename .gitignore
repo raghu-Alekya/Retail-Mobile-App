@@ -32,5 +32,6 @@ npm-debug.log*
 /www
 /android
 
+
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md

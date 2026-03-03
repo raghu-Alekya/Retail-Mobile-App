@@ -1,0 +1,141 @@
+/* HEADER */
+.custom-header {
+  --background: #2f4f6f;
+  --color: #ffffff;
+}
+
+.update-btn {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+
+/* CONTENT BACKGROUND */
+.coupon-content {
+  --background: #f2f3f5;
+  padding: 12px;
+}
+
+
+/* LAST MODIFIED */
+.last-modified {
+  font-size: 13px;
+  color: #6b6b6b;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.coupon-id {
+  color: #8a8a8a;
+}
+
+
+/* CARD */
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+
+/* FIELD BLOCK (label + value + pencil) */
+.field-block {
+  position: relative;
+  padding: 6px 0;
+}
+
+.label {
+  font-size: 13px;
+  color: #8a8a8a;
+  margin-bottom: 4px;
+}
+
+.value {
+  font-size: 15px;
+  color: #222;
+  font-weight: 500;
+}
+
+
+/* Pencil icon aligned right */
+.edit-icon {
+  position: absolute;
+  right: 0;
+  top: 22px;
+  font-size: 18px;
+  color: #8a8a8a;
+}
+
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: #ececec;
+  margin: 10px 0;
+}
+
+
+/* STATUS ROW */
+.item-row {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --background: transparent;
+}
+
+
+/* STATUS BADGE */
+.status-badge {
+  margin-left: auto;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.status-badge.publish {
+  background-color: #d4f8d4;
+  color: #1ca51c;
+}
+
+
+/* TYPE ROW */
+.row.space-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+/* TOGGLE ALIGNMENT FIX */
+ion-toggle {
+  margin-left: auto;
+}
+
+
+/* INPUT STYLING */
+ion-input {
+  --padding-start: 0;
+  font-size: 15px;
+}
+
+
+/* DATETIME */
+ion-datetime {
+  width: 100%;
+  margin-top: 6px;
+}
+
+
+/* DELETE BUTTON */
+.delete-wrapper {
+  margin-top: 20px;
+}
+
+.delete-btn {
+  border-color: #e74c3c;
+  color: #e74c3c;
+  font-weight: 500;
+}

@@ -17,28 +17,35 @@ export class OrderListPage implements OnInit {
   orders: any[] = [];
   page = 1;
   loading = false;
-  currencySymbol:string = '';
+  hasMore = true;
+
+  currencySymbol: string = '';
 
   searchTerm: string = '';
-  hasMore = true;
-  expandedOrders = new Set<number>();
+  searchTimeout: any;
+
+  expandedOrderId: number | null = null;
 
   constructor(
-    private authService: AuthService, 
+    private authService: AuthService,
     private assetsService: AssetsService
   ) {}
 
   async ngOnInit() {
     await this.loadOrders();
+
     this.assetsService.assets$.subscribe(assets => {
       this.currencySymbol = assets?.currency_symbol;
     });
   }
 
-
+  /* ================================
+     LOAD ORDERS
+  ================================= */
   async loadOrders(event?: any) {
+
     if (this.loading || !this.hasMore) {
-      event?.target.complete();
+      event?.target?.complete();
       return;
     }
 
@@ -47,35 +54,75 @@ export class OrderListPage implements OnInit {
     try {
       const data = await this.authService.getOrders(
         this.page,
-        this.searchTerm
+        this.searchTerm,
+         this.selectedStatus === 'all' ? '' : this.selectedStatus
       );
 
       if (Array.isArray(data) && data.length > 0) {
-        this.orders.push(...data);
-        this.page++;
+
+        // replace results when new search
+        this.orders = this.page === 1
+          ? data
+          : [...this.orders, ...data];
+
+        // stop infinite scroll when:
+        // ✔ searching
+        // ✔ results less than page size
+        if (this.searchTerm || data.length < 10) {
+          this.hasMore = false;
+        } else {
+          this.page++;
+        }
+
       } else {
         this.hasMore = false;
         if (event) event.target.disabled = true;
       }
 
     } catch (err) {
-      console.error(err);
+      console.error('Order load error:', err);
     }
 
     this.loading = false;
-    event?.target.complete();
+    event?.target?.complete();
   }
 
-  onSearch(event: any) {
-    this.searchTerm = event.target.value?.trim() || '';
+  /* ================================
+     SEARCH (Debounced)
+  ================================= */
+  onSearch(value: string) {
+
+  const term = value?.trim() || '';
+
+  clearTimeout(this.searchTimeout);
+
+  this.searchTimeout = setTimeout(() => {
+    this.searchTerm = term;
     this.page = 1;
     this.orders = [];
     this.hasMore = true;
+    this.loading = false;
 
     this.loadOrders();
+  }, 400);
+}
+
+  /* ================================
+     EXPAND ORDER
+  ================================= */
+  toggleExpand(orderId: number) {
+    this.expandedOrderId =
+      this.expandedOrderId === orderId ? null : orderId;
   }
 
-  // 1️⃣ STATUS → COLOR
+  isExpanded(orderId: number): boolean {
+    return this.expandedOrderId === orderId;
+  }
+
+  /* ================================
+     HELPERS
+  ================================= */
+
   getStatusColor(status: string): string {
     switch (status) {
       case 'processing': return 'primary';
@@ -87,7 +134,6 @@ export class OrderListPage implements OnInit {
     }
   }
 
-  // 2️⃣ TIME AGO
   timeAgo(date: string): string {
     const diff = Math.floor(
       (Date.now() - new Date(date).getTime()) / 1000
@@ -99,34 +145,32 @@ export class OrderListPage implements OnInit {
     return `${Math.floor(diff / 86400)}d ago`;
   }
 
-  // 3️⃣ ITEMS COUNT
-  getItemsCount(order: any): number {
-    return order?.line_items?.length || 0;
-  }
-
-  // 4️⃣ PRODUCT IMAGE (safe)
-  getProductImage(item: any): string {
-    return item?.image?.src || 'assets/img/placeholder.png';
-  }
-
-  // 5️⃣ SHIPPING METHOD
-  getShippingMethod(order: any): string {
-    return order?.shipping_lines?.[0]?.method_title || '—';
-  }
-
   trackById(_: number, order: any) {
     return order.id;
   }
 
-  toggleExpand(orderId: number) {
-    if (this.expandedOrders.has(orderId)) {
-      this.expandedOrders.delete(orderId);
-    } else {
-      this.expandedOrders.add(orderId);
-    }
+  /* ================================
+     STATUS FILTER (READY)
+  ================================= */
+
+  orderStatuses = [
+    { label: 'All', value: 'all' },
+    { label: 'Completed', value: 'completed' },
+    { label: 'Processing', value: 'processing' },
+    { label: 'Pending', value: 'pending' }
+  ];
+
+  selectedStatus = 'all';
+
+  selectStatus(status: string) {
+    this.selectedStatus = status;
+
+    // reload when filter changes
+    this.page = 1;
+    this.orders = [];
+    this.hasMore = true;
+
+    this.loadOrders();
   }
 
-  isExpanded(orderId: number): boolean {
-    return this.expandedOrders.has(orderId);
-  }
 }

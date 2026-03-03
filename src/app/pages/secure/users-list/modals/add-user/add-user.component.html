@@ -1,3 +1,92 @@
-<p>
-  add-user works!
-</p>
+<ion-header>
+  <ion-toolbar class="dark-toolbar">
+    <ion-title>Add Employee</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="close()">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+<ion-item>
+  <ion-label position="stacked">Username</ion-label>
+  <ion-input
+    [(ngModel)]="user.username"
+    name="username"
+    placeholder="Enter username">
+  </ion-input>
+</ion-item>
+
+  <!-- Email -->
+  <ion-item>
+    <ion-label position="stacked">Email</ion-label>
+    <ion-input
+      type="email"
+      [(ngModel)]="user.email"
+      placeholder="Enter email address">
+    </ion-input>
+  </ion-item>
+
+  <!-- First Name -->
+  <ion-item>
+    <ion-label position="stacked">First Name</ion-label>
+    <ion-input
+      [(ngModel)]="user.first_name"
+      placeholder="Enter first name">
+    </ion-input>
+  </ion-item>
+
+  <!-- Last Name -->
+  <ion-item>
+    <ion-label position="stacked">Last Name</ion-label>
+    <ion-input
+      [(ngModel)]="user.last_name"
+      placeholder="Enter last name">
+    </ion-input>
+  </ion-item>
+
+  <!-- Employee Role -->
+  <ion-item>
+    <ion-label position="stacked">Employee Role</ion-label>
+    <ion-select
+      [(ngModel)]="user.role"
+      placeholder="Select Employee Role"
+      interface="popover">
+
+      <ion-select-option
+        *ngFor="let role of customRoles"
+        [value]="role.key">
+        {{ role.name }}
+      </ion-select-option>
+
+    </ion-select>
+  </ion-item>
+
+  <!-- Phone -->
+  <ion-item>
+    <ion-label position="stacked">Phone</ion-label>
+    <ion-input
+      [(ngModel)]="user.phone"
+      placeholder="Enter phone number">
+    </ion-input>
+  </ion-item>
+
+  <!-- Login PIN -->
+  <ion-item>
+    <ion-label position="stacked">Login PIN</ion-label>
+    <ion-input
+      type="tel"
+      maxlength="6"
+      [(ngModel)]="user.emp_login_pin"
+      placeholder="Enter 6-digit PIN">
+    </ion-input>
+  </ion-item>
+
+  <ion-button
+    expand="block"
+    class="save-btn"
+    (click)="submit()">
+    Create User
+  </ion-button>
+
+</ion-content>

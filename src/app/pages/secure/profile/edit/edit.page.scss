@@ -1,38 +1,42 @@
-:host {
-  ion-item {
-    --border-radius: 8px;
-    margin-bottom: 8px;
-  }
-
-  .form-default {
-    margin-top: 20px;
-  }
+.header-toolbar {
+  --background: #274472;
+  --color: #ffffff;
 }
 
-.profile-card {
-  border-radius: 0;
-  background: linear-gradient(135deg, var(--ion-color-dark), var(--ion-color-primary));
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  padding: 30px;
-  text-align: center;
+.edit-content {
+  --background: #f2f2f2;
+}
 
-  ion-avatar {
-    width: 128px;
-    height: 128px;
-    text-align: center;
-    margin: 0 auto 30px;
+.form-container {
+  padding: 20px;
+}
 
-    img {
-      height: 128px;
-      width: 128px;
-      border-radius: 50%;
-      border: 4px solid var(--ion-color-light);
-      display: inline;
-      box-shadow: 0 0 28px hsl(0deg 0% 100% / 65%);
-    }
-  }
+.input-box {
+  background: #e9edf2;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  padding: 8px 10px;
+}
+
+ion-label {
+  font-weight: 500;
+  color: #333;
+}
+
+ion-input,
+ion-select {
+  --background: transparent;
+  --padding-start: 0;
+  font-size: 14px;
+}
+
+.btn-container {
+  padding: 20px;
+}
+
+.save-btn {
+  --background: #274472;
+  --border-radius: 10px;
+  height: 48px;
+  font-weight: 500;
 }

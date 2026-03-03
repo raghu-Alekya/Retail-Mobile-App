@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { Router } from '@angular/router';
+
 
 @Component({
   standalone: true,
@@ -29,28 +31,49 @@ export class CouponsPage {
   };
 
   formSubmitted = false;
-  constructor(
-    private auth: AuthService,
-    private alertCtrl: AlertController
-  ) {}
 
+  constructor(
+  private auth: AuthService,
+  private alertCtrl: AlertController,
+  private router: Router
+) {}
+  editCoupon(coupon: any) {
+  this.router.navigate(['/edit-coupon'], {
+    state: { coupon }
+  });
+}
+openAddCoupon() {
+  this.router.navigate(['/add-coupon']);
+}
+async loadCoupons() {
+  this.loading = true;
+
+  try {
+    const response = await this.auth.getCoupons();
+    this.coupons = response || [];
+  } catch (error) {
+    console.error('Error loading coupons:', error);
+    this.coupons = [];
+  } finally {
+    this.loading = false;
+  }
+}
   ionViewWillEnter() {
+    const state = history.state;
+    if (state?.autoOpenCreate) {
+      this.openCreate();
+      
+      history.replaceState({}, '');
+    }
     this.loadCoupons();
   }
-
-  async loadCoupons() {
-    this.loading = true;
-    try {
-      this.coupons = await this.auth.getCoupons();
-    } finally {
-      this.loading = false;
-    }
-  }
+ 
 
   openCreate() {
     this.resetForm();
     this.showForm = true;
   }
+  
 
   openEdit(coupon: any) {
     this.editingCoupon = coupon;

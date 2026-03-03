@@ -17,7 +17,7 @@ export class ProductsListPage implements OnInit {
   products: any[] = [];
   page = 1;
   search = '';
-  stock = '';
+  stock = ''; 
   loading = false;
   hasMore = true;
 
@@ -105,11 +105,18 @@ export class ProductsListPage implements OnInit {
     event.target.complete();
   }
 
-  onSearch(event: any) {
-    this.search = event.target.value;
-    this.loadProducts(undefined, true);
-  }
+  searchTimeout: any;
 
+  onSearch(value: string) {
+
+    clearTimeout(this.searchTimeout);
+
+    this.searchTimeout = setTimeout(() => {
+      this.search = value?.trim() || '';
+      this.loadProducts(undefined, true);
+    }, 400);
+  }
+  
   onStockFilter(event: any) {
     this.stock = event.detail.value === 'all'
       ? ''

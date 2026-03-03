@@ -1,55 +1,246 @@
-.payment-card {
-  border-radius: 16px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+/* ===============================
+   PAGE BACKGROUND
+================================ */
+ion-content {
+  --background: #f4f6f8;
 }
 
-.label {
-  font-size: 12px;
+.empty {
+  text-align: center;
+  margin-top: 40px;
   color: #777;
 }
 
-.value {
-  font-size: 16px;
+
+/* ===============================
+   PAYMENT CARD
+================================ */
+.payment-card {
+  position: relative;
+  overflow: hidden;
+  background: #f7f7f7;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  border-bottom: 4px solid transparent;
+}
+
+
+/* top right accent bar */
+.card-accent {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 90px;
+  height: 16px;
+  border-radius: 3px;
+}
+
+
+/* ===============================
+   CARD HEADER
+================================ */
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.date {
+  font-size: 14px;
+  color: #333;
+}
+
+.accepted-by {
+  font-size: 15px;
   font-weight: 600;
-  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent; /* important */
 }
 
-.value.small {
-  font-size: 13px;
-  word-break: break-all;
-}
-
-.note {
-  font-size: 13px;
-  color: #555;
+.accepted-by .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
 }
 
 
-.shift-header {
-  ion-toolbar {
-    --background: #34465d;
-    --color: #fff;
-  }
+/* ===============================
+   INFO ROWS
+================================ */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  color: #666;
+  margin: 3px 0;
 }
 
+.info-row b {
+  color: #000;
+  font-weight: 600;
+}
+
+
+/* divider */
+.divider {
+  height: 1px;
+  background: #dcdcdc;
+  margin: 10px 0 8px;
+}
+
+.payment-mode {
+  font-size: 15px;
+  color: #666;
+}
+
+
+/* ===============================
+   PAGE BACKGROUND
+================================ */
+ion-content {
+  --background: #f4f6f8;
+}
+
+
+/* ===============================
+   HEADER (MATCH SCREENSHOT)
+================================ */
+.vendor-header {
+  background: #3f5065;
+  border-bottom-left-radius: 22px;
+  border-bottom-right-radius: 22px;
+  overflow: hidden;
+
+  padding-bottom: 14px; /* controls curve spacing */
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* toolbar */
+.vendor-header ion-toolbar {
+  --background: transparent;
+  --color: #ffffff;
+  box-shadow: none;
+  border: none;
+  padding-bottom: 0;
+}
+
+
+/* ===============================
+   SEARCH BAR (INSIDE HEADER)
+================================ */
 .search-wrapper {
-  margin: 10px 16px;
-  background: #9aa7b8;
+  margin: 10px 16px 6px;   /* fixes bottom gap */
+  background: #ffffff;
   border-radius: 12px;
   display: flex;
   align-items: center;
-  padding: 10px;
-  gap: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
 
-  input {
-    flex: 1;
-    border: none;
-    background: transparent;
-    color: #fff;
-    outline: none;
-  }
+.search-wrapper ion-icon {
+  font-size: 18px;
+  color: #7a8699;
+  margin-right: 8px;
+}
 
-  ion-icon {
-    color: #fff;
-  }
+.search-wrapper input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+}
+
+
+/* ===============================
+   REMOVE EXTRA SPACE UNDER HEADER
+================================ */
+ion-content::part(scroll) {
+  margin-top: -8px; /* removes large gap */
+}
+
+
+/* ===============================
+   EMPTY STATE
+================================ */
+.empty {
+  text-align: center;
+  margin-top: 40px;
+  color: #777;
+}
+
+
+/* ===============================
+   COLOR THEMES (rotate)
+================================ */
+
+/* BLUE */
+.card-0 { border-bottom-color: #2f4f6f; }
+
+.card-0 .accepted-by {
+  color: #2f4f6f;
+}
+
+.card-0 .dot {
+  background: #2f4f6f;
+}
+
+
+/* GREEN */
+.card-1 { border-bottom-color: #1f9d55; }
+
+.card-1 .accepted-by {
+  color: #1f9d55;
+}
+
+.card-1 .dot {
+  background: #1f9d55;
+}
+
+
+/* TEAL */
+.card-2 { border-bottom-color: #17a2b8; }
+
+.card-2 .accepted-by {
+  color: #17a2b8;
+}
+
+.card-2 .dot {
+  background: #17a2b8;
+}
+
+
+/* RED */
+.card-3 { border-bottom-color: #e3342f; }
+
+.card-3 .accepted-by {
+  color: #e3342f;
+}
+
+.card-3 .dot {
+  background: #e3342f;
+}
+
+
+/* YELLOW */
+.card-4 { border-bottom-color: #d69e2e; }
+
+.card-4 .accepted-by {
+  color: #d69e2e;
+}
+
+.card-4 .dot {
+  background: #d69e2e;
+}
+
+
+
+/* content cut under header */
+ion-content::part(scroll) {
+  margin-top: -18px;
 }

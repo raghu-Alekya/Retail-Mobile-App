@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { ActionSheetController, NavController } from '@ionic/angular';
-import { ToastService } from 'src/app/services/toast/toast.service';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { Http } from '@capacitor-community/http';
+import { AuthService } from 'src/app/services/auth/auth.service';
+import { ToastController } from '@ionic/angular';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-edit',
@@ -11,77 +12,68 @@ import { ToastService } from 'src/app/services/toast/toast.service';
 })
 export class EditPage implements OnInit {
 
-  edit_profile_form: FormGroup;
-  submit_attempt: boolean = false;
+  editForm!: FormGroup;
+  wpUrl = 'https://merchantretail.alektasolutions.com';
 
   constructor(
-    private formBuilder: FormBuilder,
-    private toastService: ToastService,
-    private navController: NavController,
-    private actionSheetController: ActionSheetController
-  ) { }
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private toastCtrl: ToastController,
+    private navCtrl: NavController
+  ) {}
 
   ngOnInit() {
-
-    // Setup form
-    this.edit_profile_form = this.formBuilder.group({
-      name_first: ['', Validators.required],
-      name_last: ['', Validators.required]
+    this.editForm = this.fb.group({
+      first_name: [''],
+      username: [''],
+      email: [''],
+      gender: [''],
+      phone: ['']
     });
 
-    // DEBUG: Prefill inputs
-    this.edit_profile_form.get('name_first').setValue('John');
-    this.edit_profile_form.get('name_last').setValue('Doe');
+    this.loadProfile();
   }
 
-  // Update profile picture
-  async updateProfilePicture() {
+  async loadProfile() {
 
-    const actionSheet = await this.actionSheetController.create({
-      header: 'Choose existing picture or take new',
-      cssClass: 'custom-action-sheet',
-      buttons: [
-        {
-          text: 'Choose from gallery',
-          icon: 'images',
-          handler: () => {
-            // Put in logic ...
-          }
-        },
-        {
-          text: 'Take picture',
-          icon: 'camera',
-          handler: () => {
-            // Put in logic ...
-          }
-        }, {
-          text: 'Cancel',
-          icon: 'close',
-          role: 'cancel'
-        }]
-    });
-    await actionSheet.present();
-  }
+  const token = this.authService.getToken();
 
-  // Submit form
-  submit() {
-
-    this.submit_attempt = true;
-
-    // If form valid
-    if (this.edit_profile_form.valid) {
-
-      // Save form ...
-
-      // Display success message and go back
-      this.toastService.presentToast('Success', 'Profile saved', 'top', 'success', 2000);
-      this.navController.back();
-
-    } else {
-
-      // Display error message
-      this.toastService.presentToast('Error', 'Please fill in all required fields', 'top', 'danger', 2000);
+  const res = await Http.request({
+    method: 'GET',
+    url: `${this.wpUrl}/wp-json/pinaka-pos/v1/profile`,
+    headers: {
+      Authorization: `Bearer ${token}`
     }
-  }
+  });
 
+  console.log(res.data); // 👈 check this first
+
+  this.editForm.patchValue(res.data);
+}
+
+ async saveProfile() {
+
+  const token = this.authService.getToken();
+
+  const res = await Http.request({
+    method: 'POST',
+    url: `${this.wpUrl}/wp-json/pinaka-pos/v1/profile`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    data: this.editForm.value
+  });
+
+  const toast = await this.toastCtrl.create({
+    message: res.data.message,
+    duration: 1500,
+    color: 'success'
+  });
+
+  await toast.present();
+
+  // 🔥 Navigate back after save
+  this.navCtrl.navigateRoot('/tabs/profile');
+}
 }

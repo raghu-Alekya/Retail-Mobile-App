@@ -2,23 +2,40 @@ import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
 import { PublicGuard } from './guards/public.guard';
-
+ 
 const routes: Routes = [
-
-  // 🔐 Secure home
+ 
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'splash',
     pathMatch: 'full'
   },
-
   {
-    path: 'home',
+    path: 'splash',
+    loadChildren: () => import('./pages/public/splash/splash.module').then(m => m.SplashPageModule)
+  },
+    {
+    path: 'tabs',
     loadChildren: () =>
-      import('./pages/secure/home/home.module').then(m => m.HomePageModule),
+      import('./tabs/tabs.module').then(m => m.TabsPageModule),
     canActivate: [AuthGuard]
   },
-
+ 
+ 
+  // 🔐 Secure home
+  // {
+  //   path: '',
+  //   redirectTo: 'home',
+  //   pathMatch: 'full'
+  // },
+ 
+  // {
+  //   path: 'home',
+  //   loadChildren: () =>
+  //     import('./pages/secure/home/home.module').then(m => m.HomePageModule),
+  //   canActivate: [AuthGuard]
+  // },
+ 
   // 🔓 Public pages
   {
     path: 'welcome',
@@ -45,7 +62,7 @@ const routes: Routes = [
         .then(m => m.PasswordResetPageModule),
     canActivate: [PublicGuard]
   },
-
+ 
   // 🔐 Other secure pages
   {
     path: 'orders-list',
@@ -75,13 +92,13 @@ const routes: Routes = [
         .then(m => m.ProductFormPageModule),
     canActivate: [AuthGuard]
   },
-  {
-    path: 'users/customers',
-    loadChildren: () =>
-      import('./pages/secure/users-list/users-list.module')
-        .then(m => m.UsersListPageModule),
-     canActivate: [AuthGuard]
-  },
+  // {
+  //   path: 'customers',
+  //   loadChildren: () =>
+  //     import('./pages/secure/customers/customers.module')
+  //       .then(m => m.CustomersPageModule),
+  //   canActivate: [AuthGuard]
+  // },
   {
     path: 'users/employees',
     loadChildren: () =>
@@ -110,8 +127,8 @@ const routes: Routes = [
         .then(m => m.ReportsPageModule),
     canActivate: [AuthGuard]
   },
-  { path: "order-payments", 
-    loadChildren: () => import("./pages/secure/order-payments/order-payments.module").then(m => m.OrderPaymentsPageModule), 
+  { path: "order-payments",
+    loadChildren: () => import("./pages/secure/order-payments/order-payments.module").then(m => m.OrderPaymentsPageModule),
     canActivate: [AuthGuard]
   },
   {
@@ -121,8 +138,8 @@ const routes: Routes = [
         .then(m => m.MediaPageModule),
     canActivate: [AuthGuard]
   },
-  { path: "vendors", 
-    loadChildren: () => import("./pages/secure/vendors/vendors.module").then(m => m.VendorsPageModule), 
+  { path: "vendors",
+    loadChildren: () => import("./pages/secure/vendors/vendors.module").then(m => m.VendorsPageModule),
     canActivate: [AuthGuard]
   },
   {
@@ -153,6 +170,50 @@ const routes: Routes = [
         .then(m => m.DiscountsPageModule),
     canActivate: [AuthGuard]  
   },
+  
+  {
+    path: 'profile',
+     loadChildren: () =>import('./pages/secure/profile/profile.module').then(m => m.ProfilePageModule)
+  },
+
+  {
+    path: 'address',
+    loadChildren: () =>
+      import('./pages/secure/address/address.module')
+        .then(m => m.AddressPageModule),
+    canActivate: [AuthGuard]  
+  },
+  {
+    path: 'add-coupon',
+    loadChildren: () => import('./pages/secure/coupons/add-coupon/add-coupon.module')
+      .then(m => m.AddCouponPageModule)
+  },
+  {
+    path: 'edit-coupon',
+    loadChildren: () => import('./pages/secure/coupons/edit-coupon/edit-coupon.module')
+      .then(m => m.EditCouponPageModule)
+  },
+  {
+    path: 'change-password',
+    loadChildren: () =>
+      import('./pages/secure/change-password/change-password.module')
+        .then(m => m.ChangePasswordPageModule),
+    canActivate: [AuthGuard]  
+  },
+
+  // {
+  //   path: 'devices',
+  //   loadChildren: () =>
+  //     import('./pages/secure/settings/devices/devices.module').then(m => m.DevicesPageModule)
+ 
+  //   },
+  {
+  path: 'secure',
+  loadChildren: () =>
+    import('./pages/secure/secure.module')
+      .then(m => m.SecureModule)
+}
+ 
 ];
 @NgModule({
   imports: [

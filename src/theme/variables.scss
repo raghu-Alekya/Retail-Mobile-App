@@ -17,3 +17,22 @@
   --ion-background-color: #f6f8fb;
   --ion-text-color: #0f172a;
 }
+
+:root {
+  --ion-toolbar-background: #2f3e55;  // your dark header
+  --ion-toolbar-color: #ffffff;       // text/icons
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ion-toolbar-background: #2f3e55;
+    --ion-toolbar-color: #ffffff;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --ion-toolbar-background: #2f3e55;
+    --ion-toolbar-color: #ffffff;
+  }
+}

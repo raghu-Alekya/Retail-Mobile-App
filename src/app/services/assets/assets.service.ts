@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import axios from 'axios';
-import { environment } from 'src/environments/environment';
+import { BehaviorSubject } from 'rxjs';
+import { Http } from '@capacitor-community/http';
 import { ApiConfigService } from '../api-config.service';
 
 @Injectable({ providedIn: 'root' })
@@ -22,26 +21,36 @@ export class AssetsService {
     }
   }
 
-  /** Call Assets API */
+  /** Call Assets API (Native HTTP - iOS safe) */
   async loadAssets(): Promise<any> {
+
     const token = localStorage.getItem('wc_token');
     if (!token) throw new Error('Auth token not found');
 
     const baseUrl = this.apiConfig.getBaseUrl();
+    const url = `${baseUrl}/wp-json/pinaka-pos/v1/assets`;
 
-    const res = await axios.get(
-      `${baseUrl}/wp-json/pinaka-pos/v1/assets`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+    console.log("🔥 LOADING ASSETS (NATIVE HTTP)");
+
+    const res = await Http.request({
+      method: 'GET',
+      url,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json'
       }
-    );
+    });
 
-    localStorage.setItem('app_assets', JSON.stringify(res.data));
-    this.assetsSubject.next(res.data);
+    // some servers return string JSON
+    const data =
+      typeof res.data === 'string'
+        ? JSON.parse(res.data)
+        : res.data;
 
-    return res.data;
+    localStorage.setItem('app_assets', JSON.stringify(data));
+    this.assetsSubject.next(data);
+
+    return data;
   }
 
   /** Clear assets on logout */
@@ -49,8 +58,9 @@ export class AssetsService {
     localStorage.removeItem('app_assets');
     this.assetsSubject.next(null);
   }
+
   /* ======================
-     Quick Getters (Optional)
+     Quick Getters
      ====================== */
 
   get currency() {
@@ -72,5 +82,4 @@ export class AssetsService {
   get vendors() {
     return this.assetsSubject.value?.vendors || [];
   }
-
 }

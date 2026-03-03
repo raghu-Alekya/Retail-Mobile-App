@@ -1,0 +1,148 @@
+/* ================= HEADER ================= */
+
+.dark-toolbar {
+  ion-toolbar {
+    --background: #2f5378;
+    --color: #ffffff;
+    --min-height: 56px;
+  }
+
+  ion-title {
+    font-size: 17px;
+    font-weight: 600;
+  }
+}
+
+/* Make entire header area navy */
+ion-header.dark-toolbar {
+  background: #2f5378;
+}
+
+/* ================= SEARCH (BLENDED NAVY STYLE) ================= */
+/* ================= SEARCH ================= */
+
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  background: #ffffff;          /* solid white */
+  margin: 14px 16px 18px 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08); /* soft highlight shadow */
+}
+
+.search-wrapper ion-icon {
+  font-size: 18px;
+  color: #888;
+  margin-right: 8px;
+}
+
+.search-wrapper input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 14px;
+  color: #333;
+}
+
+.search-wrapper input::placeholder {
+  color: #aaa;
+}
+
+
+/* ================= PAGE BACKGROUND ================= */
+
+.employees-content {
+  --background: #ffffff;
+}
+
+/* ================= LIST HEADING ================= */
+
+.list-heading {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 12px 16px;
+  color: #333;
+}
+
+/* ================= CARD ================= */
+
+.employee-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px;
+  margin: 14px 16px;
+  position: relative;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+/* Bottom colored border */
+.card-color-0 { border-bottom: 4px solid #1ebbd7; }
+.card-color-1 { border-bottom: 4px solid #23395d; }
+.card-color-2 { border-bottom: 4px solid #28a745; }
+.card-color-3 { border-bottom: 4px solid #f04438; }
+.card-color-4 { border-bottom: 4px solid #f4b400; }
+
+/* ================= ROLE LABEL ================= */
+
+.role-label {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* Role text color matches border */
+.card-color-0 .role-label { color: #1ebbd7; }
+.card-color-1 .role-label { color: #23395d; }
+.card-color-2 .role-label { color: #28a745; }
+.card-color-3 .role-label { color: #f04438; }
+.card-color-4 .role-label { color: #f4b400; }
+
+/* ================= CARD CONTENT ================= */
+
+.card-content {
+  display: flex;
+  align-items: center;
+}
+
+/* ================= AVATAR ================= */
+
+.avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 18px;
+  color: #ffffff;
+}
+
+/* Avatar background colors */
+.avatar-0 { background: #1ebbd7; }
+.avatar-1 { background: #23395d; }
+.avatar-2 { background: #28a745; }
+.avatar-3 { background: #f04438; }
+.avatar-4 { background: #f4b400; }
+
+.avatar ion-icon {
+  font-size: 26px;
+}
+
+/* ================= TEXT ================= */
+
+.details .name {
+  font-size: 17px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 6px;
+}
+
+.details .login-id {
+  font-size: 14px;
+  color: #666;
+}

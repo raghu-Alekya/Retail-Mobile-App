@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { IonicModule, ToastController } from '@ionic/angular';
+import { IonicModule,NavController, ToastController } from '@ionic/angular';
 import { CommonModule } from '@angular/common';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-shifts',
@@ -9,6 +11,14 @@ import { AuthService } from 'src/app/services/auth/auth.service';
   styleUrls: ['./shifts.page.scss'],
 })
 export class ShiftsPage implements OnInit {
+
+filteredShifts: any[] = [];
+
+colors = ['yellow', 'red', 'teal', 'orange', 'purple'];
+
+
+
+
 
   shifts: any[] = [];
   page = 1;
@@ -20,9 +30,20 @@ export class ShiftsPage implements OnInit {
   isLoading = false;
 
   constructor(
-    private toastCtrl: ToastController,     
-    private authService: AuthService,
-  ) {}
+  private navCtrl: NavController,
+  private router: Router,
+  private toastCtrl: ToastController,
+  private authService: AuthService
+) {}
+
+goBack() {
+  if (this.router.url.includes('/shifts')) {
+    // 🔥 explicit fallback
+    this.navCtrl.navigateRoot('/tabs/home');
+  } else {
+    this.navCtrl.back();
+  }
+}
 
   ngOnInit() {
     this.loadShifts();
@@ -76,6 +97,13 @@ export class ShiftsPage implements OnInit {
       0
     );
   }
+getBorderColor(index: number) {
+  return this.colors[index % this.colors.length];
+}
+
+getAvatarColor(index: number) {
+  return `${this.colors[index % this.colors.length]}-bg`;
+}
 
   /**
    * Calculate total vendor payouts
@@ -111,54 +139,51 @@ export class ShiftsPage implements OnInit {
    * Mock data – remove after API integration
    */
 
-  async loadShifts(event?: any, reset = false) {
-    if (this.loading || !this.hasMore) {
-      event?.target.complete();
-      return;
-    }
+ async loadShifts(event?: any, reset = false) {
 
-    if (reset) {
-      this.page = 1;
-      this.shifts = [];
-      this.hasMore = true;
-
-      if (event) {
-        event.target.disabled = false;
-      }
-    }
-
-    this.loading = true;
-
-    try {
-      const res = await this.authService.getShifts(
-        this.page,
-        this.search,
-        this.status
-      );
-
-      console.log('Shifts API response:', res);
-
-      // ✅ FIX STARTS HERE
-      if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
-        this.shifts.push(...res.data);
-        this.page++;
-        this.hasMore = res.pagination?.has_more ?? false;
-      } else {
-        this.hasMore = false;
-        if (event) {
-          event.target.disabled = true;
-        }
-      }
-      // ✅ FIX ENDS HERE
-
-    } catch (err) {
-      console.error('Shift load failed', err);
-    }
-
-    this.loading = false;
+  if (this.loading || !this.hasMore) {
     event?.target.complete();
+    return;
   }
 
+  if (reset) {
+    this.page = 1;
+    this.shifts = [];
+    this.hasMore = true;
+  }
+
+  this.loading = true;
+
+  try {
+    const res = await this.authService.getShifts(
+      this.page,
+      this.search,
+      this.status
+    );
+
+    console.log('Shifts API response:', res);
+
+    if (res?.data?.length) {
+
+      const mapped = res.data.map((s: any) => this.mapShift(s));
+
+      this.shifts.push(...mapped);
+      this.filteredShifts = [...this.shifts];
+
+      this.page++;   // ✅ load next page next time
+      this.hasMore = res.pagination?.has_more ?? false;
+
+    } else {
+      this.hasMore = false;
+    }
+
+  } catch (err) {
+    console.error('Shift load failed', err);
+  }
+
+  this.loading = false;
+  event?.target.complete();
+}
 
   getMockShifts() {
     
@@ -199,6 +224,74 @@ export class ShiftsPage implements OnInit {
     // reset pagination + data
     this.loadShifts(undefined, true);
   }
+  filterShifts(event: any) {
+  const value = event.target.value?.toLowerCase().trim() || '';
 
+  // If search box is empty → show all shifts
+  if (!value) {
+    this.filteredShifts = [...this.shifts];
+    return;
+  }
+
+  // Filter from ORIGINAL list (important!)
+  this.filteredShifts = this.shifts.filter(shift =>
+    shift.staffName?.toLowerCase().includes(value)
+  );
+}
+
+
+mapShift(apiShift: any) {
+  const opening = this.getSafeDropTotal(apiShift);
+  const sales = Number(apiShift.total_sale_amount || 0);
+  const vendor = this.getVendorTotal(apiShift);
+
+  return {
+    staffName: apiShift.user_name,
+    date: apiShift.start_time,
+
+    openingBalance: opening,
+    closingBalance: opening + sales - vendor,
+
+    sales: sales,
+    overShort: Number(apiShift.over_short || 0),
+
+    startTime: apiShift.start_time?.split(' ')[1] || '—',
+    endTime: apiShift.end_time
+      ? apiShift.end_time.split(' ')[1]
+      : '—',
+
+    duration: this.getDuration(
+      apiShift.start_time,
+      apiShift.end_time
+    ),
+  };
+}
+getDuration(start: string, end: string): string {
+  if (!start || !end) return '-';
+
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+
+  const diffMs = endDate.getTime() - startDate.getTime();
+
+  if (diffMs <= 0) return '-';
+
+  const totalSeconds = Math.floor(diffMs / 1000);
+
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const pad = (n: number) => n.toString().padStart(2, '0');
+
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+}
+
+// openShift(shift: any) {
+//   console.log('Shift clicked:', shift);
+
+//   // temporary test
+//   this.showToast(`Opening shift: ${shift.staffName}`);
+// }
 
 }
