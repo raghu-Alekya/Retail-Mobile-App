@@ -408,41 +408,60 @@ async createUser(newUser: any) {
     ? JSON.parse(res.data)
     : res.data;
 }
-async getUsers(
-  role = '',
-  page = 1,
-  perPage = 10,
-  search = ''
-) {
+  async getUsers(
+    page: string = '1',
+    perPage: string = '10',
+    search: string = ''
 
-  const params: any = {
-    page,
-    per_page: perPage,
-    context: 'edit'
-  };
+  ) {
 
-  if (search) params.search = search;
-  if (role) params.role = role;
+    const params: any = {
+      page: page,              // ✅ string (to avoid iOS crash)
+      per_page: perPage,       // ✅ string
+      context: 'edit'
+    };
 
-  const res = await Http.request({
-    method: 'GET',
-    url: `${this.base}/wp-json/wp/v2/users`,
-    headers: this.getAuthHeaders(),
-    params
-  });
+    if (search) params.search = search;
 
-  const data =
-    typeof res.data === 'string'
-      ? JSON.parse(res.data)
-      : res.data;
+    const res = await Http.request({
+      method: 'GET',
+      url: `${this.base}/wp-json/wp/v2/users`,
+      headers: this.getAuthHeaders(),
+      params
+    });
 
-  return {
-    users: Array.isArray(data) ? data : [],
-    totalPages: Number(res.headers?.['x-wp-totalpages'] || 1)
-  };
-}
+    return res.data;
+  }
+
+  async getCustomers(
+    page: string = '1',
+    perPage: string = '10',
+    search: string = ''
+  ) {
+
+    const params: any = {
+      page: page,
+      per_page: perPage,
+      context: 'edit'
+    };
 
 
+    if (search) params.search = search;
+
+    const res = await Http.request({
+      method: 'GET',
+      url: `${this.base}/wp-json/wp/v2/users`,
+      headers: this.getAuthHeaders(),
+      params
+    });
+
+    const users = res.data || [];
+
+    // ✅ filter only customers
+    return users.filter((user: any) =>
+      user.roles && user.roles.includes('customer')
+    );
+  }
 
   async createUserWithMeta(user: any) {
   try {
