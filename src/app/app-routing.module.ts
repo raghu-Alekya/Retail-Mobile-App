@@ -92,15 +92,15 @@ const routes: Routes = [
         .then(m => m.ProductFormPageModule),
     canActivate: [AuthGuard]
   },
-  // {
-  //   path: 'customers',
-  //   loadChildren: () =>
-  //     import('./pages/secure/customers/customers.module')
-  //       .then(m => m.CustomersPageModule),
-  //   canActivate: [AuthGuard]
-  // },
   {
-    path: 'users/employees',
+    path: 'customers',
+    loadChildren: () =>
+      import('./pages/secure/customers/customers.module')
+        .then(m => m.CustomersPageModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'users',
     loadChildren: () =>
       import('./pages/secure/users-list/users-list.module')
         .then(m => m.UsersListPageModule),

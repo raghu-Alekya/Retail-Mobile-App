@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
@@ -6,33 +6,90 @@ import { AuthService } from 'src/app/services/auth/auth.service';
   templateUrl: './customers.page.html',
   styleUrls: ['./customers.page.scss'],
 })
-export class CustomersPage implements OnInit {
+export class CustomersPage {
 
   customers: any[] = [];
-  filteredCustomers: any[] = [];
+  page = "1";
+  perPage = "20";
+  searchTerm = '';
+  hasMore = true;
+  loading = false;
+
+  private searchTimeout: any; // ✅ debounce
 
   constructor(private authService: AuthService) {}
 
-  ngOnInit() {
-    this.loadCustomers();
+  // ✅ Better for Ionic pages
+  ionViewDidEnter() {
+    this.loadCustomers(true);
   }
 
-  async loadCustomers() {
-  const response = await this.authService.getUsers('customer', 1, 50);
+  async loadCustomers(reset = false) {
+    if (this.loading) return;
 
-  this.customers = (response.users || []).filter(user =>
-    user.roles.length === 1 &&
-    user.roles.includes('customer')
-  );
+    this.loading = true;
 
-  this.filteredCustomers = [...this.customers];
-}
+    try {
+      if (reset) {
+        this.page = "1";
+        this.customers = [];
+        this.hasMore = true;
+      }
+
+      const currentPage = Number(this.page) || 1;
+      const perPageNum = Number(this.perPage) || 20;
+
+      const response = await this.authService.getCustomers(
+        String(currentPage),
+        String(perPageNum),
+        this.searchTerm
+      );
+
+      if (Array.isArray(response) && response.length > 0) {
+        this.customers = [...this.customers, ...response];
+
+        // ⚠️ Important: This condition is NOT reliable due to filtering
+        if (response.length < perPageNum) {
+          this.hasMore = false;
+        }
+
+        this.page = String(currentPage + 1);
+      } else {
+        this.hasMore = false;
+      }
+
+    } catch (error) {
+      console.error('Pagination error:', error);
+      this.hasMore = false; // ✅ prevent infinite loading
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  // ✅ Debounced search (important)
   onSearch(event: any) {
-    const value = event.target.value.toLowerCase();
+    const value = event?.target?.value?.trim() || '';
 
-    this.customers = this.filteredCustomers.filter(user =>
-      user.email?.toLowerCase().includes(value) ||
-      user.meta?.phone?.includes(value)
-    );
+    clearTimeout(this.searchTimeout);
+
+    this.searchTimeout = setTimeout(() => {
+      this.searchTerm = value;
+      this.loadCustomers(true);
+    }, 400);
+  }
+
+  loadMore(event: any) {
+    if (!this.hasMore) {
+      event?.target?.complete();
+      return;
+    }
+
+    this.loadCustomers().then(() => {
+      event?.target?.complete();
+
+      if (!this.hasMore && event?.target) {
+        event.target.disabled = true;
+      }
+    });
   }
 }

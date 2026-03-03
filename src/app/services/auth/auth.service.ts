@@ -408,41 +408,57 @@ async createUser(newUser: any) {
     ? JSON.parse(res.data)
     : res.data;
 }
-async getUsers(
-  role = '',
-  page = 1,
-  perPage = 10,
-  search = ''
-) {
+  async getUsers(
+    page: string = '1',
+    perPage: string = '10',
+    search: string = ''
+  ) {
+    const params: any = {
+      page,
+      per_page: perPage,
+      context: 'edit'
+    };
 
-  const params: any = {
-    page,
-    per_page: perPage,
-    context: 'edit'
-  };
+    if (search) params.search = search;
 
-  if (search) params.search = search;
-  if (role) params.role = role;
+    const res = await Http.request({
+      method: 'GET',
+      url: `${this.base}/wp-json/wp/v2/users`,
+      headers: this.getAuthHeaders(),
+      params
+    });
 
-  const res = await Http.request({
-    method: 'GET',
-    url: `${this.base}/wp-json/wp/v2/users`,
-    headers: this.getAuthHeaders(),
-    params
-  });
+    // ✅ always return array
+    return Array.isArray(res?.data) ? res.data : [];
+  }
 
-  const data =
-    typeof res.data === 'string'
-      ? JSON.parse(res.data)
-      : res.data;
+  async getCustomers(
+    page: string = '1',
+    perPage: string = '10',
+    search: string = ''
+  ) {
+    const params: any = {
+      page: page,
+      per_page: perPage,
+      context: 'edit'
+    };
 
-  return {
-    users: Array.isArray(data) ? data : [],
-    totalPages: Number(res.headers?.['x-wp-totalpages'] || 1)
-  };
-}
+    if (search) params.search = search;
 
+    const res = await Http.request({
+      method: 'GET',
+      url: `${this.base}/wp-json/wp/v2/users`,
+      headers: this.getAuthHeaders(),
+      params
+    });
 
+    const users = res?.data || [];
+
+    // ✅ SAFE filtering
+    return users.filter((user: any) =>
+      Array.isArray(user?.roles) && user.roles.includes('customer')
+    );
+  }
 
   async createUserWithMeta(user: any) {
   try {
