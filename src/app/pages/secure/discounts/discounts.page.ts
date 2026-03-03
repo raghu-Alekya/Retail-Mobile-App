@@ -31,6 +31,8 @@ export class DiscountsPage implements OnInit {
     discountSuggestions: any[] = [];
     selectedDiscountProducts: any[] = [];
     validationError: string = '';
+    searchTerm: string = ''; //////////
+    allDiscounts: any[] = []; /////////
   
     form = {
       code: '',
@@ -72,23 +74,19 @@ export class DiscountsPage implements OnInit {
           page: 1,
           per_page: 200
         }
-      });
+      }); 
+      /////////
       this.grouped = res.data?.data || {};
-      this.discounts = this.flattenAll();
+      this.allDiscounts = this.flattenAll();
+      this.applySearchAndFilter();
+      ////////
     } catch (err) {
       this.presentToast('Failed to load discounts');
     } finally {
       this.loading = false;
     }
   }
-  setFilter(type: string) {
-    this.activeFilter = type;
-    if (type === 'all') {
-      this.discounts = this.flattenAll();
-    } else {
-      this.discounts = this.grouped[type] || [];
-    }
-  }
+  
   onDiscountTypeChange(event: any)
   {
     const value = event.target.value?.trim();
@@ -133,18 +131,26 @@ export class DiscountsPage implements OnInit {
   }
   async onDiscountSearch(event: any) {
     clearTimeout(this.searchTimeout);
+
     const term =
-    event?.detail?.value ??
-    event?.target?.value ??
-    '';
+      event?.detail?.value ??
+      event?.target?.value ??
+      '';
+
     this.searchTimeout = setTimeout(async () => {
       if (!term || term.length < 2) {
         this.discountSuggestions = [];
         return;
       }
+
       try {
         const res: any = await this.auth.searchProducts(term);
-        this.discountSuggestions = res?.data || [];
+
+        console.log('SEARCH RESPONSE:', res);
+
+        // Since service already returns res.data
+        this.discountSuggestions = Array.isArray(res) ? res : [];
+
       } catch (e) {
         console.error('Discount product search failed', e);
         this.discountSuggestions = [];
@@ -182,24 +188,7 @@ export class DiscountsPage implements OnInit {
     return all;
   }
 
-  applyFilter() {
-    if (this.activeFilter === 'all') {
-      this.filteredDiscounts = [...this.discounts];
-      return;
-    }
-    this.filteredDiscounts = this.discounts.filter(d => {
-      const raw =
-        (d.type || '')
-          .toString()
-          .toLowerCase()
-          .trim();
-      const normalized = raw
-        .replace(/&/g, 'and')
-        .replace(/[^a-z0-9]+/g, '_')
-        .replace(/^_+|_+$/g, '');
-      return normalized === this.activeFilter;
-    });
-  }
+
   
     openCreate() {
       this.resetForm();
@@ -247,7 +236,8 @@ export class DiscountsPage implements OnInit {
           const res: any = await this.auth.getProductsByIds(
             coupon.discount_product_ids
           );
-          this.selectedDiscountProducts = res?.data?.data || [];
+          this.selectedDiscountProducts = res?.data || [];
+          // console.log(this.selectedDiscountProducts);
         } catch (e) {
           console.error('Failed to load discounted products', e);
         }
@@ -264,6 +254,7 @@ export class DiscountsPage implements OnInit {
       );
         if (res.data && res.data.length) {
           const p = res.data[0];
+          console.log(p);
           this.selectedProductName = p.name;
           this.productSearch = p.name;
         }
@@ -420,4 +411,42 @@ export class DiscountsPage implements OnInit {
     const token = localStorage.getItem('wc_token');
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
+  ///////////////////////
+  setFilter(type: string) {
+    this.activeFilter = type;
+    this.applySearchAndFilter();
+  }
+
+  onSearch(event: any) {
+    this.searchTerm =
+      event?.detail?.value ??
+      event?.target?.value ??
+      '';
+
+    this.applySearchAndFilter();
+  }
+
+  applySearchAndFilter() {
+
+    let filtered = [...this.allDiscounts]; // always start from master list
+
+    // 🔹 Apply Filter
+    if (this.activeFilter !== 'all') {
+      filtered = filtered.filter(d =>
+        d.type?.toLowerCase().includes(this.activeFilter)
+      );
+    }
+
+    // 🔹 Apply Search
+    if (this.searchTerm?.trim()) {
+      const term = this.searchTerm.toLowerCase().trim();
+
+      filtered = filtered.filter(d =>
+        d.code?.toLowerCase().includes(term)
+      );
+    }
+
+    this.discounts = filtered;
+  }
+  ///////////////////////////////
 }

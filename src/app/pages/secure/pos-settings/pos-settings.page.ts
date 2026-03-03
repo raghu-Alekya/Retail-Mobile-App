@@ -229,58 +229,58 @@ export class PosSettingsPage implements OnInit {
     // 🔌 API call
   }
 
-  async onToggleChange(event: any, setting: string) {
-    const isChecked = event.detail.checked;
+  // async onToggleChange(event: any, setting: string) {
+  //   const isChecked = event.detail.checked;
 
-    switch (setting) {
+  //   switch (setting) {
 
-      case 'enable_safes':
-        this.settings.enable_safes = isChecked;
-        await this.updateEnableSafes();
-        break
+  //     case 'enable_safes':
+  //       this.settings.enable_safes = isChecked;
+  //       await this.updateEnableSafes();
+  //       break
 
-      case 'enable_safes_drop':
-        this.settings.enable_safes_drop = isChecked;
-        await this.updateEnableSafesDrop();
-        break;
+  //     case 'enable_safes_drop':
+  //       this.settings.enable_safes_drop = isChecked;
+  //       await this.updateEnableSafesDrop();
+  //       break;
 
-      case 'enable_cashback':
-        this.settings.enable_cashback = isChecked;
-        await this.updateCashback();
-        break;
+  //     case 'enable_cashback':
+  //       this.settings.enable_cashback = isChecked;
+  //       await this.updateCashback();
+  //       break;
 
-      case 'enable_service_charge':
-        this.settings.enable_service_charge = isChecked;
-        await this.updateServiceCharge();
-        break;
+  //     case 'enable_service_charge':
+  //       this.settings.enable_service_charge = isChecked;
+  //       await this.updateServiceCharge();
+  //       break;
         
-      case 'enable_loyalty_points':
-        this.settings.enable_loyalty_points = isChecked;
-        await this.updateLoyaltyPoints();
-        break;
+  //     case 'enable_loyalty_points':
+  //       this.settings.enable_loyalty_points = isChecked;
+  //       await this.updateLoyaltyPoints();
+  //       break;
 
-      case 'enableTaxes':
-        this.settings.enableTaxes = isChecked;
-        await this.updateEnableTaxes();
-        break;
+  //     case 'enableTaxes':
+  //       this.settings.enableTaxes = isChecked;
+  //       await this.updateEnableTaxes();
+  //       break;
 
-      case 'enableCoupons':
-        this.settings.enableCoupons = isChecked;
+  //     case 'enableCoupons':
+  //       this.settings.enableCoupons = isChecked;
 
-        // auto-disable sequential if coupons turned off
-        if (!isChecked) {
-          this.settings.sequentialCoupons = false;
-        }
+  //       // auto-disable sequential if coupons turned off
+  //       if (!isChecked) {
+  //         this.settings.sequentialCoupons = false;
+  //       }
 
-        await this.updateEnableCoupons();
-        break;
+  //       await this.updateEnableCoupons();
+  //       break;
 
-      case 'sequentialCoupons':
-        this.settings.sequentialCoupons = isChecked;
-        await this.updateSequentialCoupons();
-        break;
-    }
-  }
+  //     case 'sequentialCoupons':
+  //       this.settings.sequentialCoupons = isChecked;
+  //       await this.updateSequentialCoupons();
+  //       break;
+  //   }
+  // }
 
   async onToggleChange(event: any, key: string) {
 

@@ -80,14 +80,14 @@
       </ion-button>
     </ion-buttons>
   </ion-item> -->
-  <ion-card>
-    <ion-item>
+  <!-- <ion-card> -->
+    <ion-item lines="full">
       <ion-label position="stacked">SKU</ion-label>
       <ion-input [(ngModel)]="product.sku"></ion-input>
-      <ion-icon name="barcode-outline" slot="end"></ion-icon>
+      <!-- <ion-icon name="barcode-outline" slot="end"></ion-icon> -->
       <ion-button size="small" slot="end" (click)="scanSku()">Scan</ion-button>
     </ion-item>
-  </ion-card>
+  <!-- </ion-card> -->
 
 </ion-card>
 
@@ -171,10 +171,8 @@
 
     <!-- Value row -->
     <ion-item lines="none">
-      <ion-label>
-        
+      <ion-label>  
           {{ selectedTaxClass?.name || 'Select tax class' }}
-        
         <p *ngIf="selectedTaxClass">
           {{ selectedTaxClass.percentage }}%
         </p>
@@ -455,7 +453,7 @@
     </ion-item> -->
 
     <!-- Stock Status -->
-<ion-item lines="none" class="dropdown-item">
+<!-- <ion-item lines="none" class="dropdown-item">
   <ion-label>
     Stock status
   </ion-label>
@@ -471,22 +469,51 @@
     
   </ion-note>
 
-  <!-- Full-row clickable select -->
   <ion-select
     interface="popover"
     class="full-row-select"
     [(ngModel)]="product.stock_status"
   >
-    <ion-select-option value="instock">In stock</ion-select-option>
-    <ion-select-option value="outofstock">Out of stock</ion-select-option>
+    <ion-select-option value="instock">
+      In stock
+    </ion-select-option>
+
+    <ion-select-option value="outofstock">
+      Out of stock
+    </ion-select-option>
   </ion-select>
+</ion-item> -->
+
+<ion-item lines="none" class="dropdown-item">
+  <ion-label>
+    Stock status
+  </ion-label>
+
+  <!-- Badge -->
+  <ion-note
+    class="stock-badge"
+    [ngClass]="product.stock_status"
+  >
+    {{ stockLabel }}
+  </ion-note>
+  
+  <!-- Select -->
+  <!-- <ion-select
+    interface="popover"
+    class="full-row-select"
+    [(ngModel)]="product.stock_status"
+  >
+    <ion-select-option value="instock">
+      In stock
+    </ion-select-option>
+
+    <ion-select-option value="outofstock">
+      Out of stock
+    </ion-select-option>
+  </ion-select> -->
 </ion-item>
 
-
-
   </ion-card>
-
-
   <!-- Sold Individually -->
   <ion-card class="settings-card">
 

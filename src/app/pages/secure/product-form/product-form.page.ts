@@ -27,7 +27,7 @@ export class ProductFormPage implements OnInit {
   private attributesLoaded = false;
   private isLoadingAttributes = false;
   stock_quantity : any = null;
-  // selectedTaxClass: any = null;
+  stock_status: any = null;
 
   product: any = {
     name: '',
@@ -169,7 +169,8 @@ export class ProductFormPage implements OnInit {
         tag_ids: res.tags?.map((t: any) => t.id) || [],
       };
       this.stock_quantity = res.stock_quantity;
-      // console.log(res);
+      this.stock_status = res.stock_status;
+      console.log(this.stock_status);
       this.selectedTaxClass = this.taxClasses.find(
         tax => tax.slug === res.tax_class
       ) || null;
@@ -289,7 +290,16 @@ export class ProductFormPage implements OnInit {
     const res = await this.authService.getTags();
     this.tags = res;
   }
-
+  get stockLabel(): string {
+    // console.log(this.stock_status);
+    if(this.isEdit)
+    {
+      return this.stock_status === 'instock'
+      ? 'In stock'
+      : 'Out of stock';
+    }
+    return '';
+  }
   // async loadAttributes() {
   //   try {
   //     this.attributes = [];
@@ -871,7 +881,7 @@ export class ProductFormPage implements OnInit {
 
       // Add Standard manually (WooCommerce does not return it)
       const formattedClasses = [
-        { slug: '', name: 'Standard rate' },
+        // { slug: '', name: 'Standard rate' },
         ...classes
       ];
 

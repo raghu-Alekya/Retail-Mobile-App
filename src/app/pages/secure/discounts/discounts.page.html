@@ -19,7 +19,10 @@
   <!-- Search bar inside header -->
   <div class="search-container">
     <ion-icon name="search-outline"></ion-icon>
-    <input type="text" placeholder="Search all Discounts" [(ngModel)]="searchTerm" (ionInput)="onSearch($event)" />
+    <input type="text"
+       placeholder="Search all Discounts"
+       [(ngModel)]="searchTerm"
+       (input)="onSearch($event)" />
   </div>
 </ion-header>
 <!-- Filter Tabs -->
