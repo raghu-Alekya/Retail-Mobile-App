@@ -72,8 +72,7 @@ export class PosSettingsPage implements OnInit {
 
     try {
       const res = await this.authService.getCashSettings();
-      const data = res.data;
-      console.log('Loaded POS Settings', data.data);
+      const data = res.data.data;
       this.settings.address = {
         pinaka_pos_name: data.shop_info.pinaka_pos_name,
         pinaka_pos_email: data.shop_info.pinaka_pos_email,
@@ -83,21 +82,12 @@ export class PosSettingsPage implements OnInit {
         pinaka_pos_business_state: data.shop_info.pinaka_pos_business_state,
         pinaka_pos_business_postcode: data.shop_info.pinaka_pos_business_postcode
       }
-      this.settings.enableTaxes = data.tax_enabled == 1;
-      this.settings.enableCoupons = data.coupons_enabled == 1;
-      this.settings.sequentialCoupons = data.calc_sequential_coupons == 1;
-
-      this.settings.enable_safes = !!data.enable_safes;
-      this.settings.enable_safes_drop = !!data.enable_safes_drop;
-
-      // 🔥 Missing in your code (IMPORTANT)
-      this.settings.enable_loyalty_points = !!data.pinaka_pos_enable_loyalty_points;
-
-      // cashback
-      this.settings.enable_cashback = data.pinaka_pos_cashback_settings?.enabled == 1;
-
-      // service charge
-      this.settings.enable_service_charge = data.pinaka_pos_service_charge_settings?.enabled == 1;
+      this.settings.enableTaxes = data.tax_enabled;
+      this.settings.enableCoupons = data.coupons_enabled;
+      this.settings.sequentialCoupons = data.cal_sequential_coupons;
+      this.settings.enable_safes = data.enable_safes;
+      this.settings.enable_safes_drop = data.enable_safes_drop;
+      this.settings.currency_symbol = data.currency_symbol;
       
 
     } catch (err) {
@@ -239,7 +229,58 @@ export class PosSettingsPage implements OnInit {
     // 🔌 API call
   }
 
-  /* ================= TOGGLE HANDLER ================= */
+  async onToggleChange(event: any, setting: string) {
+    const isChecked = event.detail.checked;
+
+    switch (setting) {
+
+      case 'enable_safes':
+        this.settings.enable_safes = isChecked;
+        await this.updateEnableSafes();
+        break
+
+      case 'enable_safes_drop':
+        this.settings.enable_safes_drop = isChecked;
+        await this.updateEnableSafesDrop();
+        break;
+
+      case 'enable_cashback':
+        this.settings.enable_cashback = isChecked;
+        await this.updateCashback();
+        break;
+
+      case 'enable_service_charge':
+        this.settings.enable_service_charge = isChecked;
+        await this.updateServiceCharge();
+        break;
+        
+      case 'enable_loyalty_points':
+        this.settings.enable_loyalty_points = isChecked;
+        await this.updateLoyaltyPoints();
+        break;
+
+      case 'enableTaxes':
+        this.settings.enableTaxes = isChecked;
+        await this.updateEnableTaxes();
+        break;
+
+      case 'enableCoupons':
+        this.settings.enableCoupons = isChecked;
+
+        // auto-disable sequential if coupons turned off
+        if (!isChecked) {
+          this.settings.sequentialCoupons = false;
+        }
+
+        await this.updateEnableCoupons();
+        break;
+
+      case 'sequentialCoupons':
+        this.settings.sequentialCoupons = isChecked;
+        await this.updateSequentialCoupons();
+        break;
+    }
+  }
 
   async onToggleChange(event: any, key: string) {
 
