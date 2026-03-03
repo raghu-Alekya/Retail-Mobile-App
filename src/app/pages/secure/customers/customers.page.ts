@@ -36,27 +36,31 @@ export class CustomersPage {
         this.hasMore = true;
       }
 
+      const currentPage = Number(this.page) || 1;
+      const perPageNum = Number(this.perPage) || 20;
+
       const response = await this.authService.getCustomers(
-        this.page,
-        this.perPage,
+        String(currentPage),
+        String(perPageNum),
         this.searchTerm
       );
 
       if (Array.isArray(response) && response.length > 0) {
         this.customers = [...this.customers, ...response];
 
-        // ✅ stop if no more data
-        if (response.length < parseInt(this.perPage, 10)) {
+        // ⚠️ Important: This condition is NOT reliable due to filtering
+        if (response.length < perPageNum) {
           this.hasMore = false;
         }
 
-        this.page = String(parseInt(this.page, 10) + 1);
+        this.page = String(currentPage + 1);
       } else {
         this.hasMore = false;
       }
 
     } catch (error) {
       console.error('Pagination error:', error);
+      this.hasMore = false; // ✅ prevent infinite loading
     } finally {
       this.loading = false;
     }
@@ -64,21 +68,26 @@ export class CustomersPage {
 
   // ✅ Debounced search (important)
   onSearch(event: any) {
-    const value = event.target.value?.trim() || '';
+    const value = event?.target?.value?.trim() || '';
 
     clearTimeout(this.searchTimeout);
 
     this.searchTimeout = setTimeout(() => {
       this.searchTerm = value;
-      this.loadCustomers(true); // reset
-    }, 400); // 400ms debounce
+      this.loadCustomers(true);
+    }, 400);
   }
 
   loadMore(event: any) {
-    this.loadCustomers().then(() => {
-      event.target.complete();
+    if (!this.hasMore) {
+      event?.target?.complete();
+      return;
+    }
 
-      if (!this.hasMore) {
+    this.loadCustomers().then(() => {
+      event?.target?.complete();
+
+      if (!this.hasMore && event?.target) {
         event.target.disabled = true;
       }
     });

@@ -52,14 +52,14 @@ export class UsersListPage {
     this.editingUserId = user.id;
 
     this.editedUser = {
-      username: user.username || user.name,
-      email: user.email,
+      username: user.username || user.name || '',
+      email: user.email || '',
       first_name: user.first_name || '',
       last_name: user.last_name || '',
 
-      role: user.roles?.[0] || '',
-      phone: user.description || '',   // 🔥 from description
-      emp_login_pin: user.meta?.emp_login_pin || ''
+      role: Array.isArray(user?.roles) ? user.roles[0] : '',
+      phone: user.description || '',
+      emp_login_pin: user?.meta?.emp_login_pin || ''
     };
 
     this.originalUser = { ...this.editedUser };
@@ -73,21 +73,25 @@ export class UsersListPage {
   async saveChanges() {
     try {
 
-      const payload = {
+      const payload: any = {
         username: this.editedUser.username,
         email: this.editedUser.email,
         first_name: this.editedUser.first_name,
         last_name: this.editedUser.last_name,
-
-        roles: [this.editedUser.role],
-
-        // 🔥 THIS IS IMPORTANT
-        description: this.editedUser.phone,
-
-        meta: {
-          emp_login_pin: this.editedUser.emp_login_pin
-        }
+        description: this.editedUser.phone
       };
+
+      // ✅ only send role if exists
+      if (this.editedUser.role) {
+        payload.roles = [this.editedUser.role];
+      }
+
+      // ✅ only send meta if exists
+      if (this.editedUser.emp_login_pin) {
+        payload.meta = {
+          emp_login_pin: this.editedUser.emp_login_pin
+        };
+      }
 
       await this.authService.updateUser(this.editingUserId!, payload);
 
@@ -108,7 +112,7 @@ export class UsersListPage {
 
   // ✅ Debounced Search
   onSearch(event: any) {
-    const value = event.target.value?.toLowerCase() || '';
+    const value = event?.target?.value?.toLowerCase() || '';
 
     clearTimeout(this.searchTimeout);
 
@@ -119,9 +123,9 @@ export class UsersListPage {
       }
 
       this.filteredUsers = this.users.filter(user =>
-        user.name?.toLowerCase().includes(value) ||
-        user.email?.toLowerCase().includes(value) ||
-        user.id?.toString().includes(value)
+        user?.name?.toLowerCase().includes(value) ||
+        user?.email?.toLowerCase().includes(value) ||
+        user?.id?.toString().includes(value)
       );
     }, 300);
   }
@@ -140,26 +144,24 @@ export class UsersListPage {
   // ✅ Load Users
   async loadUsers() {
     try {
-      const data = await this.authService.getUsers("1", "50", '');
+      const usersArray = await this.authService.getUsers("1", "50", '');
 
-      console.log('RAW USERS:', data);
+      console.log('RAW USERS:', usersArray);
 
-      // ✅ FIX: API returns array directly
-      const usersArray = Array.isArray(data) ? data : [];
-
-      // ✅ remove customers
+      // ✅ SAFE filtering
       this.users = usersArray.filter((user: any) =>
-        user.roles && !user.roles.includes('customer')
+        Array.isArray(user?.roles) && !user.roles.includes('customer')
       );
 
       this.filteredUsers = [...this.users];
-    }catch (error) {
+
+    } catch (error) {
       console.error('Error loading users', error);
     }
   }
 
   getRoleLabel(roles: string[]) {
-    if (!roles || roles.length === 0) return '';
+    if (!Array.isArray(roles) || roles.length === 0) return '';
     return roles[0].replace('_', ' ');
   }
   

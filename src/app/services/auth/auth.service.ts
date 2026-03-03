@@ -412,12 +412,10 @@ async createUser(newUser: any) {
     page: string = '1',
     perPage: string = '10',
     search: string = ''
-
   ) {
-
     const params: any = {
-      page: page,              // ✅ string (to avoid iOS crash)
-      per_page: perPage,       // ✅ string
+      page,
+      per_page: perPage,
       context: 'edit'
     };
 
@@ -430,7 +428,8 @@ async createUser(newUser: any) {
       params
     });
 
-    return res.data;
+    // ✅ always return array
+    return Array.isArray(res?.data) ? res.data : [];
   }
 
   async getCustomers(
@@ -438,13 +437,11 @@ async createUser(newUser: any) {
     perPage: string = '10',
     search: string = ''
   ) {
-
     const params: any = {
       page: page,
       per_page: perPage,
       context: 'edit'
     };
-
 
     if (search) params.search = search;
 
@@ -455,11 +452,11 @@ async createUser(newUser: any) {
       params
     });
 
-    const users = res.data || [];
+    const users = res?.data || [];
 
-    // ✅ filter only customers
+    // ✅ SAFE filtering
     return users.filter((user: any) =>
-      user.roles && user.roles.includes('customer')
+      Array.isArray(user?.roles) && user.roles.includes('customer')
     );
   }
 
