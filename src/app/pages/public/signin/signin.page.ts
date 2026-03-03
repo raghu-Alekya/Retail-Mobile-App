@@ -36,7 +36,7 @@ export class SigninPage implements OnInit {
     });
     // DEBUG: Prefill inputs
     this.signin_form.get('email').setValue('vijay.nadipineni@alekyatechsolutions.com');
-    this.signin_form.get('password').setValue('Retail@1234$s');
+    this.signin_form.get('password').setValue('Retail@1234$');
     this.signin_form.get('site_url').setValue('merchantretail.alektasolutions.com');
   }
 

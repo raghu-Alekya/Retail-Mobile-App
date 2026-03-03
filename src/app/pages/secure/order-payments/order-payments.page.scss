@@ -5,95 +5,135 @@ ion-content {
   --background: #f4f6f8;
 }
 
+.empty {
+  text-align: center;
+  margin-top: 40px;
+  color: #777;
+}
 
 
 /* ===============================
-   PAYMENT CARDS
+   PAYMENT CARD
 ================================ */
 .payment-card {
-  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+  background: #f7f7f7;
   border-radius: 14px;
+  padding: 14px 16px;
   margin-bottom: 14px;
-  padding: 4px;
-
-  box-shadow:
-    0 6px 14px rgba(0,0,0,0.06),
-    0 2px 4px rgba(0,0,0,0.04);
-
   border-bottom: 4px solid transparent;
 }
 
-/* rotating border colors */
-.border-yellow { border-bottom-color: #f3b431; }
-.border-red    { border-bottom-color: #f15b5b; }
-.border-teal   { border-bottom-color: #4db6ac; }
-.border-orange { border-bottom-color: #f28b54; }
-.border-purple { border-bottom-color: #8b8ee8; }
 
-/* remove ion-item background inside cards */
-.payment-card ion-item {
-  --background: transparent;
+/* top right accent bar */
+.card-accent {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 90px;
+  height: 16px;
+  border-radius: 3px;
 }
 
 
 /* ===============================
-   TEXT STYLING
+   CARD HEADER
 ================================ */
-.label {
-  font-size: 12px;
-  color: #7a8699;
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
 }
 
-.value {
-  font-size: 16px;
+.date {
+  font-size: 14px;
+  color: #333;
+}
+
+.accepted-by {
+  font-size: 15px;
   font-weight: 600;
-  margin-top: 4px;
-  color: #1f2933;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent; /* important */
 }
 
-.value.small {
-  font-size: 13px;
-  word-break: break-all;
-}
-
-.note {
-  font-size: 13px;
-  color: #6b7280;
+.accepted-by .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
 }
 
 
 /* ===============================
-   HEADER (CURVED CUT STYLE)
+   INFO ROWS
 ================================ */
-.shift-header {
-  background: #345a7f;
-  padding-bottom: 34px;
-  
-
-  box-shadow: 0 4px 10px rgba(0,0,0,0.10);
-
-  position: relative;
-  z-index: 10;
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  color: #666;
+  margin: 3px 0;
 }
 
-/* transparent toolbar */
-.shift-header ion-toolbar {
+.info-row b {
+  color: #000;
+  font-weight: 600;
+}
+
+
+/* divider */
+.divider {
+  height: 1px;
+  background: #dcdcdc;
+  margin: 10px 0 8px;
+}
+
+.payment-mode {
+  font-size: 15px;
+  color: #666;
+}
+
+
+/* ===============================
+   PAGE BACKGROUND
+================================ */
+ion-content {
+  --background: #f4f6f8;
+}
+
+
+/* ===============================
+   HEADER (MATCH SCREENSHOT)
+================================ */
+.vendor-header {
+  background: #3f5065;
+  border-bottom-left-radius: 22px;
+  border-bottom-right-radius: 22px;
+  overflow: hidden;
+
+  padding-bottom: 14px; /* controls curve spacing */
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* toolbar */
+.vendor-header ion-toolbar {
   --background: transparent;
   --color: #ffffff;
-}
-
-/* title styling */
-.shift-header ion-title {
-  font-size: 20px;
-  font-weight: 600;
+  box-shadow: none;
+  border: none;
+  padding-bottom: 0;
 }
 
 
 /* ===============================
-   SEARCH BAR
+   SEARCH BAR (INSIDE HEADER)
 ================================ */
 .search-wrapper {
-  margin: 12px 16px 0;
+  margin: 10px 16px 6px;   /* fixes bottom gap */
   background: #ffffff;
   border-radius: 12px;
   display: flex;
@@ -102,28 +142,105 @@ ion-content {
   box-shadow: 0 6px 16px rgba(0,0,0,0.15);
 }
 
-/* search icon */
 .search-wrapper ion-icon {
   font-size: 18px;
   color: #7a8699;
   margin-right: 8px;
 }
 
-/* search input */
 .search-wrapper input {
   flex: 1;
   border: none;
   outline: none;
   font-size: 14px;
-  color: #1f2933;
   background: transparent;
 }
 
 
 /* ===============================
-   CREATE "CUT" EFFECT
-   (content slides under header)
+   REMOVE EXTRA SPACE UNDER HEADER
 ================================ */
+ion-content::part(scroll) {
+  margin-top: -8px; /* removes large gap */
+}
+
+
+/* ===============================
+   EMPTY STATE
+================================ */
+.empty {
+  text-align: center;
+  margin-top: 40px;
+  color: #777;
+}
+
+
+/* ===============================
+   COLOR THEMES (rotate)
+================================ */
+
+/* BLUE */
+.card-0 { border-bottom-color: #2f4f6f; }
+
+.card-0 .accepted-by {
+  color: #2f4f6f;
+}
+
+.card-0 .dot {
+  background: #2f4f6f;
+}
+
+
+/* GREEN */
+.card-1 { border-bottom-color: #1f9d55; }
+
+.card-1 .accepted-by {
+  color: #1f9d55;
+}
+
+.card-1 .dot {
+  background: #1f9d55;
+}
+
+
+/* TEAL */
+.card-2 { border-bottom-color: #17a2b8; }
+
+.card-2 .accepted-by {
+  color: #17a2b8;
+}
+
+.card-2 .dot {
+  background: #17a2b8;
+}
+
+
+/* RED */
+.card-3 { border-bottom-color: #e3342f; }
+
+.card-3 .accepted-by {
+  color: #e3342f;
+}
+
+.card-3 .dot {
+  background: #e3342f;
+}
+
+
+/* YELLOW */
+.card-4 { border-bottom-color: #d69e2e; }
+
+.card-4 .accepted-by {
+  color: #d69e2e;
+}
+
+.card-4 .dot {
+  background: #d69e2e;
+}
+
+
+
+/* content cut under header */
 ion-content::part(scroll) {
   margin-top: -18px;
 }

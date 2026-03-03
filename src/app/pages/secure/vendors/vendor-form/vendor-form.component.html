@@ -1,44 +1,50 @@
-<ion-header>
+<ion-header class="vendor-header">
   <ion-toolbar>
+    <ion-buttons slot="start">
+  <ion-button fill="clear" (click)="close()">
+    <ion-icon name="arrow-back"></ion-icon>
+  </ion-button>
+</ion-buttons>
+
     <ion-title>
       {{ mode === 'add' ? 'Add Vendor' : 'Edit Vendor' }}
     </ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="close()">Close</ion-button>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="vendor-content">
 
-  <ion-list lines="full">
+  <div class="form-wrapper">
 
-    <ion-item>
-      <ion-label position="stacked">Vendor Name</ion-label>
-      <ion-input name="title" [(ngModel)]="form.title"></ion-input>
-    </ion-item>
+    <div class="form-group">
+      <label>Vendor Name</label>
+      <ion-input [(ngModel)]="form.title"></ion-input>
+    </div>
 
-    <ion-item>
-      <ion-label position="stacked">Phone</ion-label>
-      <ion-input name="phone" [(ngModel)]="form.phone"></ion-input>
-    </ion-item>
+    <div class="form-group">
+      <label>Phone</label>
+      <ion-input [(ngModel)]="form.phone"></ion-input>
+    </div>
 
-    <ion-item>
-      <ion-label position="stacked">Email</ion-label>
-      <ion-input name="email" [(ngModel)]="form.email"></ion-input>
-    </ion-item>
+    <div class="form-group">
+      <label>Email</label>
+      <ion-input [(ngModel)]="form.email"></ion-input>
+    </div>
 
-    <ion-item>
-      <ion-label position="stacked">Address</ion-label>
-      <ion-textarea name="address" [(ngModel)]="form.address"></ion-textarea>
-    </ion-item>
+    <div class="form-group">
+      <label>Address</label>
+      <ion-textarea rows="3" [(ngModel)]="form.address"></ion-textarea>
+    </div>
 
-  </ion-list>
+  </div>
 
 </ion-content>
 
-<ion-footer>
+<ion-footer class="vendor-footer"
+  *ngIf="mode === 'add' ? hasValue() : hasChanges()">
+
   <ion-button expand="block" (click)="save()">
     {{ mode === 'add' ? 'Create Vendor' : 'Update Vendor' }}
   </ion-button>
+
 </ion-footer>

@@ -54,7 +54,8 @@ export class OrderListPage implements OnInit {
     try {
       const data = await this.authService.getOrders(
         this.page,
-        this.searchTerm
+        this.searchTerm,
+         this.selectedStatus === 'all' ? '' : this.selectedStatus
       );
 
       if (Array.isArray(data) && data.length > 0) {

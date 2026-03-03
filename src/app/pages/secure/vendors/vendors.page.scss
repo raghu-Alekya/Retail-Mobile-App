@@ -1,47 +1,80 @@
 /* HEADER */
-.header-toolbar {
-  --background: #2f4157;
-  --color: white;
-}
-
-/* Wrapper (blue background area) */
-.search-wrapper {
-  padding: 12px;
-  background: #2f4157;
-}
-
-/* 🔥 STYLE ION-SEARCHBAR CORRECTLY */
-.search-wrapper ion-searchbar {
-  --background: #ffffff;
-  --border-radius: 8px;      /* 👈 soft rectangle */
-  --box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
-  --color: #333;
-  --placeholder-color: #9aa7b8;
-
-  padding: 0;
-}
-/* HEADER / BLUE AREA */
-ion-header {
-  background: #2f4157;
-  padding-bottom: 20px;   /* 👈 increase this */
+/* HEADER BACKGROUND */
+.vendor-header {
+  background: #3f5065;
+  border-bottom-left-radius: 22px;
+  border-bottom-right-radius: 22px;
+  overflow: hidden;
 }
 
 /* TOOLBAR */
-ion-toolbar {
-  --background: #264f7a;
+.vendor-header ion-toolbar {
+  --background: transparent;
   --color: #ffffff;
-  --border-width: 0;
+  box-shadow: none;
+  border: none;
 }
 
+/* REMOVE DEFAULT HEADER LINE */
+.header-md::after,
+.header-ios::after {
+  display: none;
+}
+
+/* SEARCH AREA */
+.header-search {
+  padding: 12px 16px 18px;
+  background: transparent;
+}
+
+/* SEARCHBAR */
+ion-searchbar {
+  --background: #f1f1f1;
+  --border-radius: 14px;
+  --box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+  --placeholder-color: #666;
+}
+
+.header-plus {
+  font-size: 28px;
+  color: #ffffff;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.search-wrapper {
+  background: #2f4e6f;
+  padding: 12px;
+}
+
+.search-wrapper ion-searchbar {
+  --background: #fff;
+  --border-radius: 10px;
+  --box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+/* CARD CONTAINER */
+.card-container {
+  padding: 14px;
+}
 
 /* CARD */
 .vendor-card {
-  background: #fff;
-  margin: 12px;
-  padding: 14px;
+  border-bottom: 4px solid var(--accent-color);
   border-radius: 14px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-  border-bottom: 3px solid var(--accent);
+  padding: 14px;
+  margin-bottom: 14px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* bottom accent */
+.vendor-card.purchase {
+  border-bottom-color: #2bb3a3;
+}
+
+.vendor-card.expense {
+  border-bottom-color: #6c79c8;
 }
 
 /* TOP ROW */
@@ -51,7 +84,7 @@ ion-toolbar {
   align-items: center;
 }
 
-/* LEFT SIDE */
+/* LEFT */
 .left {
   display: flex;
   align-items: center;
@@ -63,56 +96,157 @@ ion-toolbar {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-size:20px;
 }
 
 .avatar ion-icon {
   color: #fff;
-  font-size: 18px;
+  font-size: 20px;
 }
 
 /* NAME */
 .name {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   color: #222;
 }
 
-/* TYPE */
+/* TYPE BADGE */
 .type {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.purchase {
-  color: #5a6485;
+.type.purchase {
+  color: #2f4e6f;
 }
 
-.expense {
-  color: #ff3b30;
+.type.expense {
+  color: #e05252;
 }
 
 /* MIDDLE ROW */
 .middle-row {
   display: flex;
   justify-content: space-between;
-  margin-top: 6px;
-  font-size: 13px;
-  color: #666;
+  margin-top: 10px;
+  color: #555;
+  font-size: 14px;
 }
 
 /* DIVIDER */
 .divider {
   height: 1px;
   background: #eee;
-  margin: 8px 0;
+  margin: 12px 0;
 }
 
 /* NOTE */
 .note {
-  font-size: 12px;
+  font-size: 13px;
   color: #777;
 }
+
+/* RIGHT SIDE WRAPPER */
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ACTION ICONS */
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-icon {
+  font-size: 18px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* edit icon */
+.action-icon.edit {
+  color: #2f4e6f;
+}
+
+/* delete icon */
+.action-icon.delete {
+  color: #e05252;
+}
+
+/* tap feedback */
+.action-icon:active {
+  transform: scale(0.9);
+}
+
+.bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.note {
+  font-size: 13px;
+  color: #777;
+}
+
+/* bottom right icons */
+.bottom-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.action-icon {
+  font-size: 18px;
+  cursor: pointer;
+}
+
+
+/* BOTTOM ROW */
+.bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* NOTE TEXT */
+.note {
+  font-size: 13px;
+  color: #777;
+}
+
+/* ACTION ICON AREA */
+.bottom-actions {
+  display: flex;
+  gap: 14px;
+}
+
+/* ICON STYLE */
+.action-icon {
+  font-size: 18px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+/* edit icon */
+.action-icon.edit {
+  color: #2f4e6f;
+}
+
+/* delete icon */
+.action-icon.delete {
+  color: #e05252;
+}
+
+/* tap feedback */
+.action-icon:active {
+  transform: scale(0.9);
+}
+

@@ -18,79 +18,243 @@
 
   <!-- Last Modified -->
   <div class="last-modified">
-    Last modified: {{coupon?.modifiedDate}}
-    <span class="coupon-id">#{{coupon?.code}}</span>
+    Last modified:
+    {{ coupon?.date_modified | date:'dd MMM yyyy' }}
+    <span class="coupon-id">#{{ coupon?.code }}</span>
   </div>
 
-  <!-- Code & Description -->
+  <!-- CODE & DESCRIPTION -->
   <div class="card">
-    <div class="row">
-      <div>
-        <div class="label">Code:</div>
-        <div class="value">{{coupon?.code}}</div>
+
+    <!-- Code -->
+    <div class="field-block">
+      <div class="label">Code</div>
+
+      <div *ngIf="!editField.code" class="value">
+        {{ coupon?.code }}
       </div>
-      <ion-icon name="pencil-outline" (click)="enableEdit('code')"></ion-icon>
+
+      <ion-input *ngIf="editField.code"
+                 [(ngModel)]="coupon.code">
+      </ion-input>
+
+      <ion-icon name="pencil-outline"
+                class="edit-icon"
+                (click)="toggleEdit('code')">
+      </ion-icon>
     </div>
 
     <div class="divider"></div>
 
-    <div class="row">
-      <div>
-        <div class="label">Description:</div>
-        <div class="value">{{coupon?.description}}</div>
+    <!-- Description -->
+    <div class="field-block">
+      <div class="label">Description</div>
+
+      <div *ngIf="!editField.description" class="value">
+        {{ coupon?.description }}
       </div>
-      <ion-icon name="pencil-outline" (click)="enableEdit('description')"></ion-icon>
+
+      <ion-input *ngIf="editField.description"
+                 [(ngModel)]="coupon.description">
+      </ion-input>
+
+      <ion-icon name="pencil-outline"
+                class="edit-icon"
+                (click)="toggleEdit('description')">
+      </ion-icon>
     </div>
+
   </div>
 
-  <!-- Status & Amount -->
+
+  <!-- STATUS & AMOUNT -->
   <div class="card">
-    <div class="row space-between">
-      <div class="label">Status</div>
-      <div class="publish-badge">{{coupon?.status}}</div>
-    </div>
+
+    <!-- Status -->
+    <ion-item lines="none" class="item-row">
+  <ion-label>Status</ion-label>
+
+  <div class="status-badge publish">
+    Publish
+  </div>
+</ion-item>
 
     <div class="divider"></div>
 
-    <div class="row">
-      <div>
-        <div class="label">Amount:</div>
-        <div class="value">{{coupon?.amount}}</div>
+    <!-- Amount -->
+    <div class="field-block">
+      <div class="label">Amount</div>
+
+      <div *ngIf="!editField.amount" class="value">
+        {{ coupon?.amount }}
       </div>
-      <ion-icon name="pencil-outline" (click)="enableEdit('amount')"></ion-icon>
+
+      <ion-input type="number"
+                 *ngIf="editField.amount"
+                 [(ngModel)]="coupon.amount">
+      </ion-input>
+
+      <ion-icon name="pencil-outline"
+                class="edit-icon"
+                (click)="toggleEdit('amount')">
+      </ion-icon>
     </div>
 
     <div class="divider"></div>
 
+    <!-- Type -->
     <div class="row space-between">
       <div class="label">Type</div>
-      <div class="value">{{coupon?.type}}</div>
+      <div class="value">
+        {{ coupon?.discount_type }}
+      </div>
     </div>
+
   </div>
 
-  <!-- Usage -->
+
+  <!-- USAGE -->
   <div class="card">
-    <div class="row space-between">
-      <div class="label">Individual use</div>
-      <ion-toggle [(ngModel)]="coupon.individualUse"></ion-toggle>
+
+    <!-- Individual use -->
+    <ion-item lines="none" class="item-row">
+      <ion-label>Individual use</ion-label>
+      <ion-toggle slot="end"
+                  [(ngModel)]="coupon.individual_use">
+      </ion-toggle>
+    </ion-item>
+
+    <div class="divider"></div>
+
+    <!-- Usage limit -->
+    <div class="field-block">
+      <div class="label">Usage limit</div>
+
+      <div *ngIf="!editField.usage_limit" class="value">
+        {{ coupon?.usage_limit }}
+      </div>
+
+      <ion-input type="number"
+                 *ngIf="editField.usage_limit"
+                 [(ngModel)]="coupon.usage_limit">
+      </ion-input>
+
+      <ion-icon name="pencil-outline"
+                class="edit-icon"
+                (click)="toggleEdit('usage_limit')">
+      </ion-icon>
     </div>
 
     <div class="divider"></div>
 
-    <div class="row">
-      <div>
-        <div class="label">Usage limit:</div>
-        <div class="value">{{coupon?.usageLimit}}</div>
+    <!-- Usage limit per user -->
+    <div class="field-block">
+      <div class="label">Usage limit per user</div>
+
+      <div *ngIf="!editField.usage_limit_per_user" class="value">
+        {{ coupon?.usage_limit_per_user }}
       </div>
-      <ion-icon name="pencil-outline"></ion-icon>
+
+      <ion-input type="number"
+                 *ngIf="editField.usage_limit_per_user"
+                 [(ngModel)]="coupon.usage_limit_per_user">
+      </ion-input>
+
+      <ion-icon name="pencil-outline"
+                class="edit-icon"
+                (click)="toggleEdit('usage_limit_per_user')">
+      </ion-icon>
     </div>
+
+    <div class="divider"></div>
+
+    <!-- Exclude sale items -->
+    <ion-item lines="none" class="item-row">
+      <ion-label>Exclude sale items</ion-label>
+      <ion-toggle slot="end"
+                  [(ngModel)]="coupon.exclude_sale_items">
+      </ion-toggle>
+    </ion-item>
+
   </div>
 
-  <!-- Delete Button -->
+
+  <!-- MINIMUM & MAXIMUM -->
+  <div class="card">
+
+    <div class="field-block">
+      <div class="label">Minimum amount</div>
+
+      <div *ngIf="!editField.minimum_amount" class="value">
+        {{ coupon?.minimum_amount || '0.00' }} USD
+      </div>
+
+      <ion-input type="number"
+                 *ngIf="editField.minimum_amount"
+                 [(ngModel)]="coupon.minimum_amount">
+      </ion-input>
+
+      <ion-icon name="pencil-outline"
+                class="edit-icon"
+                (click)="toggleEdit('minimum_amount')">
+      </ion-icon>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field-block">
+      <div class="label">Maximum amount</div>
+
+      <div *ngIf="!editField.maximum_amount" class="value">
+        {{ coupon?.maximum_amount || '0.00' }} USD
+      </div>
+
+      <ion-input type="number"
+                 *ngIf="editField.maximum_amount"
+                 [(ngModel)]="coupon.maximum_amount">
+      </ion-input>
+
+      <ion-icon name="pencil-outline"
+                class="edit-icon"
+                (click)="toggleEdit('maximum_amount')">
+      </ion-icon>
+    </div>
+
+  </div>
+
+
+  <!-- EXPIRE DATE -->
+  <div class="card">
+
+    <div class="field-block">
+      <div class="label">Expire date</div>
+
+      <div *ngIf="!editField.date_expires" class="value">
+        {{ coupon?.date_expires | date:'dd MMM yyyy' }}
+      </div>
+
+      <ion-datetime *ngIf="editField.date_expires"
+                    presentation="date"
+                    [(ngModel)]="coupon.date_expires">
+      </ion-datetime>
+
+      <ion-icon name="pencil-outline"
+                class="edit-icon"
+                (click)="toggleEdit('date_expires')">
+      </ion-icon>
+    </div>
+
+  </div>
+
+
+  <!-- DELETE BUTTON -->
   <div class="delete-wrapper">
-    <ion-button expand="block" fill="outline" class="delete-btn">
-      Delete coupon
-    </ion-button>
+    <ion-button expand="block"
+            fill="outline"
+            class="delete-btn"
+            (click)="deleteCoupon()">
+  Delete coupon
+</ion-button>
   </div>
 
 </ion-content>

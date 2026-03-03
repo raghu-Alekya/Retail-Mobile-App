@@ -22,20 +22,20 @@ export class AddCouponPage {
   editing: string | null = null;
 
   isDateModalOpen = false;
-
+  isDirty = false;
   coupon: any = {
-    code: '',
-    description: '',
-    amount: null,
-    type: 'cart',
-    individualUse: false,
-    usageLimit: null,
-    usageLimitPerUser: null,
-    excludeSale: false,
-    minAmount: null,
-    maxAmount: null,
-    expireDate: ''
-  };
+  code: '',
+  description: '',
+  amount: null,
+  type: 'fixed_cart',
+  individualUse: false,
+  usageLimit: null,
+  usageLimitPerUser: null,
+  excludeSale: false,
+  minAmount: null,
+  maxAmount: null,
+  expireDate: ''
+};
 
   constructor(
     private auth: AuthService,
@@ -58,15 +58,48 @@ export class AddCouponPage {
     this.coupon.expireDate = event.detail.value;
     this.isDateModalOpen = false;
   }
-
+  markDirty() {
+  this.isDirty = true;
+  }
+  
   async saveCoupon() {
 
-    if (!this.coupon.code || !this.coupon.amount) {
-      return;
+  if (!this.coupon.code || !this.coupon.amount) {
+    alert('Code and Amount required');
+    return;
+  }
+
+  const payload = {
+    code: this.coupon.code,
+    description: this.coupon.description,
+    amount: this.coupon.amount,
+    type: 'fixed_cart',
+
+    individual_use: this.coupon.individualUse,
+    usage_limit: this.coupon.usageLimit,
+    usage_limit_per_user: this.coupon.usageLimitPerUser,
+    exclude_sale_items: this.coupon.excludeSale,
+
+    minimum_amount: this.coupon.minAmount,
+    maximum_amount: this.coupon.maxAmount,
+
+    expiry_date: this.coupon.expireDate
+  };
+
+  console.log("SENDING TO API:", payload);
+
+  try {
+    const response = await this.auth.createCoupon(payload);
+    console.log("API RESPONSE:", response);
+
+    if (response.success) {
+      alert('Coupon Created Successfully');
+      this.router.navigateByUrl('/secure/coupons');
     }
 
-    await this.auth.createCoupon(this.coupon);
-    this.router.navigateByUrl('/secure/coupons');
+  } catch (error) {
+    console.error("API ERROR:", error);
   }
+}
 
 }
