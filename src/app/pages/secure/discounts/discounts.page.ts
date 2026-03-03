@@ -133,26 +133,18 @@ export class DiscountsPage implements OnInit {
   }
   async onDiscountSearch(event: any) {
     clearTimeout(this.searchTimeout);
-
     const term =
-      event?.detail?.value ??
-      event?.target?.value ??
-      '';
-
+    event?.detail?.value ??
+    event?.target?.value ??
+    '';
     this.searchTimeout = setTimeout(async () => {
       if (!term || term.length < 2) {
         this.discountSuggestions = [];
         return;
       }
-
       try {
         const res: any = await this.auth.searchProducts(term);
-
-        console.log('SEARCH RESPONSE:', res);
-
-        // Since service already returns res.data
-        this.discountSuggestions = Array.isArray(res) ? res : [];
-
+        this.discountSuggestions = res?.data || [];
       } catch (e) {
         console.error('Discount product search failed', e);
         this.discountSuggestions = [];
@@ -253,8 +245,7 @@ export class DiscountsPage implements OnInit {
           const res: any = await this.auth.getProductsByIds(
             coupon.discount_product_ids
           );
-          this.selectedDiscountProducts = res?.data || [];
-          // console.log(this.selectedDiscountProducts);
+          this.selectedDiscountProducts = res?.data?.data || [];
         } catch (e) {
           console.error('Failed to load discounted products', e);
         }
@@ -271,7 +262,6 @@ export class DiscountsPage implements OnInit {
       );
         if (res.data && res.data.length) {
           const p = res.data[0];
-          console.log(p);
           this.selectedProductName = p.name;
           this.productSearch = p.name;
         }
