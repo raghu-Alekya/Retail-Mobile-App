@@ -1,78 +1,95 @@
-<ion-header>
-  <ion-toolbar class="header-toolbar">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
-    </ion-buttons>
+<ion-header class="vendor-header">
+  <ion-toolbar>
 
-    <ion-title>Vendor Payouts</ion-title>
+  <ion-buttons slot="start">
+  <ion-button fill="clear" (click)="goBack()">
+    <ion-icon name="arrow-back-outline"></ion-icon>
+  </ion-button>
+</ion-buttons>
 
-    <ion-buttons slot="end">
-      <ion-button fill="clear">
-        
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
+  <ion-title>Vendor Payouts</ion-title>
 
-  <div class="search-wrapper">
-    <ion-searchbar
-      placeholder="Search..."
-      (ionInput)="search($event)">
-    </ion-searchbar>
+  <ion-buttons slot="end">
+    <ion-icon
+      name="add"
+      class="header-plus"
+      (click)="addVendor()">
+    </ion-icon>
+  </ion-buttons>
+
+</ion-toolbar>
+
+  <div class="header-search">
+    <ion-searchbar placeholder="Search..."></ion-searchbar>
   </div>
 </ion-header>
 
 <ion-content>
 
-  <div
-  class="vendor-card"
-  *ngFor="let v of filteredVendors; let i = index"
-  [style.--accent]="getAccentColor(i)">
+  <div class="card-container">
 
+    <div
+      class="vendor-card"
+      *ngFor="let vendor of filteredVendors; let i = index"
+      [style.border-bottom]="'4px solid ' + getAccentColor(i)"
+    >
 
-    <!-- TOP ROW -->
-    <div class="top-row">
+      <!-- TOP ROW -->
+      <div class="top-row">
 
-      <div class="left">
-        <!-- Avatar -->
-        <div class="avatar">
-          <ion-icon name="bag-handle-outline"></ion-icon>
+        <div class="left">
+          <div class="avatar" [style.background]="getAccentColor(i)">
+            <ion-icon name="bag-handle-outline"></ion-icon>
+          </div>
+
+          <div class="vendor-info">
+            <div class="name">
+              {{ vendor.vendor_name }}
+            </div>
+          </div>
         </div>
 
-        <!-- Name -->
-        <div class="name">
-          {{ v.vendor_name }}
+        <div class="type"
+             [class.purchase]="vendor.type === 'purchase'"
+             [class.expense]="vendor.type === 'expense'">
+          ● {{ vendor.type | titlecase }}
         </div>
+
       </div>
 
-      <!-- Type -->
-      <div
-        class="type"
-        [ngClass]="v.type === 'Purchase' ? 'purchase' : 'expense'">
-        • {{ v.type }}
+      <!-- MIDDLE ROW -->
+      <div class="middle-row">
+        <div>Amount: <strong>${{ vendor.amount }}</strong></div>
+        <div>Payment Method: <strong>{{ vendor.payment_method }}</strong></div>
       </div>
 
-    </div>
+      <div class="divider"></div>
 
-    <!-- AMOUNT + PAYMENT (SIDE BY SIDE) -->
-    <div class="middle-row">
-      <div class="amount">
-        Amount: ${{ v.amount }}
+      <!-- BOTTOM ROW -->
+      <div class="bottom-row">
+
+        <div class="note">
+          Note: {{ vendor.note || 'Paid in full purchase' }}
+        </div>
+
+        <div class="bottom-actions">
+          <ion-icon
+            name="create-outline"
+            class="action-icon edit"
+            (click)="editVendor(vendor)">
+          </ion-icon>
+
+          <ion-icon
+            name="trash-outline"
+            class="action-icon delete"
+            (click)="deleteVendor(vendor)">
+          </ion-icon>
+        </div>
+
       </div>
 
-      <div class="method">
-        Payment Method: {{ v.payment_method }}
-      </div>
-    </div>
-
-    <!-- DIVIDER -->
-    <div class="divider"></div>
-
-    <!-- NOTE -->
-    <div class="note">
-      Note: {{ v.note }}
     </div>
 
   </div>
 
 </ion-content>
-

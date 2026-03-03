@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ModalController, AlertController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { VendorFormComponent } from './vendor-form/vendor-form.component';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-vendors',
@@ -29,9 +30,13 @@ accentColors: string[] = [
   constructor(
     private modalCtrl: ModalController,
     private alertCtrl: AlertController,
-    private authService: AuthService
+    private authService: AuthService,
+    private navCtrl: NavController 
   ) {}
-
+goBack() {
+  this.navCtrl.navigateBack('/tabs/home');
+}
+  
   ngOnInit() {
     this.resetAndLoad();
   }
@@ -49,10 +54,12 @@ accentColors: string[] = [
       // 🔥 NORMALIZE DATA FOR UI (CRITICAL FIX)
       const mapped = res.data.map((v: any) => ({
         id: v.id,
-        vendor_name: v.vendor_name || v.vendorName || v.title || '',
+        title: v.title,
+        meta: v.meta,
+        vendor_name: v.title,
         amount: v.amount || v.total_amount || v.totalAmount || 0,
         payment_method: v.payment_method || v.paymentMethod || '',
-        type: v.type || v.payoutType || 'Purchase',
+        type: (v.type || v.payoutType || 'purchase').toLowerCase(),
         note: v.note || v.remarks || 'Paid in full purchase'
       }));
 
@@ -140,11 +147,17 @@ accentColors: string[] = [
         {
           text: 'Delete',
           role: 'destructive',
-          handler: () => {
-            // 🔥 ideally call delete API here
-            this.vendors = this.vendors.filter(v => v.id !== vendor.id);
-            this.filteredVendors = [...this.vendors];
-          }
+          handler: async () => {
+  try {
+    await this.authService.deleteVendor(vendor.id);
+
+    this.vendors = this.vendors.filter(v => v.id !== vendor.id);
+    this.filteredVendors = [...this.vendors];
+
+  } catch (error) {
+    console.error('Delete failed', error);
+  }
+}
         }
       ]
     });

@@ -39,8 +39,6 @@ async login(email: string, password: string, siteUrl: string) {
     const baseUrl = this.apiConfig.getBaseUrl();
     const loginUrl = `${baseUrl}/wp-json/pinaka-pos/v1/token/email`;
 
-    console.log("🔥 USING NATIVE HTTP");
-
     const res = await Http.request({
       method: 'POST',
       url: loginUrl,
@@ -51,7 +49,7 @@ async login(email: string, password: string, siteUrl: string) {
       data: { email, password }
     });
 
-    console.log("LOGIN RESPONSE:", res.data);
+    // console.log("LOGIN RESPONSE:", res.data);
 
     const data = typeof res.data === 'string'
       ? JSON.parse(res.data)
@@ -135,7 +133,7 @@ async getDashboardStats(status: string): Promise<number> {
 
 
 
-async getOrders(page: number, search: string = '') {
+async getOrders(page: number, search: string = '', status: string = '') {
 
   const token = localStorage.getItem('wc_token');
   this.wpBase = this.apiConfig.getBaseUrl();
@@ -146,6 +144,11 @@ async getOrders(page: number, search: string = '') {
     orderby: 'date',
     order: 'desc',
   };
+
+  // ✅ apply status filter
+  if (status) {
+    params.status = status;
+  }
 
   // ⭐ detect order ID search
   if (search) {
@@ -210,7 +213,13 @@ async getOrders(page: number, search: string = '') {
 async createProduct(product: any) {
 
   const token = localStorage.getItem('wc_token');
+  if (product.regular_price !== undefined) {
+    product.regular_price = String(product.regular_price);
+  }
 
+  if (product.sale_price !== undefined) {
+    product.sale_price = String(product.sale_price);
+  }
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/wc/v3/products`,
@@ -231,9 +240,16 @@ async createProduct(product: any) {
 }
 
 async updateProduct(id: number, product: any) {
-
+  // console.log('in api service');
+  // console.log(product);
   const token = localStorage.getItem('wc_token');
+  product.sale_price = product.sale_price
+    ? product.sale_price.toString()
+    : '';
 
+  product.regular_price = product.regular_price
+    ? product.regular_price.toString()
+    : '';
   const res = await Http.request({
     method: 'PUT',
     url: `${this.wpBase}/wp-json/wc/v3/products/${id}`,
@@ -334,9 +350,23 @@ async uploadMedia(file: File) {
 
   return await res.json();
 }
+async updateStoreCurrency(currency: string) {
+  const res = await Http.request({
+    method: 'PUT',
+    url: `${this.wpBase}/wp-json/wc/v3/settings/general/woocommerce_currency`,
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
+    data: {
+      value: currency
+    }
+  });
+
+  return res.data;
+}
 
 async getCategories(page = 1, perPage = 100) {
-
   const res = await Http.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/wc/v3/products/categories`,
@@ -583,6 +613,21 @@ async getAttributes() {
   return res.data;
 }
 
+async getTaxClasses() {
+  return await Http.request({
+    method: 'GET',
+    url: `${this.wpBase}/wp-json/wc/v3/taxes/classes`,
+    headers: this.getAuthHeaders()
+  });
+}
+
+async getTaxRates() {
+  return await Http.request({
+    method: 'GET',
+    url: `${this.wpBase}/wp-json/wc/v3/taxes`,
+    headers: this.getAuthHeaders()
+  });
+}
 
 async getAttributeTerms(attributeId: number) {
   const res = await Http.request({
@@ -595,18 +640,56 @@ async getAttributeTerms(attributeId: number) {
 }
 
 
+// async createVariation(productId: number, data: any) {
+//   console.log()
+//   const res = await Http.request({
+//     method: 'POST',
+//     url: `${this.wpBase}/wp-json/wc/v3/products/${productId}/variations`,
+//     headers: this.getAuthHeaders(),
+//     data,
+//   });
+
+//   return res.data;
+// }
 async createVariation(productId: number, data: any) {
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/wc/v3/products/${productId}/variations`,
-    headers: this.getAuthHeaders(),
-    data,
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
+    data: JSON.stringify(data), // IMPORTANT for Capacitor
   });
 
   return res.data;
 }
+async updateVariation(
+  productId: number,
+  variationId: number,
+  data: any
+) {
+  const res = await Http.request({
+    method: 'PUT',
+    url: `${this.wpBase}/wp-json/wc/v3/products/${productId}/variations/${variationId}`,
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
+    data: JSON.stringify(data),
+  });
 
+  return res.data;
+}
+async getProductVariations(productId: number) {
+  const res = await Http.request({
+    method: 'GET',
+    url: `${this.wpBase}/wp-json/wc/v3/products/${productId}/variations`,
+    headers: this.getAuthHeaders(),
+  });
 
+  return res.data;
+}
 // WooCommerce Customer Creation
 async createWooCommerceCustomer(customerData: any) {
 
@@ -966,7 +1049,10 @@ async createDiscount(data: any) {
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/create-discount`,
-    headers: this.getAuthHeaders(),
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
     data
   });
 
@@ -979,7 +1065,10 @@ async updateDiscount(id: number, data: any) {
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/update-discount/`,
-    headers: this.getAuthHeaders(),
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
     data
   });
 
@@ -990,7 +1079,10 @@ async getProductsByIds(ids: number[], data: any = {}) {
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/by-ids`,
-    headers: this.getAuthHeaders(),
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
     data: { ...data, ids }
   });
 
@@ -1016,7 +1108,10 @@ async deleteDiscount(id: number, type: string, data: any = {}) {
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/delete-discount`,
-    headers: this.getAuthHeaders(),
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
     data: { ...data, id, type }
   });
 
@@ -1094,63 +1189,90 @@ async deleteCategory(id: number) {
 }
 
 
+// async updateEnableSafes(payload: any) {
+//   const res = await Http.request({
+//     method: 'POST',
+//     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-safes`,
+//     headers: this.getAuthHeaders(),
+//     data: payload
+//   });
+
+//   return res.data;
+// }
 async updateEnableSafes(payload: any) {
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-safes`,
-    headers: this.getAuthHeaders(),
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
     data: payload
   });
 
   return res.data;
 }
 
+// async updateEnableSafesDrop(payload: any) {
+//   const res = await Http.request({
+//     method: 'POST',
+//     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-safes-drop`,
+//     headers: this.getAuthHeaders(),
+//     data: payload
+//   });
 
+//   return res.data;
+// }
 async updateEnableSafesDrop(payload: any) {
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-safes-drop`,
-    headers: this.getAuthHeaders(),
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
     data: payload
   });
 
   return res.data;
 }
 
-
 async updateCashback(payload: any) {
-  const res = await Http.request({
+  return Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-cashback`,
-    headers: this.getAuthHeaders(),
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
     data: payload
   });
-
-  return res.data;
 }
 
 
 async updateServiceCharge(payload: any) {
-  const res = await Http.request({
+  return Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-service-charge`,
-    headers: this.getAuthHeaders(),
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
     data: payload
   });
-
-  return res.data;
 }
 
 
 async updateLoyaltyPoints(payload: any) {
-  const res = await Http.request({
+  return Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-loyalty-points`,
-    headers: this.getAuthHeaders(),
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
     data: payload
   });
-
-  return res.data;
 }
 
 
@@ -1159,21 +1281,30 @@ async createVendor(data: any) {
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/vendor_payments/create-vendor`,
-    headers: this.getAuthHeaders(),
-    data
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
+    data: JSON.stringify(data)   // ✅ IMPORTANT for Capacitor HTTP
   });
+
+  console.log('Create Vendor Response:', res.data);
 
   return res.data;
 }
-
 
 async updateVendor(id: number, data: any) {
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/vendor_payments/update-vendor/${id}`,
-    headers: this.getAuthHeaders(),
-    data
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'   // ✅ important
+    },
+    data: JSON.stringify(data)             // ✅ important for Capacitor
   });
+
+  console.log('Update Vendor Response:', res.data);
 
   return res.data;
 }

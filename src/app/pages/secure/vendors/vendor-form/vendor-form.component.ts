@@ -23,6 +23,8 @@ export class VendorFormComponent implements OnInit {
     address: ''
   };
 
+  originalForm = {};
+
   constructor(private modalCtrl: ModalController, 
     private authService: AuthService, private toastController: ToastController) {}
 
@@ -32,6 +34,8 @@ export class VendorFormComponent implements OnInit {
       this.form.phone = this.vendor.meta?._vendor_phone;
       this.form.email = this.vendor.meta?._vendor_email;
       this.form.address = this.vendor.meta?._vendor_address;
+
+      this.originalForm = { ...this.form };
     }
   }
 
@@ -97,4 +101,17 @@ export class VendorFormComponent implements OnInit {
   close() {
     this.modalCtrl.dismiss(null);
   }
+
+  hasValue(): boolean {
+  return !!(
+    this.form.title ||
+    this.form.phone ||
+    this.form.email ||
+    this.form.address
+  );
+}
+
+hasChanges(): boolean {
+  return JSON.stringify(this.form) !== JSON.stringify(this.originalForm);
+}
 }

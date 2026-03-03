@@ -1,16 +1,11 @@
-<ion-header class="shift-header">
+<ion-header class="vendor-header">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home"></ion-back-button>
     </ion-buttons>
 
     <ion-title>Order Payments</ion-title>
- 
-    <ion-buttons slot="end">
-      <ion-button>
-        <ion-icon name="funnel-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
+
   </ion-toolbar>
 
   <!-- Search -->
@@ -25,59 +20,55 @@
 
 <ion-content class="ion-padding">
 
+  <!-- EMPTY STATE -->
+  <div *ngIf="payments?.length === 0" class="empty">
+    No payments found
+  </div>
+
+  <!-- PAYMENT CARDS -->
   <ion-card
-  *ngFor="let p of payments; let i = index; trackBy: trackByPaymentId"
-  class="payment-card"
-  [ngClass]="[
-    i % 5 === 0 ? 'border-yellow' :
-    i % 5 === 1 ? 'border-red' :
-    i % 5 === 2 ? 'border-teal' :
-    i % 5 === 3 ? 'border-orange' :
-                  'border-purple'
-  ]">
-    <!-- Header -->
-    <ion-item lines="none">
-      <ion-label>
-        <h2>Order #{{ p.meta.order_id }}</h2>
-        <p>{{ p.created_at || p.time }}</p>
-      </ion-label>
+    *ngFor="let p of payments; let i = index"
+    class="payment-card"
+    [ngClass]="'card-' + (i % 5)">
 
-      <ion-badge [color]="getStatusColor(p.payment_status)">
-        {{ p.payment_status | uppercase }}
-      </ion-badge>
-    </ion-item>
+    <!-- TOP COLOR STRIP -->
+    <div class="card-accent"></div>
 
-    <!-- Summary -->
-    <ion-grid>
-      <ion-row>
-        <ion-col size="6">
-          <div class="label">Amount</div>
-          <div class="value"> {{ p.meta.amount | currency}}</div>
-        </ion-col>
+    <!-- Top Row -->
+    <div class="top-row">
+      <div class="date">
+        {{ p?.created_at ? (p.created_at | date:'dd/MM/yyyy | hh:mm a') : '-' }}
+      </div>
 
-        <ion-col size="6">
-          <div class="label">Method</div>
-          <div class="value">{{ p.title }}</div>
-        </ion-col>
+      <div class="accepted-by" *ngIf="p?.accepted_by">
+        <span class="dot"></span>
+        {{ p.accepted_by }}
+      </div>
+    </div>
 
-        <ion-col size="6" *ngIf="p.transaction_id">
-          <div class="label">Transaction ID</div>
-          <div class="value small">{{ p.transaction_id }}</div>
-        </ion-col>
+    <!-- Order + Transaction -->
+    <div class="info-row">
+      <div>Order ID: <b>{{ p?.meta?.order_id || '-' }}</b></div>
+      <div>Transaction ID: <b>{{ p?.transaction_id || '-' }}</b></div>
+    </div>
 
-        <ion-col size="6" *ngIf="p.vendor_name">
-          <div class="label">Vendor</div>
-          <div class="value">{{ p.vendor_name }}</div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+    <div class="info-row">
+      <div>
+        Order Total:
+        <b>{{ p?.order_total ? (p.order_total | currency:'INR') : '₹0.00' }}</b>
+      </div>
 
-    <!-- Notes -->
-    <ion-item lines="none" *ngIf="p.note">
-      <ion-label>
-        <p class="note">{{ p.note }}</p>
-      </ion-label>
-    </ion-item>
+      <div>
+        Tender Amount:
+        <b>{{ p?.tender_amount ? (p.tender_amount | currency:'INR') : '₹0.00' }}</b>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="payment-mode">
+      Payment Mode: {{ p?.payment_method || '-' }}
+    </div>
 
   </ion-card>
 
