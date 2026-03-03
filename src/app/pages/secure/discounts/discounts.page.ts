@@ -31,6 +31,8 @@ export class DiscountsPage implements OnInit {
     discountSuggestions: any[] = [];
     selectedDiscountProducts: any[] = [];
     validationError: string = '';
+    searchTerm: string = ''; //////////
+    allDiscounts: any[] = []; /////////
   
     form = {
       code: '',
@@ -72,23 +74,19 @@ export class DiscountsPage implements OnInit {
           page: 1,
           per_page: 200
         }
-      });
+      }); 
+      /////////
       this.grouped = res.data?.data || {};
-      this.discounts = this.flattenAll();
+      this.allDiscounts = this.flattenAll();
+      this.applySearchAndFilter();
+      ////////
     } catch (err) {
       this.presentToast('Failed to load discounts');
     } finally {
       this.loading = false;
     }
   }
-  setFilter(type: string) {
-    this.activeFilter = type;
-    if (type === 'all') {
-      this.discounts = this.flattenAll();
-    } else {
-      this.discounts = this.grouped[type] || [];
-    }
-  }
+  
   onDiscountTypeChange(event: any)
   {
     const value = event.target.value?.trim();
@@ -190,24 +188,7 @@ export class DiscountsPage implements OnInit {
     return all;
   }
 
-  applyFilter() {
-    if (this.activeFilter === 'all') {
-      this.filteredDiscounts = [...this.discounts];
-      return;
-    }
-    this.filteredDiscounts = this.discounts.filter(d => {
-      const raw =
-        (d.type || '')
-          .toString()
-          .toLowerCase()
-          .trim();
-      const normalized = raw
-        .replace(/&/g, 'and')
-        .replace(/[^a-z0-9]+/g, '_')
-        .replace(/^_+|_+$/g, '');
-      return normalized === this.activeFilter;
-    });
-  }
+
   
     openCreate() {
       this.resetForm();
@@ -218,10 +199,12 @@ export class DiscountsPage implements OnInit {
       this.discountSuggestions = [];
       this.selectedDiscountProducts = [];
       this.form.discount_product_ids = [];
+      this.activeFilter = '';
     }
   
     async openEdit(coupon: any) {
       // console.log(coupon);
+      this.activeFilter = '';
       this.filter_type = coupon.type;
       this.editingCoupon = coupon;
       this.form = {
@@ -428,4 +411,42 @@ export class DiscountsPage implements OnInit {
     const token = localStorage.getItem('wc_token');
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
+  ///////////////////////
+  setFilter(type: string) {
+    this.activeFilter = type;
+    this.applySearchAndFilter();
+  }
+
+  onSearch(event: any) {
+    this.searchTerm =
+      event?.detail?.value ??
+      event?.target?.value ??
+      '';
+
+    this.applySearchAndFilter();
+  }
+
+  applySearchAndFilter() {
+
+    let filtered = [...this.allDiscounts]; // always start from master list
+
+    // 🔹 Apply Filter
+    if (this.activeFilter !== 'all') {
+      filtered = filtered.filter(d =>
+        d.type?.toLowerCase().includes(this.activeFilter)
+      );
+    }
+
+    // 🔹 Apply Search
+    if (this.searchTerm?.trim()) {
+      const term = this.searchTerm.toLowerCase().trim();
+
+      filtered = filtered.filter(d =>
+        d.code?.toLowerCase().includes(term)
+      );
+    }
+
+    this.discounts = filtered;
+  }
+  ///////////////////////////////
 }

@@ -37,11 +37,27 @@ export class CouponsPage {
   private alertCtrl: AlertController,
   private router: Router
 ) {}
-
-goToAddCoupon() {
+  editCoupon(coupon: any) {
+  this.router.navigate(['/edit-coupon'], {
+    state: { coupon }
+  });
+}
+openAddCoupon() {
   this.router.navigate(['/add-coupon']);
 }
+async loadCoupons() {
+  this.loading = true;
 
+  try {
+    const response = await this.auth.getCoupons();
+    this.coupons = response || [];
+  } catch (error) {
+    console.error('Error loading coupons:', error);
+    this.coupons = [];
+  } finally {
+    this.loading = false;
+  }
+}
   ionViewWillEnter() {
     const state = history.state;
     if (state?.autoOpenCreate) {
@@ -51,19 +67,13 @@ goToAddCoupon() {
     }
     this.loadCoupons();
   }
-  async loadCoupons() {
-    this.loading = true;
-    try {
-      this.coupons = await this.auth.getCoupons();
-    } finally {
-      this.loading = false;
-    }
-  }
+ 
 
   openCreate() {
     this.resetForm();
     this.showForm = true;
   }
+  
 
   openEdit(coupon: any) {
     this.editingCoupon = coupon;

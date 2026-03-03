@@ -1,148 +1,132 @@
-/* ================= HEADER ================= */
 
-.coupons-header {
-  ion-toolbar {
-    --background: #2f4157;
-    --color: #ffffff;
-  }
+/* Header background */
+.custom-header {
+  --background: #1f3b57;   /* navy blue */
+  --color: #ffffff;
+}
 
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
+/* Make entire header navy */
+ion-header {
+  background: #1f3b57;
+}
+
+/* Toolbar text color */
+ion-toolbar {
+  --background: #1f3b57;
+  --color: #ffffff;
+}
+
+/* Search container inside header */
+.search-container {
+  background: #1f3b57;
+  padding: 10px 14px 18px 14px;
+}
+ion-header {
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
   overflow: hidden;
-
-  .search-wrapper {
-    background: #2f4157;
-    padding: 12px 16px 22px;
-    position: relative;
-
-    input {
-      width: 100%;
-      padding: 12px 14px 12px 38px;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      background: #f1f1f1;
-      font-size: 14px;
-    }
-
-    ion-icon {
-      position: absolute;
-      left: 26px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 18px;
-      color: #777;
-    }
-  }
 }
-
-/* ================= PAGE BG ================= */
-
-.coupons-content {
-  --background: #f0f0f0;
-  padding: 16px;
-}
-
-/* ================= CARD ================= */
-
+/* Card */
 .coupon-card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 18px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
-}
-.coupons-content {
-  --background: #f0f0f0;
-  padding: 16px;
+  --background: #f7f8fa;
+  margin: 14px 16px;
+  padding: 18px;
+  border-radius: 18px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
-.coupons-content > .coupon-card:first-child {
-  margin-top: 20px;
-}
-
-/* ================= TOP SECTION ================= */
-
-.coupon-top {
+/* Row */
+.card-row {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   align-items: flex-start;
 }
 
-.left ion-icon {
-  font-size: 26px;
-  color: #777;
-}
-
-.middle {
-  flex: 1;
-
-  h3 {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 600;
-    color: #222;
-  }
-
-  .desc {
-    margin: 4px 0;
-    font-size: 14px;
-    color: #444;
-  }
-
-  .amount {
-    margin-top: 4px;
-    font-size: 13px;
-    color: #f59e0b;
-    font-weight: 500;
-  }
-}
-
-.right-id {
-  font-size: 12px;
-  color: #999;
-}
-
-/* Divider */
-hr {
-  border: none;
-  border-top: 1px solid #eee;
-  margin: 14px 0;
-}
-
-/* ================= BOTTOM ================= */
-
-.coupon-bottom {
+/* Icon */
+.icon-box {
+  width: 54px;
+  height: 54px;
+  background: #eceff3;
+  border-radius: 14px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #8c8c8c;
 }
 
-.expiry {
-  font-size: 12px;
-  color: #888;
+/* Content */
+.card-content {
+  flex: 1;
 }
 
-.actions {
+/* Text */
+.code {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2d2d2d;
+}
+
+.description {
+  font-size: 14px;
+  color: #6b6b6b;
+  margin-top: 4px;
+}
+
+.amount {
+  font-size: 14px;
+  color: #ff8a00;
+  font-weight: 500;
+  margin-top: 6px;
+}
+
+/* ================= IMPORTANT PART ================= */
+
+/* Divider starts after icon automatically */
+.divider-wrapper {
   display: flex;
+  align-items: center;
+  margin: 16px 0 14px 70px; 
+  /* 54px icon width + 16px gap = 70px */
+}
+
+/* Line grows fully */
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: #e2e5e9;
+}
+
+/* ID sits at right */
+.coupon-id {
+  margin-left: 8px;
+  font-size: 11px;
+  color: #b0b5bc;
+}
+
+/* Bottom row */
+.bottom-row {
+  display: flex;
+  justify-content: flex-end;   /* 👈 pushes to right */
   align-items: center;
   gap: 10px;
 }
 
+/* Usage */
 .usage {
-  background: #eeeeee;
-  padding: 5px 10px;
-  border-radius: 6px;
+  background: #e9ebef;
+  padding: 5px 12px;
+  border-radius: 8px;
   font-size: 12px;
-  color: #555;
+  color: #5a5a5a;
 }
 
-.publish-btn {
-  background: #b9f6ca;
-  color: #1b8a3d;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 13px;
+/* Publish */
+.status {
+  background: #c8f2cf;
+  color: #1c8f37;
+  font-size: 12px;
+  padding: 5px 14px;
+  border-radius: 8px;
   font-weight: 500;
 }

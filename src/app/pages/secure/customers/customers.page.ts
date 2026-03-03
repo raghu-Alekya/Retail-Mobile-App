@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
@@ -6,81 +6,33 @@ import { AuthService } from 'src/app/services/auth/auth.service';
   templateUrl: './customers.page.html',
   styleUrls: ['./customers.page.scss'],
 })
-export class CustomersPage {
+export class CustomersPage implements OnInit {
 
   customers: any[] = [];
-  page = "1";
-  perPage = "20";
-  searchTerm = '';
-  hasMore = true;
-  loading = false;
-
-  private searchTimeout: any; // ✅ debounce
+  filteredCustomers: any[] = [];
 
   constructor(private authService: AuthService) {}
 
-  // ✅ Better for Ionic pages
-  ionViewDidEnter() {
-    this.loadCustomers(true);
+  ngOnInit() {
+    this.loadCustomers();
   }
 
-  async loadCustomers(reset = false) {
-    if (this.loading) return;
+  async loadCustomers() {
+  const response = await this.authService.getUsers('customer', 1, 50);
 
-    this.loading = true;
+  this.customers = (response.users || []).filter(user =>
+    user.roles.length === 1 &&
+    user.roles.includes('customer')
+  );
 
-    try {
-      if (reset) {
-        this.page = "1";
-        this.customers = [];
-        this.hasMore = true;
-      }
-
-      const response = await this.authService.getCustomers(
-        this.page,
-        this.perPage,
-        this.searchTerm
-      );
-
-      if (Array.isArray(response) && response.length > 0) {
-        this.customers = [...this.customers, ...response];
-
-        // ✅ stop if no more data
-        if (response.length < parseInt(this.perPage, 10)) {
-          this.hasMore = false;
-        }
-
-        this.page = String(parseInt(this.page, 10) + 1);
-      } else {
-        this.hasMore = false;
-      }
-
-    } catch (error) {
-      console.error('Pagination error:', error);
-    } finally {
-      this.loading = false;
-    }
-  }
-
-  // ✅ Debounced search (important)
+  this.filteredCustomers = [...this.customers];
+}
   onSearch(event: any) {
-    const value = event.target.value?.trim() || '';
+    const value = event.target.value.toLowerCase();
 
-    clearTimeout(this.searchTimeout);
-
-    this.searchTimeout = setTimeout(() => {
-      this.searchTerm = value;
-      this.loadCustomers(true); // reset
-    }, 400); // 400ms debounce
-  }
-
-  loadMore(event: any) {
-    this.loadCustomers().then(() => {
-      event.target.complete();
-
-      if (!this.hasMore) {
-        event.target.disabled = true;
-      }
-    });
+    this.customers = this.filteredCustomers.filter(user =>
+      user.email?.toLowerCase().includes(value) ||
+      user.meta?.phone?.includes(value)
+    );
   }
 }

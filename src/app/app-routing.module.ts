@@ -92,15 +92,15 @@ const routes: Routes = [
         .then(m => m.ProductFormPageModule),
     canActivate: [AuthGuard]
   },
+  // {
+  //   path: 'customers',
+  //   loadChildren: () =>
+  //     import('./pages/secure/customers/customers.module')
+  //       .then(m => m.CustomersPageModule),
+  //   canActivate: [AuthGuard]
+  // },
   {
-    path: 'customers',
-    loadChildren: () =>
-      import('./pages/secure/customers/customers.module')
-        .then(m => m.CustomersPageModule),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'users',
+    path: 'users/employees',
     loadChildren: () =>
       import('./pages/secure/users-list/users-list.module')
         .then(m => m.UsersListPageModule),
@@ -187,6 +187,11 @@ const routes: Routes = [
     path: 'add-coupon',
     loadChildren: () => import('./pages/secure/coupons/add-coupon/add-coupon.module')
       .then(m => m.AddCouponPageModule)
+  },
+  {
+    path: 'edit-coupon',
+    loadChildren: () => import('./pages/secure/coupons/edit-coupon/edit-coupon.module')
+      .then(m => m.EditCouponPageModule)
   },
   {
     path: 'change-password',
