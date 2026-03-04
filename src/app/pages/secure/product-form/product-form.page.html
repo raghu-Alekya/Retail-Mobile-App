@@ -14,7 +14,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content [class.scanner-active]="isScanning">
   <ion-card class="settings-card image-block">
   <!-- Hidden file input -->
   <input
@@ -529,9 +529,16 @@
     </ion-item>
 
   </ion-card>
-
-
-
+<!-- <ion-card class="settings-card">
+  <ion-item lines="none">
+    <ion-label position="stacked">Stock Quantity</ion-label>
+    <ion-input
+      type="number"
+      [(ngModel)]="product.stock_quantity"
+      placeholder="Enter stock quantity">
+    </ion-input>
+  </ion-item>
+</ion-card> -->
 
   <!-- DELETE BUTTON (EDIT ONLY) -->
   <ion-button

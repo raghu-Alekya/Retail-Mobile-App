@@ -26,9 +26,9 @@ export class ProductFormPage implements OnInit {
   expandedAttributes: { [key: number]: boolean } = {};
   private attributesLoaded = false;
   private isLoadingAttributes = false;
-  stock_quantity : any = null;
+  // stock_quantity : any = null;
   stock_status: any = null;
-
+  isScanning = false;
   product: any = {
     name: '',
     description: '',
@@ -42,7 +42,9 @@ export class ProductFormPage implements OnInit {
     // featured: false,
     sold_individually: false,
     reviews_allowed: true,
-    selectedTaxClass:''
+    selectedTaxClass:'',
+    // stock_quantity: null,
+    manage_stock: false
   };
 
   constructor(
@@ -152,6 +154,7 @@ export class ProductFormPage implements OnInit {
       // this.isEditMode = !!this.productId;
       const res = await this.authService.getProductById(this.productId);
       await this.loadExistingVariations();
+      console.log(res);
       this.product = {
         name: res.name,
         description: this.stripHtml(res.description),
@@ -167,8 +170,9 @@ export class ProductFormPage implements OnInit {
         reviews_allowed: res.reviews_allowed,
         category_ids: res.categories?.map((c: any) => c.id) || [],
         tag_ids: res.tags?.map((t: any) => t.id) || [],
+        // stock_quantity: res.stock_quantity,
+        manage_stock: res.manage_stock,
       };
-      this.stock_quantity = res.stock_quantity;
       this.stock_status = res.stock_status;
       console.log(this.stock_status);
       this.selectedTaxClass = this.taxClasses.find(
@@ -412,6 +416,8 @@ export class ProductFormPage implements OnInit {
         reviews_allowed: this.product.reviews_allowed,
         tax_status: this.selectedTaxClass ? 'taxable' : 'none',
         tax_class: this.selectedTaxClass?.slug || '',
+        // stock_quantity: this.product.stock_quantity,
+        // manage_stock: Number(this.product.stock_quantity) > 0 ? true : false
       };
 
       if(this.product.name === '') {
@@ -942,7 +948,9 @@ export class ProductFormPage implements OnInit {
   }
   
   async scanSku() {
+    this.isScanning = true;
     const code = await this.barcodeService.scan();
+    this.isScanning = false;
     if (code) {
       this.product.sku = code;
     }
