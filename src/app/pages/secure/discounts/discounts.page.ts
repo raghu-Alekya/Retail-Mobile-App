@@ -64,17 +64,10 @@ export class DiscountsPage implements OnInit {
     this.loadDiscounts();
   }
   
-  apiUrl = `${this.wpBases}/wp-json/pinaka-pos/v1/custom-discount/get-all-discounts-for-admin`;
   async loadDiscounts() {
     try {
       this.loading = true;
-      const res = await axios.get(this.apiUrl, {
-        headers: this.getAuthHeaders(),
-        params: {
-          page: 1,
-          per_page: 200
-        }
-      }); 
+      const res = await this.auth.getDiscounts(String(this.page), String(this.perPage)); 
       /////////
       this.grouped = res.data?.data || {};
       this.allDiscounts = this.flattenAll();
@@ -108,12 +101,7 @@ export class DiscountsPage implements OnInit {
 
   async fetchProducts(query: string) {
     try {
-      const res = await axios.get(
-        `${this.wpBases}/wp-json/wc/v3/products?search=${query}&per_page=10`,
-        {
-          headers: this.getAuthHeaders()
-        }
-      );
+      const res = await this.auth.searchProducts(query);
 
       this.productSuggestions = res.data || [];
       this.showSuggestions = true;

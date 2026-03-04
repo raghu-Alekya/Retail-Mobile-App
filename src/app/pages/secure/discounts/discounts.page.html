@@ -1,7 +1,7 @@
 <ion-header class="products-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
     </ion-buttons>
 
     <ion-title>Discounts</ion-title>
@@ -113,9 +113,7 @@
 </ion-card>
 
   <!-- Create / Edit Form -->
-  <ion-modal  [isOpen]="showForm"
-  initialBreakpoint="0.95"
-  breakpoints="[0, 0.95]" (didDismiss)="showForm=false">
+  <ion-modal  [isOpen]="showForm" (didDismiss)="showForm=false">
   <ng-template>
     <ion-header>
       <ion-toolbar color="primary">

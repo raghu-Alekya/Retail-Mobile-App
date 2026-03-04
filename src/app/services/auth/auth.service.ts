@@ -423,7 +423,7 @@ async createUser(newUser: any) {
 
     const res = await Http.request({
       method: 'GET',
-      url: `${this.base}/wp-json/wp/v2/users`,
+      url: `${this.wpBase}/wp-json/wp/v2/users`,
       headers: this.getAuthHeaders(),
       params
     });
@@ -447,7 +447,7 @@ async createUser(newUser: any) {
 
     const res = await Http.request({
       method: 'GET',
-      url: `${this.base}/wp-json/wp/v2/users`,
+      url: `${this.wpBase}/wp-json/wp/v2/users`,
       headers: this.getAuthHeaders(),
       params
     });
