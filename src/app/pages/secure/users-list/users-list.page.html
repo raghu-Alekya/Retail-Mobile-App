@@ -1,4 +1,4 @@
-<ion-header class="dark-toolbar">
+<ion-header class="dark-toolbar" *ngIf="!editingUserId">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home"></ion-back-button>
@@ -89,104 +89,120 @@
   </ion-item-sliding>
 
 </ion-list>
-<!-- EDIT POPUP -->
+<!-- EDIT EMPLOYEE FULL SCREEN -->
 <div class="edit-overlay" *ngIf="editingUserId">
 
+  <!-- Edit Header -->
+  <ion-header class="dark-toolbar">
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-button (click)="cancelEdit()">
+          <ion-icon name="arrow-back-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+
+      <ion-title>Edit Employee</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Edit Content -->
   <div class="edit-popup">
 
-    <div class="popup-header">
-      <h3>Edit Employee</h3>
+    <!-- Username -->
+    <div class="form-field">
+      <label>Username</label>
+      <ion-input
+        placeholder="Enter username"
+        [(ngModel)]="editedUser.username"
+        (ionInput)="checkChanges()">
+      </ion-input>
     </div>
 
-    <ion-list>
+    <!-- Email -->
+    <div class="form-field">
+      <label>Email</label>
+      <ion-input
+        placeholder="Enter email address"
+        [(ngModel)]="editedUser.email"
+        (ionInput)="checkChanges()">
+      </ion-input>
+    </div>
 
-      <ion-item>
-        <ion-label position="stacked">User Name</ion-label>
-        <ion-input
-          placeholder="User Name"
-          [(ngModel)]="editedUser.username"
-          (ionInput)="checkChanges()">
-        </ion-input>
-      </ion-item>
+    <!-- First Name -->
+    <div class="form-field">
+      <label>First Name</label>
+      <ion-input
+        placeholder="Enter first name"
+        [(ngModel)]="editedUser.first_name"
+        (ionInput)="checkChanges()">
+      </ion-input>
+    </div>
 
-      <ion-item>
-        <ion-label position="stacked">Email</ion-label>
-        <ion-input
-          placeholder="Email ID"
-          [(ngModel)]="editedUser.email"
-          (ionInput)="checkChanges()">
-        </ion-input>
-      </ion-item>
+    <!-- Last Name -->
+    <div class="form-field">
+      <label>Last Name</label>
+      <ion-input
+        placeholder="Enter last name"
+        [(ngModel)]="editedUser.last_name"
+        (ionInput)="checkChanges()">
+      </ion-input>
+    </div>
 
-      <ion-item>
-        <ion-label position="stacked">First Name</ion-label>
-        <ion-input
-          placeholder="First Name"
-          [(ngModel)]="editedUser.first_name"
-          (ionInput)="checkChanges()">
-        </ion-input>
-      </ion-item>
+    <!-- Role -->
+    <div class="form-field">
+      <label>Employee Role</label>
+      <ion-select
+        placeholder="Select Employee Role"
+        [(ngModel)]="editedUser.role"
+        (ionChange)="checkChanges()">
 
-      <ion-item>
-        <ion-label position="stacked">Last Name</ion-label>
-        <ion-input
-          placeholder="Last Name"
-          [(ngModel)]="editedUser.last_name"
-          (ionInput)="checkChanges()">
-        </ion-input>
-      </ion-item>
+        <ion-select-option value="manager">Manager</ion-select-option>
+        <ion-select-option value="administrator">Administrator</ion-select-option>
+        <ion-select-option value="shop_manager">Shop Manager</ion-select-option>
+        <ion-select-option value="merchant">Merchant</ion-select-option>
 
-      <ion-item>
-        <ion-label position="stacked">Role</ion-label>
-        <ion-select
-          placeholder="Employee Role"
-          [(ngModel)]="editedUser.role"
-          (ionChange)="checkChanges()">
+      </ion-select>
+    </div>
 
-          <ion-select-option value="manager">Manager</ion-select-option>
-          <ion-select-option value="administrator">Administrator</ion-select-option>
-          <ion-select-option value="shop_manager">Shop Manager</ion-select-option>
-          <ion-select-option value="merchant">Merchant</ion-select-option>
+    <!-- Phone -->
+    <div class="form-field">
+      <label>Phone</label>
+      <ion-input
+        placeholder="Enter phone number"
+        [(ngModel)]="editedUser.phone"
+        (ionInput)="checkChanges()">
+      </ion-input>
+    </div>
 
-        </ion-select>
-      </ion-item>
+    <!-- Login PIN -->
+    <div class="form-field">
+      <label>Login PIN</label>
+      <ion-input
+        type="text"
+        placeholder="Enter 6-digit PIN"
+        [(ngModel)]="editedUser.emp_login_pin"
+        (ionInput)="checkChanges()">
+      </ion-input>
+    </div>
 
-      <ion-item>
-        <ion-label position="stacked">Phone</ion-label>
-        <ion-input
-          placeholder="Phone Number"
-          [(ngModel)]="editedUser.phone"
-          (ionInput)="checkChanges()">
-        </ion-input>
-      </ion-item>
+    <!-- Buttons -->
+    <div class="form-buttons">
 
-     
-        <ion-item>
-  <ion-label position="stacked">Login Pin</ion-label>
-  <ion-input
-    type="text"
-    placeholder="6-Digit Login Pin"
-    [(ngModel)]="editedUser.emp_login_pin"
-    (ionInput)="checkChanges()">
-  </ion-input>
-</ion-item>
-      
+      <ion-button
+        expand="block"
+        *ngIf="isChanged"
+        (click)="saveChanges()">
+        Save Changes
+      </ion-button>
 
-    </ion-list>
+      <!-- <ion-button
+        expand="block"
+        fill="clear"
+        (click)="cancelEdit()">
+        Cancel
+      </ion-button> -->
 
-    <ion-button
-      expand="block"
-      *ngIf="isChanged"
-      (click)="saveChanges()">
-      Save Changes
-    </ion-button>
-
-    <ion-button
-      expand="block"
-      fill="clear"
-      (click)="cancelEdit()">
-      Cancel
-    </ion-button>
+    </div>
 
   </div>
 

@@ -378,3 +378,23 @@ ion-note.stock-badge {
   font-size: 14px;
   text-align: right;
 }
+// ion-content.scanner-active {
+//   --background: transparent !important;
+//   --ion-background-color: transparent !important;
+//   background: transparent !important;
+//   z-index: 1;
+// }
+
+// /* Optional: hide page content while scanning */
+// ion-content.scanner-active * {
+//   opacity: 0;
+// }
+.scanner-active {
+  --background: transparent !important;
+}
+
+.scanner-active ion-card,
+.scanner-active ion-item,
+.scanner-active ion-button {
+  opacity: 0;
+}
