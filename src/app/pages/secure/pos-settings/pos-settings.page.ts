@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ToastController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-pos-settings',
@@ -15,7 +16,15 @@ export class PosSettingsPage implements OnInit {
   isLoadingSettings = false;
 
   settings: any = {
-    address: {},
+    address: {
+      pinaka_pos_name: '',
+      pinaka_pos_email: '',
+      pinaka_pos_phone: '',
+      pinaka_pos_business_address: '',
+      pinaka_pos_business_city: '',
+      pinaka_pos_business_state: '',
+      pinaka_pos_business_postcode: ''
+    },
     enableTaxes: false,
     enableCoupons: false,
     sequentialCoupons: false,
@@ -36,7 +45,8 @@ export class PosSettingsPage implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private alertController: AlertController
   ) {}
 
   /* ================= INIT ================= */
@@ -72,7 +82,12 @@ export class PosSettingsPage implements OnInit {
 
     try {
       const res = await this.authService.getCashSettings();
-      const data = res.data.data;
+      const data = res?.data?.data || res?.data || res;
+
+      if (!data) return;
+
+      const toBool = (v: any) => v === true || v === 1 || v === "1";
+
       this.settings.address = {
         pinaka_pos_name: data.shop_info.pinaka_pos_name,
         pinaka_pos_email: data.shop_info.pinaka_pos_email,
@@ -82,13 +97,40 @@ export class PosSettingsPage implements OnInit {
         pinaka_pos_business_state: data.shop_info.pinaka_pos_business_state,
         pinaka_pos_business_postcode: data.shop_info.pinaka_pos_business_postcode
       }
-      this.settings.enableTaxes = data.tax_enabled;
-      this.settings.enableCoupons = data.coupons_enabled;
-      this.settings.sequentialCoupons = data.cal_sequential_coupons;
-      this.settings.enable_safes = data.enable_safes;
-      this.settings.enable_safes_drop = data.enable_safes_drop;
-      this.settings.currency_symbol = data.currency_symbol;
-      
+
+      this.settings.enable_safes = toBool(data.enable_safes);
+      this.settings.enable_safes_drop = toBool(data.enable_safes_drop);
+
+      this.settings.enableTaxes = toBool(data.tax_enabled);
+      this.settings.enableCoupons = toBool(data.coupons_enabled);
+      this.settings.sequentialCoupons = toBool(data.calc_sequential_coupons);
+
+      this.settings.currency = data.selected_currency;
+      this.currencies = data.currencies;
+
+      setTimeout(() => {
+        this.form.patchValue({
+          currency: this.settings.currency
+        });
+      });
+
+      // backend keys
+      // this.settings.enable_cashback =
+      //   toBool(data.pinaka_pos_cashback_settings);
+
+      // this.settings.enable_service_charge =
+      //   toBool(data.pinaka_pos_service_charge_settings);
+
+      this.settings.enable_cashback =
+        toBool(data.pinaka_pos_cashback_settings?.enabled);
+
+      this.settings.enable_service_charge =
+        toBool(data.pinaka_pos_service_charge_settings?.enabled);
+
+      this.settings.enable_loyalty_points =
+        !!data.pinaka_pos_enable_loyalty_points;
+
+      this.settings.currency_symbol = data.currency_symbol || '';
 
     } catch (err) {
       console.error('Settings load failed', err);
@@ -99,6 +141,40 @@ export class PosSettingsPage implements OnInit {
     }
   }
 
+
+  async saveAddress() {
+    const payload = {
+      shop_address: {
+        pinaka_pos_name: this.settings.address.pinaka_pos_name,
+        pinaka_pos_email: this.settings.address.pinaka_pos_email,
+        pinaka_pos_phone: this.settings.address.pinaka_pos_phone,
+        pinaka_pos_business_address: this.settings.address.pinaka_pos_business_address,
+        pinaka_pos_business_city: this.settings.address.pinaka_pos_business_city,
+        pinaka_pos_business_state: this.settings.address.pinaka_pos_business_state,
+        pinaka_pos_business_postcode: this.settings.address.pinaka_pos_business_postcode
+      },
+    };
+    // 🔌 API call
+    try {
+      const response = await this.authService.saveBussinessInfo(payload);
+       // ✅ SUCCESS
+      const message = 
+        response?.data?.message ||
+        'Settings saved successfully';
+
+      await this.presentToast(message, 'success');
+
+    } catch (err: any) {
+
+      // ✅ AXIOS ERROR HANDLING
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.response?.data?.data?.message ||
+        'Failed to save settings';
+
+      await this.presentToast(errorMessage, 'danger');
+    }
+  }
   async onCurrencyChange() {
 
     if (this.isLoadingSettings) return;   // ✅ prevent auto trigger
@@ -164,20 +240,48 @@ export class PosSettingsPage implements OnInit {
 
   async removeCategory(category_id: number) {
 
-    const payload = {
-      id: category_id,
-    };
+    const alert = await this.alertController.create({
+      header: 'Delete Category',
+      message: 'Are you sure you want to delete this category?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Delete',
+          role: 'destructive',
+          handler: () => {
+            this.deleteCategory(category_id);
+          }
+        }
+      ]
+    });
 
-    console.log('Remove Category Payload', payload);
+    await alert.present();
+  }
+
+
+  async deleteCategory(category_id:number){
+
     try {
-      this.authService.deleteCategory(category_id);
-      this.categories = this.categories.filter(cat => cat.id !== category_id);
-      await this.presentToast('Category deleted successfully', 'success');
+
+      await this.authService.deleteCategory(category_id);
+
+      this.categories = this.categories.filter(
+        cat => cat.id !== category_id
+      );
+
+      await this.presentToast('Category deleted successfully','success');
+
     } catch (err) {
-      console.error('Failed to delete category', err);
-      await this.presentToast('Failed to delete category', 'danger');
+
+      console.error(err);
+
+      await this.presentToast('Failed to delete category','danger');
+
     }
-    // 🔌 API call
+
   }
   /* ================= TOAST ================= */
 
@@ -218,69 +322,43 @@ export class PosSettingsPage implements OnInit {
     // 🔌 API call
   }
 
-  removeTag(tag: string) {
+  async removeTag(tag: string) {
+
+    const alert = await this.alertController.create({
+      header: 'Delete Tag',
+      message: 'Are you sure you want to delete this tag?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Delete',
+          role: 'destructive',
+          handler: () => {
+            this.deleteTag(tag);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+
+  deleteTag(tag:string){
+
     this.tags = this.tags.filter(t => t !== tag);
 
     const payload = {
-      product_tags: this.tags,
+      product_tags: this.tags
     };
 
     console.log('Remove Tag Payload', payload);
-    // 🔌 API call
+
   }
 
-  // async onToggleChange(event: any, setting: string) {
-  //   const isChecked = event.detail.checked;
-
-  //   switch (setting) {
-
-  //     case 'enable_safes':
-  //       this.settings.enable_safes = isChecked;
-  //       await this.updateEnableSafes();
-  //       break
-
-  //     case 'enable_safes_drop':
-  //       this.settings.enable_safes_drop = isChecked;
-  //       await this.updateEnableSafesDrop();
-  //       break;
-
-  //     case 'enable_cashback':
-  //       this.settings.enable_cashback = isChecked;
-  //       await this.updateCashback();
-  //       break;
-
-  //     case 'enable_service_charge':
-  //       this.settings.enable_service_charge = isChecked;
-  //       await this.updateServiceCharge();
-  //       break;
-        
-  //     case 'enable_loyalty_points':
-  //       this.settings.enable_loyalty_points = isChecked;
-  //       await this.updateLoyaltyPoints();
-  //       break;
-
-  //     case 'enableTaxes':
-  //       this.settings.enableTaxes = isChecked;
-  //       await this.updateEnableTaxes();
-  //       break;
-
-  //     case 'enableCoupons':
-  //       this.settings.enableCoupons = isChecked;
-
-  //       // auto-disable sequential if coupons turned off
-  //       if (!isChecked) {
-  //         this.settings.sequentialCoupons = false;
-  //       }
-
-  //       await this.updateEnableCoupons();
-  //       break;
-
-  //     case 'sequentialCoupons':
-  //       this.settings.sequentialCoupons = isChecked;
-  //       await this.updateSequentialCoupons();
-  //       break;
-  //   }
-  // }
+  /* ================= TOGGLE HANDLER ================= */
 
   async onToggleChange(event: any, key: string) {
 
@@ -309,11 +387,30 @@ export class PosSettingsPage implements OnInit {
         this.authService.updateLoyaltyPoints({
           enable_loyalty_points: checked ? 'yes' : 'no'
         }),
+
+        enableTaxes: () =>
+        this.authService.enableTaxes({
+          enable_taxes: value
+        }),
+
+        enableCoupons: () =>
+        this.authService.enableCoupons({
+          enable_coupons: value
+        }),
+
+        sequentialCoupons: () =>
+        this.authService.sequentialCoupons({
+          coupon_sequential: value
+        }),
     };
 
     try {
       const res = await apiMap[key]();
-      this.presentToast(res?.message || (checked ? 'Enabled' : 'Disabled'));
+     this.presentToast(
+  key === 'enableTaxes'
+    ? checked ? 'Taxes enabled' : 'Taxes disabled'
+    : (checked ? 'Enabled' : 'Disabled')
+);
     } catch (error) {
       console.error(error);
       this.presentToast('Failed to update', 'danger');
@@ -335,4 +432,5 @@ export class PosSettingsPage implements OnInit {
   signOut() {
     this.authService.logout();
   }
+  
 }
