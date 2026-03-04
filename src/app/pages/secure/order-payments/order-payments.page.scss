@@ -244,3 +244,38 @@ ion-content::part(scroll) {
 ion-content::part(scroll) {
   margin-top: -18px;
 }
+
+.transactions {
+  margin-top: 8px;
+}
+
+.transaction-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.transaction-row:last-child {
+  border-bottom: none;
+}
+
+.transaction-row .left {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+}
+
+.transaction-row .mode {
+  color: #666;
+}
+
+.transaction-row .right {
+  font-weight: 600;
+  font-size: 14px;
+}
+.filter-icon {
+  font-size: 22px;
+  cursor: pointer;
+}

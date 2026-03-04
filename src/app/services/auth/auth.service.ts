@@ -555,7 +555,8 @@ async getShifts(page: number, search = '', status = '') {
 async getOrderPayments(
   page: number,
   search = '',
-  status = ''
+  // status = '',
+  paymentMode = ''
 ) {
   const res = await Http.request({
     method: 'GET',
@@ -565,7 +566,8 @@ async getOrderPayments(
       page: String(page) ,
       per_page: "10",
       search,
-      status,
+      // status,
+      paymentMode
     },
   });
 
@@ -1151,7 +1153,10 @@ async enableTaxes(payload: any) {
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-taxes`,
-    headers: this.getAuthHeaders(),
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
     data: payload
   });
 
@@ -1162,7 +1167,10 @@ async enableCoupons(payload: any) {
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-coupons`,
-    headers: this.getAuthHeaders(),
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
     data: payload
   });
 
@@ -1173,7 +1181,10 @@ async sequentialCoupons(payload: any) {
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/sequential-coupons`,
-    headers: this.getAuthHeaders(),
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
     data: payload
   });
 

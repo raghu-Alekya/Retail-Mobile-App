@@ -37,7 +37,12 @@ export class ProductsListPage implements OnInit {
       }
     });
   }
+stockFilter = 'all';
 
+setStockFilter(value: string){
+  this.stockFilter = value;
+  this.onStockFilter({ detail: { value } });
+}
   // This runs every time the page is about to enter
   ionViewWillEnter() {
     // Refresh only if coming from product form

@@ -7,7 +7,27 @@
     --color: #fff;
   }
 }
+.product-tabs{
+  display:flex;
+  gap:10px;
+  padding:10px 16px;
+  overflow-x:auto;
+}
 
+.tab{
+  border:none;
+  background:#e5e5e5;
+  padding:6px 14px;
+  border-radius:18px;
+  font-size:13px;
+  color:#333;
+  white-space:nowrap;
+}
+
+.tab.active{
+  background:#3b4e6b;
+  color:#fff;
+}
 .search-wrapper {
   margin: 10px 16px;
   background: #9aa7b8;

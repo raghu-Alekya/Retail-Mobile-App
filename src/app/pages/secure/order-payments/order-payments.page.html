@@ -5,16 +5,33 @@
     </ion-buttons>
 
     <ion-title>Order Payments</ion-title>
-
+    <ion-buttons slot="end">
+      <ion-button (click)="paymentFilter.open()">
+        <ion-icon name="funnel-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
-
+  <ion-select
+    #paymentFilter
+    interface="popover"
+    (ionChange)="onPaymentFilter($event)"
+    style="display: none"
+  >
+    <ion-select-option value="">All</ion-select-option>
+    <ion-select-option value="cash">Cash</ion-select-option>
+    <ion-select-option value="ebt">EBT</ion-select-option>
+    <ion-select-option value="card">Card</ion-select-option>
+    <ion-select-option value="wallet">Wallet</ion-select-option>
+    <ion-select-option value="void">Void</ion-select-option>
+  </ion-select>
   <!-- Search -->
   <div class="search-wrapper">
-    <ion-icon name="search-outline"></ion-icon>
-    <input
-      placeholder="Search order / transaction"
-      (input)="onSearch($event)"
-    />
+
+    <ion-input
+      placeholder="Search order"
+      (ionInput)="onSearch($event)">
+    </ion-input>
+
   </div>
 </ion-header>
 
@@ -27,7 +44,7 @@
 
   <!-- PAYMENT CARDS -->
   <ion-card
-    *ngFor="let p of payments; let i = index"
+    *ngFor="let p of groupedPayments; let i = index"
     class="payment-card"
     [ngClass]="'card-' + (i % 5)">
 
@@ -47,7 +64,7 @@
     </div>
 
     <!-- Order + Transaction -->
-    <div class="info-row">
+    <!-- <div class="info-row">
       <div>Order ID: <b>{{ p?.meta?.order_id || '-' }}</b></div>
       <div>Transaction ID: <b>{{ p?.transaction_id || '-' }}</b></div>
     </div>
@@ -62,8 +79,58 @@
         Tender Amount:
         <b>{{ p?.tender_amount ? (p.tender_amount | currency:'INR') : '₹0.00' }}</b>
       </div>
+    </div> -->
+    <!-- <div class="info-row">
+      <div>Order ID: <b>{{ p?.order_id || '-' }}</b></div>
+      <div>
+        Order Total:
+        <b>{{ p?.order_total ? (p.order_total | currency:'INR') : '₹0.00' }}</b>
+      </div>
     </div>
 
+    <div *ngFor="let t of p.transactions" class="info-row">
+      <div>
+        Transaction ID: <b>{{ t.transaction_id }}</b>
+      </div>
+      <div>
+        Payment Mode: <b>{{ t.pay_mode }}</b>
+      </div>
+      <div>
+        Tender Amount:
+        <b>{{ t.tender_amount | currency:'INR' }}</b>
+      </div>
+    </div> -->
+    <div class="info-row">
+      <div>Order ID: <b>{{ p?.order_id || '-' }}</b></div>
+      <div>
+        Order Total:
+        <b>{{ p?.order_total ? (p.order_total) : '0.00' }}</b>
+      </div>
+    </div>
+
+    <!-- Transactions -->
+    <div class="transactions">
+
+      <div *ngFor="let t of p.transactions" class="transaction-row">
+
+        <div class="left">
+          <div class="txn-id">
+            Transaction ID: <b>{{ t.transaction_id }}</b>
+          </div>
+          <div class="mode">
+            Payment Mode: <b>{{ t.pay_mode }}</b>
+          </div>
+        </div>
+
+        <div class="right">
+          <div class="amount">
+            {{ t.tender_amount }}
+          </div>
+        </div>
+
+      </div>
+
+    </div>
     <div class="divider"></div>
 
     <div class="payment-mode">

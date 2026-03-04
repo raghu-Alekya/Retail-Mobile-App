@@ -32,7 +32,39 @@
 
 
 <ion-content class="products-content ion-padding">
+<div class="product-tabs">
+  <button
+    class="tab"
+    [class.active]="stockFilter === 'all'"
+    (click)="setStockFilter('all')"
+  >
+    All
+  </button>
 
+  <button
+    class="tab"
+    [class.active]="stockFilter === 'instock'"
+    (click)="setStockFilter('instock')"
+  >
+    Instock
+  </button>
+
+  <button
+    class="tab"
+    [class.active]="stockFilter === 'outofstock'"
+    (click)="setStockFilter('outofstock')"
+  >
+    Out of stock
+  </button>
+
+  <button
+    class="tab"
+    [class.active]="stockFilter === 'onbackorder'"
+    (click)="setStockFilter('onbackorder')"
+  >
+    Back order
+  </button>
+</div>
   <!-- Sort -->
   <div class="sort-row">
     <ion-icon name="swap-vertical-outline"></ion-icon>
@@ -107,7 +139,7 @@
     </ion-infinite-scroll>
 </ion-content>
 <!-- Bottom Tabs -->
-<ion-footer>
+<!-- <ion-footer>
   <ion-segment
     value="all"
     (ionChange)="onStockFilter($event)"
@@ -117,4 +149,4 @@
     <ion-segment-button value="outofstock">Out of stock</ion-segment-button>
     <ion-segment-button value="onbackorder">Back order</ion-segment-button>
   </ion-segment>
-</ion-footer>
+</ion-footer> -->
