@@ -45,22 +45,23 @@ export class AddCouponPage {
   startEdit(field: string) {
     this.editing = field;
   }
+  showCalendar = false;
 
+toggleCalendar() {
+  this.showCalendar = !this.showCalendar;
+}
+
+onDateSelected(event: any) {
+  this.coupon.expireDate = event.detail.value;
+
+  // close after selecting date
+  this.showCalendar = false;
+}
   stopEdit() {
     this.editing = null;
   }
 
-  openDatePicker() {
-    this.isDateModalOpen = true;
-  }
 
-  onDateSelected(event: any) {
-    this.coupon.expireDate = event.detail.value;
-    this.isDateModalOpen = false;
-  }
-  markDirty() {
-  this.isDirty = true;
-  }
   
   async saveCoupon() {
 

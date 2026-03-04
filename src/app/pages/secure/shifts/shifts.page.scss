@@ -1,11 +1,15 @@
-/* CARD */
 .shift-card {
-  border-radius: 16px;
-  padding: 8px;
-  margin-bottom: 14px;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  margin: 12px auto;           /* center card */
+  width: calc(100% - 24px);    /* equal space left & right */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
-
+ion-content {
+  --padding-start: 0;
+  --padding-end: 0;
+}
 /* HEADER CONTAINER */
 .shift-header {
   background: #2f4157;
@@ -16,7 +20,31 @@
   font-size: 26px;   /* increase size */
   color: #ffffff;
 }
+.custom-header {
+  --background: #2f4e6f;
+  --color: white;
+  padding-bottom: 18px;
+  border-bottom-left-radius: 22px;
+  border-bottom-right-radius: 22px;
+}
 
+.custom-header ion-title {
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.search-bar {
+  padding: 10px 16px 16px 16px;
+  background: #2f4e6f;
+  border-bottom-left-radius: 22px;
+  border-bottom-right-radius: 22px;
+}
+
+.search-bar ion-searchbar {
+  --background: #f1f1f1;
+  --border-radius: 10px;
+  --box-shadow: none;
+}
 /* TOOLBAR */
 .shift-header ion-toolbar {
   --background: #2f4157;
@@ -36,6 +64,54 @@
 }
 
 
+.shift-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.shift-user {
+  display: flex;
+  align-items: center;
+}
+
+.shift-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-right: 10px;
+}
+
+.shift-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.shift-date {
+  font-size: 13px;
+  color: #777;
+}
+
+.shift-body {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.shift-bottom {
+  border-top: 1px solid #eee;
+  margin-top: 10px;
+  padding-top: 8px;
+  font-size: 13px;
+  color: #666;
+  display: flex;
+  justify-content: space-between;
+}
 /* SEARCH ICON */
 .search-icon {
   font-size: 18px;
