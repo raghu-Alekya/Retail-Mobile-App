@@ -44,7 +44,7 @@
 
   <!-- PAYMENT CARDS -->
   <ion-card
-    *ngFor="let p of groupedPayments; let i = index"
+    *ngFor="let p of groupedPayments; trackBy: trackByOrder; let i = index"
     class="payment-card"
     [ngClass]="'card-' + (i % 5)">
 

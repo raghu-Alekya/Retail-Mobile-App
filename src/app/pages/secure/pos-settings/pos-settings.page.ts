@@ -201,40 +201,31 @@ export class PosSettingsPage implements OnInit {
   }
 
   async addCategory() {
+
     if (!this.newCategory.trim()) return;
 
-    const all_categories = {
-      product_categories: this.categories,
-    };
-
     const payload = {
-      name:this.newCategory.trim()
+      name: this.newCategory.trim()
     };
-    // 🔌 API call
-    console.log('Add Category Payload', payload);
-    
+
     try {
+
       const response = await this.authService.saveCategory(payload);
-        // ✅ SUCCESS
-      console.log('Added Category Response', response);
-      const addedCategory = {
-        name: response.data.name,
-        id: response.data.id
-      };
-      this.categories.push(addedCategory);
-        const message = 
-          response?.data?.message ||
-          'Settings saved successfully';
-        await this.presentToast(message, 'success');
-    } catch (err: any) {
 
-      // ✅ AXIOS ERROR HANDLING
-      const errorMessage =
-        err?.response?.data?.message ||
-        err?.response?.data?.data?.message ||
-        'Failed to save settings';
+      console.log("CATEGORY RESPONSE:", response);
 
-      await this.presentToast(errorMessage, 'danger');
+      this.categories.push({
+        id: response.id,
+        name: response.name
+      });
+
+      this.newCategory = '';
+
+      await this.presentToast('Category created successfully', 'success');
+
+    } catch (err) {
+      console.error(err);
+      await this.presentToast('Failed to create category', 'danger');
     }
   }
 
