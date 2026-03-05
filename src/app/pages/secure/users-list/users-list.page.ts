@@ -18,6 +18,7 @@ export class UsersListPage {
   editedUser: any = {};
   originalUser: any = {};
   isChanged = false;
+  customRoles: any[] = [];
 
   private searchTimeout: any;
 
@@ -29,8 +30,17 @@ export class UsersListPage {
 
   ionViewDidEnter() {
     this.loadUsers();
+    this.loadCustomRoles();
   }
 
+  async loadCustomRoles() {
+  try {
+    const roles = await this.authService.getCustomRoles();
+    this.customRoles = Array.isArray(roles) ? roles : [];
+  } catch (error) {
+    console.error('Error loading roles', error);
+  }
+}
   async openAddEmployee() {
     const modal = await this.modalCtrl.create({
       component: AddUserComponent,
@@ -114,7 +124,7 @@ export class UsersListPage {
       emp_login_pin: this.editedUser.emp_login_pin
     };
 
-      
+      ;''
 
       await this.authService.updateEmployee(this.editingUserId!, payload);
 

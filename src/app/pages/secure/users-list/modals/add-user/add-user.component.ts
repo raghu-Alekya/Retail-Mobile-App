@@ -117,7 +117,7 @@ try {
     first_name: this.user.first_name,
     last_name: this.user.last_name,
     role: this.user.role,
-    phone: this.user.phone,
+    billing_phone: this.user.phone,
     emp_login_pin: this.user.emp_login_pin
   });
 
