@@ -25,8 +25,8 @@
 
 .products-header {
   background: #3f5065;
-  border-bottom-left-radius: 22px;
-  border-bottom-right-radius: 22px;
+  // border-bottom-left-radius: 22px;
+  // border-bottom-right-radius: 22px;
   overflow: hidden;
 
   padding-bottom: 14px; /* controls curve spacing */
@@ -277,101 +277,4 @@ hr {
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
-}
-
-/////////////////////////////////////
-
-/* ============================= */
-/* FULL SCREEN MODAL */
-/* ============================= */
-
-.full-modal {
-  --width: 100%;
-  --height: 100%;
-  --border-radius: 0;
-}
-
-/* ============================= */
-/* MODAL HEADER */
-/* ============================= */
-
-.discount-toolbar {
-  --background: #3f5065;
-  --color: #ffffff;
-}
-
-/* ============================= */
-/* MODERN FORM STYLE */
-/* ============================= */
-
-.form-content {
-  padding: 20px;
-  background: #f4f6f9;
-}
-
-/* Remove default ion-item look */
-.form-content ion-item {
-  --background: transparent;
-  --inner-border-width: 0;
-  --border-width: 0;
-  --highlight-color-focused: transparent;
-  --highlight-color-valid: transparent;
-  --highlight-color-invalid: transparent;
-  margin-bottom: 18px;
-  padding-left: 0;
-  padding-right: 0;
-}
-
-/* Remove MD underline completely */
-.form-content ion-item::after {
-  display: none;
-}
-
-/* Label styling */
-.form-content ion-label[position="stacked"] {
-  font-size: 20px;
-  font-weight: 600;
-  color: #5a6b7b;
-  margin-bottom: 6px;
-  letter-spacing: 0.3px;
-}
-
-/* Input / Select / Textarea styling */
-.form-content ion-input,
-.form-content ion-select,
-.form-content ion-textarea {
-  --background: #e9edf2;
-  --padding-start: 14px;
-  --padding-end: 14px;
-  --border-radius: 10px;
-  height: 44px;
-  font-size: 14px;
-  color: #333;
-}
-
-/* Remove focus glow */
-.form-content ion-input:focus,
-.form-content ion-select:focus {
-  outline: none;
-  box-shadow: none;
-}
-
-/* Checkbox spacing */
-.form-content ion-checkbox {
-  margin-right: 10px;
-}
-
-/* ============================= */
-/* SAVE BUTTON */
-/* ============================= */
-
-.save-btn {
-  margin-top: 25px;
-  --background: #3f5065;
-  --background-activated: #364658;
-  --background-hover: #364658;
-  --border-radius: 10px;
-  height: 48px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
 }

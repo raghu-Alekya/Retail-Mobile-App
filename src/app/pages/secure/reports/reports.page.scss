@@ -88,8 +88,8 @@ ion-footer {
 
 .summary-card {
   border-radius: 18px;
-  background: #78a5b9;  /* deep navy */
-  color: white;
+  background: #3f5065;  /* deep navy */
+  color: #ffffff;
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
   height : 90px;
 }
@@ -102,7 +102,7 @@ ion-footer {
 }
 
 .date-input ion-icon {
-  color: #2e6f89;   /* match your summary card color */
+  color: #3763a7;   /* match your summary card color */
   font-size: 18px;
 }
 
@@ -134,4 +134,28 @@ ion-footer {
   border-radius: 50%;
   margin-right: 6px;
 }
-
+.no-data{
+  height:200px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#777;
+  font-size:14px;
+  text-align:center;
+}
+// .date-input {
+//   background: #ffffff;
+// }
+// .date-input {
+//   --background: #3f5065;
+//   background: #3f5065;
+//   border-radius: 12px;
+//   margin: 12px 16px;
+//   color: #ffffff;
+// }
+// .date-input ion-icon {
+//   color: #ffffff;
+// }
+// .date-input ion-input {
+//   color: #ffffff;
+// }

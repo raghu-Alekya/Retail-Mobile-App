@@ -150,22 +150,17 @@
     <!-- Role -->
     <div class="form-field">
       <label>Employee Role</label>
-
       <ion-select
         placeholder="Select Employee Role"
         [(ngModel)]="editedUser.role"
         (ionChange)="checkChanges()">
 
-        <ion-select-option
-          *ngFor="let role of customRoles"
-          [value]="role.key">
-
-          {{ role.name }}
-
-        </ion-select-option>
+        <ion-select-option value="manager">Manager</ion-select-option>
+        <ion-select-option value="administrator">Administrator</ion-select-option>
+        <ion-select-option value="shop_manager">Shop Manager</ion-select-option>
+        <ion-select-option value="merchant">Merchant</ion-select-option>
 
       </ion-select>
-
     </div>
 
     <!-- Phone -->

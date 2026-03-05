@@ -5,7 +5,7 @@ ion-content.media-content {
 
 /* Navy blue header */
 .media-header ion-toolbar {
-  --background: #1d3556;   /* navy blue */
+  --background: #3f5065;   /* navy blue */
   --color: #ffffff;
   min-height: 64px;        /* increased height */
 }
@@ -73,7 +73,7 @@ ion-content.media-content {
 
 /* Custom Item */
 .custom-item {
-  background: #5b6f8e;
+  background: #3f5065;
   color: #fff;
   flex-direction: column;
   font-size: 12px;
@@ -112,13 +112,13 @@ ion-content.media-content {
 /* FAB button → WHITE background */
 ion-fab-button.upload-fab {
   --background: #ffffff !important;
-  --color: #1f3a5f !important; /* icon fallback */
+  --color: #3f5065 !important; /* icon fallback */
   --box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
 /* Icon → NAVY BLUE */
 .upload-fab ion-icon {
-  color: #1f3a5f !important;
+  color: #3f5065 !important;
   font-size: 35px;
   z-index: 2;
 }
@@ -134,14 +134,14 @@ ion-fab-button.upload-fab {
 /* Main FAB (white) */
 ion-fab-button.upload-fab {
   --background: #ffffff;
-  --color: #1f3a5f;
+  --color: #3f5065;
   --box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
 /* Action buttons */
 ion-fab-button.fab-action {
   --background: #ffffff;
-  --color: #1f3a5f;
+  --color: #3f5065;
   --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -159,7 +159,7 @@ ion-fab-button ion-icon {
 }
 /* NAVY color variable (optional but clean) */
 :host {
-  --navy-blue: #1f3a5f;
+  --navy-blue: #3f5065;
 }
 
 /* Main FAB + all child FABs */
@@ -258,7 +258,7 @@ ion-fab-button.fab-action ion-icon {
 .popup-bottom a {
   display: block;
   margin-top: 6px;
-  color: #1f3a5f;
+  color: #3f5065;
   font-size: 12px;
   word-break: break-all;
 }
@@ -321,4 +321,58 @@ ion-fab-button.fab-action ion-icon {
 }
 .delete-btn ion-icon {
   font-size: 16px !important;
+}
+.media-grid{
+  padding-bottom: 90px;
+}
+
+ion-fab{
+  bottom:20px;
+}
+.upload-fab {
+  width: 70px;
+  height: 70px;
+}
+ion-fab-button ion-icon {
+  font-size: 28px;
+}
+.upload-fab ion-icon {
+  font-size: 34px !important;
+}
+.media-item ion-fab {
+  right: 10px;
+}
+ion-fab {
+  right: 22px;
+}
+// ion-fab-button.fab-action ion-icon {
+//   font-size: 30px;
+// }
+
+
+ion-fab-button.fab-action ion-icon {
+  font-size: 26px;
+}
+/* Action buttons (camera + gallery) */
+ion-fab-button.fab-action {
+  width: 48px;
+  height: 48px;
+}
+
+/* Ensure FAB buttons center their icons */
+ion-fab-button.fab-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Proper icon size */
+ion-fab-button.fab-action ion-icon {
+  font-size: 26px;
+}
+ion-fab-list {
+  align-items: flex-end;
+}
+ion-fab-list ion-fab-button {
+  margin-bottom: 12px;
 }
