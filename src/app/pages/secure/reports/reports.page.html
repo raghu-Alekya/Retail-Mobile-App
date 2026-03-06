@@ -49,7 +49,7 @@
     <div class="header-row">
       <ion-card-title>Sales Chart</ion-card-title>
 
-      <div class="month-indicator" *ngIf="salesFilter !== 'daily'">
+      <div class="month-indicator">
         <span class="dot"></span>
         <span class="month-text">{{ currentMonth }}</span>
       </div>
@@ -94,10 +94,10 @@
   <ion-item lines="none" class="date-input">
     <ion-icon name="calendar-outline" slot="start"></ion-icon>
     <ion-input 
-      type="date"
-      [(ngModel)]="date"
-      (ionChange)="onDateChange()">
-    </ion-input>
+  type="date"
+  [(ngModel)]="date"
+  (ionChange)="onDateChange($event)">
+</ion-input>
   </ion-item>
 
 
@@ -113,28 +113,52 @@
 
  <!-- Sales Per Shift -->
   <ion-card>
-    <ion-card-header>
-      <ion-card-title>Sales Per Employee</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <div class="chart-container">
-        <canvas #shiftSalesChart></canvas>
+  <ion-card-header>
+    <ion-card-title>Sales Per Employee</ion-card-title>
+  </ion-card-header>
+
+  <ion-card-content>
+    <div class="chart-container">
+
+      <!-- Chart -->
+      <canvas *ngIf="shiftData?.shifts?.length > 0" #shiftSalesChart></canvas>
+
+      <!-- Future date message -->
+      <div class="no-data" *ngIf="isFutureDate(date)">
+        📅 Future dates cannot have sales
       </div>
-    </ion-card-content>
-  </ion-card>
+
+      <!-- No shifts message -->
+      <div class="no-data" *ngIf="!isFutureDate(date) && shiftData?.shifts?.length === 0">
+        🚫 No sales data for this date
+      </div>
+
+    </div>
+  </ion-card-content>
+</ion-card>
 
   <!-- Orders Per Shift -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Orders Per Employee</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <div class="chart-container">
-        <canvas #shiftOrdersChart></canvas>
-      </div>
-    </ion-card-content>
-  </ion-card>
+ <ion-card>
+  <ion-card-header>
+    <ion-card-title>Orders Per Employee</ion-card-title>
+  </ion-card-header>
 
+  <ion-card-content>
+    <div class="chart-container">
+
+      <canvas *ngIf="shiftData?.shifts?.length > 0" #shiftOrdersChart></canvas>
+
+      <div class="no-data" *ngIf="isFutureDate(date)">
+        📅 Future dates cannot have orders
+      </div>
+
+      <div class="no-data" *ngIf="!isFutureDate(date) && shiftData?.shifts?.length === 0">
+        🚫 No orders for this date
+      </div>
+
+    </div>
+  </ion-card-content>
+</ion-card>
  
 
 </ng-container>

@@ -18,7 +18,7 @@ addIcons({ pencil });
 export class AddCouponPage {
 
   @ViewChild('datePicker', { static: false }) datePicker!: IonDatetime;
-
+showDatePicker = false;
   editing: string | null = null;
 
   isDateModalOpen = false;
@@ -50,7 +50,14 @@ export class AddCouponPage {
 toggleCalendar() {
   this.showCalendar = !this.showCalendar;
 }
+openDatePicker() {
+  this.showDatePicker = true;
+}
 
+setDate(event: any) {
+  this.coupon.expireDate = event.detail.value.split('T')[0];
+  this.showDatePicker = false; // close popup immediately
+}
 onDateSelected(event: any) {
   this.coupon.expireDate = event.detail.value;
 

@@ -1,8 +1,8 @@
-
 import { Component } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { ModalController } from '@ionic/angular';
 import { AddUserComponent } from './modals/add-user/add-user.component';
+import { AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-users-list',
@@ -24,6 +24,7 @@ export class UsersListPage {
   constructor(
     private authService: AuthService,
     private modalCtrl: ModalController,
+    private alertCtrl: AlertController
   ) {}
 
   ionViewDidEnter() {
@@ -48,7 +49,8 @@ export class UsersListPage {
     }
   }
   
-  openEditUser(user: any) {
+  openEditUser(user: any, slidingItem: any) {
+    slidingItem.close(); 
     this.editingUserId = user.id;
 
     this.editedUser = {
@@ -58,7 +60,7 @@ export class UsersListPage {
       last_name: user.last_name || '',
 
       role: Array.isArray(user?.roles) ? user.roles[0] : '',
-      phone: user.description || '',
+      phone: user?.meta?.billing_phone || '',
       emp_login_pin: user?.meta?.emp_login_pin || ''
     };
 
@@ -70,30 +72,51 @@ export class UsersListPage {
       JSON.stringify(this.editedUser);
   }
 
+  async deleteUser(id: number) {
+
+  const alert = await this.alertCtrl.create({
+    header: 'Delete Employee',
+    message: 'Are you sure you want to delete this employee?',
+    buttons: [
+      {
+        text: 'Cancel',
+        role: 'cancel',
+        cssClass: 'secondary'
+      },
+      {
+        text: 'Delete',
+        role: 'destructive',
+        handler: async () => {
+          try {
+            await this.authService.deleteEmployee(id);
+            this.loadUsers(); // refresh list
+          } catch (error) {
+            console.error('Delete error:', error);
+          }
+        }
+      }
+    ]
+  });
+
+  await alert.present();
+}
+
   async saveChanges() {
     try {
 
       const payload: any = {
-        username: this.editedUser.username,
-        email: this.editedUser.email,
-        first_name: this.editedUser.first_name,
-        last_name: this.editedUser.last_name,
-        description: this.editedUser.phone
-      };
+      username: this.editedUser.username,
+      email: this.editedUser.email,
+      first_name: this.editedUser.first_name,
+      last_name: this.editedUser.last_name,
+      role: this.editedUser.role,
+      billing_phone: this.editedUser.phone,
+      emp_login_pin: this.editedUser.emp_login_pin
+    };
 
-      // ✅ only send role if exists
-      if (this.editedUser.role) {
-        payload.roles = [this.editedUser.role];
-      }
+      
 
-      // ✅ only send meta if exists
-      if (this.editedUser.emp_login_pin) {
-        payload.meta = {
-          emp_login_pin: this.editedUser.emp_login_pin
-        };
-      }
-
-      await this.authService.updateUser(this.editingUserId!, payload);
+      await this.authService.updateEmployee(this.editingUserId!, payload);
 
       this.editingUserId = null;
       this.loadUsers();

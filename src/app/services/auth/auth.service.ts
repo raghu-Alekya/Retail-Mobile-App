@@ -173,7 +173,46 @@ async getOrders(page: number, search: string = '', status: string = '') {
     ? JSON.parse(res.data)
     : res.data;
 }
+async getPartialOrders(page: number, search: string = '', status: string = '')
+{
+  const token = localStorage.getItem('wc_token');
+  this.wpBase = this.apiConfig.getBaseUrl();
 
+  const params: any = {
+    page: String(page),
+    per_page: '10',
+    orderby: 'date',
+    order: 'desc',
+  };
+
+  // ✅ apply status filter
+  if (status) {
+    params.status = status;
+  }
+
+  // ⭐ detect order ID search
+  if (search) {
+    if (!isNaN(Number(search))) {
+      params.include = search;   // search by order ID
+    } else {
+      params.search = search;    // search by name/email
+    }
+  }
+
+  const res = await Http.request({
+    method: 'GET',
+    url: `${this.wpBase}/wp-json/pinaka-pos/v1/orders/get-mobile-partial-orders`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    },
+    params
+  });
+
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
+}
  async getProducts(page: number, search: string = '', stock: string = '') {
 
   const token = localStorage.getItem('wc_token');
@@ -800,10 +839,44 @@ async createEmployee(data: any) {
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/employee/create-employee`,
     headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
+    data: data
+  });
+
+  return res.data;
+}
+
+async updateEmployee(id: number, data: any) {
+
+  const res = await Http.request({
+    method: 'POST',
+    url: `${this.wpBase}/wp-json/pinaka-pos/v1/employee/update-employee/${id}`,
+    headers: {
       'Content-Type': 'application/json',
       ...this.getAuthHeaders()
     },
-    data: JSON.stringify(data)  // VERY IMPORTANT
+    data: JSON.stringify({
+      username: data.username,
+      email: data.email,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      role: data.role,
+      billing_phone: data.billing_phone,
+      emp_login_pin: data.emp_login_pin
+    })
+  });
+
+  return res.data;
+}
+
+async deleteEmployee(id: number) {
+
+  const res = await Http.request({
+    method: 'DELETE',
+    url: `${this.wpBase}/wp-json/pinaka-pos/v1/employee/delete-employee/${id}`,
+    headers: this.getAuthHeaders()
   });
 
   return res.data;
@@ -1194,14 +1267,23 @@ async sequentialCoupons(payload: any) {
 
 // Categories
 async saveCategory(payload: any) {
+
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/wc/v3/products/categories`,
-    headers: this.getAuthHeaders(),
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
     data: payload
   });
 
-  return res.data;
+  const data =
+    typeof res.data === 'string'
+      ? JSON.parse(res.data)
+      : res.data;
+
+  return data;
 }
 
 async deleteCategory(id: number) {
