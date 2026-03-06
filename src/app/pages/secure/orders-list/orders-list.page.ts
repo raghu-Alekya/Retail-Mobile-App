@@ -18,7 +18,8 @@ export class OrderListPage implements OnInit {
   page = 1;
   loading = false;
   hasMore = true;
-
+  activeFilter: string = 'all';
+  selectedStatus = 'all';
   currencySymbol: string = '';
 
   searchTerm: string = '';
@@ -42,6 +43,14 @@ export class OrderListPage implements OnInit {
   /* ================================
      LOAD ORDERS
   ================================= */
+  setFilter(type: string) {
+    this.activeFilter = type;
+    this.selectedStatus = type;
+    this.page = 1;
+    this.orders = [];
+    this.hasMore = true;
+    this.loadOrders();
+  }
   async loadOrders(event?: any) {
 
     if (this.loading || !this.hasMore) {
@@ -52,12 +61,24 @@ export class OrderListPage implements OnInit {
     this.loading = true;
 
     try {
-      const data = await this.authService.getOrders(
-        this.page,
-        this.searchTerm,
-         this.selectedStatus === 'all' ? '' : this.selectedStatus
-      );
+      let data: any = [];
+      if (this.selectedStatus !== 'partial-refund') {
 
+        data = await this.authService.getOrders(
+          this.page,
+          this.searchTerm,
+          this.selectedStatus !== 'all' ? this.selectedStatus : ''
+        );
+
+      } else {
+
+        data = await this.authService.getPartialOrders(
+          this.page,
+          this.searchTerm,
+          'partial-refund'
+        );
+
+      }
       if (Array.isArray(data) && data.length > 0) {
 
         // replace results when new search
@@ -157,14 +178,19 @@ export class OrderListPage implements OnInit {
     { label: 'All', value: 'all' },
     { label: 'Completed', value: 'completed' },
     { label: 'Processing', value: 'processing' },
-    { label: 'Pending', value: 'pending' }
+    { label: 'Pending', value: 'pending' },
+    { label: 'On Hold', value: 'on-hold' },
+    { label: 'Cancelled', value: 'cancelled' },
+    { label: 'Refunded', value: 'refunded' },
+    { label: 'Partially Refunded', value: 'partial-refund' }
   ];
 
-  selectedStatus = 'all';
-
+  showMoreStatuses = false;
   selectStatus(status: string) {
+    if (this.loading) return;
     this.selectedStatus = status;
-
+    this.activeFilter = status;
+    this.setFilter(status);
     // reload when filter changes
     this.page = 1;
     this.orders = [];
