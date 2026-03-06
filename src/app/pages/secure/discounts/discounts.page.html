@@ -116,7 +116,7 @@
   <ion-modal  [isOpen]="showForm" (didDismiss)="showForm=false">
   <ng-template>
     <ion-header>
-      <ion-toolbar color="primary">
+      <ion-toolbar class="discount-toolbar">
         <ion-title>
           {{ editingCoupon ? 'Edit Discount' : 'Create Discount' }}
         </ion-title>
@@ -128,7 +128,7 @@
     <ion-content class="form-content">
       <div class="scroll-wrapper">
         <ion-item>
-          <ion-label position="stacked">Type</ion-label>
+          <ion-label position="stacked" >Type</ion-label>
           <ion-select
             placeholder="Select discount type"
             [(ngModel)]="form.type" (ionChange)="onDiscountTypeChange($event)">
@@ -300,7 +300,6 @@
         </div>
         <ion-button
           expand="block"
-          color="primary"
           class="save-btn"
           (click)="saveCoupon()">
           {{ editingCoupon ? 'Update Discount' : 'Create Discount' }}
