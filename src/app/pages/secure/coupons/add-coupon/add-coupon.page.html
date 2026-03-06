@@ -1,7 +1,7 @@
 <ion-header class="coupon-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
+      <ion-back-button defaultHref="/coupons"></ion-back-button>
     </ion-buttons>
 
     <ion-title>Add Coupon</ion-title>
@@ -266,33 +266,35 @@
 </ion-card>
 
 
-<!-- Expire Date -->
-<!-- Expire Date -->
+<!-- Expire Date Card -->
 <ion-card class="coupon-card">
-  <ion-item id="open-expiry">
+  <ion-item (click)="openDatePicker()">
     <ion-label>
-      Expire date:
-      {{ coupon.expireDate ? (coupon.expireDate | date:'mediumDate') : 'Select date' }}
+      Expire date: {{ coupon.expireDate || 'Select date' }}
     </ion-label>
-
     <ion-icon name="calendar-outline" slot="end"></ion-icon>
   </ion-item>
 </ion-card>
 
-<!-- Calendar Modal -->
-<ion-modal trigger="open-expiry" class="calendar-modal">
-  <ng-template>
+<!-- Center Popup Calendar -->
+<ion-modal
+  [isOpen]="showDatePicker"
+  (didDismiss)="showDatePicker=false"
+  class="calendar-modal">
 
-    <div class="calendar-wrapper">
+  <ng-template>
+    <div class="calendar-container">
+
       <ion-datetime
         presentation="date"
-        [(ngModel)]="coupon.expireDate">
+        [value]="coupon.expireDate"
+        (ionChange)="setDate($event)">
       </ion-datetime>
+
     </div>
-
   </ng-template>
-</ion-modal>
 
+</ion-modal>
 <!-- Delete Button -->
 <div *ngIf="editingCoupon?.id" class="delete-wrapper">
   <ion-button

@@ -14,8 +14,9 @@ import { Router } from '@angular/router';
   imports: [IonicModule, CommonModule, FormsModule]
 })
 export class CouponsPage {
-
-  coupons: any[] = [];
+searchTerm: string = '';
+coupons: any[] = [];
+filteredCoupons: any[] = [];
   loading = false;
   showForm = false;
   editingCoupon: any = null;
@@ -51,9 +52,11 @@ async loadCoupons() {
   try {
     const response = await this.auth.getCoupons();
     this.coupons = response || [];
+    this.filteredCoupons = [...this.coupons];   // ✅ important
   } catch (error) {
     console.error('Error loading coupons:', error);
     this.coupons = [];
+    this.filteredCoupons = [];
   } finally {
     this.loading = false;
   }
@@ -162,4 +165,19 @@ async loadCoupons() {
       description: ''
     };
   }
+ filterCoupons() {
+
+  const term = this.searchTerm.toLowerCase().trim();
+
+  if (!term) {
+    this.filteredCoupons = [...this.coupons];
+    return;
+  }
+
+  this.filteredCoupons = this.coupons.filter(coupon =>
+    coupon.code?.toLowerCase().includes(term) ||
+    coupon.description?.toLowerCase().includes(term)
+  );
+
+}
 }

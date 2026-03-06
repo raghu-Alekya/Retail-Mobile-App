@@ -202,32 +202,32 @@ export class PosSettingsPage implements OnInit {
 
   async addCategory() {
 
-    if (!this.newCategory.trim()) return;
+  if (!this.newCategory.trim()) return;
 
-    const payload = {
-      name: this.newCategory.trim()
-    };
+  const payload = {
+    name: this.newCategory.trim()
+  };
 
-    try {
+  try {
 
-      const response = await this.authService.saveCategory(payload);
+    const response = await this.authService.saveCategory(payload);
 
-      console.log("CATEGORY RESPONSE:", response);
+    console.log("CATEGORY RESPONSE:", response);
 
-      this.categories.push({
-        id: response.id,
-        name: response.name
-      });
+    this.categories.push({
+      id: response.id,
+      name: response.name
+    });
 
-      this.newCategory = '';
+    this.newCategory = '';
 
-      await this.presentToast('Category created successfully', 'success');
+    await this.presentToast('Category created successfully', 'success');
 
-    } catch (err) {
-      console.error(err);
-      await this.presentToast('Failed to create category', 'danger');
-    }
+  } catch (err) {
+    console.error(err);
+    await this.presentToast('Failed to create category', 'danger');
   }
+}
 
   async removeCategory(category_id: number) {
 

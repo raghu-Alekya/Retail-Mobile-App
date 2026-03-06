@@ -1,13 +1,15 @@
+<ion-content class="media-content" fullscreen="true">
 <ion-header class="media-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
     </ion-buttons>
+
     <ion-title>Media Library</ion-title>
   </ion-toolbar>
 </ion-header>
 
-
+<ion-content>
 
   <!-- Pull to refresh -->
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
@@ -37,34 +39,27 @@
     (ionInfinite)="loadMedia($event)"
     [disabled]="!hasMore">
 
-    <ion-infinite-scroll-content
-      loadingSpinner="bubbles">
+    <ion-infinite-scroll-content loadingSpinner="bubbles">
     </ion-infinite-scroll-content>
 
   </ion-infinite-scroll>
 
-  <!-- Floating Upload Button -->
-<!-- <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-  <ion-fab-button class="upload-fab">
-    <ion-icon name="image"></ion-icon> -->
+</ion-content>
 
-    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+<!-- Floating Upload Button -->
+<ion-fab vertical="bottom" horizontal="end" slot="fixed">
   <ion-fab-button class="upload-fab">
     <ion-icon name="image"></ion-icon>
   </ion-fab-button>
 
-  <!-- Animated action list -->
   <ion-fab-list side="top">
-    <!-- Camera -->
     <ion-fab-button class="fab-action" (click)="openCamera()">
       <ion-icon name="camera-outline"></ion-icon>
     </ion-fab-button>
 
-    <!-- Gallery -->
     <ion-fab-button class="fab-action">
       <ion-icon name="images-outline"></ion-icon>
 
-      <!-- File input for gallery -->
       <input
         type="file"
         accept="image/*"
@@ -74,6 +69,8 @@
     </ion-fab-button>
   </ion-fab-list>
 </ion-fab>
+
+<!-- Modal -->
 <ion-modal 
   [isOpen]="!!selectedMedia"
   (didDismiss)="selectedMedia = null"
@@ -82,13 +79,9 @@
   <ng-template>
     <div class="media-popup">
 
-      <!-- Top Dark Section -->
       <div class="popup-top">
-
-        <img 
-          class="popup-image"
-          [src]="selectedMedia?.source_url" 
-          alt="Media Image" />
+        <img class="popup-image"
+          [src]="selectedMedia?.source_url" />
 
         <h2>{{ selectedMedia?.title?.rendered || 'Custom Item' }}</h2>
 
@@ -98,24 +91,20 @@
           </div>
 
           <ion-button
-          class="delete-btn"
-          fill="solid"
-          color="danger"
-          (click)="handleDelete(selectedMedia.id)">
+            class="delete-btn"
+            fill="solid"
+            color="danger"
+            (click)="handleDelete(selectedMedia.id)">
 
-          <ion-icon name="trash-outline" slot="start" class="delete-icon"></ion-icon>
-          <span class="delete-text">Delete</span>
+            <ion-icon name="trash-outline" slot="start"></ion-icon>
+            Delete
+          </ion-button>
 
-        </ion-button>
         </div>
+      </div>
 
-      </div> <!-- ✅ CLOSE popup-top properly -->
-
-      <!-- Bottom White Section -->
       <div class="popup-bottom">
-        <p>
-          File type: {{ selectedMedia?.mime_type }}
-        </p>
+        <p>File type: {{ selectedMedia?.mime_type }}</p>
 
         <a [href]="selectedMedia?.source_url" target="_blank">
           {{ selectedMedia?.source_url }}

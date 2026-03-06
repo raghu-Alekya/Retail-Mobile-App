@@ -34,25 +34,11 @@ export class OrderPaymentsPage implements OnInit {
   refresh(event: any) {
     this.loadPayments(event);
   }
-  onPaymentFilter(event: any) {
-
-    const mode = event.detail.value || '';
-
-    this.paymentMode = mode;
-
-    // reset pagination
-    this.page = 1;
-    this.payments = [];
-    this.groupedPayments = [];
-    this.hasMore = true;
-
-    this.loadPayments();
-  }
-  // groupPayments(list: any[] = this.payments) {
+  // groupPayments() {
 
   //   const grouped: any = {};
 
-  //   list.forEach((p: any) => {
+  //   this.payments.forEach((p: any) => {
 
   //     const orderId = p?.meta?.order_id;
 
@@ -69,14 +55,27 @@ export class OrderPaymentsPage implements OnInit {
 
   //     grouped[orderId].transactions.push({
   //       transaction_id: p.transaction_id,
-  //       pay_mode: p.pay_mode,
   //       tender_amount: p.tender_amount
   //     });
 
   //   });
 
-  //   this.groupedPayments = [...Object.values(grouped)];
+  //   this.groupedPayments = Object.values(grouped);
   // }
+  onPaymentFilter(event: any) {
+
+    const mode = event.detail.value || '';
+
+    this.paymentMode = mode;
+
+    // reset pagination
+    this.page = 1;
+    this.payments = [];
+    this.groupedPayments = [];
+    this.hasMore = true;
+
+    this.loadPayments();
+  }
   groupPayments(list: any[] = this.payments) {
 
     const grouped: any = {};
@@ -104,17 +103,7 @@ export class OrderPaymentsPage implements OnInit {
 
     });
 
-    const newGroups = Object.values(grouped);
-
-    // 🔥 merge instead of reset
-    if (this.page === 1) {
-      this.groupedPayments = newGroups;
-    } else {
-      this.groupedPayments = [...this.groupedPayments, ...newGroups];
-    }
-  }
-  trackByOrder(index: number, item: any) {
-    return item.order_id;
+    this.groupedPayments = Object.values(grouped);
   }
     /**
    * Status badge color
@@ -165,14 +154,8 @@ export class OrderPaymentsPage implements OnInit {
       const items = Array.isArray(res?.data) ? res.data : [];
 
       if (items.length > 0) {
-        if (this.page === 1) {
-          this.payments = items;
-        } else {
-          this.payments.push(...items);
-        }
-
-        this.groupPayments(items); // group only new items
-
+        this.payments.push(...items);
+        this.groupPayments();
         this.page++;
         this.hasMore = res.pagination?.has_more ?? false;
       } else {
@@ -218,27 +201,6 @@ export class OrderPaymentsPage implements OnInit {
 
   //   this.groupPayments(filtered);
   // }
-  // onSearch(event: any) {
-
-  //   clearTimeout(this.searchTimeout);
-
-  //   this.searchTimeout = setTimeout(() => {
-
-  //     const value = event.target.value?.trim() || '';
-
-  //     this.search = value;
-
-  //     // reset pagination
-  //     this.page = 1;
-  //     this.payments = [];
-  //     this.groupedPayments = [];
-  //     this.hasMore = true;
-
-  //     this.loadPayments();
-
-  //   }, 2000);
-
-  // }
   onSearch(event: any) {
 
     clearTimeout(this.searchTimeout);
@@ -249,15 +211,16 @@ export class OrderPaymentsPage implements OnInit {
 
       this.search = value;
 
+      // reset pagination
       this.page = 1;
-      this.hasMore = true;
-
       this.payments = [];
       this.groupedPayments = [];
+      this.hasMore = true;
 
       this.loadPayments();
 
-    }, 500); // faster debounce
+    }, 2000);
+
   }
   /**
    * Format date safely

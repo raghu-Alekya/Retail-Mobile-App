@@ -64,19 +64,13 @@ export class DiscountsPage implements OnInit {
     this.loadDiscounts();
   }
   
-  apiUrl = `${this.wpBases}/wp-json/pinaka-pos/v1/custom-discount/get-all-discounts-for-admin`;
   async loadDiscounts() {
     try {
       this.loading = true;
-      const res = await axios.get(this.apiUrl, {
-        headers: this.getAuthHeaders(),
-        params: {
-          page: 1,
-          per_page: 200
-        }
-      }); 
+      const res = await this.auth.getDiscounts(String(this.page), String(this.perPage)); 
       /////////
-      this.grouped = res.data?.data || {};
+      //this.grouped = res.data?.data || {};
+      this.grouped = res?.data || {};
       this.allDiscounts = this.flattenAll();
       this.applySearchAndFilter();
       ////////
@@ -108,14 +102,9 @@ export class DiscountsPage implements OnInit {
 
   async fetchProducts(query: string) {
     try {
-      const res = await axios.get(
-        `${this.wpBases}/wp-json/wc/v3/products?search=${query}&per_page=10`,
-        {
-          headers: this.getAuthHeaders()
-        }
-      );
+      const res = await this.auth.searchProducts(query);
 
-      this.productSuggestions = res.data || [];
+      this.productSuggestions = res || [];
       this.showSuggestions = true;
     } catch (err) {
       console.error('Product search failed', err);
@@ -199,12 +188,12 @@ export class DiscountsPage implements OnInit {
       this.discountSuggestions = [];
       this.selectedDiscountProducts = [];
       this.form.discount_product_ids = [];
-      this.activeFilter = '';
+      this.activeFilter = 'all';
     }
   
     async openEdit(coupon: any) {
       // console.log(coupon);
-      this.activeFilter = '';
+      this.activeFilter = 'all';
       this.filter_type = coupon.type;
       this.editingCoupon = coupon;
       this.form = {

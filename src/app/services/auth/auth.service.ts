@@ -173,7 +173,46 @@ async getOrders(page: number, search: string = '', status: string = '') {
     ? JSON.parse(res.data)
     : res.data;
 }
+async getPartialOrders(page: number, search: string = '', status: string = '')
+{
+  const token = localStorage.getItem('wc_token');
+  this.wpBase = this.apiConfig.getBaseUrl();
 
+  const params: any = {
+    page: String(page),
+    per_page: '10',
+    orderby: 'date',
+    order: 'desc',
+  };
+
+  // ✅ apply status filter
+  if (status) {
+    params.status = status;
+  }
+
+  // ⭐ detect order ID search
+  if (search) {
+    if (!isNaN(Number(search))) {
+      params.include = search;   // search by order ID
+    } else {
+      params.search = search;    // search by name/email
+    }
+  }
+
+  const res = await Http.request({
+    method: 'GET',
+    url: `${this.wpBase}/wp-json/pinaka-pos/v1/orders/get-mobile-partial-orders`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    },
+    params
+  });
+
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
+}
  async getProducts(page: number, search: string = '', stock: string = '') {
 
   const token = localStorage.getItem('wc_token');
@@ -1094,7 +1133,7 @@ async getDiscounts(page = "1", perPage = "10") {
     params: { page, per_page: perPage }
   });
 
-  return res.data;
+  return res;
 }
 
 async createDiscount(data: any) {

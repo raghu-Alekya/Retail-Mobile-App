@@ -398,3 +398,18 @@ ion-content {
   border-radius: 50%;
   box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+}
+
+ion-chip {
+  background: #e0e0e0;
+  color: #333;
+}
+
+ion-chip.active {
+  background: var(--ion-color-primary);
+  color: white;
+}

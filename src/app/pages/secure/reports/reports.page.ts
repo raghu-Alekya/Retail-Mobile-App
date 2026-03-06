@@ -25,7 +25,11 @@ export class ReportsPage implements AfterViewInit {
   @ViewChild('salesChart') salesChartRef!: ElementRef;
   @ViewChild('shiftOrdersChart') shiftOrdersChartRef!: ElementRef;
   @ViewChild('shiftSalesChart') shiftSalesChartRef!: ElementRef;
-
+totalSales: number = 0;
+totalOrders: number = 0;
+today: string = new Date().toISOString();
+salesPerEmployee: any[] = [];
+ordersPerEmployee: any[] = [];
   ordersChart: any;
   salesChart: any;
   shiftOrdersChart: any;
@@ -48,48 +52,71 @@ export class ReportsPage implements AfterViewInit {
 
   // ================= SALES =================
   async loadSales() {
-    this.sales = await this.authService.loadSales(this.salesFilter);
 
-    setTimeout(() => {
-      this.buildOrdersChart();
-      this.buildSalesChart();
-    }, 100);
-  }
+  this.sales = await this.authService.loadSales(this.salesFilter);
 
+  // ⭐ Set month name
+  const now = new Date();
+  this.currentMonth = now.toLocaleString('default', { month: 'long' });
+
+  setTimeout(() => {
+    this.buildOrdersChart();
+    this.buildSalesChart();
+  }, 100);
+
+}
   onSalesFilterChange(event: any) {
     this.salesFilter = event.detail.value;
     this.loadSales();
   }
 
   // ================= SHIFT REPORT =================
-  async loadShiftReport() {
-    console.log("Loading shift report for:", this.date);
+async loadShiftReport(date: string) {
 
-    this.shiftData = await this.authService.loadEmployeeSales(this.date);
+  const res = await this.authService.loadEmployeeSales(date);
 
-    console.log("SHIFT DATA:", this.shiftData);
+  console.log("SHIFT DATA:", res);
 
-    setTimeout(() => {
-      this.buildShiftOrdersChart();
-      this.buildShiftSalesChart();
-    }, 100);
+  this.shiftData = res;
+
+  if (!res.shifts || res.shifts.length === 0) {
+
+    this.totalSales = 0;
+    this.totalOrders = 0;
+
+    this.shiftOrdersChart?.destroy();
+    this.shiftSalesChart?.destroy();
+
+    return;
   }
 
-  // ================= ITEM SALES =================
-  // async loadItemSales() {
-  //   const res = await this.authService.loadItemSales(this.date);
-  //   console.log("ITEM SALES:", res);
+  this.totalSales = res.total_sales;
+  this.totalOrders = res.total_orders;
 
-  //   this.itemSales = res; // adjust if API returns {items:[]}
-  // }
+  setTimeout(() => {
+    this.buildShiftOrdersChart();
+    this.buildShiftSalesChart();
+  }, 100);
 
-  // ================= DATE CHANGE =================
-  onDateChange() {
-    if (this.activeTab === 'shift') {
-      this.loadShiftReport();
-    }
+}
+
+onDateChange(event: any) {
+
+  const selectedDate = event?.detail?.value || event?.target?.value;
+
+  if (!selectedDate) return;
+
+  this.date = selectedDate.substring(0, 10);
+
+  if (this.activeTab === 'shift') {
+    this.loadShiftReport(this.date);
   }
+}
 
+
+isFutureDate(date: string) {
+  return new Date(date) > new Date();
+}
   // ================= TAB CHANGE =================
   onTabChange(event: any) {
     this.activeTab = event.detail.value;
@@ -101,7 +128,7 @@ export class ReportsPage implements AfterViewInit {
       }
 
       if (this.activeTab === 'shift') {
-        this.loadShiftReport();
+        this.loadShiftReport(this.date);
       }
     }, 100);
   }
@@ -121,7 +148,7 @@ export class ReportsPage implements AfterViewInit {
         labels,
         datasets: [{
           data,
-          backgroundColor: 'rgba(75,192,120,0.6)',
+          backgroundColor: '#67829d',
           borderRadius: 8
         }]
       },
@@ -148,7 +175,7 @@ export class ReportsPage implements AfterViewInit {
         labels,
         datasets: [{
           data,
-          backgroundColor: 'rgba(54,162,235,0.6)',
+          backgroundColor: '#67829d',
           borderRadius: 8
         }]
       },
@@ -186,7 +213,7 @@ export class ReportsPage implements AfterViewInit {
         labels,
         datasets: [{
           data,
-          backgroundColor: 'rgba(75,192,120,0.6)',
+          backgroundColor: '#67829d',
           borderRadius: 8
         }]
       },
@@ -211,29 +238,31 @@ export class ReportsPage implements AfterViewInit {
     this.shiftSalesChart?.destroy();
 
     this.shiftSalesChart = new Chart(this.shiftSalesChartRef.nativeElement, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          data,
-          backgroundColor: 'rgba(54,162,235,0.6)',
-          borderRadius: 8
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => `₹ ${ctx.parsed.y}`
-            }
-          }
-        },
-        scales: { y: { beginAtZero: true } }
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [{
+      data,
+      backgroundColor: '#67829d',
+      borderRadius: 8
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `₹ ${ctx.parsed.y}`
+        }
       }
-    });
+    },
+    scales: {
+      y: { beginAtZero: true }
+    }
+  }
+});
   }
   getCurrentWeekRange() {
   const now = new Date();
