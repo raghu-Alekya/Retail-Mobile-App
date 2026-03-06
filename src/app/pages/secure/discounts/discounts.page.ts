@@ -69,7 +69,8 @@ export class DiscountsPage implements OnInit {
       this.loading = true;
       const res = await this.auth.getDiscounts(String(this.page), String(this.perPage)); 
       /////////
-      this.grouped = res.data?.data || {};
+      //this.grouped = res.data?.data || {};
+      this.grouped = res?.data || {};
       this.allDiscounts = this.flattenAll();
       this.applySearchAndFilter();
       ////////
@@ -103,7 +104,7 @@ export class DiscountsPage implements OnInit {
     try {
       const res = await this.auth.searchProducts(query);
 
-      this.productSuggestions = res.data || [];
+      this.productSuggestions = res || [];
       this.showSuggestions = true;
     } catch (err) {
       console.error('Product search failed', err);
@@ -187,12 +188,12 @@ export class DiscountsPage implements OnInit {
       this.discountSuggestions = [];
       this.selectedDiscountProducts = [];
       this.form.discount_product_ids = [];
-      this.activeFilter = '';
+      this.activeFilter = 'all';
     }
   
     async openEdit(coupon: any) {
       // console.log(coupon);
-      this.activeFilter = '';
+      this.activeFilter = 'all';
       this.filter_type = coupon.type;
       this.editingCoupon = coupon;
       this.form = {
