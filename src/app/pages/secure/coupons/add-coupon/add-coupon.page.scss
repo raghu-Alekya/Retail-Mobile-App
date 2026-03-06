@@ -67,7 +67,7 @@ ion-label {
 }
 
 .custom-header {
-  --background: #2f4f6f;
+  --background: #3f5065;
   --color: #ffffff;
   height: 64px; /* increase height */
   padding-top: 6px;
@@ -89,8 +89,8 @@ ion-back-button {
 
 /* Save Button Styling */
 .save-btn {
-  --background: #ffffff;
-  --color: #2f4f6f;
+  // --background: #ffffff;
+  --color: #ffffff;
   --border-radius: 6px;
   font-weight: 500;
   height: 32px;
@@ -112,4 +112,17 @@ ion-item {
 
 ion-item.item-has-focus {
   --highlight-color-focused: #2f4f6f;
+}
+.calendar-modal {
+  --height: auto;
+  --width: 90%;
+  --border-radius: 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-container {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
 }

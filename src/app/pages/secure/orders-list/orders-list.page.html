@@ -35,7 +35,32 @@
 </ion-header>
 
 <ion-content class="orders-content ion-padding">
+  <div class="filter-tabs">
+    <ion-chip 
+    [class.active]="activeFilter === 'all'"
+    (click)="setFilter('all')">
+      All
+    </ion-chip>
 
+    <ion-chip [class.active]="activeFilter === 'completed'"
+    (click)="setFilter('completed')">
+      Completed
+    </ion-chip>
+
+    <ion-chip [class.active]="activeFilter === 'pending'"
+    (click)="setFilter('pending')">
+      Pending
+    </ion-chip>
+
+    <ion-chip
+      [class.active]="!['all','completed','pending'].includes(activeFilter)"
+      (click)="showMoreStatuses = true">
+      More
+    </ion-chip>
+  </div>
+  <!-- <div *ngIf="!orders || orders.length === 0" class="no-orders">
+    No Orders Found
+  </div> -->
   <div
     class="order-card"
     *ngFor="let order of orders; trackBy: trackById"
@@ -289,3 +314,52 @@
     </button>
   </div>
 </ion-footer>
+<ion-modal [isOpen]="showMoreStatuses">
+
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Select Status</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="showMoreStatuses = false">
+            Close
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+
+      <ion-list>
+
+        <ion-item *ngFor="let s of orderStatuses">
+          <ion-checkbox
+            slot="start"
+            [checked]="selectedStatus === s.value"
+            (ionChange)="selectStatus(s.value); showMoreStatuses=false"
+          >
+          </ion-checkbox>
+
+          <ion-label>{{ s.label }}</ion-label>
+
+        </ion-item>
+
+      </ion-list>
+
+    </ion-content>
+
+  </ng-template>
+
+</ion-modal>
+<!-- Order Filters-->
+<!-- <ion-footer class="order-filter-footer">
+  <div class="order-filter-bar">
+    <button
+      *ngFor="let s of orderStatuses"
+      [class.active]="selectedStatus === s.value"
+      (click)="selectStatus(s.value)"
+    >
+      {{ s.label }}
+    </button>
+  </div>
+</ion-footer> -->

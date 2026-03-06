@@ -38,7 +38,7 @@
 
 <ion-list>
 
-  <ion-item-sliding *ngFor="let user of users; let i = index">
+  <ion-item-sliding #slidingItem *ngFor="let user of filteredUsers; let i = index">
 
     <!-- CARD CONTENT -->
     <ion-item lines="none">
@@ -57,9 +57,10 @@
 
           <div class="details">
             <div class="name">{{ user.name }}</div>
+
             <div class="login-id">
-            Login Pin: {{ user.meta?.emp_login_pin || 'Not Set' }}
-          </div>
+              Login Pin: {{ user.meta?.emp_login_pin || 'Not Set' }}
+            </div>
           </div>
         </div>
 
@@ -70,21 +71,19 @@
     <!-- SWIPE BUTTONS -->
     <ion-item-options side="end">
 
+      <ion-item-option
+        color="success"
+        (click)="openEditUser(user, slidingItem)">
+        EDIT
+      </ion-item-option>
 
+      <ion-item-option
+        color="danger"
+        (click)="deleteUser(user.id)">
+        DELETE
+      </ion-item-option>
 
-  <ion-item-option color="success"
-                   (click)="openEditUser(user)">
-    EDIT
-  </ion-item-option>
-
-  <ion-item-option color="danger"
-                   (click)="deleteUser(user)">
-    DELETE
-  </ion-item-option>
-
-</ion-item-options>
-
-   
+    </ion-item-options>
 
   </ion-item-sliding>
 

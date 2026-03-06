@@ -1,5 +1,5 @@
 .dark-toolbar {
-  --background: #2f5378;
+  --background: #3f5065;
   --color: #ffffff;
 }
 
@@ -32,4 +32,9 @@ ion-item {
 ion-input {
   --placeholder-color: #777;
   --placeholder-opacity: 1;
+}
+.save-btn {
+  --background: #3f5065;   /* button color */
+  --color: #ffffff;        /* text color */
+  --border-radius: 8px;
 }
