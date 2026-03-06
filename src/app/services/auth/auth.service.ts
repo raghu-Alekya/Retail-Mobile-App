@@ -1060,7 +1060,7 @@ async getDiscounts(page = "1", perPage = "10") {
     params: { page, per_page: perPage }
   });
 
-  return res.data;
+  return res;
 }
 
 async createDiscount(data: any) {
