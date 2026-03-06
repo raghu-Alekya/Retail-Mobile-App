@@ -47,5 +47,7 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>This app requires camera access to scan QR codes / take photos for orders.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow access to upload product images</string>
 </dict>
 </plist>
