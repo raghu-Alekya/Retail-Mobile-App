@@ -241,6 +241,7 @@ export class DiscountsPage implements OnInit {
           headers: this.getAuthHeaders()
         }
       );
+      
         if (res.data && res.data.length) {
           const p = res.data[0];
           console.log(p);
@@ -359,7 +360,7 @@ export class DiscountsPage implements OnInit {
             text: 'Delete',
             role: 'destructive',
             handler: async () => {
-              await this.auth.deleteDiscount(coupon.id, this.activeFilter);
+              await this.auth.deleteDiscount(coupon.id, coupon.type);
               const prevfilters = this.activeFilter;
               await this.loadDiscounts();
               this.setFilter(prevfilters);
