@@ -301,19 +301,6 @@
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
 </ion-content>
-
-<!-- Order Filters-->
-<ion-footer class="order-filter-footer">
-  <div class="order-filter-bar">
-    <button
-      *ngFor="let s of orderStatuses"
-      [class.active]="selectedStatus === s.value"
-      (click)="selectStatus(s.value)"
-    >
-      {{ s.label }}
-    </button>
-  </div>
-</ion-footer>
 <ion-modal [isOpen]="showMoreStatuses">
 
   <ng-template>
@@ -327,6 +314,7 @@
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
+    
 
     <ion-content>
 

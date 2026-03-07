@@ -174,6 +174,7 @@ export class OrderListPage implements OnInit {
      STATUS FILTER (READY)
   ================================= */
 
+
   orderStatuses = [
     { label: 'All', value: 'all' },
     { label: 'Completed', value: 'completed' },
