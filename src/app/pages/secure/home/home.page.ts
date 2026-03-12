@@ -23,7 +23,7 @@ export class HomePage implements OnInit {
 dailyLabels: string[] = [];
 dailyTotals: number[] = [];
   statuses = [
-    { key: 'wc-processing', label: 'Processing', icon: 'cart', count: 0, color: "#E1AB20" },
+  
     { key: 'wc-completed', label: 'Completed', icon: 'checkmark-circle', count: 0, color: "#66BB6A"},
     { key: 'wc-pending', label: 'Pending', icon: 'time', count: 0, color: "#386EDA"},
     { key: 'wc-cancelled', label: 'Cancelled', icon: 'close-circle', count: 0, color: "#EF5350"},
@@ -31,6 +31,7 @@ dailyTotals: number[] = [];
     { key: 'partial-refund', label: 'Partially Refunded', icon: 'refresh-circle', count: 0, color: "#26A69A" },
     { key: 'wc-failed', label: 'Failed', icon: 'alert-circle', count: 0, color: "#FF7043"},
     { key: 'wc-on-hold', label: 'On Hold', icon: 'pause-circle', count: 0, color: "#29B6F6"},
+    { key: 'wc-processing', label: 'Processing', icon: 'cart', count: 0, color: "#E1AB20" },
     { key: 'trash', label: 'Trash', icon: 'trash', count: 0, color: "#8D6E63"},
   ];
 

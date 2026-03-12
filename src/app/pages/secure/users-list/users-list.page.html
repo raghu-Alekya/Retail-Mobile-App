@@ -24,24 +24,19 @@
     />
   </div>
 </ion-header>
-
 <ion-content class="employees-content">
-
 
   <div class="list-heading">
     Employee List
   </div>
-  <div class="swipe-hint">
-  <ion-icon name="swap-horizontal-outline"></ion-icon>
-  Swipe left to edit or delete the user
-</div>
 
-<ion-list>
+  <ion-list>
 
-  <ion-item-sliding #slidingItem *ngFor="let user of filteredUsers; let i = index">
-
-    <!-- CARD CONTENT -->
-    <ion-item lines="none">
+    <ion-item
+      lines="none"
+      *ngFor="let user of filteredUsers; let i = index"
+      (click)="editEmployee(user)"
+    >
 
       <div class="employee-card"
            [ngClass]="'card-color-' + (i % 5)">
@@ -51,6 +46,7 @@
         </div>
 
         <div class="card-content">
+
           <div class="avatar" [ngClass]="'avatar-' + (i % 5)">
             <ion-icon name="person-outline"></ion-icon>
           </div>
@@ -62,36 +58,19 @@
               Login Pin: {{ user.meta?.emp_login_pin || 'Not Set' }}
             </div>
           </div>
+
         </div>
 
       </div>
 
     </ion-item>
 
-    <!-- SWIPE BUTTONS -->
-    <ion-item-options side="end">
+  </ion-list>
 
-      <ion-item-option
-        color="success"
-        (click)="openEditUser(user, slidingItem)">
-        EDIT
-      </ion-item-option>
-
-      <ion-item-option
-        color="danger"
-        (click)="deleteUser(user.id)">
-        DELETE
-      </ion-item-option>
-
-    </ion-item-options>
-
-  </ion-item-sliding>
-
-</ion-list>
 <!-- EDIT EMPLOYEE FULL SCREEN -->
 <div class="edit-overlay" *ngIf="editingUserId">
 
-  <!-- Edit Header -->
+  <!-- Fixed Header -->
   <ion-header class="dark-toolbar">
     <ion-toolbar>
       <ion-buttons slot="start">
@@ -104,8 +83,10 @@
     </ion-toolbar>
   </ion-header>
 
-  <!-- Edit Content -->
-  <div class="edit-popup">
+  <!-- Scrollable Form -->
+  <div class="edit-content">
+
+    <div class="edit-popup">
 
     <!-- Username -->
     <div class="form-field">
@@ -184,16 +165,29 @@
       </ion-input>
     </div>
 
-    <!-- Buttons -->
-    <div class="form-buttons">
 
-      <ion-button
-        expand="block"
-        *ngIf="isChanged"
-        (click)="saveChanges()">
-        Save Changes
-      </ion-button>
+<!-- Buttons -->
+<div class="form-buttons">
 
+  <ion-button
+  expand="block"
+  class="save-btn"
+  *ngIf="isChanged"
+  (click)="saveChanges()">
+  Save Changes
+</ion-button>
+
+  <div class="delete-section">
+    <ion-button
+      expand="block"
+      color="danger"
+      fill="outline"
+      (click)="deleteUser(editingUserId)">
+      Delete Employee
+    </ion-button>
+  </div>
+
+</div>
       <!-- <ion-button
         expand="block"
         fill="clear"
@@ -201,9 +195,9 @@
         Cancel
       </ion-button> -->
 
-    </div>
+ 
 
   </div>
 
 </div>
-</ion-content>
+</div>

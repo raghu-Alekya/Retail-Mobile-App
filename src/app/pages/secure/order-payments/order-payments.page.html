@@ -44,7 +44,7 @@
 
   <!-- PAYMENT CARDS -->
   <ion-card
-    *ngFor="let p of groupedPayments; let i = index"
+    *ngFor="let p of groupedPayments; trackBy: trackByOrder; let i = index"
     class="payment-card"
     [ngClass]="'card-' + (i % 5)">
 
@@ -107,7 +107,7 @@
         <b>{{ p?.order_total ? (p.order_total) : '0.00' }}</b>
       </div>
     </div>
-
+   <div class="divider"></div>
     <!-- Transactions -->
     <div class="transactions">
 
@@ -117,25 +117,24 @@
           <div class="txn-id">
             Transaction ID: <b>{{ t.transaction_id }}</b>
           </div>
-          <div class="mode">
-            Payment Mode: <b>{{ t.pay_mode }}</b>
-          </div>
+          
         </div>
 
         <div class="right">
-          <div class="amount">
-            {{ t.tender_amount }}
-          </div>
+            <div class="mode">
+              Tender Amount:
+              <b>{{ t.tender_amount }}</b>
+            </div>
+        </div>
+
+        <div class="mode">
+            Payment Mode: <b>{{ t.pay_mode }}</b>
         </div>
 
       </div>
 
     </div>
-    <div class="divider"></div>
-
-    <div class="payment-mode">
-      Payment Mode: {{ p?.payment_method || '-' }}
-    </div>
+    
 
   </ion-card>
 

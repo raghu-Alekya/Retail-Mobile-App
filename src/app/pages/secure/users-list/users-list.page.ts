@@ -3,6 +3,9 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { ModalController } from '@ionic/angular';
 import { AddUserComponent } from './modals/add-user/add-user.component';
 import { AlertController } from '@ionic/angular';
+import { Router } from '@angular/router';
+import { LoadingController } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-users-list',
@@ -22,57 +25,104 @@ export class UsersListPage {
   private searchTimeout: any;
 
   constructor(
-    private authService: AuthService,
-    private modalCtrl: ModalController,
-    private alertCtrl: AlertController
-  ) {}
+  private authService: AuthService,
+  private modalCtrl: ModalController,
+  private alertCtrl: AlertController,
+  private router: Router,
+  private loadingCtrl: LoadingController,
+  private toastCtrl: ToastController
+) {}
 
-  ionViewDidEnter() {
-    this.loadUsers();
-  }
+//   async ionViewDidEnter() {
 
-  async openAddEmployee() {
-    const modal = await this.modalCtrl.create({
-      component: AddUserComponent,
-      componentProps: {
-        userRole: 'employee'
-      }
-    });
+//   this.loadUsers();
 
-    await modal.present();
+//   const navigation = this.router.getCurrentNavigation();
+//   const state = navigation?.extras?.state as any;
 
+//   if (state?.autoOpenCreate) {
+//     console.log('Auto-opening Add User modal');
+//     this.openAddEmployee();
+//   }
 
-    // ✅ reload after close
-    const { data } = await modal.onDidDismiss();
-    if (data?.refresh) {
-        this.loadUsers();
+// }
+async ngOnInit() {
+
+  const loading = await this.loadingCtrl.create({
+    message: '',
+    spinner: 'crescent'
+  });
+
+  await loading.present();
+
+  try {
+
+    const state = history.state;
+
+    if (state?.autoOpenCreate) {
+      this.openAddEmployee();
+      history.replaceState({}, '');
     }
+
+    await this.loadUsers();
+
+  } catch (error) {
+    console.error(error);
   }
+
+  loading.dismiss();
+}
+  async openAddEmployee() {
+  const modal = await this.modalCtrl.create({
+    component: AddUserComponent,
+    componentProps: {
+      userRole: 'employee'
+    }
+  });
+
+  await modal.present();   // 🔹 this line is required
+}
+
+editEmployee(user: any) {
+
+  this.editingUserId = user.id;
+
+  this.editedUser = {
+    username: user.username,
+    email: user.email,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    role: user.roles?.[0] || '',
+    phone: user.meta?.phone || '',
+    emp_login_pin: user.meta?.emp_login_pin || ''
+  };
+
+}
   
-  openEditUser(user: any, slidingItem: any) {
-    slidingItem.close(); 
-    this.editingUserId = user.id;
+  // openEditUser(user: any, slidingItem: any) {
+  //   slidingItem.close(); 
+  //   this.editingUserId = user.id;
 
-    this.editedUser = {
-      username: user.username || user.name || '',
-      email: user.email || '',
-      first_name: user.first_name || '',
-      last_name: user.last_name || '',
+  //   this.editedUser = {
+  //     username: user.username || user.name || '',
+  //     email: user.email || '',
+  //     first_name: user.first_name || '',
+  //     last_name: user.last_name || '',
 
-      role: Array.isArray(user?.roles) ? user.roles[0] : '',
-      phone: user?.meta?.billing_phone || '',
-      emp_login_pin: user?.meta?.emp_login_pin || ''
-    };
+  //     role: Array.isArray(user?.roles) ? user.roles[0] : '',
+  //     phone: user?.meta?.billing_phone || '',
+  //     emp_login_pin: user?.meta?.emp_login_pin || ''
+  //   };
 
-    this.originalUser = { ...this.editedUser };
-  }
+  //   this.originalUser = { ...this.editedUser };
+  // }
   checkChanges() {
     this.isChanged =
       JSON.stringify(this.originalUser) !==
       JSON.stringify(this.editedUser);
   }
-
-  async deleteUser(id: number) {
+  
+async deleteUser(id: number) {
 
   const alert = await this.alertCtrl.create({
     header: 'Delete Employee',
@@ -80,19 +130,38 @@ export class UsersListPage {
     buttons: [
       {
         text: 'Cancel',
-        role: 'cancel',
-        cssClass: 'secondary'
+        role: 'cancel'
       },
       {
         text: 'Delete',
         role: 'destructive',
         handler: async () => {
+
           try {
+
+            // delete employee
             await this.authService.deleteEmployee(id);
-            this.loadUsers(); // refresh list
+
+            // close edit screen
+            this.cancelEdit();
+
+            // reload employee list
+            await this.loadUsers();
+
+            // show success message
+            const toast = await this.toastCtrl.create({
+              message: 'Employee deleted successfully',
+              duration: 2000,
+              position: 'bottom',
+              color: 'success'
+            });
+
+            await toast.present();
+
           } catch (error) {
             console.error('Delete error:', error);
           }
+
         }
       }
     ]
@@ -100,7 +169,6 @@ export class UsersListPage {
 
   await alert.present();
 }
-
   async saveChanges() {
     try {
 

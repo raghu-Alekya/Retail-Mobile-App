@@ -119,17 +119,21 @@
 /* ================= HEADER ================= */
 
 .dark-toolbar {
-  background: #2f4157;
+  background: #264c73;
   padding-bottom: 10px;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  overflow: hidden;
+  
 }
 
 .dark-toolbar ion-toolbar {
   --background: transparent;
   --color: #ffffff;
+  --padding-start: 4px; 
 }
+
+ion-title {
+    padding-left: 0;
+    margin-left: -6px;
+  }
 
 /* Spacer */
 .header-spacer {
@@ -259,9 +263,9 @@ ion-note {
 }
 
 .primary-btn {
-  --background: #2f4157;
-  --background-hover: #3a516d;
-  --background-activated: #253447;
+  --background: #264c73;
+  --background-hover: #264c73;
+  --background-activated: #264c73;
   --color: #ffffff;
   --border-radius: 8px;
   font-weight: 500;

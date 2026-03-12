@@ -1,7 +1,7 @@
 /* HEADER */
 /* HEADER BACKGROUND */
 .vendor-header {
-  background: #3f5065;
+  background: #264c73;
   // border-bottom-left-radius: 22px;
   // border-bottom-right-radius: 22px;
   overflow: hidden;
@@ -13,6 +13,16 @@
   --color: #ffffff;
   box-shadow: none;
   border: none;
+  --padding-start: 4px;
+}
+
+ion-title {
+    padding-left: 0;
+    margin-left: -6px;
+}
+
+ion-content {
+  --background: #f6f6f6;
 }
 
 /* REMOVE DEFAULT HEADER LINE */
@@ -30,7 +40,7 @@
 /* SEARCHBAR */
 ion-searchbar {
   --background: #f1f1f1;
-  --border-radius: 14px;
+  --border-radius: 8px;
   --box-shadow: 0 6px 14px rgba(0,0,0,0.15);
   --placeholder-color: #666;
 }
@@ -66,6 +76,11 @@ ion-searchbar {
   margin-bottom: 14px;
   background: #fff;
   box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  cursor: pointer;
+}
+
+.vendor-card:active {
+  transform: scale(0.99);
 }
 
 /* bottom accent */
@@ -249,4 +264,3 @@ ion-searchbar {
 .action-icon:active {
   transform: scale(0.9);
 }
-

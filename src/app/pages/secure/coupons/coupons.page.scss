@@ -1,5 +1,5 @@
 .coupons-header ion-toolbar{
-  --background:#3f5065;
+  --background:#264c73;
   --color:#ffffff;
   --border-width:0;
   box-shadow:none;
@@ -8,6 +8,15 @@
   flex-direction:column;
   align-items:stretch;
   padding:12px 0 20px;
+
+  ion-title {
+    padding-left: 0;
+    margin-left: -6px;
+  }
+}
+
+.coupons-header ion-button ion-icon {
+  font-size: 30px;   /* increase size */
 }
 
 /* header row */
@@ -33,7 +42,7 @@ ion-title{
 .search-wrapper input{
   width:100%;
   padding:12px 14px 12px 40px;
-  border-radius:10px;
+  border-radius:8px;
   border:none;
   outline:none;
   background:#f1f1f1;

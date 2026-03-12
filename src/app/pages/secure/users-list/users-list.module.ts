@@ -9,14 +9,14 @@ import { AddUserComponent } from './modals/add-user/add-user.component';
 
 @NgModule({
   declarations: [
-    UsersListPage
+    UsersListPage,
+    AddUserComponent   // ✅ must be here
   ],
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    UsersListPageRoutingModule,
-    AddUserComponent   // ✅ standalone component goes here
+    UsersListPageRoutingModule
   ]
 })
 export class UsersListPageModule {}

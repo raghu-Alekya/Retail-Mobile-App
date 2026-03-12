@@ -63,14 +63,18 @@ export class DiscountsPage implements OnInit {
   ngOnInit() {
     this.loadDiscounts();
   }
-  
+  formChanged = false;
+
+markChanged() {
+  this.formChanged = true;
+}
   async loadDiscounts() {
     try {
       this.loading = true;
       const res = await this.auth.getDiscounts(String(this.page), String(this.perPage)); 
       /////////
       //this.grouped = res.data?.data || {};
-      this.grouped = res?.data || {};
+      this.grouped = res.data?.data || {};
       this.allDiscounts = this.flattenAll();
       this.applySearchAndFilter();
       ////////
@@ -196,6 +200,7 @@ export class DiscountsPage implements OnInit {
       this.activeFilter = 'all';
       this.filter_type = coupon.type;
       this.editingCoupon = coupon;
+      this.formChanged = false;  
       this.form = {
         code: coupon.code,
         discount_type: coupon.discount_type,

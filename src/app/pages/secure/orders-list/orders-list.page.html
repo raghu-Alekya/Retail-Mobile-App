@@ -82,6 +82,7 @@
       </div>
 
       <ion-button
+        class="status-btn"
         size="small"
         shape="round"
         [color]="getStatusColor(order.status)"
@@ -115,18 +116,22 @@
       <p>{{ order.customer_note }}</p>
     </div>
 
-    <!-- Total -->
-    <div class="total">
-      Total: <span>{{currencySymbol}}{{ order.total }}</span>
-    </div>
+    <!-- PAYMENT + TOTAL (UPDATED SECTION) -->
+      <div class="payment-total-row">
 
-    <!-- Payment -->
-    <div class="payment">
-      {{ order.payment_method_title }}
-      <span *ngIf="order.shipping_lines?.length">
-        &nbsp; | &nbsp; {{ order.shipping_lines[0].method_title }}
-      </span>
-    </div>
+        <div class="payment">
+          {{ order.payment_method_title }}
+
+          <span *ngIf="order.shipping_lines?.length">
+            &nbsp; | &nbsp; {{ order.shipping_lines[0].method_title }}
+          </span>
+        </div>
+
+        <div class="total">
+          TOTAL: <span>{{currencySymbol}}{{ order.total }}</span>
+        </div>
+
+      </div>
     <hr class="my-1"/>
     <!-- Actions -->
     <!-- <div class="actions">
@@ -172,6 +177,7 @@
           </div>
 
           <ion-button
+            class="status-btn"
             size="small"
             shape="round"
             [color]="getStatusColor(order.status)"

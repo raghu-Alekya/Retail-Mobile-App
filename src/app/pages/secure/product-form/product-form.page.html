@@ -14,7 +14,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [class.scanner-active]="isScanning">
+<ion-content *ngIf="pageReady" [class.scanner-active]="isScanning">
   <ion-card class="settings-card image-block">
   <!-- Hidden file input -->
   <input

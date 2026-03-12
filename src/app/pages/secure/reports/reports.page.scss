@@ -14,7 +14,7 @@
 
 .summary-card {
   text-align: center;
-  background: linear-gradient(135deg, #3880ff, #4c8dff);
+  background: linear-gradient(135deg, #264c73, #264c73);
   color: #fff;
 }
 
@@ -37,10 +37,20 @@ ion-card {
   position: relative;
 }
 
+
 .products-header {
   ion-toolbar {
-    --background: #34465d;
+    --background: #264c73;
     --color: #fff;
+    --padding-start: 4px;
+
+    min-height: 64px;   /* increase header height */
+  }
+
+  ion-title {
+    padding-left: 0;
+    margin-left: -6px;
+    font-size: 20px;   /* optional: slightly bigger title */
   }
 }
 
@@ -88,7 +98,7 @@ ion-footer {
 
 .summary-card {
   border-radius: 18px;
-  background: #3f5065;  /* deep navy */
+  background: #264c73;  /* deep navy */
   color: #ffffff;
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
   height : 90px;
@@ -159,3 +169,81 @@ ion-footer {
 // .date-input ion-input {
 //   color: #ffffff;
 // }
+
+.sales-filter{
+  padding:12px 16px;
+}
+
+.pill-segment{
+  display:flex;
+  gap:10px;
+  background: transparent;
+}
+
+/* normal buttons */
+.pill-segment ion-segment-button{
+  --background: #dcdcdc;
+  --background-checked: #264c73;
+  --color: #444;
+  --color-checked: #ffffff;
+
+  border-radius: 20px;
+  min-height: 36px;
+  font-size: 14px;
+  text-transform: none;
+  padding: 0 16px;
+}
+
+/* selected button */
+.pill-segment ion-segment-button {
+  --background-focused: transparent;
+  --background-activated: transparent;
+  --ripple-color: transparent;
+  --indicator-color: transparent;
+}
+
+.report-dropdown::part(icon) {
+  display: none;   /* hide default filled arrow */
+}
+
+.dropdown-arrow {
+  font-size: 18px;
+  color: #ffffff;
+  margin-left: -8px;
+}
+
+.report-dropdown {
+  padding-right: 18px;   /* space for arrow */
+  --padding-end: 20px;
+}
+
+/* Normal text */
+.pill-segment ion-segment-button ion-label {
+  font-weight: 400;
+}
+
+/* Selected text */
+.pill-segment ion-segment-button.segment-button-checked ion-label {
+  font-weight: 700 !important;
+}
+
+/* remove hover highlight completely */
+.pill-segment ion-segment-button {
+  --background-hover: transparent;
+  --background-focused: transparent;
+  --background-activated: transparent;
+  --ripple-color: transparent;
+  --indicator-color: transparent;
+  box-shadow: none;
+}
+
+/* remove focus outline */
+.pill-segment ion-segment-button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* remove hover effect */
+.pill-segment ion-segment-button:hover {
+  --background-hover: transparent;
+}

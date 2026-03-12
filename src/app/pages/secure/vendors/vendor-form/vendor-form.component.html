@@ -40,11 +40,27 @@
 
 </ion-content>
 
-<ion-footer class="vendor-footer"
-  *ngIf="mode === 'add' ? hasValue() : hasChanges()">
-
+<!-- Create Vendor -->
+<ion-footer class="vendor-footer" *ngIf="mode === 'add' && hasValue()">
   <ion-button expand="block" (click)="save()">
-    {{ mode === 'add' ? 'Create Vendor' : 'Update Vendor' }}
+    Create Vendor
   </ion-button>
-
 </ion-footer>
+
+<!-- Update Vendor -->
+<ion-footer class="vendor-footer" *ngIf="mode === 'edit' && hasChanges()">
+  <ion-button expand="block" (click)="save()">
+    Update Vendor
+  </ion-button>
+</ion-footer>
+
+<!-- Delete Vendor -->
+<ion-button
+  *ngIf="mode === 'edit'"
+  expand="block"
+  fill="outline"
+  class="delete-btn"
+  (click)="deleteVendor()"
+>
+  Delete Vendor
+</ion-button>

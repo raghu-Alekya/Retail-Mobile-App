@@ -122,25 +122,26 @@ ion-tab-bar {
   overflow: visible !important;
 }
 /* Floating Container */
-.fab-container {
+.fab-container{
   position: fixed;
-  bottom: 60px;
+  bottom: 28px;   /* move button inside the notch */
   left: 50%;
   transform: translateX(-50%);
-  z-index: 999;
+  z-index: 1000;
 }
 
 /* Main + Button */
-.main-fab {
-  width: 40px;
-  height: 40px;
-  background: #083a57;
+.main-fab{
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 26px;
+  background:#083a57;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-size:28px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
 }
 
 /* ===========================
@@ -149,13 +150,13 @@ ion-tab-bar {
 /* ============================
    FAB CONTAINER
 ============================ */
-.fab-container{
-  position: fixed;
-  bottom: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-}
+// .fab-container{
+//   position: fixed;
+//   bottom: 60px;
+//   left: 50%;
+//   transform: translateX(-50%);
+//   z-index: 1000;
+// }
 
 /* ============================
    MAIN FAB

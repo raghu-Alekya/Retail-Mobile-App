@@ -1,22 +1,20 @@
 /* Header */
 /* HEADER CONTAINER */
 .vendor-header {
-  background: #3f5065;
-  border-bottom-left-radius: 18px;
-  border-bottom-right-radius: 18px;
-  overflow: hidden; /* prevents cut edges */
+  background: #264c73;
+  
 }
 
 /* TOOLBAR */
 .vendor-header ion-toolbar {
   --background: transparent;
   --color: #fff;
+  --padding-start: 4px;
 }
 
-/* fix side padding so icons aren't clipped */
-.vendor-header ion-toolbar {
-  padding-left: 6px;
-  padding-right: 6px;
+ion-title {
+    padding-left: 0;
+    margin-left: -6px;
 }
 
 /* Background */
@@ -29,7 +27,7 @@
   background: #fff;
   margin: 16px;
   padding: 18px;
-  border-radius: 14px;
+  border-radius: 8px;
 }
 
 /* Form Fields */
@@ -73,4 +71,17 @@ ion-textarea {
   font-weight: 600;
   height: 48px;
   letter-spacing: 0.5px;
+}
+
+.delete-btn{
+  width: calc(100% - 50px);   /* reduce width */
+  margin: 20px auto 40px auto;
+  
+  --border-radius: 12px;
+  --background: transparent;
+  --color: #e53935;
+  --border-color: #e53935;
+  --border-width: 2px;
+
+  font-weight: 500;
 }

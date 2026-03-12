@@ -8,6 +8,7 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  
 <ion-item>
   <ion-label position="stacked">Username</ion-label>
   <ion-input
@@ -82,11 +83,12 @@
     </ion-input>
   </ion-item>
 
-  <ion-button
-    expand="block"
-    class="save-btn"
-    (click)="submit()">
-    Create User
-  </ion-button>
+ <ion-button
+  expand="block"
+  class="create-user-btn"
+  *ngIf="isFormDirty"
+  (click)="submit()">
+  CREATE USER
+</ion-button>
 
 </ion-content>

@@ -251,6 +251,12 @@ ion-toolbar {
 ion-content {
   --background: linear-gradient(180deg, #CBDCF3 20%, #FFFFFF 80%) !important;
   background: linear-gradient(180deg, #CBDCF3 20%, #FFFFFF 80%) !important;
-  --padding-top: 20px;
+  --padding-top: 0px;
 }
 
+ion-label.home-slides {
+  display: block;
+  padding-top: 10px;   /* pushes text down */
+  margin-left: 12px;
+  font-weight: 600;
+}

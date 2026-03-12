@@ -1,5 +1,5 @@
 .dark-toolbar {
-  --background: #3f5065;
+  --background: #264c73;
   --color: #ffffff;
 }
 
@@ -34,7 +34,28 @@ ion-input {
   --placeholder-opacity: 1;
 }
 .save-btn {
-  --background: #3f5065;   /* button color */
+  --background: #264c73;   /* button color */
   --color: #ffffff;        /* text color */
   --border-radius: 8px;
+}
+
+.create-user-btn {
+  --background: #264c73;
+  --background-hover: #264c73;
+  --background-activated: #264c73;
+
+  --border-radius: 14px;
+
+  height: 50px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+
+  margin-top: 40px;   /* pushes button downward */
+}
+.form-card {
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 16px;
+  margin: 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
 }

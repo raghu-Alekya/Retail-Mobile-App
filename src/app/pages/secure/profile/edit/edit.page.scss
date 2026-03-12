@@ -1,6 +1,11 @@
 .header-toolbar {
-  --background: #274472;
+  --background: #264c73;
   --color: #ffffff;
+
+  ion-title {
+    padding-left: 0;
+    margin-left: -6px;
+  }
 }
 
 .edit-content {
@@ -35,7 +40,7 @@ ion-select {
 }
 
 .save-btn {
-  --background: #274472;
+  --background: #264c73;
   --border-radius: 10px;
   height: 48px;
   font-weight: 500;

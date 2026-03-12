@@ -106,6 +106,8 @@ const routes: Routes = [
         .then(m => m.UsersListPageModule),
      canActivate: [AuthGuard]
   },
+
+  
   {
     path: 'shifts',
     loadChildren: () =>
@@ -176,13 +178,13 @@ const routes: Routes = [
      loadChildren: () =>import('./pages/secure/profile/profile.module').then(m => m.ProfilePageModule)
   },
 
-  {
-    path: 'address',
-    loadChildren: () =>
-      import('./pages/secure/address/address.module')
-        .then(m => m.AddressPageModule),
-    canActivate: [AuthGuard]  
-  },
+  // {
+  //   path: 'address',
+  //   loadChildren: () =>
+  //     import('./pages/secure/address/address.module')
+  //       .then(m => m.AddressPageModule),
+  //   canActivate: [AuthGuard]  
+  // },
   {
     path: 'add-coupon',
     loadChildren: () => import('./pages/secure/coupons/add-coupon/add-coupon.module')
@@ -193,6 +195,7 @@ const routes: Routes = [
     loadChildren: () => import('./pages/secure/coupons/edit-coupon/edit-coupon.module')
       .then(m => m.EditCouponPageModule)
   },
+  
   {
     path: 'change-password',
     loadChildren: () =>

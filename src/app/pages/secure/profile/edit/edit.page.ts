@@ -25,6 +25,7 @@ export class EditPage implements OnInit {
   ngOnInit() {
     this.editForm = this.fb.group({
       first_name: [''],
+      last_name: [''],
       username: [''],
       email: [''],
       gender: [''],
@@ -46,9 +47,17 @@ export class EditPage implements OnInit {
     }
   });
 
-  console.log(res.data); // 👈 check this first
+  console.log(res.data);
 
-  this.editForm.patchValue(res.data);
+  this.editForm.patchValue({
+    first_name: res.data.first_name,
+    last_name: res.data.lastname,
+    username: res.data.username,
+    email: res.data.email,
+    gender: res.data.gender,
+    phone: res.data.phone
+  });
+
 }
 
  async saveProfile() {

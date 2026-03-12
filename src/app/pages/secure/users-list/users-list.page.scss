@@ -2,20 +2,22 @@
 
 .dark-toolbar {
   ion-toolbar {
-    --background: #3f5065;
+    --background: #264c73;
     --color: #ffffff;
     --min-height: 56px;
+    --padding-start: 4px; 
   }
 
   ion-title {
-    font-size: 17px;
-    font-weight: 600;
+    padding-left: 0;
+    margin-left: -6px;
+    
   }
 }
 
 /* Make entire header area navy */
 ion-header.dark-toolbar {
-  background: #3f5065;
+  background: #264c73;
 }
 
 
@@ -25,7 +27,7 @@ ion-header.dark-toolbar {
   background: #ffffff;          /* solid white */
   margin: 14px 16px 18px 16px;
   padding: 12px 16px;
-  border-radius: 12px;
+  border-radius:8px;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08); /* soft highlight shadow */
 }
 
@@ -48,11 +50,15 @@ ion-header.dark-toolbar {
   color: #aaa;
 }
 
+.dark-toolbar ion-icon[name="add-outline"] {
+  font-size: 26px;   /* increase size */
+}
+
 
 /* ================= PAGE BACKGROUND ================= */
 
 .employees-content {
-  --background: #ffffff;
+  --background: #f6f6f6;
 }
 
 /* ================= LIST HEADING ================= */
@@ -236,4 +242,40 @@ ion-item-sliding {
 
 .form-buttons ion-button {
   margin-top: 10px;
+}
+
+.form-buttons ion-button[color="danger"] {
+  margin-top: 40px;
+  --border-radius: 12px;
+  border-radius: 12px;
+  height: 50px;
+}
+.save-btn {
+  margin-top: 25px;
+  height: 48px;
+
+  --background: linear-gradient(135deg, #264c73, #264c73);
+  --border-radius: 14px;
+
+  font-weight: 600;
+  letter-spacing: 0.5px;
+
+  --box-shadow: 0 6px 14px rgba(74,108,247,0.3);
+}
+.edit-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #f5f7fa;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-content {
+  overflow-y: auto;
+  flex: 1;
+  padding: 16px;
 }
