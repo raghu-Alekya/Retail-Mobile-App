@@ -24,13 +24,14 @@
 }
 
 .products-header {
-  background: #3f5065;
-  border-bottom-left-radius: 22px;
-  border-bottom-right-radius: 22px;
-  overflow: hidden;
-
+  background: #264c73;
   padding-bottom: 14px; /* controls curve spacing */
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+
+  ion-title {
+    padding-left: 0;
+    margin-left: -6px;
+  }
 }
 
 .products-header ion-toolbar {
@@ -46,12 +47,16 @@
   color: #fff;
 }
 
+.products-header ion-button ion-icon {
+  font-size: 30px;   /* increase size */
+}
+
 /* SEARCH BOX */
 .search-container {
   margin: 0 16px;
   margin-top: 6px;
   background: #fff;
-  border-radius: 10px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   padding: 10px 12px;
@@ -71,12 +76,12 @@
   font-size: 14px;
   color: #333;
 }
-.filter-tabs {
-  display: flex;
-  gap: 8px;
-  padding: 10px;
-  overflow-x: auto;
-}
+// .filter-tabs {
+//   display: flex;
+//   gap: 8px;
+//   padding: 10px;
+//   overflow-x: auto;
+// }
 
 ion-chip {
   min-width: max-content;
@@ -94,6 +99,7 @@ ion-chip {
   max-height: 100%;
   overflow-y: auto;
   padding-bottom: 80px;
+  padding-top: 20px;
 }
 .selected-products {
   display: flex;
@@ -116,11 +122,11 @@ ion-chip {
   text-overflow: ellipsis;
   display: block;
 }
-.filter-tabs {
-  display: flex;
-  gap: 8px;
-  padding: 8px;
-}
+// .filter-tabs {
+//   display: flex;
+//   gap: 8px;
+//   padding: 8px;
+// }
 
 ion-chip {
   background: #e0e0e0;
@@ -281,6 +287,8 @@ hr {
 
 /////////////////////////////////////
 
+/////////////////////////////////////
+
 /* ============================= */
 /* FULL SCREEN MODAL */
 /* ============================= */
@@ -374,4 +382,172 @@ hr {
   height: 48px;
   font-weight: 600;
   letter-spacing: 0.5px;
+}
+.discount-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.discount-buttons ion-button {
+  width: 50%;
+}.discount-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.discount-buttons ion-button {
+  width: 90%;
+}
+/* ============================= */
+/* FULL SCREEN MODAL */
+/* ============================= */
+
+.full-modal {
+  --width: 100%;
+  --height: 100%;
+  --border-radius: 0;
+}
+
+/* ============================= */
+/* MODAL HEADER */
+/* ============================= */
+
+.discount-toolbar {
+  --background: #264c73;
+  --color: #ffffff;
+}
+
+/* ============================= */
+/* MODERN FORM STYLE */
+/* ============================= */
+
+.form-content {
+  padding: 20px;
+  background: #f4f6f9;
+}
+
+/* Remove default ion-item look */
+.form-content ion-item {
+  --background: transparent;
+  --inner-border-width: 0;
+  --border-width: 0;
+  --highlight-color-focused: transparent;
+  --highlight-color-valid: transparent;
+  --highlight-color-invalid: transparent;
+  margin-bottom: 18px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Remove MD underline completely */
+.form-content ion-item::after {
+  display: none;
+}
+
+/* Label styling */
+.form-content ion-label[position="stacked"] {
+  font-size: 20px;
+  font-weight: 600;
+  color: #5a6b7b;
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+
+/* Input / Select / Textarea styling */
+.form-content ion-input,
+.form-content ion-select,
+.form-content ion-textarea {
+  --background: #e9edf2;
+  --padding-start: 14px;
+  --padding-end: 14px;
+  --border-radius: 10px;
+  height: 44px;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Remove focus glow */
+.form-content ion-input:focus,
+.form-content ion-select:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Checkbox spacing */
+.form-content ion-checkbox {
+  margin-right: 10px;
+}
+
+/* ============================= */
+/* SAVE BUTTON */
+/* ============================= */
+
+.save-btn {
+  margin-top: 25px;
+  --background: #264c73;
+  --background-activated: #264c73;
+  --background-hover: #264c73;
+  --border-radius: 10px;
+  height: 48px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  overflow-x: auto;
+}
+
+/* Default chip */
+.filter-tabs ion-chip {
+  background: #e0e0e0;
+  color: #333;
+  border-radius: 6px;   /* rectangular shape */
+  height: 28px;         /* smaller height */
+  font-size: 13px;
+  padding: 0 10px;
+}
+
+/* Active chip */
+.filter-tabs ion-chip.active {
+  background: #264c73;  /* dark blue like image */
+  color: #fff;
+}
+
+/* Field container */
+.form-content ion-item {
+  --background: #e9edf2;
+  --inner-border-width: 0;
+  --border-width: 0;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  padding: 4px 8px;
+}
+
+/* Label styling */
+.form-content ion-label[position="stacked"] {
+  font-size: 13px;   /* reduced size */
+  font-weight: 500;
+  color: #5a6b7b;
+  margin-bottom: 4px;
+  letter-spacing: 0.2px;
+}
+
+/* Input / Select / Textarea */
+.form-content ion-input,
+.form-content ion-select,
+.form-content ion-textarea {
+  --background: transparent;
+  --padding-start: 5px;
+  --padding-end: 5px;
+  font-size: 14px;
+  color: #333;
 }

@@ -1,19 +1,26 @@
 .orders-header {
-  background: #2f4157;
+  background: #264c73;
   padding-bottom: 12px;
 
   ion-toolbar {
-    --background: #2f4157;
+    --background: #264c73;
     --color: #fff;
+    --padding-start: 4px;   /* reduces left space of toolbar */
+  }
+
+  ion-title {
+    padding-left: 0;
+    margin-left: -6px;
   }
 } 
 
 .orders-content {
   padding: 12px;
+  background: #f2f8ff;
 }
 
 .order-card {
-  background: #fff;
+  background: #ffffff;
   border-radius: 16px;
   padding: 14px;
   margin-bottom: 14px;
@@ -119,7 +126,7 @@
 .search-wrapper {
   margin: 14px 16px;
   background: #ffffff;
-  border-radius: 18px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   padding: 14px 18px;
@@ -272,7 +279,14 @@
 ion-content {
   --padding-bottom: 70px;
 }
+.status-btn {
+  --color: #fff;
+}
 
+.status-btn::part(native) {
+  color: #fff !important;
+  font-weight: 400;
+}
 .expand-section {
   margin-bottom: 12px;
 }
@@ -406,12 +420,39 @@ ion-content {
   padding: 8px;
 }
 
-ion-chip {
-  background: #e0e0e0;
-  color: #333;
+.filter-tabs ion-chip {
+  --background: #e6e6e6;
+  --color: #333;
+  border-radius: 6px;   /* makes rectangular shape */
+  height: 30px;
+  font-size: 13px;
+  padding: 0 10px;
 }
 
-ion-chip.active {
-  background: var(--ion-color-primary);
-  color: white;
+.filter-tabs ion-chip.active {
+  --background: #5a6a8a;  /* dark active color */
+  --color: #fff;
+}
+
+/* Force border radius override (important for Ionic) */
+.filter-tabs ion-chip::part(native) {
+  border-radius: 6px;
+}
+
+.payment-total-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:8px;
+}
+
+.payment-total-row .payment{
+  font-size: inherit;
+  font-weight: inherit;
+  
+}
+
+.payment-total-row .total{
+  font-size: inherit;
+  font-weight: inherit;
 }

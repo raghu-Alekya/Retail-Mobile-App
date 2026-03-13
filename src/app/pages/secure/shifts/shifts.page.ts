@@ -218,25 +218,24 @@ getAvatarColor(index: number) {
     ];
   }
 
-  onSearch(event: any) {
-    this.search = event.target.value?.trim() || '';
+  // onSearch(event: any) {
+  //   this.search = event.target.value?.trim() || '';
 
-    // reset pagination + data
-    this.loadShifts(undefined, true);
-  }
-  filterShifts(event: any) {
+  //   // reset pagination + data
+  //   this.loadShifts(undefined, true);
+  // }
+  onSearch(event: any) {
   const value = event.target.value?.toLowerCase().trim() || '';
 
-  // If search box is empty → show all shifts
-  if (!value) {
-    this.filteredShifts = [...this.shifts];
-    return;
-  }
+  this.search = value;
 
-  // Filter from ORIGINAL list (important!)
-  this.filteredShifts = this.shifts.filter(shift =>
-    shift.staffName?.toLowerCase().includes(value)
-  );
+  // reset list
+  this.page = 1;
+  this.shifts = [];
+  this.filteredShifts = [];
+  this.hasMore = true;
+
+  this.loadShifts();
 }
 
 

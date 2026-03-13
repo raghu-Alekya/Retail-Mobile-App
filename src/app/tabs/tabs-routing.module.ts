@@ -36,9 +36,16 @@ const routes: Routes = [
           path: 'change-password',
           loadChildren: () =>import('../pages/secure/change-password/change-password.module').then(m => m.ChangePasswordPageModule),
       },
+      // {
+      //   path: 'address',
+      //   loadChildren: () =>import('../pages/secure/address/address.module').then(m => m.AddressPageModule)
+      // },
       {
-        path: 'address',
-        loadChildren: () =>import('../pages/secure/address/address.module').then(m => m.AddressPageModule)
+        path: 'secure/users-list',
+        loadChildren: () =>
+          import('../pages/secure/users-list/users-list.module').then(
+            m => m.UsersListPageModule
+          )
       },
       {
         path: 'styleguide',

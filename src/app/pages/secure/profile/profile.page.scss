@@ -5,25 +5,24 @@
 
 /* Header */
 ion-toolbar {
-  --background: #3d5a80;
-  --color: #ffffff;
-  border-bottom-left-radius: 18px;
-  border-bottom-right-radius: 18px;
-
-
+  --background: #264c73;
+  --color: #ffffff; 
   min-height: 80px;    // 🔥 increase height
   padding-top: 10px;    // optional extra spacing
 
 }
+
+ion-title {
+    padding-left: 0;
+    margin-left: -6px;
+  }
 ion-header {
-  background: #3d5a80;
-  border-bottom-left-radius: 25px;
-  border-bottom-right-radius: 25px;
-  overflow: hidden;   // 🔥 very important
+  background: #264c73;
+   // 🔥 very important
 }
 
 ion-toolbar {
-  --background: #3d5a80;
+  --background: #264c73;
   --color: #ffffff;
   min-height: 75px;
   

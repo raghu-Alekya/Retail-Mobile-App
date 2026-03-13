@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { ActionSheetController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { ModalController } from '@ionic/angular';
+import { AddUserComponent } from '../pages/secure/users-list/modals/add-user/add-user.component';
  
 @Component({
   selector: 'app-tabs',
@@ -17,9 +19,10 @@ toggle() {
   hideTabBar: boolean = false;
  
   constructor(
-    private actionSheetController: ActionSheetController,
-    private router: Router
-  ) {
+  private actionSheetController: ActionSheetController,
+  private router: Router,
+  private modalCtrl: ModalController
+) {
     this.router.events.subscribe(() => {
  
   const url = this.router.url;
@@ -71,13 +74,17 @@ toggle() {
     });
     await actionSheet.present();
   }
-  goToAddEmployee() {
+  async goToAddEmployee() {
     this.isOpen = false;
-    this.router.navigate(['users/employees'], {
-      state: {
-        autoOpenCreate: true
+
+    const modal = await this.modalCtrl.create({
+      component: AddUserComponent,
+      componentProps: {
+        userRole: 'employee'
       }
     });
+
+    await modal.present();
   }
 
   goToAddProduct() {
@@ -93,4 +100,12 @@ toggle() {
       }
     });
   }
+//   async openAddEmployee() {
+//   const modal = await this.modalCtrl.create({
+//     component: AddUserComponent,
+//     cssClass: 'add-user-modal'
+//   });
+
+//   await modal.present();
+// }
 }

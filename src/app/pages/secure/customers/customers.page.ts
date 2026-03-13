@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
-
+import { LoadingController } from '@ionic/angular';
 @Component({
   selector: 'app-customers',
   templateUrl: './customers.page.html',
@@ -17,12 +17,27 @@ export class CustomersPage {
 
   private searchTimeout: any; // ✅ debounce
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, 
+    private loadingCtrl: LoadingController) {}
 
   // ✅ Better for Ionic pages
-  ionViewDidEnter() {
-    this.loadCustomers(true);
+  async ionViewDidEnter() {
+
+  const loading = await this.loadingCtrl.create({
+    message: '',
+    spinner: 'crescent'
+  });
+
+  await loading.present();
+
+  try {
+    await this.loadCustomers(true);
+  } catch (error) {
+    console.error(error);
   }
+
+  await loading.dismiss();
+}
 
   async loadCustomers(reset = false) {
     if (this.loading) return;

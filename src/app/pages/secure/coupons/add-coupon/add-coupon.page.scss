@@ -1,3 +1,14 @@
+.coupon-header ion-toolbar{
+  --background:#264c73;
+  --color:#ffffff;
+  --border-width:0;
+
+  ion-title {
+    padding-left: 0;
+    margin-left: -6px;
+  }
+}
+
 .coupon-content {
   --background: #f3f3f3;
   padding: 12px;

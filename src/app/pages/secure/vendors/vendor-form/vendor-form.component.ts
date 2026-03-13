@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import { AlertController, IonicModule, ModalController, ToastController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
@@ -25,8 +25,12 @@ export class VendorFormComponent implements OnInit {
 
   originalForm = {};
 
-  constructor(private modalCtrl: ModalController, 
-    private authService: AuthService, private toastController: ToastController) {}
+  constructor(
+    private modalCtrl: ModalController,
+    private authService: AuthService,
+    private toastController: ToastController,
+    private alertCtrl: AlertController
+  ) {}
 
   ngOnInit() {
     if (this.mode === 'edit' && this.vendor) {
@@ -80,6 +84,44 @@ export class VendorFormComponent implements OnInit {
         err?.response?.data?.message ||
         err?.message ||
         'Failed to save vendor';
+
+      await this.presentToast(errorMessage, 'danger');
+    }
+  }
+
+  async confirmDelete() {
+    if (!this.vendor?.id) return;
+
+    const alert = await this.alertCtrl.create({
+      header: 'Delete Vendor',
+      message: `Delete <b>${this.form.title || 'this vendor'}</b>?`,
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Delete',
+          role: 'destructive',
+          handler: async () => {
+            await this.deleteVendor();
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  private async deleteVendor() {
+    if (!this.vendor?.id) return;
+
+    try {
+      const res = await this.authService.deleteVendor(this.vendor.id);
+      await this.presentToast(res?.data?.message || 'Vendor deleted', 'success');
+      this.modalCtrl.dismiss(true);
+    } catch (err: any) {
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.message ||
+        'Failed to delete vendor';
 
       await this.presentToast(errorMessage, 'danger');
     }

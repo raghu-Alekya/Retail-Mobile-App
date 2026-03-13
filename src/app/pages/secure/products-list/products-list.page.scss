@@ -1,10 +1,16 @@
 .products-header {
-  background: #2f4157;
+  background: #264c73;
   padding-bottom: 12px;
 
   ion-toolbar {
-    --background: #2f4157;
+    --background: #264c73;
     --color: #fff;
+    --padding-start: 4px;
+  }
+
+  ion-title {
+    padding-left: 0;
+    margin-left: -6px;
   }
 }
 .product-tabs{
@@ -17,21 +23,21 @@
 .tab{
   border:none;
   background:#e5e5e5;
-  padding:6px 14px;
-  border-radius:18px;
+  padding:6px 12px;
+  border-radius:6px;   /* same shape as orders filters */
   font-size:13px;
   color:#333;
   white-space:nowrap;
 }
 
 .tab.active{
-  background:#3b4e6b;
+  background:#264c73;
   color:#fff;
 }
 .search-wrapper {
   margin: 10px 16px;
-  background: #9aa7b8;
-  border-radius: 12px;
+  background: #ffffff;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   padding: 10px;
@@ -41,17 +47,18 @@
     flex: 1;
     border: none;
     background: transparent;
-    color: #fff;
+    color: #333;
     outline: none;
   }
 
   ion-icon {
-    color: #fff;
+    color: #333;
   }
 }
 
 .products-content {
   padding: 10px;
+  background: #f6f6f6
 }
 
 .sort-row {
@@ -190,4 +197,8 @@ ion-footer ion-segment-button:nth-child(2) {
 .products-header ion-button {
   --padding-start: 6px;
   --padding-end: 6px;
+}
+
+.products-header ion-icon[name="add-outline"] {
+  font-size: 26px;   /* increase size */
 }

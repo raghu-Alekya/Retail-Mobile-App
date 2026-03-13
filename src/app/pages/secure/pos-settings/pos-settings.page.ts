@@ -36,7 +36,7 @@ export class PosSettingsPage implements OnInit {
     currency_symbol: ''
   };
   categories: { name: string; id: number }[] = [];
-  tags: string[] = [];
+  tags: { id: number; name: string }[] = [];
 
   newCategory = '';
   newTag = '';
@@ -289,7 +289,10 @@ export class PosSettingsPage implements OnInit {
   async loadTags() {
     try {
       const res = await this.authService.getTags();
-      this.tags = res.map((tag: any) => tag.name);
+      this.tags = res.map((tag: any) => ({
+  id: tag.id,
+  name: tag.name
+}));
     } catch (err) {
       console.error('Failed to load product tags', err);
     }
@@ -299,19 +302,35 @@ export class PosSettingsPage implements OnInit {
      PRODUCT TAGS
      ===================== */
 
-  addTag() {
-    if (!this.newTag.trim()) return;
+  async addTag() {
 
-    this.tags.push(this.newTag.trim());
+  if (!this.newTag.trim()) return;
+
+  const payload = {
+    name: this.newTag.trim()
+  };
+
+  try {
+
+    const res = await this.authService.createTag(payload);
+
+    this.tags.push({
+      id: res.id,
+      name: res.name
+    });
+
     this.newTag = '';
 
-    const payload = {
-      product_tags: this.tags,
-    };
+    await this.presentToast('Tag created successfully','success');
 
-    console.log('Add Tag Payload', payload);
-    // 🔌 API call
+  } catch (err) {
+
+    console.error(err);
+
+    await this.presentToast('Failed to create tag','danger');
+
   }
+}
 
   async removeTag(tag: string) {
 
@@ -337,17 +356,25 @@ export class PosSettingsPage implements OnInit {
   }
 
 
-  deleteTag(tag:string){
+  async deleteTag(tag: any){
 
-    this.tags = this.tags.filter(t => t !== tag);
+  try {
 
-    const payload = {
-      product_tags: this.tags
-    };
+    await this.authService.deleteTag(tag.id);
 
-    console.log('Remove Tag Payload', payload);
+    this.tags = this.tags.filter(t => t.id !== tag.id);
+
+    await this.presentToast('Tag deleted successfully','success');
+
+  } catch (err) {
+
+    console.error(err);
+
+    await this.presentToast('Failed to delete tag','danger');
 
   }
+
+}
 
   /* ================= TOGGLE HANDLER ================= */
 

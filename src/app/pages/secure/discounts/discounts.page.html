@@ -1,7 +1,7 @@
 <ion-header class="products-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
     </ion-buttons>
 
     <ion-title>Discounts</ion-title>
@@ -52,7 +52,7 @@
 </ion-chip>
 </div>
 <ion-content class="coupon-content">
-    <ion-card *ngFor="let c of discounts" class="discount-card">
+    <ion-card *ngFor="let c of discounts" class="discount-card" (click)="openEdit(c)">
   <ion-card-content>
 
     <!-- Top Row -->
@@ -102,10 +102,7 @@
         <div *ngIf="c.expiry_date">End Date: {{ c.expiry_date | date:'dd MMM yyyy' }}</div>
       </div>
 
-      <div class="actions">
-          <ion-icon name="create-outline" (click)="openEdit(c)"></ion-icon>
-          <ion-icon name="trash-outline" color="danger" (click)="deleteCoupon(c)"></ion-icon>
-        </div>
+      
 
     </div>
 
@@ -208,7 +205,7 @@
         <div *ngIf="filter_type === 'auto' || activeFilter === 'auto' || filter_type === 'mix_match' || activeFilter === 'mix_match'">
           <ion-item>
             <ion-label position="stacked">Discount Code</ion-label>
-            <ion-input [(ngModel)]="form.code"></ion-input>
+            <ion-input [(ngModel)]="form.code" (ngModelChange)="markChanged()"></ion-input>
           </ion-item>
         </div>
         <!-- <div *ngIf="filter_type === 'auto' || activeFilter === 'auto'">
@@ -241,9 +238,7 @@
         <div *ngIf="form.type">
           <ion-item>
             <ion-label position="stacked">Discount Type</ion-label>
-
-            <ion-select [(ngModel)]="form.discount_type">
-
+            <ion-select [(ngModel)]="form.discount_type" (ngModelChange)="markChanged()">
               <!-- Auto -->
               <ng-container *ngIf="form.type === 'auto'">
                 <ion-select-option value="percent">Percentage</ion-select-option>
@@ -261,14 +256,12 @@
                 <ion-select-option value="percent">Percentage</ion-select-option>
                 <ion-select-option value="price">Price</ion-select-option>
               </ng-container>
-
             </ion-select>
           </ion-item>
-
         </div>
         <ion-item>
           <ion-label position="stacked">{{ form.discount_type === 'percent' ? 'Percentage (%)' : 'Amount' }}</ion-label>
-          <ion-input type="number" [(ngModel)]="form.amount"></ion-input>
+          <ion-input type="number" [(ngModel)]="form.amount" (ngModelChange)="markChanged()"></ion-input>
         </ion-item>
         <div *ngIf="filter_type === 'multipack' || activeFilter === 'multipack'">
             <ion-item>
@@ -278,11 +271,11 @@
         </div>
         <ion-item>
           <ion-label position="stacked">Start Date</ion-label>
-          <ion-input type="date" [(ngModel)]="form.date_starts"></ion-input>
+          <ion-input type="date" [(ngModel)]="form.date_starts" (ngModelChange)="markChanged()"></ion-input>
         </ion-item>
         <ion-item>
           <ion-label position="stacked">Expiry Date</ion-label>
-          <ion-input type="date" [(ngModel)]="form.date_expires"></ion-input>
+          <ion-input type="date" [(ngModel)]="form.date_expires" (ngModelChange)="markChanged()"></ion-input>
         </ion-item>
         <div *ngIf="filter_type === 'auto' || activeFilter === 'auto'">
           <ion-item lines="none">
@@ -298,16 +291,27 @@
           <div *ngIf="form.type === 'auto' || form.type === 'multipack'">
           <ion-item>
             <ion-label position="stacked">{{ filter_type === 'auto' || activeFilter === 'auto' ? 'Usage Limit' : 'Order Usage' }}</ion-label>
-            <ion-input type="number" [(ngModel)]="form.usage_limit"></ion-input>
+            <ion-input type="number" [(ngModel)]="form.usage_limit" (ngModelChange)="markChanged()"></ion-input>
           </ion-item>
         </div>
-        <ion-button
-          expand="block"
-          class="save-btn"
-          (click)="saveCoupon()">
-          {{ editingCoupon ? 'Update Discount' : 'Create Discount' }}
-        </ion-button>
-      </div>
+        <div class="discount-buttons">
+
+  <ion-button
+    class="save-btn"
+    (click)="saveCoupon()">
+    {{ editingCoupon ? 'Update Discount' : 'Create Discount' }}
+  </ion-button>
+
+  <ion-button
+    *ngIf="editingCoupon"
+    class="delete-btn"
+    color="danger"
+    fill="outline"
+    (click)="deleteCoupon()">
+    Delete Discount
+  </ion-button>
+</div>
+</div>
     </ion-content>
   </ng-template>
 </ion-modal>

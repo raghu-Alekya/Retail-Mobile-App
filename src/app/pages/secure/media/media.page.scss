@@ -4,10 +4,20 @@ ion-content.media-content {
 
 
 /* Navy blue header */
+/* Navy blue header */
 .media-header ion-toolbar {
-  --background: #3f5065;   /* navy blue */
+  --background: #264c73;
   --color: #ffffff;
-  min-height: 64px;        /* increased height */
+  --padding-start: 4px;
+
+  min-height: 60px;   /* reduced header height */
+  display: flex;
+  align-items: center;
+
+  ion-title {
+    padding-left: 0;
+    margin-left: -6px;
+  }      /* increased height */
 }
 
 /* Center title vertically */
@@ -22,13 +32,7 @@ ion-content.media-content {
   --color: #ffffff;
 }
 
-/* Ensure toolbar content is vertically centered */
-.media-header ion-toolbar {
-  display: flex;
-  align-items: center;
-  min-height: 90px;
-  
-}
+
 
 :host {
   display: block;

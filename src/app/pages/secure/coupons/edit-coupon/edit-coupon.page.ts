@@ -29,14 +29,28 @@ export class EditCouponPage implements OnInit {
     private alertCtrl: AlertController
   ) {}
 
-  ngOnInit() {
-    this.coupon = history.state.coupon;
+  async ngOnInit() {
 
-    if (!this.coupon) {
+    const stateCoupon = history.state.coupon;
+
+    if (!stateCoupon?.id) {
       this.router.navigate(['/coupons']);
+      return;
     }
 
-    console.log('Received coupon:', this.coupon);
+    try {
+
+      const res = await this.auth.getCouponById(stateCoupon.id);
+
+      // ✅ handle API response correctly
+      this.coupon = res.data ? res.data : res;
+
+      console.log("Full coupon data:", this.coupon);
+
+    } catch (error) {
+      console.error("Failed to load coupon", error);
+    }
+
   }
 
   // Toggle input field

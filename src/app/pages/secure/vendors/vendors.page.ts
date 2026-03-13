@@ -66,7 +66,7 @@ goBack() {
       this.vendors = [...this.vendors, ...mapped];
       this.filteredVendors = [...this.vendors];
 
-      this.hasMore = res.data.pagination?.has_more ?? false;
+      this.hasMore = mapped.length === this.perPage;
       this.page++;
 
     } catch (err) {

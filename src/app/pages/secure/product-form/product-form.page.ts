@@ -29,6 +29,7 @@ export class ProductFormPage implements OnInit {
   // stock_quantity : any = null;
   stock_status: any = null;
   isScanning = false;
+  pageReady = false;
   product: any = {
     name: '',
     description: '',
@@ -56,19 +57,32 @@ export class ProductFormPage implements OnInit {
   ) {}
 
   async ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
-    await this.loadCategories();
-    await this.loadTags();
-    await this.loadTaxClasses();
-    if (id) {
-      this.isEdit = true;
-      this.productId = +id;
-      await this.loadProduct();
-    }
-    if (this.product.type === 'variable') {
-      await this.loadAttributes();
-    }
+
+  const id = this.route.snapshot.paramMap.get('id');
+
+  // detect edit mode immediately
+  if (id) {
+    this.isEdit = true;
+    this.productId = +id;
   }
+
+  // load base data
+  await this.loadCategories();
+  await this.loadTags();
+  await this.loadTaxClasses();
+
+  // load product if editing
+  if (this.isEdit) {
+    await this.loadProduct();
+  }
+
+  if (this.product.type === 'variable') {
+    await this.loadAttributes();
+  }
+
+  // ✅ allow UI to render
+  this.pageReady = true;
+}
   // buildVariationKey(combo: any[]): string {
   //   return combo
   //     .map(a => `${a.id}_${a.option}`)

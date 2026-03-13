@@ -7,7 +7,7 @@
   </ion-button>
 </ion-buttons>
 
-  <ion-title>Vendors</ion-title>
+  <ion-title>Vendor Payouts</ion-title>
 
   <ion-buttons slot="end">
     <ion-icon
@@ -32,6 +32,7 @@
       class="vendor-card"
       *ngFor="let vendor of filteredVendors; let i = index"
       [style.border-bottom]="'4px solid ' + getAccentColor(i)"
+      (click)="editVendor(vendor)"
     >
 
       <!-- TOP ROW -->
@@ -70,20 +71,6 @@
 
         <div class="note">
           Note: {{ vendor.note || 'Paid in full purchase' }}
-        </div>
-
-        <div class="bottom-actions">
-          <ion-icon
-            name="create-outline"
-            class="action-icon edit"
-            (click)="editVendor(vendor)">
-          </ion-icon>
-
-          <ion-icon
-            name="trash-outline"
-            class="action-icon delete"
-            (click)="deleteVendor(vendor)">
-          </ion-icon>
         </div>
 
       </div>

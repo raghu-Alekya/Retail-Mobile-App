@@ -186,7 +186,7 @@ isFutureDate(date: string) {
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: (ctx) => `₹ ${ctx.parsed.y}`
+              label: (ctx) => `$ ${ctx.parsed.y}`
             }
           }
         },
@@ -254,7 +254,7 @@ isFutureDate(date: string) {
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: (ctx) => `₹ ${ctx.parsed.y}`
+          label: (ctx) => `$ ${ctx.parsed.y}`
         }
       }
     },

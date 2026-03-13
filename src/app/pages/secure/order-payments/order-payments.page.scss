@@ -110,7 +110,7 @@ ion-content {
    HEADER (MATCH SCREENSHOT)
 ================================ */
 .vendor-header {
-  background: #3f5065;
+  background: #264c73;
   // border-bottom-left-radius: 22px;
   // border-bottom-right-radius: 22px;
   overflow: hidden;
@@ -125,34 +125,42 @@ ion-content {
   --color: #ffffff;
   box-shadow: none;
   border: none;
-  padding-bottom: 0;
+  padding-bottom: 4px;
 }
+
+  ion-title {
+    padding-left: 0;
+    margin-left: -6px;
+  }
 
 
 /* ===============================
    SEARCH BAR (INSIDE HEADER)
 ================================ */
 .search-wrapper {
-  margin: 10px 16px 6px;   /* fixes bottom gap */
+  margin: 8px 16px;        /* slightly less top spacing */
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  padding: 12px 14px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+
+  padding: 6px 10px;       /* ⬅ reduce height */
+  gap: 6px;                /* ⬅ reduce space between icon & input */
+
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
 .search-wrapper ion-icon {
-  font-size: 18px;
+  font-size: 16px;
   color: #7a8699;
-  margin-right: 8px;
+  margin-right: 4px;
 }
 
 .search-wrapper input {
   flex: 1;
   border: none;
   outline: none;
-  font-size: 14px;
+  font-size: 13px;
   background: transparent;
 }
 
@@ -278,4 +286,16 @@ ion-content::part(scroll) {
 .filter-icon {
   font-size: 22px;
   cursor: pointer;
+}
+
+.loader-wrapper{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:200px;
+}
+
+.loader-wrapper ion-spinner{
+  width:40px;
+  height:40px;
 }

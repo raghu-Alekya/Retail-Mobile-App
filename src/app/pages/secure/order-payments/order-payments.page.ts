@@ -12,6 +12,7 @@ export class OrderPaymentsPage implements OnInit {
   payments: any[] = [];
   groupedPayments: any[] = [];
   page = 1;
+  pageSize?: number;
   loading = false;
   hasMore = true;
   search = '';
@@ -34,11 +35,25 @@ export class OrderPaymentsPage implements OnInit {
   refresh(event: any) {
     this.loadPayments(event);
   }
-  // groupPayments() {
+  onPaymentFilter(event: any) {
+
+    const mode = event.detail.value || '';
+
+    this.paymentMode = mode;
+
+    // reset pagination
+    this.page = 1;
+    this.payments = [];
+    this.groupedPayments = [];
+    this.hasMore = true;
+
+    this.loadPayments();
+  }
+  // groupPayments(list: any[] = this.payments) {
 
   //   const grouped: any = {};
 
-  //   this.payments.forEach((p: any) => {
+  //   list.forEach((p: any) => {
 
   //     const orderId = p?.meta?.order_id;
 
@@ -55,34 +70,41 @@ export class OrderPaymentsPage implements OnInit {
 
   //     grouped[orderId].transactions.push({
   //       transaction_id: p.transaction_id,
+  //       pay_mode: p.pay_mode,
   //       tender_amount: p.tender_amount
   //     });
 
   //   });
 
-  //   this.groupedPayments = Object.values(grouped);
+  //   this.groupedPayments = [...Object.values(grouped)];
   // }
-  onPaymentFilter(event: any) {
-
-    const mode = event.detail.value || '';
-
-    this.paymentMode = mode;
-
-    // reset pagination
-    this.page = 1;
-    this.payments = [];
-    this.groupedPayments = [];
-    this.hasMore = true;
-
-    this.loadPayments();
-  }
   groupPayments(list: any[] = this.payments) {
 
     const grouped: any = {};
 
+    // Seed map with existing groups to avoid duplicate cards across pages
+    this.groupedPayments.forEach((g: any) => {
+      grouped[g.order_id] = {
+        ...g,
+        // shallow copy transactions so we can safely push
+        transactions: [...(g.transactions || [])],
+      };
+    });
+
+    // Add / merge new payments
     list.forEach((p: any) => {
 
-      const orderId = p?.meta?.order_id;
+      const orderId = p?.meta?.order_id ?? p?.order_id ?? p?.orderId;
+      if (orderId == null || orderId === '') return;
+
+      // If searching, keep only matching order ids in the grouped view
+      const searchVal = this.search?.toString().trim().toLowerCase();
+      if (searchVal) {
+        const orderStr = String(orderId).toLowerCase();
+        if (!orderStr.includes(searchVal)) {
+          return;
+        }
+      }
 
       if (!grouped[orderId]) {
         grouped[orderId] = {
@@ -95,15 +117,29 @@ export class OrderPaymentsPage implements OnInit {
         };
       }
 
-      grouped[orderId].transactions.push({
-        transaction_id: p.transaction_id,
-        pay_mode: p.pay_mode,
-        tender_amount: p.tender_amount
-      });
+      // avoid duplicate transactions (same transaction_id)
+      const exists = grouped[orderId].transactions
+        .some((t: any) => t.transaction_id === p.transaction_id);
+
+      if (!exists) {
+        grouped[orderId].transactions.push({
+          transaction_id: p.transaction_id,
+          pay_mode: p.pay_mode,
+          tender_amount: p.tender_amount
+        });
+      }
 
     });
 
-    this.groupedPayments = Object.values(grouped);
+    // keep stable ordering (newest first) if created_at exists
+    this.groupedPayments = Object.values(grouped).sort((a: any, b: any) => {
+      const ta = a?.created_at ? new Date(a.created_at).getTime() : 0;
+      const tb = b?.created_at ? new Date(b.created_at).getTime() : 0;
+      return tb - ta;
+    });
+  }
+  trackByOrder(index: number, item: any) {
+    return item?.order_id ?? index;
   }
     /**
    * Status badge color
@@ -119,7 +155,7 @@ export class OrderPaymentsPage implements OnInit {
   //   }
   // }
 
-  async loadPayments(event?: any, reset = false) {
+  async loadPayments(event?: any, reset = false, force = false) {
 
     // prevent duplicate calls
     if (this.loading) {
@@ -133,7 +169,7 @@ export class OrderPaymentsPage implements OnInit {
       this.hasMore = true;
     }
 
-    if (!this.hasMore) {
+    if (!this.hasMore && !force) {
       event?.target.complete();
       return;
     }
@@ -154,10 +190,22 @@ export class OrderPaymentsPage implements OnInit {
       const items = Array.isArray(res?.data) ? res.data : [];
 
       if (items.length > 0) {
-        this.payments.push(...items);
-        this.groupPayments();
+        if (this.page === 1) {
+          this.payments = items;
+        } else {
+          this.payments.push(...items);
+        }
+
+        this.groupPayments(items); // group only new items
+
         this.page++;
-        this.hasMore = res.pagination?.has_more ?? false;
+        // Prefer backend pagination flag; otherwise infer based on page size.
+        if (this.pageSize == null) this.pageSize = items.length;
+        const apiHasMore = res?.pagination?.has_more;
+        this.hasMore =
+          typeof apiHasMore === 'boolean'
+            ? apiHasMore
+            : (this.pageSize ? items.length >= this.pageSize : false);
       } else {
         this.hasMore = false;
       }
@@ -201,6 +249,27 @@ export class OrderPaymentsPage implements OnInit {
 
   //   this.groupPayments(filtered);
   // }
+  // onSearch(event: any) {
+
+  //   clearTimeout(this.searchTimeout);
+
+  //   this.searchTimeout = setTimeout(() => {
+
+  //     const value = event.target.value?.trim() || '';
+
+  //     this.search = value;
+
+  //     // reset pagination
+  //     this.page = 1;
+  //     this.payments = [];
+  //     this.groupedPayments = [];
+  //     this.hasMore = true;
+
+  //     this.loadPayments();
+
+  //   }, 2000);
+
+  // }
   onSearch(event: any) {
 
     clearTimeout(this.searchTimeout);
@@ -211,16 +280,31 @@ export class OrderPaymentsPage implements OnInit {
 
       this.search = value;
 
-      // reset pagination
       this.page = 1;
+      this.hasMore = true;
+      this.pageSize = undefined;
+
       this.payments = [];
       this.groupedPayments = [];
-      this.hasMore = true;
 
-      this.loadPayments();
+      // Search results are typically paginated; load all pages so the
+      // card shows all transactions for the matching order id.
+      void this.loadAllSearchResults();
 
-    }, 2000);
+    }, 500); // faster debounce
+  }
 
+  private async loadAllSearchResults() {
+    // First page
+    await this.loadPayments(undefined, false, true);
+
+    // Then keep going while API reports more data.
+    // We rely on hasMore (computed from backend pagination or pageSize).
+    let guard = 0;
+    while (this.search && this.hasMore && guard < 50) {
+      guard++;
+      await this.loadPayments(undefined, false, true);
+    }
   }
   /**
    * Format date safely

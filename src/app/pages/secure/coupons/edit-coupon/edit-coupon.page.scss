@@ -1,7 +1,12 @@
 /* HEADER */
 .custom-header {
-  --background: #3f5065;
+  --background: #264c73;
   --color: #ffffff;
+
+  ion-title {
+    padding-left: 0;
+    margin-left: -6px;
+  }
 }
 
 .update-btn {
