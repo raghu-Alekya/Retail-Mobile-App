@@ -114,13 +114,6 @@ export class PosSettingsPage implements OnInit {
         });
       });
 
-      // backend keys
-      // this.settings.enable_cashback =
-      //   toBool(data.pinaka_pos_cashback_settings);
-
-      // this.settings.enable_service_charge =
-      //   toBool(data.pinaka_pos_service_charge_settings);
-
       this.settings.enable_cashback =
         toBool(data.pinaka_pos_cashback_settings?.enabled);
 
@@ -304,33 +297,33 @@ export class PosSettingsPage implements OnInit {
 
   async addTag() {
 
-  if (!this.newTag.trim()) return;
+    if (!this.newTag.trim()) return;
 
-  const payload = {
-    name: this.newTag.trim()
-  };
+    const payload = {
+      name: this.newTag.trim()
+    };
 
-  try {
+    try {
 
-    const res = await this.authService.createTag(payload);
+      const res = await this.authService.createTag(payload);
 
-    this.tags.push({
-      id: res.id,
-      name: res.name
-    });
+      this.tags.push({
+        id: res.id,
+        name: res.name
+      });
 
-    this.newTag = '';
+      this.newTag = '';
 
-    await this.presentToast('Tag created successfully','success');
+      await this.presentToast('Tag created successfully','success');
 
-  } catch (err) {
+    } catch (err) {
 
-    console.error(err);
+      console.error(err);
 
-    await this.presentToast('Failed to create tag','danger');
+      await this.presentToast('Failed to create tag','danger');
 
+    }
   }
-}
 
   async removeTag(tag: string) {
 
@@ -450,5 +443,105 @@ export class PosSettingsPage implements OnInit {
   signOut() {
     this.authService.logout();
   }
+
+  async editCategory(category: any) {
+
+    const alert = await this.alertController.create({
+      header: 'Edit Category',
+      inputs: [
+        {
+          name: 'name',
+          type: 'text',
+          value: category.name
+        }
+      ],
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Update',
+          handler: async (data) => {
+
+            if (!data.name.trim()) return false;
+
+            try {
+
+              const res = await this.authService.updateCategory(
+                category.id,
+                { name: data.name, slug: this.createSlug(data.name) }
+              );
+
+              category.name = res.name;
+
+              this.presentToast('Category updated successfully','success');
+
+            } catch (error) {
+
+              console.error(error);
+
+              this.presentToast('Failed to update category','danger');
+
+            }
+
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  async editTag(tag: any) {
+
+    const alert = await this.alertController.create({
+      header: 'Edit Tag',
+      inputs: [
+        {
+          name: 'name',
+          type: 'text',
+          value: tag.name
+        }
+      ],
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Update',
+          handler: async (data) => {
+
+            if (!data.name.trim()) return false;
+
+            try {
+
+              const res = await this.authService.updateTag(
+                tag.id,
+                { name: data.name, slug: this.createSlug(data.name) }
+              );
+
+              tag.name = res.name;
+
+              this.presentToast('Tag updated successfully','success');
+
+            } catch (error) {
+
+              console.error(error);
+
+              this.presentToast('Failed to update tag','danger');
+
+            }
+
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
   
+  createSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')   // remove special chars
+      .replace(/\s+/g, '-')           // replace spaces with -
+      .replace(/-+/g, '-');           // remove duplicate -
+  }
 }

@@ -143,24 +143,24 @@
       </ion-item>
 
       <form [formGroup]="form">
-  <ion-item>
-    <ion-label>Currency</ion-label>
+        <ion-item>
+          <ion-label>Currency</ion-label>
 
-      <ion-select
-      formControlName="currency"
-      name="currency"
-      (ionChange)="onCurrencyChange()">
+            <ion-select
+            formControlName="currency"
+            name="currency"
+            (ionChange)="onCurrencyChange()">
 
-      <ion-select-option
-        *ngFor="let c of currencies | keyvalue"
-        [value]="c.key">
-        {{ c.value }} ({{ c.key }})
-      </ion-select-option>
+            <ion-select-option
+              *ngFor="let c of currencies | keyvalue"
+              [value]="c.key">
+              {{ c.value }} ({{ c.key }})
+            </ion-select-option>
 
-    </ion-select>
+          </ion-select>
 
-  </ion-item>
-</form>
+        </ion-item>
+      </form>
     </div>
 
     <!-- ================= PRODUCT SETTINGS ================= -->
@@ -198,7 +198,14 @@
 
             <ion-item *ngFor="let cat of categories">
               <ion-label>{{ cat.name }}</ion-label>
-
+               <!-- EDIT -->
+              <ion-button
+                fill="clear"
+                color="medium"
+                slot="end"
+                (click)="editCategory(cat)">
+                <ion-icon name="create-outline"></ion-icon>
+              </ion-button>
               <ion-button
                 fill="clear"
                 color="danger"
@@ -222,7 +229,7 @@
                 placeholder="New tag"
                 [(ngModel)]="newTag">
               </ion-input>
-
+              
               <ion-button
                 slot="end"
                 size="small"
@@ -234,6 +241,14 @@
 
             <ion-item *ngFor="let tag of tags">
               <ion-label>{{ tag.name }}</ion-label>
+              <!-- EDIT -->
+              <ion-button
+                fill="clear"
+                color="medium"
+                slot="end"
+                (click)="editTag(tag)">
+                <ion-icon name="create-outline"></ion-icon>
+              </ion-button>
 
               <ion-button
                 fill="clear"

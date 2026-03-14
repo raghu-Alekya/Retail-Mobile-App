@@ -418,9 +418,7 @@ async getCategories(page = 1, perPage = 100) {
     }
   });
 
-  return typeof res.data === 'string'
-    ? JSON.parse(res.data)
-    : res.data;
+  return res.data;
 }
 
 async getTags() {
@@ -431,9 +429,7 @@ async getTags() {
     headers: this.getAuthHeaders()
   });
 
-  return typeof res.data === 'string'
-    ? JSON.parse(res.data)
-    : res.data;
+  return res.data;
 }
 
 async createUser(newUser: any) {
@@ -1278,10 +1274,7 @@ async createTag(payload: any) {
     data: payload
   });
 
-  const data =
-    typeof res.data === 'string'
-      ? JSON.parse(res.data)
-      : res.data;
+  const data = res.data;
 
   return data;
 }
@@ -1302,6 +1295,20 @@ async deleteTag(id: number) {
     : res.data;
 }
 
+async updateTag(tagId: number, payload: any) {
+
+  const res = await Http.request({
+    method: 'PUT',
+    url: `${this.wpBase}/wp-json/wc/v3/products/tags/${tagId}`,
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
+    data: payload
+  });
+
+  return res.data;
+}
 
 // Categories
 async saveCategory(payload: any) {
@@ -1316,12 +1323,24 @@ async saveCategory(payload: any) {
     data: payload
   });
 
-  const data =
-    typeof res.data === 'string'
-      ? JSON.parse(res.data)
-      : res.data;
+  const data = res.data;
 
   return data;
+}
+
+async updateCategory(categoryId: number, payload: any) {
+
+  const res = await Http.request({
+    method: 'PUT',
+    url: `${this.wpBase}/wp-json/wc/v3/products/categories/${categoryId}`,
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'
+    },
+    data: payload
+  });
+
+  return res.data;
 }
 
 async deleteCategory(id: number) {
