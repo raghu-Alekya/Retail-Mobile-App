@@ -192,12 +192,12 @@ markChanged() {
       this.discountSuggestions = [];
       this.selectedDiscountProducts = [];
       this.form.discount_product_ids = [];
-      this.activeFilter = 'all';
+      
     }
   
     async openEdit(coupon: any) {
       // console.log(coupon);
-      this.activeFilter = 'all';
+      
       this.filter_type = coupon.type;
       this.editingCoupon = coupon;
       this.formChanged = false;  
@@ -356,25 +356,38 @@ markChanged() {
       toast.present();
     }
     async deleteCoupon(coupon: any) {
-      const alert = await this.alertCtrl.create({
-        header: 'Delete Discount?',
-        message: `Delete discount <b>${coupon.code}</b>?`,
-        buttons: [
-          { text: 'Cancel', role: 'cancel' },
-          {
-            text: 'Delete',
-            role: 'destructive',
-            handler: async () => {
-              await this.auth.deleteDiscount(coupon.id, coupon.type);
-              const prevfilters = this.activeFilter;
-              await this.loadDiscounts();
-              this.setFilter(prevfilters);
-            }
-          }
-        ]
-      });
-      alert.present();
-    }
+  const alert = await this.alertCtrl.create({
+    header: 'Delete Discount?',
+    message: `Delete discount <b>${coupon.code}</b>?`,
+    buttons: [
+      {
+        text: 'Cancel',
+        role: 'cancel'
+      },
+      {
+        text: 'Delete',
+        role: 'destructive',
+        handler: async () => {
+
+          await this.auth.deleteDiscount(coupon.id, coupon.type);
+
+          // close modal AFTER delete
+          this.showForm = false;
+
+          // reset form
+          this.resetForm();
+
+          // reload discounts
+          await this.loadDiscounts();
+
+          this.presentToast('Discount deleted successfully');
+        }
+      }
+    ]
+  });
+
+  await alert.present();
+}
     resetForm() {
       this.formSubmitted = false;
       this.editingCoupon = null;

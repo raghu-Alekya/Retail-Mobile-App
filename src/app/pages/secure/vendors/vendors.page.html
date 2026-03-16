@@ -20,7 +20,10 @@
 </ion-toolbar>
 
   <div class="header-search">
-    <ion-searchbar placeholder="Search..."></ion-searchbar>
+    <ion-searchbar 
+      placeholder="Search..."
+      (ionInput)="search($event)">
+    </ion-searchbar>
   </div>
 </ion-header>
 

@@ -21,6 +21,7 @@ export class UsersListPage {
   editedUser: any = {};
   originalUser: any = {};
   isChanged = false;
+  customRoles: any[] = [];
 
   private searchTimeout: any;
 
@@ -65,6 +66,7 @@ async ngOnInit() {
     }
 
     await this.loadUsers();
+    this.customRoles = await this.authService.getCustomRoles();
 
   } catch (error) {
     console.error(error);
@@ -73,6 +75,7 @@ async ngOnInit() {
   loading.dismiss();
 }
   async openAddEmployee() {
+
   const modal = await this.modalCtrl.create({
     component: AddUserComponent,
     componentProps: {
@@ -80,7 +83,16 @@ async ngOnInit() {
     }
   });
 
-  await modal.present();   // 🔹 this line is required
+  await modal.present();
+
+  // wait until modal closes
+  const { data } = await modal.onDidDismiss();
+
+  // if employee created successfully
+  if (data === true) {
+    await this.loadUsers();   // reload employee list
+  }
+
 }
 
 editEmployee(user: any) {
@@ -93,7 +105,7 @@ editEmployee(user: any) {
     first_name: user.first_name,
     last_name: user.last_name,
     role: user.roles?.[0] || '',
-    phone: user.meta?.phone || '',
+    phone: user.meta?.user_phone || '',
     emp_login_pin: user.meta?.emp_login_pin || ''
   };
 
@@ -178,7 +190,7 @@ async deleteUser(id: number) {
       first_name: this.editedUser.first_name,
       last_name: this.editedUser.last_name,
       role: this.editedUser.role,
-      billing_phone: this.editedUser.phone,
+      user_phone: this.editedUser.phone,
       emp_login_pin: this.editedUser.emp_login_pin
     };
 

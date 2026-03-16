@@ -45,15 +45,8 @@ setStockFilter(value: string){
 }
   // This runs every time the page is about to enter
   ionViewWillEnter() {
-    // Refresh only if coming from product form
-    const navigation = this.router.getCurrentNavigation();
-    if (navigation?.previousNavigation) {
-      const previousUrl = navigation.previousNavigation.finalUrl?.toString();
-      if (previousUrl?.includes('/product-form') || previousUrl?.includes('/products/edit')) {
-        this.loadProducts(undefined, true);
-      }
-    }
-  }
+  this.loadProducts(undefined, true);
+}
 
   async loadProducts(event?: any, reset = false) {
     if (reset) {

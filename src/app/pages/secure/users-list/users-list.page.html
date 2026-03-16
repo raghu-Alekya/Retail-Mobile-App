@@ -19,7 +19,7 @@
     <ion-icon name="search-outline"></ion-icon>
     <input
       type="text"
-      placeholder="Search..."
+      placeholder="Search"
       (input)="onSearch($event)"
     />
   </div>
@@ -134,12 +134,14 @@
       <ion-select
         placeholder="Select Employee Role"
         [(ngModel)]="editedUser.role"
-        (ionChange)="checkChanges()">
+        (ionChange)="checkChanges()"
+        interface="popover">
 
-        <ion-select-option value="manager">Manager</ion-select-option>
-        <ion-select-option value="administrator">Administrator</ion-select-option>
-        <ion-select-option value="shop_manager">Shop Manager</ion-select-option>
-        <ion-select-option value="merchant">Merchant</ion-select-option>
+        <ion-select-option
+          *ngFor="let role of customRoles"
+          [value]="role.key">
+          {{ role.name }}
+        </ion-select-option>
 
       </ion-select>
     </div>
