@@ -19,15 +19,16 @@
     </ion-buttons>
   </ion-toolbar>
  
-  <!-- Search -->
   <div class="search-wrapper">
-    <ion-icon name="search"></ion-icon>
-    <input
-  placeholder="Search on All products"
-  (input)="onSearch($event.target.value)"
-/>
-    <ion-icon name="barcode-outline"></ion-icon>
-  </div>
+  <ion-icon name="search-outline"></ion-icon>
+
+  <input
+    placeholder="Search"
+    (input)="onSearch($event.target.value)"
+  />
+
+  <ion-icon name="barcode-outline"></ion-icon>
+</div>
 </ion-header>
 
 

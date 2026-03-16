@@ -1,6 +1,6 @@
 .products-header {
   background: #264c73;
-  padding-bottom: 12px;
+  padding-bottom: 4px;   /* reduced from 12px */
 
   ion-toolbar {
     --background: #264c73;
@@ -13,10 +13,11 @@
     margin-left: -6px;
   }
 }
+
 .product-tabs{
   display:flex;
   gap:10px;
-  padding:10px 16px;
+  padding:4px 16px;   /* reduced from 10px */
   overflow-x:auto;
 }
 
@@ -24,7 +25,7 @@
   border:none;
   background:#e5e5e5;
   padding:6px 12px;
-  border-radius:6px;   /* same shape as orders filters */
+  border-radius:10px;   /* same shape as orders filters */
   font-size:13px;
   color:#333;
   white-space:nowrap;
@@ -47,7 +48,7 @@
     flex: 1;
     border: none;
     background: transparent;
-    color: #333;
+    color: #353535;
     outline: none;
   }
 
@@ -57,8 +58,11 @@
 }
 
 .products-content {
-  padding: 10px;
-  background: #f6f6f6
+  padding-top: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+  background: #f6f6f6;
 }
 
 .sort-row {
@@ -188,17 +192,23 @@ ion-footer ion-segment-button:nth-child(2) {
   margin-right: 2px;    /* 👈 tighter gap between ALL & INSTOCK */
 }
 
-.products-header ion-icon {
+/* Toolbar icons (back + add) */
+.products-header ion-toolbar ion-icon {
   font-size: 20px;
   color: #ffffff;
-  stroke-width: 1.6;
 }
 
-.products-header ion-button {
-  --padding-start: 6px;
-  --padding-end: 6px;
+/* Search bar icons */
+.search-wrapper ion-icon {
+  color: #353535;
 }
 
-.products-header ion-icon[name="add-outline"] {
-  font-size: 26px;   /* increase size */
+/* Left padding for search icon */
+.search-wrapper ion-icon:first-child {
+  padding-left: 8px;
+}
+
+/* Right padding for barcode icon */
+.search-wrapper ion-icon:last-child {
+  padding-right: 8px;
 }

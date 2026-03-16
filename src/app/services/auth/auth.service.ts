@@ -861,7 +861,7 @@ async updateEmployee(id: number, data: any) {
       first_name: data.first_name,
       last_name: data.last_name,
       role: data.role,
-      billing_phone: data.billing_phone,
+      user_phone: data.user_phone,
       emp_login_pin: data.emp_login_pin
     })
   });
