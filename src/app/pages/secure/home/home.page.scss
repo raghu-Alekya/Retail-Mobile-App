@@ -162,6 +162,7 @@ ion-card-title {
 .home-slides {
   padding-left: 12px;
   margin: 15px 0;
+  color: #38475f
 }
 
 /* Force equal width slides */
@@ -256,7 +257,8 @@ ion-content {
 
 ion-label.home-slides {
   display: block;
-  padding-top: 10px;   /* pushes text down */
+  padding-top: 10px;
   margin-left: 12px;
-  font-weight: 600;
+  font-weight: 600;   /* makes it bold */
+  color: #2e3135;     /* optional: darker text */
 }

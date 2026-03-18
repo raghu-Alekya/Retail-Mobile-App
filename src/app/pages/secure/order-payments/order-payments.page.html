@@ -26,9 +26,9 @@
   </ion-select>
   <!-- Search -->
   <div class="search-wrapper">
-
+    <ion-icon name="search-outline" class="search-icon"></ion-icon>
     <ion-input
-      placeholder="Search order"
+      placeholder="Search"
       (ionInput)="onSearch($event)">
     </ion-input>
 
@@ -37,8 +37,14 @@
 
 <ion-content class="ion-padding">
 
+  <!-- PAGE LOADER -->
+  <div *ngIf="loading && payments.length === 0" class="page-loader">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading payments...</p>
+  </div>
+
   <!-- EMPTY STATE -->
-  <div *ngIf="payments?.length === 0" class="empty">
+  <div *ngIf="!loading && payments?.length === 0" class="empty">
     No payments found
   </div>
 
@@ -113,19 +119,19 @@
 
       <div *ngFor="let t of p.transactions" class="transaction-row">
 
-        <div class="left">
-          <div class="txn-id">
+        
+          <div class="mode">
             Transaction ID: <b>{{ t.transaction_id }}</b>
           </div>
           
-        </div>
+        
 
-        <div class="right">
+        
             <div class="mode">
               Tender Amount:
               <b>{{ t.tender_amount }}</b>
             </div>
-        </div>
+        
 
         <div class="mode">
             Payment Mode: <b>{{ t.pay_mode }}</b>

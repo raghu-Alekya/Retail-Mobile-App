@@ -21,7 +21,7 @@
     <ion-icon name="search-outline" class="search-icon"></ion-icon>
     <input
       type="text"
-      placeholder="Search..."
+      placeholder="Search"
       (input)="onSearch($event)"
     />
   </div>
@@ -31,6 +31,8 @@
 
 <!-- CONTENT (ALL CARDS HERE) -->
 <ion-content class="ion-padding">
+
+  <h2>Shifts List</h2>
 
   <ion-card
     *ngFor="let shift of filteredShifts; let i = index"
@@ -51,12 +53,12 @@
 
             <p class="muted">
               Opening Bal:
-              <span class="amount">₹{{ shift.openingBalance }}</span>
+              <span class="amount">${{ shift.openingBalance }}</span>
             </p>
 
             <p class="muted">
               Sale:
-              <span class="amount">₹{{ shift.sales }}</span>
+              <span class="amount">${{ shift.sales }}</span>
             </p>
           </div>
         </div>
@@ -66,12 +68,12 @@
 
           <p>
             Closing Bal:
-            <span class="amount">₹{{ shift.closingBalance }}</span>
+            <span class="amount">${{ shift.closingBalance }}</span>
           </p>
 
           <p class="muted">
             Over/Short:
-            <span class="amount">₹{{ shift.overShort }}</span>
+            <span class="amount">${{ shift.overShort }}</span>
           </p>
         </div>
       </div>

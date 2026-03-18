@@ -16,25 +16,39 @@
   padding: 20px;
 }
 
-.input-box {
-  background: #e9edf2;
-  border-radius: 12px;
-  margin-bottom: 16px;
-  padding: 8px 10px;
-}
-
-ion-label {
+/* Label */
+.form-group label {
+  font-size: 14px;
   font-weight: 500;
   color: #333;
+  margin-bottom: 6px;
+  display: block;
 }
 
+/* Input Box */
+.input-box {
+  --background: #e9edf2;
+  border-radius: 10px;
+  margin-bottom: 18px;
+
+  /* remove ionic spacing */
+  --padding-start: 12px;
+  --inner-padding-end: 12px;
+  --min-height: 44px;
+}
+
+/* remove ion-item extra spacing */
+ion-item.input-box {
+  --border-width: 0;
+}
+
+/* Input */
 ion-input,
 ion-select {
-  --background: transparent;
-  --padding-start: 0;
   font-size: 14px;
 }
 
+/* Button */
 .btn-container {
   padding: 20px;
 }
@@ -42,6 +56,7 @@ ion-select {
 .save-btn {
   --background: #264c73;
   --border-radius: 10px;
-  height: 48px;
-  font-weight: 500;
+  height: 50px;
+  font-weight: 600;
 }
+

@@ -26,7 +26,7 @@ export class EditPage implements OnInit {
     this.editForm = this.fb.group({
       first_name: [''],
       last_name: [''],
-      username: [''],
+      username: [{ value: '', disabled: true }],
       email: [''],
       gender: [''],
       phone: ['']

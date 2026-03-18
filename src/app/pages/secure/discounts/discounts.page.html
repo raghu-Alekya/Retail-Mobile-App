@@ -20,7 +20,7 @@
   <div class="search-container">
     <ion-icon name="search-outline"></ion-icon>
     <input type="text"
-       placeholder="Search all Discounts"
+       placeholder="Search"
        [(ngModel)]="searchTerm"
        (input)="onSearch($event)" />
   </div>
@@ -70,7 +70,15 @@
         <div class="title">{{ c.code }}</div>
 
         <div class="amount">
-          Amount: ₹{{ c.coupon_amount }}
+          {{ c.discount_type === 'percent' ? 'Percentage:' : 'Amount:' }}
+
+          <span *ngIf="c.discount_type === 'percent'">
+            {{ c.coupon_amount }}%
+          </span>
+
+          <span *ngIf="c.discount_type !== 'percent'">
+            ${{ c.coupon_amount }}
+          </span>
         </div>
         <div class="discount-type">
         Discount Type: {{ c.discount_type }}
