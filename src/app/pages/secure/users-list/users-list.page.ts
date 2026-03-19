@@ -22,6 +22,7 @@ export class UsersListPage {
   originalUser: any = {};
   isChanged = false;
   customRoles: any[] = [];
+  isUsernameLocked = false;
 
   private searchTimeout: any;
 
@@ -108,6 +109,11 @@ editEmployee(user: any) {
     phone: user.meta?.user_phone || '',
     emp_login_pin: user.meta?.emp_login_pin || ''
   };
+
+  this.originalUser = { ...this.editedUser };
+
+  // 🔒 lock username if already exists
+  this.isUsernameLocked = !!user.username;
 
 }
   
@@ -207,11 +213,12 @@ async deleteUser(id: number) {
   }
   // ✅ Cancel Edit
   cancelEdit() {
-    this.editingUserId = null;
-    this.editedUser = {};
-    this.originalUser = {};
-    this.isChanged = false;
-  }
+  this.editingUserId = null;
+  this.editedUser = {};
+  this.originalUser = {};
+  this.isChanged = false;
+  this.isUsernameLocked = false; // reset
+}
 
   // ✅ Debounced Search
   onSearch(event: any) {
@@ -246,22 +253,23 @@ async deleteUser(id: number) {
 
   // ✅ Load Users
   async loadUsers() {
-    try {
-      const usersArray = await this.authService.getUsers("1", "50", '');
+  try {
 
-      console.log('RAW USERS:', usersArray);
+    const usersArray = await this.authService.getUsers("1", "50", '');
 
-      // ✅ SAFE filtering
-      this.users = usersArray.filter((user: any) =>
-        Array.isArray(user?.roles) && !user.roles.includes('customer')
-      );
+    this.users = usersArray.filter((user: any) =>
+      Array.isArray(user?.roles) && !user.roles.includes('customer')
+    );
 
-      this.filteredUsers = [...this.users];
+    // ⭐ NEW: show newest employee on top
+    this.users.sort((a: any, b: any) => b.id - a.id);
 
-    } catch (error) {
-      console.error('Error loading users', error);
-    }
+    this.filteredUsers = [...this.users];
+
+  } catch (error) {
+    console.error('Error loading users', error);
   }
+}
 
   getRoleLabel(roles: string[]) {
     if (!Array.isArray(roles) || roles.length === 0) return '';

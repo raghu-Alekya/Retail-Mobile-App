@@ -1,129 +1,119 @@
-.coupon-header ion-toolbar{
-  --background:#264c73;
-  --color:#ffffff;
-  --border-width:0;
-
-  ion-title {
-    padding-left: 0;
-    margin-left: -6px;
-  }
-}
-
-.coupon-content {
-  --background: #f3f3f3;
-  padding: 12px;
-}
-// .coupon-content {
-//   --background: #eef1f4;   /* soft grey background */
-//   padding: 16px 14px 30px 14px;
-// }
-ion-label {
-  font-size: 15px;
-  font-weight: 500;
-  color: #2c2c2c;
-}
-
-ion-label span {
-  font-weight: 600;
-  color: #1a1a1a;
-}
-ion-icon {
-  font-size: 18px;
-  color: #7a7a7a;
-}
-ion-icon:active {
-  transform: scale(0.9);
-}
-.editable-row {
-  position: relative;
-}
-
-.hidden {
-  display: none;
-}
-
-.coupon-card {
-  background: #f7f7f7;
-  border-radius: 14px;
-  margin-bottom: 14px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
-}
-
-ion-item {
-  --background: transparent;
-  --padding-start: 18px;
-  --inner-padding-end: 16px;
-  --min-height: 54px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-ion-item:last-child {
-  border-bottom: none;
-}
-
-
-ion-item {
-  --background: transparent;
-}
-
-ion-label {
-  font-size: 14px;
-  color: #333;
-}
-
-.coupon-card ion-icon {
-  font-size: 18px;
-  color: #666;
-  cursor: pointer;
-}
-
-.custom-header {
-  --background: #3f5065;
+/* HEADER */
+.coupon-header ion-toolbar {
+  --background: #264c73;
   --color: #ffffff;
-  height: 64px; /* increase height */
-  padding-top: 6px;
+  --border-width: 0;
 }
 
 ion-title {
   font-weight: 600;
   font-size: 18px;
+  margin-left: -6px;
 }
 
 ion-back-button {
   --color: #ffffff;
 }
 
-.custom-header ion-icon {
-  color: #ffffff;
-}
-
-
-/* Save Button Styling */
+/* SAVE BUTTON */
 .save-btn {
-  // --background: #ffffff;
   --color: #ffffff;
-  --border-radius: 6px;
   font-weight: 500;
   height: 32px;
 }
-.value-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
+
+/* PAGE BACKGROUND */
+.coupon-content {
+  --background: #f2f3f5;
+  --padding-top: 20px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-bottom: 12px;
 }
 
-ion-input {
-  --padding-start: 0px;
+/* CARD */
+.coupon-card {
+  background: #ffffff;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
+/* ITEM */
 ion-item {
+  --background: transparent;
+  --padding-start: 20px;
+  --inner-padding-end: 20px;
+  --min-height: 60px;
+  border-bottom: 1px solid #eeeeee;
+}
+
+ion-item:last-child {
+  border-bottom: none;
+}
+
+/* REMOVE IONIC FOCUS LINES */
+ion-item {
+  --highlight-height: 0;
+  --highlight-color-focused: transparent;
+  --highlight-color-invalid: transparent;
+  --highlight-color-valid: transparent;
+}
+
+ion-select {
   --highlight-height: 0;
 }
 
-ion-item.item-has-focus {
-  --highlight-color-focused: #2f4f6f;
+/* LABEL */
+ion-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #3a3a3a;
+  margin-bottom: 6px;
 }
+
+/* VALUE ROW */
+.value-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* VALUE TEXT */
+.value-row span {
+  font-size: 15px;
+  color: #1f1f1f;
+}
+
+/* INPUT */
+ion-input {
+  --padding-start: 0;
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+/* ICON */
+ion-icon {
+  font-size: 18px;
+  color: #7a7a7a;
+  cursor: pointer;
+}
+
+ion-icon:active {
+  transform: scale(0.92);
+}
+
+/* BADGE */
+ion-badge {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+/* CALENDAR MODAL */
 .calendar-modal {
   --height: auto;
   --width: 90%;
@@ -134,6 +124,35 @@ ion-item.item-has-focus {
 
 .calendar-container {
   background: white;
-  padding: 20px;
+  padding: 18px;
   border-radius: 16px;
+}
+
+/* Prevent Ionic label focus color change */
+ion-item.item-has-focus ion-label {
+  color: #353535 !important;
+  font-size: 16px !important;
+}
+
+/* Prevent label shrinking */
+ion-label {
+  transform: none !important;
+}
+
+ion-item::part(native) {
+  border-bottom: none !important;
+}
+
+/* Minimum & Maximum amount spacing */
+.coupon-card ion-item:nth-last-child(2),
+.coupon-card ion-item:last-child {
+  margin-top: 6px;
+  margin-bottom: 6px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+/* Space above Usage Limit */
+.coupon-card ion-item:nth-child(2) {
+  margin-top: 12px;
 }

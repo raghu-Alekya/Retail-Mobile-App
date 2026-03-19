@@ -43,8 +43,16 @@ showDatePicker = false;
   ) {}
 
   startEdit(field: string) {
-    this.editing = field;
-  }
+
+  this.editing = field;
+
+  // wait for DOM render
+  setTimeout(() => {
+    const input = document.querySelector('ion-input input') as HTMLInputElement;
+    input?.focus();
+  }, 200);
+
+}
   showCalendar = false;
 
 toggleCalendar() {

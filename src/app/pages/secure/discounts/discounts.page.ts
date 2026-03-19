@@ -170,16 +170,17 @@ markChanged() {
   }
 
   flattenAll(): any[] {
-    const all: any[] = [];
+  const all: any[] = [];
 
-    Object.keys(this.grouped).forEach(key => {
-      if (Array.isArray(this.grouped[key])) {
-        all.push(...this.grouped[key]);
-      }
-    });
+  Object.keys(this.grouped).forEach(key => {
+    if (Array.isArray(this.grouped[key])) {
+      all.push(...this.grouped[key]);
+    }
+  });
 
-    return all;
-  }
+  // 🔹 Sort newest first
+  return all.sort((a, b) => b.id - a.id);
+}
 
 
   
@@ -436,25 +437,32 @@ markChanged() {
 
   applySearchAndFilter() {
 
-    let filtered = [...this.allDiscounts]; // always start from master list
+  let filtered = [...this.allDiscounts];
 
-    // 🔹 Apply Filter
-    if (this.activeFilter !== 'all') {
-      filtered = filtered.filter(d =>
-        d.type?.toLowerCase().includes(this.activeFilter)
-      );
-    }
+  // 🔹 Sort by newest start_date
+  filtered.sort((a, b) => {
+    const dateA = new Date(a.start_date || 0).getTime();
+    const dateB = new Date(b.start_date || 0).getTime();
+    return dateB - dateA;
+  });
 
-    // 🔹 Apply Search
-    if (this.searchTerm?.trim()) {
-      const term = this.searchTerm.toLowerCase().trim();
-
-      filtered = filtered.filter(d =>
-        d.code?.toLowerCase().includes(term)
-      );
-    }
-
-    this.discounts = filtered;
+  // 🔹 Apply Filter
+  if (this.activeFilter !== 'all') {
+    filtered = filtered.filter(d =>
+      d.type?.toLowerCase().includes(this.activeFilter)
+    );
   }
+
+  // 🔹 Apply Search
+  if (this.searchTerm?.trim()) {
+    const term = this.searchTerm.toLowerCase().trim();
+
+    filtered = filtered.filter(d =>
+      d.code?.toLowerCase().includes(term)
+    );
+  }
+
+  this.discounts = filtered;
+}
   ///////////////////////////////
 }

@@ -10,7 +10,7 @@ ion-content.media-content {
   --color: #ffffff;
   --padding-start: 4px;
 
-  min-height: 60px;   /* reduced header height */
+  min-height: 70px;   /* reduced header height */
   display: flex;
   align-items: center;
 
@@ -334,8 +334,8 @@ ion-fab{
   bottom:20px;
 }
 .upload-fab {
-  width: 70px;
-  height: 70px;
+  width: 60px;
+  height: 60px;
 }
 ion-fab-button ion-icon {
   font-size: 28px;
@@ -377,6 +377,8 @@ ion-fab-button.fab-action ion-icon {
 ion-fab-list {
   align-items: flex-end;
 }
-ion-fab-list ion-fab-button {
-  margin-bottom: 12px;
+
+/* reduce space only between camera & album */
+ion-fab-list ion-fab-button.fab-action {
+  margin-bottom: 4px;   /* smaller gap */
 }

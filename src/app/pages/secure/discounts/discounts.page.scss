@@ -63,7 +63,7 @@
 }
 
 .search-container ion-icon {
-  color: #6b6b6b;
+  color: #353535;
   font-size: 18px;
   margin-right: 8px;
 }
@@ -74,7 +74,7 @@
   background: transparent;
   width: 100%;
   font-size: 14px;
-  color: #333;
+  color: #353535;
 }
 // .filter-tabs {
 //   display: flex;
@@ -328,6 +328,8 @@ hr {
   margin-bottom: 18px;
   padding-left: 0;
   padding-right: 0;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 /* Remove MD underline completely */
