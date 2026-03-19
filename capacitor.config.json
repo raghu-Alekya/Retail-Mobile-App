@@ -3,5 +3,10 @@
 	"appName": "Pinaka WC",
 	"webDir": "www",
 	"bundledWebRuntime": false,
-	"ios": { "scheme": "Pinaka WC" }
+	"ios": { "scheme": "Pinaka WC" },
+	"plugins": {
+		"Keyboard": {
+		"resize": "ionic"
+		}
+	}
 }
