@@ -80,6 +80,7 @@ ion-card {
   height: 250px;
   width: 100%;
 }
+
 ion-footer {
   ion-toolbar {
     --background: #ffffff;
@@ -97,11 +98,12 @@ ion-footer {
 }
 
 .summary-card {
-  border-radius: 18px;
+  border-radius: 10px;
   background: #264c73;  /* deep navy */
   color: #ffffff;
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
   height : 90px;
+  margin-bottom: 4px;
 }
 .date-input {
   background: #ffffff;
@@ -171,35 +173,40 @@ ion-footer {
 // }
 
 .sales-filter{
-  padding:12px 16px;
+  padding: 0 16px;   /* match ion-card margin */
+  margin-top: 12px;
+  margin-bottom: 12px;
 }
 
 .pill-segment{
-  display:flex;
-  gap:10px;
+  display: flex;
+  gap: 12px;   /* space between buttons */
   background: transparent;
+  padding: 0 10px; /* optional side spacing */
 }
 
-/* normal buttons */
-.pill-segment ion-segment-button{
+.pill-segment ion-segment-button {
   --background: #dcdcdc;
   --background-checked: #264c73;
   --color: #444;
   --color-checked: #ffffff;
 
-  border-radius: 20px;
+  border-radius: 10px;
   min-height: 36px;
   font-size: 14px;
   text-transform: none;
-  padding: 0 16px;
+  padding: 0 40px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
-/* selected button */
-.pill-segment ion-segment-button {
-  --background-focused: transparent;
-  --background-activated: transparent;
-  --ripple-color: transparent;
-  --indicator-color: transparent;
+/* center the text perfectly */
+.pill-segment ion-label {
+  width: 100%;
+  text-align: center;
 }
 
 .report-dropdown::part(icon) {
@@ -212,9 +219,14 @@ ion-footer {
   margin-left: -8px;
 }
 
+.products-header ion-buttons[slot="end"] {
+  padding-right: 20px;   /* adjust 10–16px if needed */
+}
 .report-dropdown {
   padding-right: 18px;   /* space for arrow */
   --padding-end: 20px;
+  font-size: 18px
+  
 }
 
 /* Normal text */

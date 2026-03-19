@@ -27,8 +27,21 @@ export class EditCouponPage implements OnInit {
     private router: Router,
     private auth: AuthService,
     private alertCtrl: AlertController
+    
   ) {}
 
+  
+isDateModalOpen = false;
+
+openDatePicker() {
+  this.isDateModalOpen = true;
+}
+
+setDate(event: any) {
+  this.coupon.date_expires = event.detail.value;
+  this.isDateModalOpen = false;
+  
+}
   async ngOnInit() {
 
     const stateCoupon = history.state.coupon;
@@ -45,6 +58,8 @@ export class EditCouponPage implements OnInit {
       // ✅ handle API response correctly
       this.coupon = res.data ? res.data : res;
 
+      
+
       console.log("Full coupon data:", this.coupon);
 
     } catch (error) {
@@ -53,19 +68,31 @@ export class EditCouponPage implements OnInit {
 
   }
 
-  // Toggle input field
-toggleEdit(field: string) {
+  toggleEdit(field: string) {
+
   const isAlreadyOpen = this.editField[field];
 
-  // Close all fields
+  // close all fields
   Object.keys(this.editField).forEach(f => {
     this.editField[f] = false;
   });
 
-  // If it was NOT open before, open it
   if (!isAlreadyOpen) {
+
     this.editField[field] = true;
+
+    // wait for input render
+    setTimeout(() => {
+
+      const inputs = document.querySelectorAll('ion-input input');
+      const lastInput = inputs[inputs.length - 1] as HTMLInputElement;
+
+      lastInput?.focus();
+
+    }, 300);
+
   }
+
 }
   
 
@@ -110,5 +137,7 @@ toggleEdit(field: string) {
 
   await alert.present();
 }
+
+
 
 }

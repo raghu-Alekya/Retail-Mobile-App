@@ -56,11 +56,11 @@ dailyTotals: number[] = [];
     { title: 'Reports', icon: 'stats-chart', route: '/reports',bg_color: '#FFFEE7', color:'#B9B434' },
     { title: 'Media Library', icon: 'images', route: '/media',bg_color: '#FEECEC', color:'#FE6464' },
     { title: 'Shop Settings', icon: 'settings', route: '/pos-settings',bg_color: '#E6F0F8', color:'#4E718D' },
-    { title: 'Shifts', icon: 'time', route: '/shifts',bg_color: '#ECEBFD', color:'#46437F' },
-    { title: 'Payments', icon: 'card', route: '/order-payments',bg_color: '#F2FFE1', color:'#7BB02F' },
+    { title: 'Shifts', icon: 'time', route: '/shifts',bg_color: '#eef4ff', color:'#3763a7' },
+    { title: 'Payments', icon: 'card', route: '/order-payments',bg_color: '#eaf7ed', color:'#61ab72' },
     { title: 'Vendors', icon: 'business', route: '/vendors',bg_color: '#FFF6F6', color:'#D35400' },
-    { title: 'Coupons', icon: 'pricetag', route: '/coupons',bg_color: '#FFF6F6', color:'#117A65' },
-    { title: 'Discounts', icon: 'ticket', route: '/discounts',bg_color: '#E8F8F5', color:'#148F77' },
+    { title: 'Coupons', icon: 'pricetag', route: '/coupons',bg_color: '#f2ffe1', color:'#7bb02f' },
+    { title: 'Discounts', icon: 'ticket', route: '/discounts',bg_color: '#fff5e7', color:'#e1ab20' },
   ];
 
   constructor(

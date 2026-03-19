@@ -398,3 +398,8 @@ ion-note.stock-badge {
 .scanner-active ion-button {
   opacity: 0;
 }
+
+/* Space above Title field */
+.settings-card .editable-item:first-child {
+  margin-top: 10px;
+}

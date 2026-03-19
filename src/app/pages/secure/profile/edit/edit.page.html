@@ -13,43 +13,56 @@
 
     <div class="form-container">
 
-      <!-- Name -->
-      <ion-item lines="none" class="input-box">
-        <ion-label position="stacked">First Name</ion-label>
-        <ion-input formControlName="first_name"></ion-input>
-      </ion-item>
+      <!-- First Name -->
+      <div class="form-group">
+        <label>First Name:</label>
+        <ion-item lines="none" class="input-box">
+          <ion-input formControlName="first_name"></ion-input>
+        </ion-item>
+      </div>
 
-      <ion-item lines="none" class="input-box">
-        <ion-label position="stacked">Last Name</ion-label>
-        <ion-input formControlName="last_name"></ion-input>
-      </ion-item>
+      <!-- Last Name -->
+      <div class="form-group">
+        <label>Last Name:</label>
+        <ion-item lines="none" class="input-box">
+          <ion-input formControlName="last_name"></ion-input>
+        </ion-item>
+      </div>
 
       <!-- Username -->
-      <ion-item lines="none" class="input-box">
-        <ion-label position="stacked">User Name</ion-label>
-        <ion-input formControlName="username" disabled></ion-input>
-      </ion-item>
+      <div class="form-group">
+        <label>User Name:</label>
+        <ion-item lines="none" class="input-box">
+          <ion-input formControlName="username" disabled></ion-input>
+        </ion-item>
+      </div>
 
       <!-- Gender -->
-      <ion-item lines="none" class="input-box">
-        <ion-label position="stacked">Gender</ion-label>
-        <ion-select formControlName="gender">
-          <ion-select-option value="male">Male</ion-select-option>
-          <ion-select-option value="female">Female</ion-select-option>
-        </ion-select>
-      </ion-item>
+      <div class="form-group">
+        <label>Gender:</label>
+        <ion-item lines="none" class="input-box">
+          <ion-select formControlName="gender">
+            <ion-select-option value="male">Male</ion-select-option>
+            <ion-select-option value="female">Female</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </div>
 
       <!-- Phone -->
-      <ion-item lines="none" class="input-box">
-        <ion-label position="stacked">Phone Number</ion-label>
-        <ion-input type="tel" formControlName="phone"></ion-input>
-      </ion-item>
+      <div class="form-group">
+        <label>Phone Number:</label>
+        <ion-item lines="none" class="input-box">
+          <ion-input type="tel" formControlName="phone"></ion-input>
+        </ion-item>
+      </div>
 
       <!-- Email -->
-      <ion-item lines="none" class="input-box">
-        <ion-label position="stacked">Email Address</ion-label>
-        <ion-input type="email" formControlName="email" disabled></ion-input>
-      </ion-item>
+      <div class="form-group">
+        <label>Email Address:</label>
+        <ion-item lines="none" class="input-box">
+          <ion-input type="email" formControlName="email" disabled></ion-input>
+        </ion-item>
+      </div>
 
     </div>
 

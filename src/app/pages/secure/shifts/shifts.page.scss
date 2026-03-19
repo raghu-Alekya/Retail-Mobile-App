@@ -130,7 +130,7 @@ ion-content {
 /* SEARCH ICON */
 .search-icon {
   font-size: 18px;
-  color: #9aa7b8;
+  color: #353535;
   margin-right: 8px;
 }
 
@@ -140,7 +140,7 @@ ion-content {
   border: none;
   outline: none;
   font-size: 14px;
-  color: #333;
+  color: #353535;
   background: transparent;
 }
 
@@ -252,4 +252,11 @@ ion-toolbar ion-icon {
 .amount {
   font-weight: 600;   /* bold only value */
   color: #34465d;     /* slightly darker for emphasis */
+}
+
+ion-content h2 {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 5px 12px 5px 12px; /* top right bottom left */
+  color: #333;
 }

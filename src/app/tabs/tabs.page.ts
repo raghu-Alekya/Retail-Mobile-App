@@ -23,22 +23,25 @@ toggle() {
   private router: Router,
   private modalCtrl: ModalController
 ) {
-    this.router.events.subscribe(() => {
- 
-  const url = this.router.url;
- 
-  this.hideTabBar =
-    url.includes('/tabs/profile') ||
-    url.includes('/tabs/edit') ||
-    url.includes('/tabs/charts') ||
-    url.includes('/tabs/payments') ||
-    url.startsWith('/tabs/address') ||
-    url.startsWith('/tabs/change-password');
- 
-});
- 
- 
-  }
+
+  this.router.events.subscribe(() => {
+
+    const url = this.router.url;
+
+    // 🔹 CLOSE FAB whenever navigation happens
+    this.isOpen = false;
+
+    this.hideTabBar =
+      url.includes('/tabs/profile') ||
+      url.includes('/tabs/edit') ||
+      url.includes('/tabs/charts') ||
+      url.includes('/tabs/payments') ||
+      url.startsWith('/tabs/address') ||
+      url.startsWith('/tabs/change-password');
+
+  });
+
+}
   // Select action
   async selectAction() {
 
@@ -94,12 +97,18 @@ toggle() {
 
   goToAddCoupon() {
     this.isOpen = false;
-    this.router.navigate(['coupons'], {
+    this.router.navigate(['coupons/add-coupon'], {
       state: {
         autoOpenCreate: true
       }
     });
   }
+
+// closeFab() {
+//   this.isOpen = false;
+// }  
+
+
 //   async openAddEmployee() {
 //   const modal = await this.modalCtrl.create({
 //     component: AddUserComponent,

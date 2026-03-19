@@ -52,7 +52,9 @@
           </div>
 
           <div class="details">
-            <div class="name">{{ user.name }}</div>
+            <div class="name">
+              {{ user.first_name }} {{ user.last_name }}
+            </div>
 
             <div class="login-id">
               Login Pin: {{ user.meta?.emp_login_pin || 'Not Set' }}
@@ -88,15 +90,17 @@
 
     <div class="edit-popup">
 
+    
     <!-- Username -->
-    <div class="form-field">
-      <label>Username</label>
-      <ion-input
-        placeholder="Enter username"
-        [(ngModel)]="editedUser.username"
-        (ionInput)="checkChanges()">
-      </ion-input>
-    </div>
+<div class="form-field">
+  <label>Username</label>
+  <ion-input
+    placeholder="Enter username"
+    [(ngModel)]="editedUser.username"
+    (ionInput)="checkChanges()"
+    [disabled]="isUsernameLocked">
+  </ion-input>
+</div>
 
     <!-- Email -->
     <div class="form-field">
