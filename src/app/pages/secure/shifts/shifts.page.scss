@@ -17,17 +17,18 @@ ion-content {
 /* HEADER CONTAINER */
 .shift-header {
   background: #264c73;
-  padding-bottom: 30px;   /* ⬅ increase blue height */
+  padding-bottom: 12px;   /* ⬅ increase blue height */
 
   ion-toolbar {
     --background: #264c73;
     --color: #fff;
-    --padding-start: 4px;   /* reduces left space of toolbar */
+    --padding-start: 0px;   /* reduces left space of toolbar */
   }
 
   ion-title {
     padding-left: 0;
     margin-left: -6px;
+    font-size: 24px;
   }
 }
 /* Bigger back arrow */
@@ -48,36 +49,47 @@ ion-content {
   font-size: 20px;
 }
 
-.search-bar {
-  padding: 10px 16px 16px 16px;
-  background: #264c73;
-  border-bottom-left-radius: 22px;
-  border-bottom-right-radius: 22px;
-}
 
-.search-bar ion-searchbar {
-  --background: #f1f1f1;
-  --border-radius: 10px;
-  --box-shadow: none;
-}
-/* TOOLBAR */
-.shift-header ion-toolbar {
-  --background: #264c73;
-  --color: #ffffff;
-  min-height: 56px;       /* optional: taller toolbar */
-}
 
 /* SEARCH CONTAINER */
 .search-container {
-  margin: 12px 16px 0;   /* ⬅ pushes search down */
+  margin: 10px 10px;
   background: #ffffff;
   border-radius: 8px;
   display: flex;
   align-items: center;
-  padding: 12px 14px;    /* ⬅ taller search bar */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  padding: 10px 18px;
+  gap: 10px;
+
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
+/* Search icon */
+.search-container ion-icon {
+  color: #3b3b3b;
+  font-size: 25px;          /* slightly bigger */
+  opacity: 0.75;            /* softer like screenshot */
+}
+
+/* Input */
+.search-container input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #3b3b3b;
+  font-size: 20px;          /* bigger text */
+  font-weight: 400;         /* normal (not bold) */
+  outline: none;
+  letter-spacing: 0px;
+}
+
+/* Placeholder */
+.search-container input::placeholder {
+  color: #3b3b3b;
+  opacity: 0.55;            /* lighter than text */
+  font-weight: 400;
+  font-size: 20px; 
+}
 
 .shift-card-header {
   display: flex;
@@ -127,22 +139,8 @@ ion-content {
   display: flex;
   justify-content: space-between;
 }
-/* SEARCH ICON */
-.search-icon {
-  font-size: 18px;
-  color: #353535;
-  margin-right: 8px;
-}
 
-/* SEARCH INPUT */
-.search-container input {
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 14px;
-  color: #353535;
-  background: transparent;
-}
+
 
 /* FILTER ICON */
 ion-toolbar ion-icon {

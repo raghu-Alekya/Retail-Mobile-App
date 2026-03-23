@@ -7,7 +7,7 @@
   </ion-button>
 </ion-buttons>
 
-  <ion-title>Vendor Payouts</ion-title>
+  <ion-title>Vendors</ion-title>
 
   <ion-buttons slot="end">
     <ion-icon
@@ -20,11 +20,12 @@
 </ion-toolbar>
 
   <div class="header-search">
-    <ion-searchbar
-  search-icon="search-outline"
-  placeholder="Search"
-  (ionInput)="search($event)">
-</ion-searchbar>
+    <ion-icon name="search-outline"></ion-icon>
+    <input
+      placeholder="Search"
+      (input)="search($event)"
+    />
+
   </div>
 </ion-header>
 
@@ -54,30 +55,30 @@
           </div>
         </div>
 
-        <div class="type"
+        <!-- <div class="type"
              [class.purchase]="vendor.type === 'purchase'"
              [class.expense]="vendor.type === 'expense'">
           ● {{ vendor.type | titlecase }}
-        </div>
+        </div> -->
 
       </div>
 
       <!-- MIDDLE ROW -->
-      <div class="middle-row">
+      <!-- <div class="middle-row">
         <div>Amount: <strong>${{ vendor.amount }}</strong></div>
         <div>Payment Method: <strong>{{ vendor.payment_method }}</strong></div>
-      </div>
+      </div> -->
 
-      <div class="divider"></div>
+      <!-- <div class="divider"></div> -->
 
       <!-- BOTTOM ROW -->
-      <div class="bottom-row">
+      <!-- <div class="bottom-row">
 
         <div class="note">
           Note: {{ vendor.note || 'Paid in full purchase' }}
         </div>
 
-      </div>
+      </div> -->
 
     </div>
 

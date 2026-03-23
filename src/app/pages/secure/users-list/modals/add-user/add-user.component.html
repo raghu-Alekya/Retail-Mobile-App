@@ -1,17 +1,19 @@
 <ion-header>
   <ion-toolbar class="dark-toolbar">
     <ion-title>Add Employee</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="close()">Close</ion-button>
-    </ion-buttons>
+    <ion-buttons slot="start">
+        <ion-button (click)="close()">
+  <ion-icon name="arrow-back-outline"></ion-icon>
+</ion-button>
+      </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
 
   <!-- Username -->
+   <ion-label position="stacked">Username</ion-label>
   <ion-item class="form-field">
-    <ion-label position="stacked">Username</ion-label>
     <ion-input
       [(ngModel)]="user.username"
       name="username"
@@ -20,8 +22,9 @@
   </ion-item>
 
   <!-- Email -->
+   <ion-label position="stacked">Email</ion-label>
   <ion-item class="form-field">
-    <ion-label position="stacked">Email</ion-label>
+    
     <ion-input
       type="email"
       [(ngModel)]="user.email"
@@ -30,8 +33,9 @@
   </ion-item>
 
   <!-- First Name -->
+   <ion-label position="stacked">First Name</ion-label>
   <ion-item class="form-field">
-    <ion-label position="stacked">First Name</ion-label>
+    
     <ion-input
       [(ngModel)]="user.first_name"
       placeholder="Enter first name">
@@ -39,8 +43,9 @@
   </ion-item>
 
   <!-- Last Name -->
+   <ion-label position="stacked">Last Name</ion-label>
   <ion-item class="form-field">
-    <ion-label position="stacked">Last Name</ion-label>
+    
     <ion-input
       [(ngModel)]="user.last_name"
       placeholder="Enter last name">
@@ -48,8 +53,9 @@
   </ion-item>
 
   <!-- Employee Role -->
+   <ion-label position="stacked">Employee Role</ion-label>
   <ion-item class="form-field">
-    <ion-label position="stacked">Employee Role</ion-label>
+    
     <ion-select
       [(ngModel)]="user.role"
       placeholder="Select Employee Role"
@@ -65,8 +71,9 @@
   </ion-item>
 
   <!-- Phone -->
+   <ion-label position="stacked">Phone</ion-label>
   <ion-item class="form-field">
-    <ion-label position="stacked">Phone</ion-label>
+    
     <ion-input
       [(ngModel)]="user.phone"
       placeholder="Enter phone number">
@@ -74,8 +81,9 @@
   </ion-item>
 
   <!-- Login PIN -->
+   <ion-label position="stacked">Login PIN</ion-label>
   <ion-item class="form-field">
-    <ion-label position="stacked">Login PIN</ion-label>
+    
     <ion-input
       type="tel"
       maxlength="6"

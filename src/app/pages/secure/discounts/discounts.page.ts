@@ -85,11 +85,10 @@ markChanged() {
     }
   }
   
-  onDiscountTypeChange(event: any)
-  {
-    const value = event.target.value?.trim();
-    this.activeFilter = value;
-  }
+  onDiscountTypeChange(event: any) {
+  const value = event.target.value?.trim();
+  this.form.type = value;   // ✅ only update form
+}
   onProductSearch(event: any) {
     const value = event.target.value?.trim();
     clearTimeout(this.searchTimeout);
@@ -463,6 +462,10 @@ markChanged() {
   }
 
   this.discounts = filtered;
+}
+
+close() {
+  this.showForm = false;
 }
   ///////////////////////////////
 }

@@ -1,40 +1,111 @@
 .dark-toolbar {
   --background: #264c73;
   --color: #ffffff;
+  ion-title {
+    padding-left: 0;
+    margin-left: -6px;
+    
+  }
 }
 
 ion-content {
   --background: #f5f7fa;
 }
-
-/* Form fields like screenshot */
-.form-field {
-  --background: #e1e4ea;
-  --border-radius: 16px;
-
-  margin-bottom: 16px;
-
-  --padding-start: 16px;
-  --inner-padding-end: 16px;
-  --min-height: 70px;
-overflow: hidden; /* very important for corner fix */
-
-  
+ion-content {
+  --background: #f5f7fa;
+  --padding-top: 6px;   /* 👈 reduce from 12px → 6px */
+}
+ion-label[position="stacked"]:first-of-type {
+  margin-top: 6px;   /* 👈 reduce from 14px */
 }
 
+label {
+  display: block;
+  margin-bottom: 6px;
+  margin-top: 12px;
+  font-size: 10px;
+  font-weight: 600;   /* 👈 semi-bold */
+  color: #374151;
+}
 /* Label styling */
 .form-field ion-label {
   font-size: 18px;
   font-weight: 600;
-  color: #3f4752 !important;;
+  color: #3f4752 !important;
+}
+ion-label[position="stacked"] {
+  width: 95%;              /* 👈 SAME as input */
+  margin-left: 2.5%;       /* 👈 align with centered input */
+  margin-right: 0;
+
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+
+  margin-top: 6px;
   margin-bottom: 6px;
 }
+ion-input {
+  caret-color: #000000;   /* 👈 makes the cursor (blinking line) visible */
+}
+/* Group container */
+.form-group {
+  width: 90%;
+  margin: 6px auto 10px;   /* controls spacing between fields */
+}
 
+/* Label */
+.form-group ion-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+
+  margin-bottom: 4px;   /* 👈 key fix */
+  margin-top: 0;        /* remove extra gap */
+}
+
+/* Input container */
+// .form-field {
+//   --highlight-color-focused: transparent;
+//   --highlight-color-invalid: transparent;
+//   --highlight-color-valid: transparent;
+
+//   background: #e1e4ea;
+//   border-radius: 14px;
+
+//   width: 100%;              /* 👈 important */
+//   margin: 0;                /* 👈 remove auto margins */
+
+//   --padding-start: 14px;
+//   --inner-padding-end: 14px;
+
+//   --min-height: 45px;
+//   --padding-top: 4px;
+//   --padding-bottom: 6px;
+
+//   overflow: hidden;
+// }
 /* Prevent label turning blue on focus */
 .form-field {
   --highlight-color-focused: transparent;
   --highlight-color-invalid: transparent;
   --highlight-color-valid: transparent;
+
+  background: #e1e4ea;
+  border-radius: 14px;
+
+  width: 95%;              /* 👈 reduce width */
+  margin: 4px auto 8px;    /* 👈 center horizontally */
+
+  --padding-start: 14px;
+  --inner-padding-end: 14px;
+
+  --min-height: 45px;
+  --padding-top: 4px;
+  --padding-bottom: 6px;
+
+  overflow: hidden;
 }
 
 /* Input & select text */
@@ -79,23 +150,4 @@ ion-select::part(icon) {
 /* Remove ionic internal white background */
 .form-field::part(native) {
   background: transparent !important;
-}
-
-/* Apply grey background properly */
-.form-field {
-  --background: transparent;
-  background: #e1e4ea;
-  border-radius: 16px;
-
-  --border-color: transparent;      /* removes bottom line */
-  --inner-border-width: 0;          /* removes ionic inner line */
-  --border-width: 0;
-
-  margin-bottom: 16px;
-
-  --padding-start: 16px;
-  --inner-padding-end: 16px;
-  --min-height: 70px;
-
-  overflow: hidden;
 }

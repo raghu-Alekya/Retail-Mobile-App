@@ -128,15 +128,18 @@
         <ion-title>
           {{ editingCoupon ? 'Edit Discount' : 'Create Discount' }}
         </ion-title>
-        <ion-buttons slot="end">
-          <ion-button (click)="showForm=false">Close</ion-button>
-        </ion-buttons>
+        <ion-buttons slot="start">
+  <ion-button (click)="close()">
+    <ion-icon name="arrow-back-outline"></ion-icon>
+  </ion-button>
+</ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content class="form-content">
       <div class="scroll-wrapper">
+        <ion-label position="stacked" >Type</ion-label>
         <ion-item>
-          <ion-label position="stacked" >Type</ion-label>
+          
           <ion-select
             placeholder="Select discount type"
             [(ngModel)]="form.type" (ionChange)="onDiscountTypeChange($event)">
@@ -151,10 +154,11 @@
             </ion-select-option>
           </ion-select>
         </ion-item>
-        <ion-item>
-          <ion-label position="stacked">
+        <ion-label position="stacked">
           {{ form.type === 'mix_match' ? 'Main Product (Trigger)' : 'Product' }}
         </ion-label>
+        <ion-item>
+          
           <ion-input
             placeholder="Search product..."
             [(ngModel)]="productSearch"
@@ -173,8 +177,9 @@
           <ion-input type="hidden" [(ngModel)]="form.product_id"></ion-input>
         </ion-item>
         <div *ngIf="form.type === 'mix_match'">
+          <ion-label position="stacked">Discounted Products</ion-label>
           <ion-item>
-            <ion-label position="stacked">Discounted Products</ion-label>
+            
             <ion-input
               placeholder="Search discounted products..."
               [(ngModel)]="discountSearch"
@@ -205,14 +210,16 @@
             [(ngModel)]="form.discount_product_ids">
           </ion-input>
         </ion-item>
+        <ion-label position="stacked">Product Price</ion-label>
         <ion-item> 
-          <ion-label position="stacked">Product Price</ion-label>
+          
           <ion-input [value]="form.selectedProductPrice" readonly></ion-input>
         </ion-item>
         
         <div *ngIf="form.type === 'auto' || form.type === 'mix_match'">
+          <ion-label position="stacked">Discount Code</ion-label>
           <ion-item>
-            <ion-label position="stacked">Discount Code</ion-label>
+            
             <ion-input [(ngModel)]="form.code" (ngModelChange)="markChanged()"></ion-input>
           </ion-item>
         </div>
@@ -244,8 +251,9 @@
           </ion-item>
         </div> -->
         <div *ngIf="form.type">
+          <ion-label position="stacked">Discount Type</ion-label>
           <ion-item>
-            <ion-label position="stacked">Discount Type</ion-label>
+            
             <ion-select [(ngModel)]="form.discount_type" (ngModelChange)="markChanged()">
               <!-- Auto -->
               <ng-container *ngIf="form.type === 'auto'">
@@ -267,8 +275,9 @@
             </ion-select>
           </ion-item>
         </div>
+        <ion-label position="stacked">{{ form.discount_type === 'percent' ? 'Percentage (%)' : 'Amount' }}</ion-label>
         <ion-item>
-          <ion-label position="stacked">{{ form.discount_type === 'percent' ? 'Percentage (%)' : 'Amount' }}</ion-label>
+          
           <ion-input type="number" [(ngModel)]="form.amount" (ngModelChange)="markChanged()"></ion-input>
         </ion-item>
         <div *ngIf="form.type === 'multipack'">
@@ -277,12 +286,14 @@
               <ion-input type="number" [(ngModel)]="form.qty"></ion-input>
             </ion-item>
         </div>
+        <ion-label position="stacked">Start Date</ion-label>
         <ion-item>
-          <ion-label position="stacked">Start Date</ion-label>
+          
           <ion-input type="date" [(ngModel)]="form.date_starts" (ngModelChange)="markChanged()"></ion-input>
         </ion-item>
+        <ion-label position="stacked">Expiry Date</ion-label>
         <ion-item>
-          <ion-label position="stacked">Expiry Date</ion-label>
+          
           <ion-input type="date" [(ngModel)]="form.date_expires" (ngModelChange)="markChanged()"></ion-input>
         </ion-item>
         <div *ngIf="form.type === 'auto'">

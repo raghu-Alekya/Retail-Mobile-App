@@ -93,6 +93,9 @@ ion-input {
   --padding-start: 0;
   font-size: 15px;
   margin-top: 4px;
+
+  caret-color: #000;   /* 🔥 FIX: makes cursor visible */
+  color: #000;
 }
 
 /* ICON */
