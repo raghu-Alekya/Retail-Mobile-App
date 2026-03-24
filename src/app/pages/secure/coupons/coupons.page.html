@@ -20,18 +20,55 @@
     </ion-toolbar>
 
     <div class="search-wrapper">
+<<<<<<< HEAD
+  <ion-icon name="search-outline"></ion-icon>
+
+  <input
+    type="text"
+    placeholder="Search by Coupon Code"
+    [(ngModel)]="searchTerm"
+    (input)="filterCoupons()"
+  />
+
+</div>
+
+  </ion-toolbar>
+=======
         <ion-icon name="search-outline"></ion-icon>
         <input type="text" placeholder="Search all Coupons" [(ngModel)]="searchTerm" (input)="filterCoupons()" />
     </div>
+>>>>>>> 8f8e6c6eec6f23dc488be8b066f400211e7ccace
 </ion-header>
 
 <ion-content class="coupon-content">
 
 
+<div
+  class="coupon-card"
+  (click)="editCoupon(coupon)"
+  *ngFor="let coupon of filteredCoupons"
+>
+  <div class="card-row">
 
-    <!-- MAIN CARD -->
-    <ion-item lines="none" class="coupon-card" (click)="editCoupon(coupon)" *ngFor="let coupon of filteredCoupons">
+    <!-- LEFT ICON -->
+    <div class="icon-box">
+      <img src="assets/icons/coupon.svg" class="coupon-icon" />
+    </div>
 
+<<<<<<< HEAD
+    <!-- RIGHT CONTENT -->
+    <div class="card-content">
+
+      <div class="code">Code: {{ coupon.code }}</div>
+
+      <div class="description" *ngIf="coupon.description">
+        {{ coupon.description }}
+      </div>
+
+      <div class="amount">
+        Amount: {{ coupon.amount }} (fixed cart)
+      </div>
+=======
         <div class="card-row">
 
             <!-- Left Icon -->
@@ -77,7 +114,29 @@
         </div>
 
     </ion-item>
+>>>>>>> 8f8e6c6eec6f23dc488be8b066f400211e7ccace
 
+      <div class="divider-row">
+        <div class="divider-line"></div>
+        <div class="coupon-id">#{{ coupon.id }}</div>
+      </div>
 
+<<<<<<< HEAD
+      <div class="bottom-row">
+        <div class="action-group">
+          <div class="usage">
+            {{ coupon.usage_count || 0 }}/
+            {{ coupon.usage_limit ? coupon.usage_limit : '100' }}
+          </div>
+          <div class="status">Publish</div>
+        </div>
+      </div>
 
+    </div>
+
+  </div>
+</div> 
+=======
+
+>>>>>>> 8f8e6c6eec6f23dc488be8b066f400211e7ccace
 </ion-content>

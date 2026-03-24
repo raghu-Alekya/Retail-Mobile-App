@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { NgZone } from '@angular/core';
 
 import {
   IonicModule,
@@ -27,6 +27,7 @@ export class AddUserComponent implements OnInit {
 
   customRoles: any[] = [];
   userRole = '';
+  pinError: string | null = null;
   user: any = {
   username: '',
   email: '',
@@ -35,6 +36,7 @@ export class AddUserComponent implements OnInit {
   role: '',
   phone: '',
   emp_login_pin: ''
+  
 };
  
 get isFormDirty(): boolean {
@@ -54,7 +56,8 @@ get isFormDirty(): boolean {
     private authService: AuthService,
     private alertCtrl: AlertController,
     private loadingCtrl: LoadingController,
-    private router: Router
+    private router: Router,
+  private zone: NgZone   
     
   ) {}
 
@@ -103,6 +106,30 @@ async loadCustomRoles() {
     return;
   }
 
+  // ✅ Email format validation
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailPattern.test(this.user.email)) {
+    this.showAlert(
+      'Invalid Email',
+      'Please enter a valid email address'
+    );
+    return;
+  }
+
+  if (this.user.phone && !this.isValidPhone(this.user.phone)) {
+    this.showAlert(
+      'Invalid Phone',
+      'Phone number must be exactly 10 digits'
+    );
+    return;
+  }
+
+  if (this.user.emp_login_pin && !this.isValidPin(this.user.emp_login_pin)) {
+  this.pinError = null; // only format error should show
+  return;
+}
+
   if (!this.user.role) {
     this.showAlert(
       'Validation Error',
@@ -111,29 +138,53 @@ async loadCustomRoles() {
     return;
   }
 
-try {
-  const response = await this.authService.createEmployee({
-    username: this.user.username,
-    email: this.user.email,
-    first_name: this.user.first_name,
-    last_name: this.user.last_name,
-    role: this.user.role,
-    user_phone: this.user.phone,
-    emp_login_pin: this.user.emp_login_pin
+  try {
+    const response = await this.authService.createEmployee({
+      username: this.user.username,
+      email: this.user.email,
+      first_name: this.user.first_name,
+      last_name: this.user.last_name,
+      role: this.user.role,
+      user_phone: this.user.phone,
+      emp_login_pin: this.user.emp_login_pin,
+    });
+
+    console.log('CREATE EMPLOYEE RESPONSE 👉', response);
+
+    if (response?.success || (response && response.id)) {
+      await this.showAlert('Success', 'Employee created successfully');
+      this.modalCtrl.dismiss(true);
+    } else {
+      // The service returned a response but it wasn't successful (e.g., error caught and returned as object)
+      throw { error: response || { message: 'An unknown error occurred' } };
+    }
+
+  }catch (e: any) {
+  console.log('FULL ERROR 👉', e);
+  console.log('ERROR BODY 👉', e.error);
+
+  this.zone.run(() => {
+    let message =
+      e?.error?.message ||
+      e?.error?.data?.message ||
+      e?.error?.error ||
+      JSON.stringify(e?.error || e);
+
+    console.log('FINAL MESSAGE 👉', message);
+
+    if (typeof message === 'string' && message.toLowerCase().includes('pin')) {
+      this.pinError = null; // Clear so no inline red text is shown
+      this.showAlert('Error', message);
+    } else {
+      this.pinError = null; 
+      let errorMsg = typeof message === 'string' ? message : 'An error occurred while creating the employee';
+      if (errorMsg === '{}') errorMsg = 'An error occurred while creating the employee';
+      
+      this.showAlert('Error', errorMsg);
+    }
   });
-
-  if (response?.success) {
-    await this.showAlert('Success', 'Employee created successfully');
-    this.modalCtrl.dismiss(true);
-  }
-
-} catch (e: any) {
-  this.showAlert(
-    'Error',
-    e?.response?.data?.message || 'Failed to create employee'
-  );
 }
- }
+}
 
   async showAlert(header: string, message: string) {
     const alert = await this.alertCtrl.create({
@@ -148,4 +199,27 @@ try {
     const value = event.target.value || '';
     this.user.emp_login_pin = value.replace(/\D/g, '').slice(0, 6);
   }
+
+  isValidEmail(email: string): boolean {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  }
+
+  phoneTouched = false;
+  limitPhoneLength(event: any) {
+    const value = event.target.value || '';
+    // remove non-numbers + limit to 10 digits
+    this.user.phone = value.replace(/\D/g, '').slice(0, 10);
+  }
+
+  isValidPhone(phone: string): boolean {
+    return /^[0-9]{10}$/.test(phone);
+  }
+
+  pinTouched = false;
+
+  isValidPin(pin: string): boolean {
+    return /^[0-9]{6}$/.test(pin);
+  }
+  
 }

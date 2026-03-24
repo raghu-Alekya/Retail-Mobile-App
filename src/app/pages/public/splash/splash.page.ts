@@ -43,7 +43,7 @@ export class SplashPage implements OnInit {
     } else {
       this.router.navigateByUrl('/welcome', { replaceUrl: true });
     }
-  }, 2000); // splash delay
+  }, 3000); // splash delay
     }
 
   }

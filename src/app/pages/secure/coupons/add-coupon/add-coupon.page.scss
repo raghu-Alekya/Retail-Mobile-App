@@ -6,6 +6,7 @@
 }
 
 ion-title {
+  padding-left: 0;
   font-weight: 600;
   font-size: 18px;
   margin-left: -6px;
@@ -158,4 +159,15 @@ ion-item::part(native) {
 /* Space above Usage Limit */
 .coupon-card ion-item:nth-child(2) {
   margin-top: 12px;
+}
+
+.top-error {
+  color: #e74c3c;
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin: 10px 16px;
+  text-align: center;
 }

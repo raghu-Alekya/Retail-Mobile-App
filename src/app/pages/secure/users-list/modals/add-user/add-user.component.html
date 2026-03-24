@@ -22,15 +22,19 @@
   </ion-item>
 
   <!-- Email -->
-   <ion-label position="stacked">Email</ion-label>
+  <ion-label position="stacked">Email</ion-label>
   <ion-item class="form-field">
-    
     <ion-input
       type="email"
       [(ngModel)]="user.email"
       placeholder="Enter email address">
     </ion-input>
   </ion-item>
+
+  <!-- Error message -->
+  <p class="error-text" *ngIf="user.email && !isValidEmail(user.email)">
+    Please enter a valid email format.
+  </p>
 
   <!-- First Name -->
    <ion-label position="stacked">First Name</ion-label>
@@ -72,33 +76,64 @@
 
   <!-- Phone -->
    <ion-label position="stacked">Phone</ion-label>
-  <ion-item class="form-field">
-    
-    <ion-input
-      [(ngModel)]="user.phone"
-      placeholder="Enter phone number">
-    </ion-input>
-  </ion-item>
-
-  <!-- Login PIN -->
-   <ion-label position="stacked">Login PIN</ion-label>
-  <ion-item class="form-field">
+  <ion-item class="form-field"
+  [class.invalid]="phoneTouched && user.phone && !isValidPhone(user.phone)">
     
     <ion-input
       type="tel"
-      maxlength="6"
-      [(ngModel)]="user.emp_login_pin"
-      placeholder="Enter 6-digit PIN">
+      [(ngModel)]="user.phone"
+      (ionInput)="limitPhoneLength($event)"
+      (ionBlur)="phoneTouched = true"
+      placeholder="Enter phone number">
     </ion-input>
   </ion-item>
+ 
+  <p class="error-text" *ngIf="phoneTouched && user.phone && !isValidPhone(user.phone)">
+    Please enter a valid 10-digit phone number
+  </p>
+  <!-- Login PIN -->
+   <!-- Login PIN -->
+<ion-label position="stacked">Login PIN</ion-label>
+
+<ion-item 
+  class="form-field"
+  [class.invalid]="
+    (pinTouched && user.emp_login_pin && !isValidPin(user.emp_login_pin)) 
+    || pinError
+  ">
+  
+ <ion-input
+  type="tel"
+  [(ngModel)]="user.emp_login_pin"
+  (ionInput)="limitPinLength($event)"
+  (ionBlur)="pinTouched = true"
+  placeholder="Enter 6-digit PIN">
+</ion-input>
+
+</ion-item>
+
+<!-- Format error -->
+<p class="error-text" *ngIf="pinTouched && user.emp_login_pin && !isValidPin(user.emp_login_pin)">
+  PIN must be exactly 6 digits
+</p>
+
+<!-- 🔴 Backend duplicate error -->
+<p class="error-text" *ngIf="pinError">
+  {{ pinError }}
+</p>
 
   <!-- Create User Button -->
   <ion-button
-    expand="block"
-    class="create-user-btn"
-    *ngIf="isFormDirty"
-    (click)="submit()">
-    CREATE USER
-  </ion-button>
+  expand="block"
+  class="create-user-btn"
+  *ngIf="isFormDirty"
+  [disabled]="
+  !isValidEmail(user.email) ||
+  (user.phone && !isValidPhone(user.phone)) ||
+  (user.emp_login_pin && !isValidPin(user.emp_login_pin))
+"
+  (click)="submit()">
+  CREATE USER
+</ion-button>
 
 </ion-content>

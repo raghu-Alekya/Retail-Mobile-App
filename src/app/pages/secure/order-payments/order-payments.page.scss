@@ -124,7 +124,8 @@ ion-content {
   ion-title {
     padding-left: 0;
     margin-left: -6px;
-    font-size: 24px;
+    font-size: 22px;
+    font-weight: 700;
   }
 }
 
@@ -167,7 +168,7 @@ ion-content {
   border: none;
   background: transparent;
   color: #3b3b3b;
-  font-size: 20px;          /* bigger text */
+  font-size: 18px;          /* bigger text */
   font-weight: 400;         /* normal (not bold) */
   outline: none;
   letter-spacing: 0px;
@@ -178,7 +179,7 @@ ion-content {
   color: #3b3b3b;
   opacity: 0.55;            /* lighter than text */
   font-weight: 400;
-  font-size: 20px; 
+  font-size: 17px; 
 }
 
 

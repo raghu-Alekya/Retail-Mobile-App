@@ -1,6 +1,7 @@
 .dark-toolbar {
   --background: #264c73;
   --color: #ffffff;
+  --min-height: 56px;
   ion-title {
     padding-left: 0;
     margin-left: -6px;
@@ -150,4 +151,12 @@ ion-select::part(icon) {
 /* Remove ionic internal white background */
 .form-field::part(native) {
   background: transparent !important;
+}
+
+.error-text {
+  color: #e53935;
+  font-size: 13px;
+  width: 95%;          /* same as input */
+  margin: 4px auto 10px; /* center it */
+  padding-left: 6px;   /* 👈 left spacing inside */
 }

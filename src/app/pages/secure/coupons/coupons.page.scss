@@ -1,23 +1,34 @@
 .products-header {
   background: #264c73;
+<<<<<<< HEAD
+  padding-bottom: 12px;
+=======
   padding-bottom: 15px;   /* reduced from 12px */
+>>>>>>> 8f8e6c6eec6f23dc488be8b066f400211e7ccace
 
   ion-toolbar {
     --background: #264c73;
     --color: #fff;
+<<<<<<< HEAD
+    --padding-start: 0px;   /* reduces left space of toolbar */
+=======
     --padding-start: 4px;
+>>>>>>> 8f8e6c6eec6f23dc488be8b066f400211e7ccace
   }
 
   ion-title {
     padding-left: 0;
     margin-left: -6px;
-    font-size: 24px;
+    font-size: 21px;
+    font-weight: 700;
   }
-  
 }
 
 .coupons-header ion-button ion-icon {
-  font-size: 30px;   /* increase size */
+  font-size: 30px;   /* 🔼 increase from 24/28 */
+  color: #ffffff;
+  padding: 0px;
+  cursor: pointer;
 }
 
 /* header row */
@@ -25,40 +36,46 @@
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding: 0 8px 0 0;
+  padding:0 16px;
 }
 
-/* title */
-ion-title{
-  font-size:20px;
-  font-weight:600;
+.coupons-header ion-buttons[slot="start"] {
+  margin-left: -8px;   /* 👈 move back arrow left */
 }
 
-.search-wrapper {
+.coupons-header ion-back-button {
+  margin-left: -4px;   /* 👈 extra fine tuning */
+}
+
+
+/* search area */
+.search-wrapper{
   margin: 10px 10px;
   background: #ffffff;
   border-radius: 8px;
   display: flex;
   align-items: center;
-  padding: 10px 18px;
+  padding: 8px 18px;
   gap: 10px;
- 
-  input {
-    flex: 1;
+
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.search-wrapper input{
+  flex: 1;
   border: none;
   background: transparent;
   color: #3b3b3b;
-  font-size: 20px;          /* bigger text */
+  font-size: 18px;          /* bigger text */
   font-weight: 400;         /* normal (not bold) */
   outline: none;
   letter-spacing: 0px;
-  }
+}
 
-  ion-icon {
-    color: #3b3b3b;
-    font-size: 25px;          /* slightly bigger */
-    opacity: 0.75; 
-  }
+.search-wrapper ion-icon{
+  color: #3b3b3b;
+  font-size: 25px;          /* slightly bigger */
+  opacity: 0.75; 
 }
 
 /* Placeholder */
@@ -66,9 +83,8 @@ ion-title{
   color: #3b3b3b;
   opacity: 0.55;            /* lighter than text */
   font-weight: 400;
-  font-size: 20px; 
+  font-size: 17px; 
 }
-
 // .search-container ion-searchbar{
 //   --background:#ffffff;
 //   --border-radius:10px;
@@ -86,25 +102,21 @@ ion-title{
 
 /* CONTENT */
 
-.coupon-card{
-  // --background:#ffffff;
-  border-radius:14px;
-  padding:16px;
-  box-shadow:none;
-  border:1px solid #e6e6e6;
-}
-.coupon-card{
-  --background:#ffffff;
 
-  --padding-start:0;
-  --padding-end:0;
-  --inner-padding-start:0;
-  --inner-padding-end:0;
+.coupon-card {
+  background: #ffffff !important;
+  --background: #ffffff;
 
-  border-radius:14px;
-  border:1px solid #e6e6e6;
+  border: none;
+  border-radius: 14px;
 
-  margin:12px 0;   /* 👈 add this */
+  margin: 12px 0;
+  padding: 16px;
+
+  /* 🔥 shadow like your image */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 ion-item-sliding{
   margin:12px;
@@ -115,6 +127,7 @@ ion-item-sliding{
 ion-content{
   --padding-start:12px;
   --padding-end:12px;
+  --background: #f6f6f6;
 }
 ion-item-sliding{
   margin:12px 0;
@@ -131,94 +144,123 @@ ion-item-option{
 }
 
 /* ROW */
-
-.card-row{
-  display:flex;
-  gap:14px;
-  padding:16px;
+.card-row {
+  display: flex;
+  align-items: flex-start;   /* 🔥 change from center → flex-start */
+  gap: 12px;
 }
-
+.top-row {
+  display: flex;
+  align-items: center;
+}
 /* ICON */
-
-.icon-box ion-icon{
-  font-size:32px;
-  color:#7a7a7a;
+.icon-box {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 6px;   /* 🔥 adjust this */
 }
 
-/* TEXT AREA */
+.coupon-icon {
+  width: 60px;   /* 🔥 increase */
+  height: 60px;
+  object-fit: contain
+}
 
-.card-content{
-  flex:1;
+.card-content {
+  flex: 1;
+  padding: 16px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;   /* 🔥 align left cleanly */
+  gap: 6px;
 }
 
 /* CODE */
 
 .code{
-  font-size:20px;
-  font-weight:600;
+  font-size: 21px;
+  font-weight: 600;;
   color:#2e3135;
 }
 
 /* DESCRIPTION */
 
-.description{
-  font-size:16px;
-  color:#6c6c6c;
-  margin-top:4px;
-  min-height:40px;   /* keeps space even if description is empty */
+.description {
+  font-size: 16px;
+  color: #6f6f6f;
+  margin-top: 4px;
 }
 /* AMOUNT */
 
 .amount{
-  font-size:18px;
+  font-size:16px;
   color:#cc7a00;
   margin-top:8px;
 }
+.divider-row {
+  display: flex;
+  align-items: center;
 
-/* DIVIDER */
-.divider-wrapper{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-top:12px;
+  width: calc(100% + 76px);   /* 🔥 increase based on icon width */
+  margin-left: -76px;         /* 🔥 pull across icon */
+
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: #999999;
 }
 
-.divider-line{
-  flex:1;
-  height:1px;
-  background:#e2e2e2;
-  margin-right:10px;
+.coupon-id {
+  font-size: 12px;
+  color: #9b9b9b;
+  margin-left: 8px;
+}
+.content-row {
+  width: 100%;
+}
+.bottom-row {
+  display: flex;
+  justify-content: flex-end;   /* 👉 push to right */
+  align-items: center;
+  gap: 10px;                  /* space between */
+  margin-top: 10px;
+}
+.bottom-row {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;   /* 🔥 IMPORTANT */
+  margin-top: 10px;
 }
 
-.coupon-id{
-  color:#9b9b9b;
-  font-size:13px;
+/* GROUP BACKGROUND */
+.action-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  background: #ffffff;   /* 👈 main background */
+  padding: 6px 8px;
+  border-radius: 10px;
 }
 
-/* BOTTOM ROW */
-.bottom-row{
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  gap:10px;
-  margin-top:10px;
+/* usage (inside group) */
+.usage {
+  background: #dcdcdc;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
 }
 
-/* USAGE */
-
-
-.usage{
-  background:#e5e5e5;
-  padding:6px 12px;
-  border-radius:6px;
-  font-size:13px;
-}
-
-.status{
-  background:#b9e4c6;
-  color:#1f7a3f;
-  padding:6px 14px;
-  border-radius:8px;
-  font-size:13px;
-  font-weight:500;
+/* publish button */
+.status {
+  background: #b9e4c6;
+  color: #1f7a3f;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
 }
