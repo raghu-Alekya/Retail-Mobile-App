@@ -312,6 +312,11 @@ ion-note.stock-badge {
   margin: 20px 16px;
   border-radius: 12px;
   font-weight: 600;
+
+  --background: white;
+  --color: #ef5350;        /* text color */
+  --border-color: #ef5350; /* border */
+  --border-width: 2px;
 }
 
 // .attribute-row {
@@ -402,4 +407,10 @@ ion-note.stock-badge {
 /* Space above Title field */
 .settings-card .editable-item:first-child {
   margin-top: 10px;
+}
+
+.value-text {
+  margin-top: 8px;   /* 👈 space between label & value */
+  font-size: 15px;
+  color: #444;
 }

@@ -26,9 +26,7 @@
 </ion-header>
 <ion-content class="employees-content">
 
-  <div class="list-heading">
-    Employee List
-  </div>
+
 
   <ion-list>
 
@@ -48,16 +46,17 @@
         <div class="card-content">
 
           <div class="avatar" [ngClass]="'avatar-' + (i % 5)">
-            <ion-icon name="person-outline"></ion-icon>
-          </div>
+  <img src="assets/icons/solar_user-broken.svg" alt="user" class="avatar-icon" />
+</div>
 
           <div class="details">
             <div class="name">
               {{ user.first_name }} {{ user.last_name }}
             </div>
+      <div class="login-id">
 
-            <div class="login-id">
-              Login Pin: {{ user.meta?.emp_login_pin || 'Not Set' }}
+              Login Pin: 
+               <span class="pin-number">{{ user.meta?.emp_login_pin || 'Not Set' }}</span>
             </div>
           </div>
 
@@ -73,7 +72,7 @@
 <div class="edit-overlay" *ngIf="editingUserId">
 
   <!-- Fixed Header -->
-  <ion-header class="dark-toolbar">
+  <ion-header class="dark-toolbar edit-header">
     <ion-toolbar>
       <ion-buttons slot="start">
         <ion-button (click)="cancelEdit()">
@@ -92,8 +91,8 @@
 
     
     <!-- Username -->
+     <label>User Name:</label>
 <div class="form-field">
-  <label>Username</label>
   <ion-input
     placeholder="Enter username"
     [(ngModel)]="editedUser.username"
@@ -103,8 +102,8 @@
 </div>
 
     <!-- Email -->
+     <label>Email:</label>
     <div class="form-field">
-      <label>Email</label>
       <ion-input
         placeholder="Enter email address"
         [(ngModel)]="editedUser.email"
@@ -113,8 +112,9 @@
     </div>
 
     <!-- First Name -->
+     <label>First Name:</label>
     <div class="form-field">
-      <label>First Name</label>
+
       <ion-input
         placeholder="Enter first name"
         [(ngModel)]="editedUser.first_name"
@@ -123,8 +123,8 @@
     </div>
 
     <!-- Last Name -->
+     <label>Last Name:</label>
     <div class="form-field">
-      <label>Last Name</label>
       <ion-input
         placeholder="Enter last name"
         [(ngModel)]="editedUser.last_name"
@@ -133,8 +133,8 @@
     </div>
 
     <!-- Role -->
+     <label>Employee Role:</label>
     <div class="form-field">
-      <label>Employee Role</label>
       <ion-select
         placeholder="Select Employee Role"
         [(ngModel)]="editedUser.role"
@@ -151,8 +151,8 @@
     </div>
 
     <!-- Phone -->
+     <label>Phone:</label>
     <div class="form-field">
-      <label>Phone</label>
       <ion-input
         placeholder="Enter phone number"
         [(ngModel)]="editedUser.phone"
@@ -161,8 +161,8 @@
     </div>
 
     <!-- Login PIN -->
+     <label>Login PIN:</label>
     <div class="form-field">
-      <label>Login PIN</label>
       <ion-input
         type="text"
         placeholder="Enter 6-digit PIN"
@@ -175,23 +175,23 @@
 <!-- Buttons -->
 <div class="form-buttons">
 
-  <ion-button
-  expand="block"
-  class="save-btn"
-  *ngIf="isChanged"
-  (click)="saveChanges()">
-  Save Changes
-</ion-button>
-
-  <div class="delete-section">
     <ion-button
       expand="block"
-      color="danger"
-      fill="outline"
-      (click)="deleteUser(editingUserId)">
-      Delete Employee
+      class="save-btn"
+      *ngIf="isChanged"
+      (click)="saveChanges()">
+      Save Changes
     </ion-button>
-  </div>
+
+    <div class="delete-section">
+      <ion-button
+        expand="block"
+        color="danger"
+        fill="outline"
+        (click)="deleteUser(editingUserId)">
+        Delete Employee
+      </ion-button>
+    </div>
 
 </div>
       <!-- <ion-button

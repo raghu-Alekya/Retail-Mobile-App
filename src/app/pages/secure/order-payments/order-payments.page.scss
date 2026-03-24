@@ -113,67 +113,75 @@ ion-content {
 ================================ */
 .vendor-header {
   background: #264c73;
-  // border-bottom-left-radius: 22px;
-  // border-bottom-right-radius: 22px;
-  overflow: hidden;
+  padding-bottom: 12px;   /* reduced from 12px */
 
-  padding-bottom: 14px; /* controls curve spacing */
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-}
-
-/* toolbar */
-.vendor-header ion-toolbar {
-  --background: transparent;
-  --color: #ffffff;
-  box-shadow: none;
-  border: none;
-  padding-bottom: 4px;
-}
+  ion-toolbar {
+    --background: #264c73;
+    --color: #fff;
+    --padding-start: 0px;
+  }
 
   ion-title {
     padding-left: 0;
     margin-left: -6px;
+    font-size: 24px;
   }
+}
 
+/* Filter button spacing */
+.vendor-header ion-buttons[slot="end"] {
+  margin-right: 6px;   /* 👉 adds right space */
+}
+
+/* Filter icon size */
+.vendor-header ion-button ion-icon {
+  font-size: 24px;   /* 🔥 increase size */
+}
 
 /* ===============================
    SEARCH BAR (INSIDE HEADER)
 ================================ */
+/* Search */
 .search-wrapper {
-  margin: 8px 16px;        /* slightly less top spacing */
+  margin: 10px 10px;
   background: #ffffff;
   border-radius: 8px;
   display: flex;
   align-items: center;
+  padding: 8px 18px;
+  gap: 10px;
 
-  padding: 6px 10px;       /* ⬅ reduce height */
-  gap: 6px;                /* ⬅ reduce space between icon & input */
-
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
+/* Search icon */
 .search-wrapper ion-icon {
-  font-size: 16px;
-  color: #353535;
-  margin-right: 4px;
+  color: #3b3b3b;
+  font-size: 25px;          /* slightly bigger */
+  opacity: 0.75;            /* softer like screenshot */
 }
 
+/* Input */
 .search-wrapper input {
   flex: 1;
   border: none;
-  outline: none;
-  font-size: 8px;
-  color: #353535;
   background: transparent;
+  color: #3b3b3b;
+  font-size: 20px;          /* bigger text */
+  font-weight: 400;         /* normal (not bold) */
+  outline: none;
+  letter-spacing: 0px;
+}
+
+/* Placeholder */
+.search-wrapper input::placeholder {
+  color: #3b3b3b;
+  opacity: 0.55;            /* lighter than text */
+  font-weight: 400;
+  font-size: 20px; 
 }
 
 
-/* ===============================
-   REMOVE EXTRA SPACE UNDER HEADER
-================================ */
-ion-content::part(scroll) {
-  margin-top: -8px; /* removes large gap */
-}
 
 
 /* ===============================
@@ -251,10 +259,7 @@ ion-content::part(scroll) {
 
 
 
-/* content cut under header */
-ion-content::part(scroll) {
-  margin-top: -18px;
-}
+
 
 .transactions {
   margin-top: 8px;

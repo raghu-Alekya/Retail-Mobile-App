@@ -1,18 +1,25 @@
 /* ================= HEADER ================= */
 
 .dark-toolbar {
+  background: #264c73;
+  padding-bottom: 12px;
+
   ion-toolbar {
     --background: #264c73;
     --color: #ffffff;
-    --min-height: 56px;
-    --padding-start: 4px; 
+    --padding-start: 0px; 
   }
 
   ion-title {
     padding-left: 0;
     margin-left: -6px;
-    
+    font-size: 24px;
   }
+}
+
+.edit-header ion-title {
+  font-size: 20px;   /* 👈 bigger */
+  font-weight: 600;
 }
 
 /* Make entire header area navy */
@@ -22,32 +29,39 @@ ion-header.dark-toolbar {
 
 
 .search-wrapper {
+  margin: 10px 10px;
+  background: #ffffff;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  background: #ffffff;          /* solid white */
-  margin: 14px 16px 18px 16px;
-  padding: 12px 16px;
-  border-radius:8px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08); /* soft highlight shadow */
+  padding: 10px 18px;
+  gap: 10px;
+
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
 .search-wrapper ion-icon {
-  font-size: 18px;
-  color: #353535;
-  margin-right: 8px;
+  color: #3b3b3b;
+  font-size: 25px;          /* slightly bigger */
+  opacity: 0.75;   
 }
 
 .search-wrapper input {
+  flex: 1;
   border: none;
-  outline: none;
   background: transparent;
-  width: 100%;
-  font-size: 14px;
-  color: #333;
+  color: #3b3b3b;
+  font-size: 20px;          /* bigger text */
+  font-weight: 400;         /* normal (not bold) */
+  outline: none;
+  letter-spacing: 0px;
 }
 
 .search-wrapper input::placeholder {
-  color: #353535;
+  color: #3b3b3b;
+  opacity: 0.55;            /* lighter than text */
+  font-weight: 400;
+  font-size: 20px; 
 }
 
 .dark-toolbar ion-icon[name="add-outline"] {
@@ -202,42 +216,56 @@ ion-item-sliding {
 /* FORM CONTAINER */
 
 .edit-popup {
-  padding: 20px 16px 40px;
-  //max-width: 500px;
-  margin: auto;
+  padding: 4px 16px 40px;   /* 👈 reduce from 20px → 8px */
+
 }
 
 /* FORM FIELD */
 
 .form-field {
   background: #e4e8ee;
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin-bottom: 14px;
+  border-radius: 10px;
+  padding: 8px 12px;   /* 👈 reduce from 12px → 8px */
+  margin-bottom: 12px; /* slightly tighter spacing */
 }
 
 /* LABEL */
 
 .form-field label {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   color: #374151;
   display: block;
   margin-bottom: 6px;
 }
+.edit-overlay {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;   /* 👈 full screen */
+}
 
+.edit-content {
+  flex: 1;
+  overflow-y: auto;   /* 👈 scroll only form */
+}
+
+.form-buttons {
+  padding: 12px 16px 20px;
+  background: #f5f7fa;
+}
 /* INPUT */
 
 .form-field ion-input,
 .form-field ion-select {
-  --padding-start: 0;
-  font-size: 14px;
+  font-size: 13px;        /* 👈 slightly smaller text */
+  min-height: 30px;       /* 👈 control height */
 }
 
 /* BUTTONS */
 
 .form-buttons {
-  margin-top: 20px;
+  margin-top: 50px;   /* 👈 increase from 30px */
+  padding-bottom: 20px;
 }
 
 .form-buttons ion-button {
@@ -273,9 +301,25 @@ ion-item-sliding {
   display: flex;
   flex-direction: column;
 }
-
 .edit-content {
-  overflow-y: auto;
-  flex: 1;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;   /* 👈 important */
+  padding: 4px 16px 12px;
+}
+.details .login-id {
+  font-size: 17px;   /* decrease size */
+  color: #888;
+  margin-bottom: 7px;
+}
+
+.details .login-id .pin-number {
+  color: #252525;
+  font-weight: 500;
+  margin-bottom: 5px;
+  font-size: 16px;   /* same or slightly bigger if needed */
+}
+.avatar-icon {
+  width: 28px;   /* increase this */
+  height: 28px;
 }

@@ -2,89 +2,82 @@
 /* HEADER BACKGROUND */
 .vendor-header {
   background: #264c73;
-  overflow: hidden;
-}
+  padding-bottom: 12px;
 
-/* TOOLBAR */
-.vendor-header ion-toolbar {
-  --background: transparent;
-  --color: #ffffff;
-  box-shadow: none;
-  border: none;
-  --padding-start: 4px;
-}
+  ion-toolbar {
+    --background: #264c73;
+    --color: #fff;
+    --padding-start: 0px;   /* reduces left space of toolbar */
+  }
 
-ion-title {
-  padding-left: 0;
-  margin-left: -6px;
-}
-
-ion-content {
-  --background: #f6f6f6;
-}
-
-/* REMOVE DEFAULT HEADER LINE */
-.header-md::after,
-.header-ios::after {
-  display: none;
-}
-
-/* SEARCH AREA */
-.header-search {
-  padding: 12px 16px 18px;
-  background: transparent;
-}
-
-.header-search ion-searchbar {
-  --background: #efefef;
-  --color: #353535;
-  --placeholder-color: #353535;
-  --border-radius: 6px;
-  --box-shadow: none;
-}
-
-/* SEARCH ICON */
-.header-search ion-searchbar::part(search-icon) {
-  font-size: 18px;
-  color: #353535;
-  margin-right: 8px;
-}
-
-/* INPUT TEXT */
-.header-search ion-searchbar::part(input) {
-  color: #353535;
-}
-
-/* PLACEHOLDER */
-.header-search ion-searchbar::part(placeholder) {
-  color: #353535;
-}
-
-/* SEARCHBAR */
-ion-searchbar {
-  --background: #f1f1f1;
-  --border-radius: 8px;
-  --box-shadow: 0 6px 14px rgba(0,0,0,0.15);
-  --placeholder-color: #353535;
+  ion-title {
+    padding-left: 0;
+    margin-left: -6px;
+    font-size: 24px;
+  }
 }
 
 .header-plus {
-  font-size: 28px;
+  font-size: 28px;   /* 🔼 increase from 24/28 */
   color: #ffffff;
   padding: 6px;
   cursor: pointer;
 }
 
-.search-wrapper {
-  background: #2f4e6f;
-  padding: 12px;
+/* SEARCH AREA */
+.header-search {
+  margin: 10px 10px;
+  padding: 10px 18px;
+  background: transparent;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  padding: 10px 18px;
+  gap: 10px;
+
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
-.search-wrapper ion-searchbar {
-  --background: #fff;
-  --border-radius: 10px;
-  --box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+/* Search */
+.header-search {
+  margin: 10px 10px;
+  background: #ffffff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  padding: 10px 18px;
+  gap: 10px;
+
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
+
+/* Search icon */
+.header-search ion-icon {
+  color: #3b3b3b;
+  font-size: 25px;          /* slightly bigger */
+  opacity: 0.75;            /* softer like screenshot */
+}
+
+/* Input */
+.header-search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #3b3b3b;
+  font-size: 20px;          /* bigger text */
+  font-weight: 400;         /* normal (not bold) */
+  outline: none;
+  letter-spacing: 0px;
+}
+
+/* Placeholder */
+.header-search input::placeholder {
+  color: #3b3b3b;
+  opacity: 0.55;            /* lighter than text */
+  font-weight: 400;
+  font-size: 20px; 
+}
+
 
 /* CARD CONTAINER */
 .card-container {

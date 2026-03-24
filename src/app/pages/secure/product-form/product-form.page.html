@@ -102,20 +102,21 @@
 
   <!-- Display text -->
   <div
-    class="value-text"
-    *ngIf="!editTitle"
-    (click)="editTitle = true"
-  >
-    {{ product.name || 'Product name' }}
-  </div>
+  class="value-text"
+  *ngIf="!editTitle"
+  (click)="enableTitleEdit()"
+>
+  {{ product.name || 'Product name' }}
+</div>
 
   <!-- Input -->
   <ion-input
-    *ngIf="editTitle"
-    [(ngModel)]="product.name"
-    placeholder="Product name"
-    (ionBlur)="editTitle = false"
-  ></ion-input>
+  *ngIf="editTitle"
+  #titleInput
+  [(ngModel)]="product.name"
+  placeholder="Product name"
+  (ionBlur)="editTitle = false"
+></ion-input>
 
   
 </ion-item>
@@ -129,22 +130,22 @@
 
   <!-- Display text -->
   <div
-    class="value-text"
-    *ngIf="!editDescription"
-    (click)="editDescription = true"
-  >
-    {{ product.description || 'Add description' }}
-  </div>
+  class="value-text"
+  *ngIf="!editDescription"
+  (click)="enableDescriptionEdit()"
+>
+  {{ product.description || 'Add description' }}
+</div>
 
-  <!-- Textarea -->
-  <ion-textarea
-    *ngIf="editDescription"
-    [(ngModel)]="product.description"
-    auto-grow="true"
-    rows="2"
-    placeholder="Add description"
-    (ionBlur)="editDescription = false"
-  ></ion-textarea>
+<ion-textarea
+  *ngIf="editDescription"
+  #descInput
+  [(ngModel)]="product.description"
+  auto-grow="true"
+  rows="2"
+  placeholder="Add description"
+  (ionBlur)="editDescription = false"
+></ion-textarea>
 
   
 </ion-item>
@@ -384,54 +385,50 @@
   <ion-card class="settings-card">
 
     <!-- REGULAR PRICE -->
-    <ion-item lines="full" (click)="editRegularPrice = true">
-      <ion-label>
-        Regular price
-        <p *ngIf="!editRegularPrice">
-          {{ product.regular_price || 'Add regular price' }}
-        </p>
-      </ion-label>
+    <ion-item lines="none" (click)="enableRegularPriceEdit()">
+  
+  <ion-label position="stacked">
+    Regular price
+  </ion-label>
 
-      <ion-input
-        *ngIf="editRegularPrice"
-        type="number"
-        inputmode="decimal"
-        placeholder="Enter regular price"
-        [(ngModel)]="product.regular_price"
-        (ionBlur)="editRegularPrice = false"
-      ></ion-input>
+  <!-- Display -->
+  <div class="value-text" *ngIf="!editRegularPrice">
+    {{ product.regular_price || 'Add regular price' }}
+  </div>
 
-      <ion-icon
-        *ngIf="!editRegularPrice"
-        name="create-outline"
-        slot="end"
-      ></ion-icon>
-    </ion-item>
+  <!-- Input -->
+  <ion-input
+    *ngIf="editRegularPrice"
+    #regularPriceInput
+    type="number"
+    [(ngModel)]="product.regular_price"
+    (ionBlur)="editRegularPrice = false"
+  ></ion-input>
+
+</ion-item>
 
     <!-- SALE PRICE -->
-    <ion-item lines="none" (click)="editSalePrice = true">
-      <ion-label>
-        Sale price
-        <p *ngIf="!editSalePrice">
-          {{ product.sale_price || 'Add sale price' }}
-        </p>
-      </ion-label>
+    <ion-item lines="none" (click)="enableSalePriceEdit()">
+  
+  <ion-label position="stacked">
+    Sale price
+  </ion-label>
 
-      <ion-input
-        *ngIf="editSalePrice"
-        type="number"
-        inputmode="decimal"
-        placeholder="Enter sale price"
-        [(ngModel)]="product.sale_price"
-        (ionBlur)="editSalePrice = false"
-      ></ion-input>
+  <!-- Display -->
+  <div class="value-text" *ngIf="!editSalePrice">
+    {{ product.sale_price || 'Add sale price' }}
+  </div>
 
-      <ion-icon
-        *ngIf="!editSalePrice"
-        name="create-outline"
-        slot="end"
-      ></ion-icon>
-    </ion-item>
+  <!-- Input -->
+  <ion-input
+    *ngIf="editSalePrice"
+    #salePriceInput
+    type="number"
+    [(ngModel)]="product.sale_price"
+    (ionBlur)="editSalePrice = false"
+  ></ion-input>
+
+</ion-item>
 
   </ion-card>
 
@@ -541,14 +538,15 @@
 </ion-card> -->
 
   <!-- DELETE BUTTON (EDIT ONLY) -->
-  <ion-button
-    *ngIf="isEdit"
-    expand="block"
-    color="danger"
-    class="delete-btn"
-    (click)="confirmDelete()"
-  >
-    Delete Product
-  </ion-button>
+ <ion-button
+  *ngIf="isEdit"
+  expand="block"
+  fill="outline"  
+  color="danger"
+  class="delete-btn"
+  (click)="confirmDelete()"
+>
+  Delete Product
+</ion-button>
 
 </ion-content>

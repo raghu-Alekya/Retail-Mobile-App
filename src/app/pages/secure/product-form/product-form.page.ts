@@ -4,6 +4,8 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AlertController, IonicModule } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { BarcodeService } from 'src/app/services/barcode-service.service';
+import { ViewChild } from '@angular/core';
+import { IonInput, IonTextarea } from '@ionic/angular';
 
 @Component({
   selector: 'app-product-form',
@@ -12,6 +14,11 @@ import { BarcodeService } from 'src/app/services/barcode-service.service';
   imports: [IonicModule, CommonModule, RouterModule],
 })
 export class ProductFormPage implements OnInit {
+
+  @ViewChild('titleInput') titleInput!: IonInput;
+@ViewChild('descInput') descInput!: IonTextarea;
+@ViewChild('regularPriceInput') regularPriceInput!: IonInput;
+@ViewChild('salePriceInput') salePriceInput!: IonInput;
 
   isEdit = false;
   productId!: number;
@@ -975,6 +982,38 @@ export class ProductFormPage implements OnInit {
     this.selectedFile = null;
   }
 
+  enableTitleEdit() {
+  this.editTitle = true;
+
+  setTimeout(() => {
+    this.titleInput?.setFocus();
+  }, 100);
+}
+
+enableDescriptionEdit() {
+  this.editDescription = true;
+
+  setTimeout(() => {
+    this.descInput?.setFocus();
+  }, 100);
+}
+
+enableRegularPriceEdit() {
+  this.editRegularPrice = true;
+
+  setTimeout(() => {
+    this.regularPriceInput?.setFocus();
+  }, 100);
+}
+
+enableSalePriceEdit() {
+  this.editSalePrice = true;
+
+  setTimeout(() => {
+    this.salePriceInput?.setFocus();
+  }, 150);
+}
+
   // taxClasses = [
   //   { id: 1, name: 'Standard rate', percentage: 18, slug: '' },
   //   { id: 2, name: 'Reduced rate', percentage: 5, slug: 'reduced-rate' },
@@ -985,4 +1024,6 @@ export class ProductFormPage implements OnInit {
 
   editRegularPrice = false;
   editSalePrice = false;
+  editTitle = false;
+editDescription = false;
 }

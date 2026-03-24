@@ -25,56 +25,63 @@
 
 .products-header {
   background: #264c73;
-  padding-bottom: 14px; /* controls curve spacing */
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  padding-bottom: 12px;
+
+  ion-toolbar {
+    --background: #264c73;
+    --color: #fff;
+    --padding-start: 0px;   /* reduces left space of toolbar */
+  }
 
   ion-title {
     padding-left: 0;
     margin-left: -6px;
+    font-size: 24px;
   }
-}
 
-.products-header ion-toolbar {
-  --background: transparent;
-  --color: #fff;
-}
+  ion-button ion-icon {
+    font-size: 28px;   /* 🔥 increase size */
+  }
+} 
 
-.products-header ion-title {
-  font-weight: 600;
-}
-
-.products-header ion-icon {
-  color: #fff;
-}
-
-.products-header ion-button ion-icon {
-  font-size: 30px;   /* increase size */
-}
-
-/* SEARCH BOX */
+/* Search */
 .search-container {
-  margin: 0 16px;
-  margin-top: 6px;
-  background: #fff;
+  margin: 10px 10px;
+  background: #ffffff;
   border-radius: 8px;
   display: flex;
   align-items: center;
-  padding: 10px 12px;
+  padding: 10px 18px;
+  gap: 10px;
+
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
+/* Search icon */
 .search-container ion-icon {
-  color: #353535;
-  font-size: 18px;
-  margin-right: 8px;
+  color: #3b3b3b;
+  font-size: 25px;          /* slightly bigger */
+  opacity: 0.75;            /* softer like screenshot */
 }
 
+/* Input */
 .search-container input {
+  flex: 1;
   border: none;
-  outline: none;
   background: transparent;
-  width: 100%;
-  font-size: 14px;
-  color: #353535;
+  color: #3b3b3b;
+  font-size: 20px;          /* bigger text */
+  font-weight: 400;         /* normal (not bold) */
+  outline: none;
+  letter-spacing: 0px;
+}
+
+/* Placeholder */
+.search-container input::placeholder {
+  color: #3b3b3b;
+  opacity: 0.55;            /* lighter than text */
+  font-weight: 400;
+  font-size: 20px; 
 }
 // .filter-tabs {
 //   display: flex;
@@ -104,8 +111,10 @@ ion-chip {
 .selected-products {
   display: flex;
   flex-wrap: wrap;
-  max-width: 100%;
-  padding: 8px;
+  width: 92%;              /* same as ion-item */
+  margin: 0 auto 14px;     /* center like inputs */
+  padding-left: 2%;        /* 🔥 align with input text */
+  padding-right: 10px;
   box-sizing: border-box;
 }
 
@@ -289,10 +298,6 @@ hr {
 
 /////////////////////////////////////
 
-/* ============================= */
-/* FULL SCREEN MODAL */
-/* ============================= */
-
 .full-modal {
   --width: 100%;
   --height: 100%;
@@ -302,10 +307,22 @@ hr {
 /* ============================= */
 /* MODAL HEADER */
 /* ============================= */
+// .discount-toolbar {
+//   --background: #264c73;
+//   --color: #000000;   /* 👈 change to black */
+// }
 
-.discount-toolbar {
-  --background: #3f5065;
-  --color: #ffffff;
+.discount-toolbar ion-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-left: -8px;
+  
+}
+.discount-toolbar ion-buttons {
+  margin-right: -6px;
+}
+.discount-toolbar ion-button {
+  font-size: 13px;
 }
 
 /* ============================= */
@@ -313,37 +330,41 @@ hr {
 /* ============================= */
 
 .form-content {
-  padding: 20px;
+  padding: 14px;
   background: #f4f6f9;
 }
+// .form-content ion-item {
+//   --background: #e9edf2;
+//   --inner-border-width: 0;
+//   --border-width: 0;
 
-/* Remove default ion-item look */
-.form-content ion-item {
-  --background: transparent;
-  --inner-border-width: 0;
-  --border-width: 0;
-  --highlight-color-focused: transparent;
-  --highlight-color-valid: transparent;
-  --highlight-color-invalid: transparent;
-  margin-bottom: 18px;
-  padding-left: 0;
-  padding-right: 0;
-  border-radius: 12px;
-  overflow: hidden;
-}
+//   border-radius: 12px;
+//   overflow: hidden; 
+//   margin-bottom: 14px;
 
-/* Remove MD underline completely */
-.form-content ion-item::after {
-  display: none;
-}
+//   width: 92%;
+//   margin-left: auto;
+//   margin-right: auto;
 
-/* Label styling */
+//   padding: 0;                 /* 👈 REMOVE extra padding */
+// }
+
 .form-content ion-label[position="stacked"] {
-  font-size: 20px;
-  font-weight: 600;
-  color: #5a6b7b;
-  margin-bottom: 6px;
-  letter-spacing: 0.3px;
+  font-size: 16px;
+  font-weight: 400;
+  color: #000000; 
+
+  margin-left: 6%;           /* 👈 SAME as input start */
+}
+
+/* INPUT */
+.form-content ion-input,
+.form-content ion-select {
+  --background: transparent;
+  font-size: 14px;
+  height: 32px;          /* 👈 tighter height */
+  color: #000000;
+  
 }
 
 /* Input / Select / Textarea styling */
@@ -357,6 +378,8 @@ hr {
   height: 44px;
   font-size: 14px;
   color: #333;
+   --padding-start: 4%;       /* 👈 SAME as label */
+  --padding-end: 10px;
 }
 
 /* Remove focus glow */
@@ -415,16 +438,41 @@ hr {
   --height: 100%;
   --border-radius: 0;
 }
-
-/* ============================= */
-/* MODAL HEADER */
-/* ============================= */
-
 .discount-toolbar {
   --background: #264c73;
   --color: #ffffff;
+
+  padding-left: 16px;   /* 👈 align with inputs */
+  padding-right: 16px;
+  --padding-start: 4px;   /* reduce left spacing */
+  --padding-end: 8px;
+  --min-height: 80px;
+
+  ion-title {
+    padding-left: 0;
+    margin-left: -6px;
+    font-size: 20px;   /* 👈 bigger */
+  font-weight: 600;
+  }
 }
 
+/* Remove toolbar left padding */
+.discount-toolbar {
+  --padding-start: 0px;
+}
+
+/* Remove buttons container gap */
+.discount-toolbar ion-buttons[slot="start"] {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+/* Move arrow closer */
+.discount-toolbar ion-button {
+  margin-left: -13px;   /* 👈 adjust here */
+  margin-right: 10px; 
+  padding-left: 0;
+}
 /* ============================= */
 /* MODERN FORM STYLE */
 /* ============================= */
@@ -435,17 +483,17 @@ hr {
 }
 
 /* Remove default ion-item look */
-.form-content ion-item {
-  --background: transparent;
-  --inner-border-width: 0;
-  --border-width: 0;
-  --highlight-color-focused: transparent;
-  --highlight-color-valid: transparent;
-  --highlight-color-invalid: transparent;
-  margin-bottom: 18px;
-  padding-left: 0;
-  padding-right: 0;
-}
+// .form-content ion-item {
+//   --background: transparent;
+//   --inner-border-width: 0;
+//   --border-width: 0;
+//   --highlight-color-focused: transparent;
+//   --highlight-color-valid: transparent;
+//   --highlight-color-invalid: transparent;
+//   margin-bottom: 18px;
+//   padding-left: 0;
+//   padding-right: 0;
+// }
 
 /* Remove MD underline completely */
 .form-content ion-item::after {
@@ -453,13 +501,7 @@ hr {
 }
 
 /* Label styling */
-.form-content ion-label[position="stacked"] {
-  font-size: 20px;
-  font-weight: 600;
-  color: #5a6b7b;
-  margin-bottom: 6px;
-  letter-spacing: 0.3px;
-}
+
 
 /* Input / Select / Textarea styling */
 .form-content ion-input,
@@ -525,22 +567,56 @@ hr {
 }
 
 /* Field container */
+/* ============================= */
+/* FORM */
+/* ============================= */
+.form-content {
+  padding: 14px;
+  background: #f4f6f9;
+}
+
+/* FIELD BOX */
 .form-content ion-item {
   --background: #e9edf2;
   --inner-border-width: 0;
   --border-width: 0;
-  border-radius: 10px;
-  margin-bottom: 18px;
-  padding: 4px 8px;
-}
+--min-height: 48px; 
+  border-radius: 14px;     /* 👈 rounded */
+  overflow: hidden;        /* 👈 IMPORTANT */
 
-/* Label styling */
-.form-content ion-label[position="stacked"] {
-  font-size: 13px;   /* reduced size */
-  font-weight: 500;
-  color: #5a6b7b;
-  margin-bottom: 4px;
-  letter-spacing: 0.2px;
+  width: 92%;
+  margin: 0 auto 14px;
+  padding: 6px 10px;
+}
+.form-content ion-item::part(native) {
+  background: #e9edf2;
+  border-radius: 14px; 
+  padding-top: 2px;     /* 👈 reduce top spacing */
+  padding-bottom: 2px;  
+    margin-bottom: -4px !important;   /* pull input closer */
+  transform: translateY(4px);
+}
+.discount-toolbar ion-icon {
+  font-size: 24px;  /* increase size (default ~20px) */
+}
+.form-content ion-item::part(native) {
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+}
+/* 🔥 Reduce input height slightly */
+.form-content ion-input,
+.form-content ion-select {
+  height: 38px;   /* was 44px → reduces vertical gap */
+}
+/* INPUT */
+.form-content ion-input,
+.form-content ion-select,
+.form-content ion-textarea {
+  --background: transparent;
+  --padding-start: 6px;
+  --padding-end: 6px;
+  font-size: 14px;
+  color: #333;
 }
 
 /* Input / Select / Textarea */
