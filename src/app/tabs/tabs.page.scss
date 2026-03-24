@@ -121,10 +121,9 @@ ion-tab-bar::part(container) {
 ion-tab-bar {
   overflow: visible !important;
 }
-/* Floating Container */
-.fab-container{
+.fab-container {
   position: fixed;
-  bottom: 28px;   /* move button inside the notch */
+  bottom: calc(30px + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;

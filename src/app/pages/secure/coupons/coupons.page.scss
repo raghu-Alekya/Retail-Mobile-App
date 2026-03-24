@@ -1,13 +1,12 @@
-.coupons-header ion-toolbar{
-  --background:#264c73;
-  --color:#ffffff;
-  --border-width:0;
-  box-shadow:none;
+.products-header {
+  background: #264c73;
+  padding-bottom: 15px;   /* reduced from 12px */
 
-  display:flex;
-  flex-direction:column;
-  align-items:stretch;
-  padding:12px 0 20px;
+  ion-toolbar {
+    --background: #264c73;
+    --color: #fff;
+    --padding-start: 4px;
+  }
 
   ion-title {
     padding-left: 0;
