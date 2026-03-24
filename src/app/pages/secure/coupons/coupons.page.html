@@ -1,83 +1,82 @@
-<ion-header class="products-header">
-    <ion-toolbar>
-        <ion-buttons slot="start">
-            <ion-back-button defaultHref="tabs/home"></ion-back-button>
-        </ion-buttons>
+<ion-header class="coupons-header">
+  <ion-toolbar>
 
-        <ion-title>Coupons</ion-title>
+    <!-- Top row -->
+    <div class="header-row">
+      <ion-buttons slot="start">
+        <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+      </ion-buttons>
 
-        <ion-buttons slot="end">
-            <!-- Filter icon (same as Orders) -->
-            <!-- <ion-button fill="clear" (click)="openProductFilters()">
-        <ion-icon name="funnel-outline"></ion-icon>
-      </ion-button> -->
+      <ion-title>Coupons</ion-title>
 
-            <!-- Add product -->
-            <ion-button fill="clear" (click)="openAddCoupon()">
-                <ion-icon name="add-outline"></ion-icon>
-            </ion-button>
-        </ion-buttons>
-    </ion-toolbar>
-
-    <div class="search-wrapper">
-        <ion-icon name="search-outline"></ion-icon>
-        <input type="text" placeholder="Search all Coupons" [(ngModel)]="searchTerm" (input)="filterCoupons()" />
+      <ion-buttons slot="end">
+        <ion-button fill="clear" (click)="openAddCoupon()">
+  <ion-icon name="add-outline"></ion-icon>
+</ion-button>
+      </ion-buttons>
     </div>
+
+    <!-- Search bar -->
+    <div class="search-wrapper">
+  <ion-icon name="search-outline"></ion-icon>
+
+  <input
+    type="text"
+    placeholder="Search all Coupons"
+    [(ngModel)]="searchTerm"
+    (input)="filterCoupons()"
+  />
+
+</div>
+
+  </ion-toolbar>
 </ion-header>
 
 <ion-content class="coupon-content">
 
 
+<div
+  class="coupon-card"
+  (click)="editCoupon(coupon)"
+  *ngFor="let coupon of filteredCoupons"
+>
+  <div class="card-row">
 
-    <!-- MAIN CARD -->
-    <ion-item lines="none" class="coupon-card" (click)="editCoupon(coupon)" *ngFor="let coupon of filteredCoupons">
+    <!-- LEFT ICON -->
+    <div class="icon-box">
+      <img src="assets/icons/coupon.svg" class="coupon-icon" />
+    </div>
 
-        <div class="card-row">
+    <!-- RIGHT CONTENT -->
+    <div class="card-content">
 
-            <!-- Left Icon -->
-            <div class="icon-box">
-                <ion-icon name="pricetag-outline"></ion-icon>
-            </div>
+      <div class="code">Code: {{ coupon.code }}</div>
 
-            <!-- Right Content -->
-            <div class="card-content">
+      <div class="description" *ngIf="coupon.description">
+        {{ coupon.description }}
+      </div>
 
-                <!-- Code -->
-                <div class="code">Code: {{ coupon.code }}</div>
+      <div class="amount">
+        Amount: {{ coupon.amount }} (fixed cart)
+      </div>
 
-                <!-- Description -->
-                <div class="description" *ngIf="coupon.description">
-                    {{ coupon.description }}
-                </div>
+      <div class="divider-row">
+        <div class="divider-line"></div>
+        <div class="coupon-id">#{{ coupon.id }}</div>
+      </div>
 
-                <!-- Amount -->
-                <div class="amount">
-                    Amount: {{ coupon.amount }} (fixed cart)
-                </div>
-
-                <!-- Divider + ID -->
-                <div class="divider-wrapper">
-                    <div class="divider-line"></div>
-                    <div class="coupon-id">#{{ coupon.id }}</div>
-                </div>
-
-                <!-- Bottom Row -->
-                <div class="bottom-row">
-                    <div class="usage">
-                        {{ coupon.usage_count || 0 }}/ {{ coupon.usage_limit ? coupon.usage_limit : '100' }}
-                    </div>
-
-                    <div class="status">
-                        Publish
-                    </div>
-                </div>
-
-            </div>
-
+      <div class="bottom-row">
+        <div class="action-group">
+          <div class="usage">
+            {{ coupon.usage_count || 0 }}/
+            {{ coupon.usage_limit ? coupon.usage_limit : '100' }}
+          </div>
+          <div class="status">Publish</div>
         </div>
+      </div>
 
-    </ion-item>
+    </div>
 
-
-
+  </div>
+</div> 
 </ion-content>

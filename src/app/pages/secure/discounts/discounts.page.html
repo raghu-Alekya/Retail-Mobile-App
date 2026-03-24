@@ -20,7 +20,7 @@
   <div class="search-container">
     <ion-icon name="search-outline"></ion-icon>
     <input type="text"
-       placeholder="Search"
+       placeholder="Search by name"
        [(ngModel)]="searchTerm"
        (input)="onSearch($event)" />
   </div>
@@ -60,8 +60,8 @@
       
       <!-- Left Icon -->
       <div class="icon-box">
-        <ion-icon name="pricetag-outline"></ion-icon>
-      </div>
+  <img src="assets/icons/iconamoon_discount.svg" class="discount-icon" />
+</div>
 
       <!-- Middle Content -->
       <div class="details">
@@ -80,9 +80,7 @@
             ${{ c.coupon_amount }}
           </span>
         </div>
-        <div class="discount-type">
-        Discount Type: {{ c.discount_type }}
-      </div>
+        
       </div>
 
       <!-- Right Label -->

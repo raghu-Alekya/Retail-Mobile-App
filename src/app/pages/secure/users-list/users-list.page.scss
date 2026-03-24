@@ -13,13 +13,19 @@
   ion-title {
     padding-left: 0;
     margin-left: -6px;
-    font-size: 24px;
+    font-size: 22px;
+    font-weight: 700;
   }
+}
+
+.dark-toolbar.edit-header {
+  padding-bottom: 0px !important;
 }
 
 .edit-header ion-title {
   font-size: 20px;   /* 👈 bigger */
   font-weight: 600;
+  --min-height: 56px;
 }
 
 /* Make entire header area navy */
@@ -34,7 +40,7 @@ ion-header.dark-toolbar {
   border-radius: 8px;
   display: flex;
   align-items: center;
-  padding: 10px 18px;
+  padding: 8px 18px;
   gap: 10px;
 
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
@@ -51,7 +57,7 @@ ion-header.dark-toolbar {
   border: none;
   background: transparent;
   color: #3b3b3b;
-  font-size: 20px;          /* bigger text */
+  font-size: 18px;          /* bigger text */
   font-weight: 400;         /* normal (not bold) */
   outline: none;
   letter-spacing: 0px;
@@ -61,7 +67,7 @@ ion-header.dark-toolbar {
   color: #3b3b3b;
   opacity: 0.55;            /* lighter than text */
   font-weight: 400;
-  font-size: 20px; 
+  font-size: 17px; 
 }
 
 .dark-toolbar ion-icon[name="add-outline"] {
@@ -322,4 +328,11 @@ ion-item-sliding {
 .avatar-icon {
   width: 28px;   /* increase this */
   height: 28px;
+}
+
+.error-text {
+  color: #ef5350; /* soft red */
+  font-size: 14px;
+  margin: 4px 12px 8px;
+  display: block;
 }

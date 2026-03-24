@@ -48,6 +48,8 @@ export class UsersListPage {
 //   }
 
 // }
+
+
 async ngOnInit() {
 
   const loading = await this.loadingCtrl.create({
@@ -202,14 +204,50 @@ async deleteUser(id: number) {
 
       
 
-      await this.authService.updateEmployee(this.editingUserId!, payload);
+      const response = await this.authService.updateEmployee(this.editingUserId!, payload);
+      console.log('UPDATE EMPLOYEE RESPONSE 👉', response);
 
-      this.editingUserId = null;
-      this.loadUsers();
+      if (response?.success || (response && response.id)) { // Sometimes update returns the object directly
+        this.editingUserId = null;
+        this.loadUsers();
+      } else {
+        throw { error: response || { message: 'An unknown error occurred' } };
+      }
 
-    } catch (error) {
-      console.error("Error updating user:", error);
+    } catch (e: any) {
+      console.log('FULL ERROR 👉', e);
+      console.log('ERROR BODY 👉', e.error);
+
+      let message =
+        e?.error?.message ||
+        e?.error?.data?.message ||
+        e?.error?.error ||
+        JSON.stringify(e?.error || e);
+
+      console.log('FINAL MESSAGE 👉', message);
+
+      if (typeof message === 'string' && message.toLowerCase().includes('pin')) {
+        this.pinError = ''; // Clear so no inline red text is shown
+        this.showAlert('Error', message);
+      } else {
+        // If it's another error, don't blindly assume it's a PIN error.
+        this.pinError = ''; 
+        let errorMsg = typeof message === 'string' ? message : 'An error occurred while updating the employee';
+        // Clean up stringified objects if we just get {}
+        if (errorMsg === '{}') errorMsg = 'An error occurred while updating the employee';
+        
+        this.showAlert('Error', errorMsg);
+      }
     }
+  }
+
+  async showAlert(header: string, message: string) {
+    const alert = await this.alertCtrl.create({
+      header,
+      message,
+      buttons: ['OK'],
+    });
+    await alert.present();
   }
   // ✅ Cancel Edit
   cancelEdit() {
@@ -276,5 +314,33 @@ async deleteUser(id: number) {
     return roles[0].replace('_', ' ');
   }
   
-  
+  emailTouched = false;
+phoneTouched = false;
+pinTouched = false;
+pinError = '';
+
+isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+isValidPhone(phone: string): boolean {
+  return /^[0-9]{10}$/.test(phone);
+}
+
+isValidPin(pin: string): boolean {
+  return /^[0-9]{6}$/.test(pin);
+}
+
+limitPhoneLength(event: any) {
+  const value = event.target.value || '';
+  this.editedUser.phone = value.replace(/\D/g, '').slice(0, 10);
+}
+
+limitPinLength(event: any) {
+  const value = event.target.value || '';
+  this.editedUser.emp_login_pin = value.replace(/\D/g, '').slice(0, 6);
+
+  // clear backend error on typing
+  this.pinError = '';
+}
 }
