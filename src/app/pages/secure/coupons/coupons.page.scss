@@ -1,19 +1,11 @@
-.products-header {
+.coupons-header{
   background: #264c73;
-<<<<<<< HEAD
   padding-bottom: 12px;
-=======
-  padding-bottom: 15px;   /* reduced from 12px */
->>>>>>> 8f8e6c6eec6f23dc488be8b066f400211e7ccace
 
   ion-toolbar {
     --background: #264c73;
     --color: #fff;
-<<<<<<< HEAD
     --padding-start: 0px;   /* reduces left space of toolbar */
-=======
-    --padding-start: 4px;
->>>>>>> 8f8e6c6eec6f23dc488be8b066f400211e7ccace
   }
 
   ion-title {
@@ -25,10 +17,7 @@
 }
 
 .coupons-header ion-button ion-icon {
-  font-size: 30px;   /* 🔼 increase from 24/28 */
-  color: #ffffff;
-  padding: 0px;
-  cursor: pointer;
+  font-size: 30px;   /* increase size */
 }
 
 /* header row */
@@ -39,13 +28,6 @@
   padding:0 16px;
 }
 
-.coupons-header ion-buttons[slot="start"] {
-  margin-left: -8px;   /* 👈 move back arrow left */
-}
-
-.coupons-header ion-back-button {
-  margin-left: -4px;   /* 👈 extra fine tuning */
-}
 
 
 /* search area */
@@ -263,4 +245,12 @@ ion-item-option{
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
+}
+
+.coupons-header ion-buttons[slot="start"] {
+  margin-left: -8px;   /* 👈 move back arrow left */
+}
+
+.coupons-header ion-back-button {
+  margin-left: -4px;   /* 👈 extra fine tuning */
 }
