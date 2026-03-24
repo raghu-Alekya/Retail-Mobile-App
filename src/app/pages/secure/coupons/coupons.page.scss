@@ -1,11 +1,11 @@
-.coupons-header{
+.products-header {
   background: #264c73;
-  padding-bottom: 12px; 
+  padding-bottom: 15px;   /* reduced from 12px */
 
-  ion-toolbar{
+  ion-toolbar {
     --background: #264c73;
     --color: #fff;
-    --padding-start: 0px;
+    --padding-start: 4px;
   }
 
   ion-title {

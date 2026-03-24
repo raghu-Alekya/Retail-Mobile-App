@@ -166,7 +166,6 @@ async loadCoupons() {
     };
   }
  filterCoupons() {
-
   const term = this.searchTerm.toLowerCase().trim();
 
   if (!term) {
