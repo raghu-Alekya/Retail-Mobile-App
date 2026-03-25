@@ -126,12 +126,11 @@
   <ion-button
   expand="block"
   class="create-user-btn"
-  *ngIf="isFormDirty"
   [disabled]="
-  !isValidEmail(user.email) ||
-  (user.phone && !isValidPhone(user.phone)) ||
-  (user.emp_login_pin && !isValidPin(user.emp_login_pin))
-"
+    !isValidEmail(user.email) ||
+    (user.phone && !isValidPhone(user.phone)) ||
+    (user.emp_login_pin && !isValidPin(user.emp_login_pin))
+  "
   (click)="submit()">
   CREATE USER
 </ion-button>

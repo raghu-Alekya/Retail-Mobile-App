@@ -4,6 +4,7 @@ import { Http } from '@capacitor-community/http';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { ToastController } from '@ionic/angular';
 import { NavController } from '@ionic/angular';
+import { Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-edit',
@@ -24,13 +25,21 @@ export class EditPage implements OnInit {
 
   ngOnInit() {
     this.editForm = this.fb.group({
-      first_name: [''],
-      last_name: [''],
-      username: [{ value: '', disabled: true }],
-      email: [''],
-      gender: [''],
-      phone: ['']
-    });
+  first_name: [''],
+  last_name: [''],
+  username: [{ value: '', disabled: true }],
+  email: [''],
+  gender: [''],
+  phone: [
+    '',
+    [
+      Validators.required,
+      Validators.pattern(/^[0-9]*$/), // only numbers
+      Validators.minLength(10),
+      Validators.maxLength(10)
+    ]
+  ]
+});
 
     this.loadProfile();
   }
@@ -57,6 +66,11 @@ export class EditPage implements OnInit {
     gender: res.data.gender,
     phone: res.data.phone
   });
+
+  // ✅ Disable email if already exists
+if (res.data.email) {
+  this.editForm.get('email')?.disable();
+}
 
 }
 

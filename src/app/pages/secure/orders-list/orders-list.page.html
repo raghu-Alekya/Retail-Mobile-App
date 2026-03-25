@@ -128,7 +128,16 @@
         </div>
 
         <div class="total">
-          TOTAL: <span>{{currencySymbol}}{{ order.total }}</span>
+          TOTAL: 
+<span>
+  <ng-container *ngIf="order.total < 0; else normalTotal">
+    -{{currencySymbol}}{{ order.total * -1 }}
+  </ng-container>
+
+  <ng-template #normalTotal>
+    {{currencySymbol}}{{ order.total }}
+  </ng-template>
+</span>
         </div>
 
       </div>
@@ -226,8 +235,14 @@
             </span>
           </div>
           <div class="total">
-            {{currencySymbol}}{{ item.total }}
-          </div>
+  <ng-container *ngIf="item.total < 0; else normalAmount">
+    -{{currencySymbol}}{{ item.total * -1 }}
+  </ng-container>
+
+  <ng-template #normalAmount>
+    {{currencySymbol}}{{ item.total }}
+  </ng-template>
+</div>
         </div>
       </div>
 
@@ -253,10 +268,10 @@
         <!-- Tax and Total in same row -->
         <div class="tax-total-row">
           <div class="tax">
-            Tax: {{currencySymbol}}{{ order.total_tax }}
+            Tax: {{ formatAmount(order.total_tax) }}
           </div>
           <div class="total">
-            Total: {{currencySymbol}}{{ order.total }}
+            Total: {{ formatAmount(order.total) }}
           </div>
         </div>
       </div>
