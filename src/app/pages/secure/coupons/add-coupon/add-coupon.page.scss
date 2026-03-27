@@ -171,3 +171,14 @@ ion-item::part(native) {
   margin: 10px 16px;
   text-align: center;
 }
+
+.update-wrapper {
+  margin-top: 20px;
+}
+
+.update-bottom-btn {
+  --background: #264c73;
+  --color: #ffffff;
+  font-weight: 500;
+  border-radius: 10px;
+}

@@ -6,11 +6,7 @@
 
     <ion-title>Add Coupon</ion-title>
 
-    <ion-buttons slot="end">
-      <ion-button class="save-btn" (click)="saveCoupon()">
-        SAVE
-      </ion-button>
-    </ion-buttons>
+    
   </ion-toolbar>
 </ion-header>
 
@@ -246,6 +242,19 @@
   </ng-template>
 
 </ion-modal>
+
+<!-- CREATE BUTTON (BOTTOM) -->
+<div class="update-wrapper">
+  <ion-button
+    expand="block"
+    fill="solid"
+    class="update-bottom-btn"
+    (click)="saveCoupon()">
+
+    Create Coupon
+
+  </ion-button>
+</div>
 
 </ion-content>
 

@@ -52,7 +52,8 @@ export class ProductFormPage implements OnInit {
     reviews_allowed: true,
     selectedTaxClass:'',
     // stock_quantity: null,
-    manage_stock: false
+    manage_stock: false,
+    category_id: null,
   };
 
   constructor(
@@ -189,7 +190,7 @@ export class ProductFormPage implements OnInit {
         // featured: res.featured,
         sold_individually: res.sold_individually,
         reviews_allowed: res.reviews_allowed,
-        category_ids: res.categories?.map((c: any) => c.id) || [],
+        category_id: res.categories?.[0]?.id || null,
         tag_ids: res.tags?.map((t: any) => t.id) || [],
         // stock_quantity: res.stock_quantity,
         manage_stock: res.manage_stock,
@@ -460,9 +461,9 @@ export class ProductFormPage implements OnInit {
       }
 
       // Add categories and tags
-      if (this.product.category_ids?.length) {
-        payload.categories = this.product.category_ids.map((id: number) => ({ id }));
-      }
+      if (this.product.category_id) {
+  payload.categories = [{ id: this.product.category_id }];
+}
 
       if (this.product.tag_ids?.length) {
         payload.tags = this.product.tag_ids.map((id: number) => ({ id }));
@@ -1013,7 +1014,29 @@ enableSalePriceEdit() {
     this.salePriceInput?.setFocus();
   }, 150);
 }
+getCategoryName(id: number): string {
+  const cat = this.categories.find(c => c.id === id);
+  return cat ? cat.name : '';
+}
 
+onPriceInput(event: any, field: 'regular_price' | 'sale_price') {
+  let value = event.target.value || '';
+
+  // remove all non-numbers
+  value = value.replace(/\D/g, '');
+
+  // convert to decimal
+  const numberValue = Number(value) / 100;
+
+  // save value
+  this.product[field] = numberValue.toFixed(2);
+}
+
+formatPrice(value: any): string {
+  if (!value) return '';
+
+  return Number(value).toFixed(2);
+}
   // taxClasses = [
   //   { id: 1, name: 'Standard rate', percentage: 18, slug: '' },
   //   { id: 2, name: 'Reduced rate', percentage: 5, slug: 'reduced-rate' },

@@ -32,8 +32,6 @@
 <!-- CONTENT (ALL CARDS HERE) -->
 <ion-content class="ion-padding">
 
-  <h2>Shifts List</h2>
-
   <ion-card
     *ngFor="let shift of filteredShifts; let i = index"
     class="shift-card"
@@ -66,7 +64,7 @@
         <div class="right">
           <p class="date">• {{ shift.date | date:'dd/MM/yyyy' }}</p>
 
-          <p>
+          <p class="muted">
             Closing Bal:
             <span class="amount">${{ shift.closingBalance }}</span>
           </p>
@@ -78,11 +76,24 @@
         </div>
       </div>
 
+      
+
       <div class="bottom-row">
-        <span>Start: {{ shift.startTime }}</span>
-        <span>End: {{ shift.endTime }}</span>
-        <span>Duration: {{ shift.duration }}</span>
-      </div>
+  <span>
+    <span class="label">Start:</span>
+    <span class="value">{{ shift.startTime }}</span>
+  </span>
+
+  <span>
+    <span class="label">End:</span>
+    <span class="value">{{ shift.endTime }}</span>
+  </span>
+
+  <span>
+    <span class="label">Duration:</span>
+    <span class="value">{{ shift.duration }}</span>
+  </span>
+</div>
 
     </ion-card-content>
   </ion-card>
