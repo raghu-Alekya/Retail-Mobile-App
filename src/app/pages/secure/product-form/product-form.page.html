@@ -8,9 +8,7 @@
       {{ isEdit ? 'Edit product' : 'Add product' }}
     </ion-title>
 
-    <ion-buttons slot="end">
-      <ion-button color="light" (click)="publishProduct()">Publish</ion-button>
-    </ion-buttons>
+    
   </ion-toolbar>
 </ion-header>
 
@@ -201,23 +199,24 @@
 
 
 
-  <!-- Categories -->
+   <!-- Categories -->
   <ion-card class="settings-card">
-    <ion-item lines="none">
-      <ion-label>Product categories</ion-label>
+  <ion-item lines="none">
+    <ion-label>
+      {{ getCategoryName(product.category_id) || 'Select category' }}
+    </ion-label>
 
-      <ion-select
-        slot="end"
-        multiple="true"
-        [(ngModel)]="product.category_ids"
-        interface="popover"
-      >
-        <ion-select-option *ngFor="let cat of categories" [value]="cat.id">
-          {{ cat.name }}
-        </ion-select-option>
-      </ion-select>
-    </ion-item>
-  </ion-card>
+    <ion-select
+      slot="end"
+      [(ngModel)]="product.category_id"
+      interface="popover"
+    >
+      <ion-select-option *ngFor="let cat of categories" [value]="cat.id">
+        {{ cat.name }}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
+</ion-card>
 
 
   <!-- Product Tags -->
@@ -393,17 +392,18 @@
 
   <!-- Display -->
   <div class="value-text" *ngIf="!editRegularPrice">
-    {{ product.regular_price || 'Add regular price' }}
+    {{ product.regular_price ? formatPrice(product.regular_price) : 'Add regular price' }}
   </div>
 
   <!-- Input -->
   <ion-input
-    *ngIf="editRegularPrice"
-    #regularPriceInput
-    type="number"
-    [(ngModel)]="product.regular_price"
-    (ionBlur)="editRegularPrice = false"
-  ></ion-input>
+  *ngIf="editRegularPrice"
+  #regularPriceInput
+  type="text"
+  [value]="formatPrice(product.regular_price)"
+  (ionInput)="onPriceInput($event, 'regular_price')"
+  (ionBlur)="editRegularPrice = false"
+></ion-input>
 
 </ion-item>
 
@@ -416,17 +416,18 @@
 
   <!-- Display -->
   <div class="value-text" *ngIf="!editSalePrice">
-    {{ product.sale_price || 'Add sale price' }}
+    {{ product.sale_price ? formatPrice(product.sale_price) : 'Add sale price' }}
   </div>
 
   <!-- Input -->
   <ion-input
-    *ngIf="editSalePrice"
-    #salePriceInput
-    type="number"
-    [(ngModel)]="product.sale_price"
-    (ionBlur)="editSalePrice = false"
-  ></ion-input>
+  *ngIf="editSalePrice"
+  #salePriceInput
+  type="text"
+  [value]="formatPrice(product.sale_price)"
+  (ionInput)="onPriceInput($event, 'sale_price')"
+  (ionBlur)="editSalePrice = false"
+></ion-input>
 
 </ion-item>
 
@@ -511,21 +512,7 @@
 </ion-item>
 
   </ion-card>
-  <!-- Sold Individually -->
-  <ion-card class="settings-card">
-
-    <ion-item lines="none">
-      <ion-label>
-        Sold individually
-      </ion-label>
-
-      <ion-toggle
-        slot="end"
-        [(ngModel)]="product.sold_individually"
-      ></ion-toggle>
-    </ion-item>
-
-  </ion-card>
+  
 <!-- <ion-card class="settings-card">
   <ion-item lines="none">
     <ion-label position="stacked">Stock Quantity</ion-label>
@@ -537,8 +524,17 @@
   </ion-item>
 </ion-card> -->
 
-  <!-- DELETE BUTTON (EDIT ONLY) -->
- <ion-button
+  <!-- SAVE / PUBLISH BUTTON -->
+<ion-button
+  expand="block"
+  class="save-btn"
+  (click)="publishProduct()"
+>
+  {{ isEdit ? 'Save Changes' : 'Publish' }}
+</ion-button>
+
+<!-- DELETE BUTTON (EDIT ONLY) -->
+<ion-button
   *ngIf="isEdit"
   expand="block"
   fill="outline"  

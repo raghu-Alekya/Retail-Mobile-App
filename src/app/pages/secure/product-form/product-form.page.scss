@@ -319,6 +319,15 @@ ion-note.stock-badge {
   --border-width: 2px;
 }
 
+.save-btn {
+  margin: 20px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+
+  --background: #264c73 !important;
+  --color: #ffffff;        /* white text */
+}
+
 // .attribute-row {
 //   display: flex;
 //   align-items: center;

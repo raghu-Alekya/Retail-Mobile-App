@@ -52,22 +52,46 @@
       <div class="form-group">
         <label>Phone Number:</label>
         <ion-item lines="none" class="input-box">
-          <ion-input type="tel" formControlName="phone"></ion-input>
+          <ion-input 
+            type="tel" 
+            formControlName="phone"
+            maxlength="10">
+          </ion-input>
         </ion-item>
       </div>
+
+      <p class="error-text" *ngIf="editForm.get('phone')?.touched">
+
+        <span *ngIf="editForm.get('phone')?.errors?.['required']">
+          Phone number is required
+        </span>
+
+        <span *ngIf="editForm.get('phone')?.errors?.['pattern']">
+          Only numbers are allowed
+        </span>
+
+        <span *ngIf="editForm.get('phone')?.errors?.['minlength'] || editForm.get('phone')?.errors?.['maxlength']">
+          Phone number must be exactly 10 digits
+        </span>
+
+      </p>
 
       <!-- Email -->
       <div class="form-group">
         <label>Email Address:</label>
         <ion-item lines="none" class="input-box">
-          <ion-input type="email" formControlName="email" disabled></ion-input>
+          <ion-input type="email" formControlName="email"></ion-input>
         </ion-item>
       </div>
 
     </div>
 
     <div class="btn-container">
-      <ion-button expand="block" class="save-btn" (click)="saveProfile()">
+      <ion-button 
+        expand="block" 
+        class="save-btn" 
+        [disabled]="editForm.invalid"
+        (click)="saveProfile()">
         Save Changes
       </ion-button>
     </div>

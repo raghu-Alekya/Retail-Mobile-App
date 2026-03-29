@@ -6,11 +6,7 @@
 
     <ion-title>Edit Coupon</ion-title>
 
-    <ion-buttons slot="end">
-      <ion-button fill="clear" class="update-btn" (click)="updateCoupon()">
-        Update
-      </ion-button>
-    </ion-buttons>
+    
   </ion-toolbar>
 </ion-header>
 
@@ -295,6 +291,19 @@
     </div>
   </ng-template>
 </ion-modal>
+
+<!-- UPDATE BUTTON (BOTTOM) -->
+<div class="update-wrapper">
+  <ion-button
+    expand="block"
+    fill="solid"
+    class="update-bottom-btn"
+    (click)="updateCoupon()">
+
+    Update Coupon
+
+  </ion-button>
+</div>
 <!-- DELETE -->
 <div class="delete-wrapper">
   <ion-button

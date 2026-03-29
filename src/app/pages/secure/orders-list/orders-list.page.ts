@@ -200,4 +200,12 @@ export class OrderListPage implements OnInit {
     this.loadOrders();
   }
 
+  formatAmount(value: any): string {
+  const num = Number(value || 0);
+
+  return num < 0
+    ? `-${this.currencySymbol}${Math.abs(num)}`
+    : `${this.currencySymbol}${num}`;
+}
+
 }

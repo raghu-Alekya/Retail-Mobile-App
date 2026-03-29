@@ -90,11 +90,11 @@ ion-header.dark-toolbar {
 }
 
 /* Bottom colored border */
-.card-color-0 { border-bottom: 4px solid #1ebbd7; }
-.card-color-1 { border-bottom: 4px solid #23395d; }
-.card-color-2 { border-bottom: 4px solid #28a745; }
-.card-color-3 { border-bottom: 4px solid #f04438; }
-.card-color-4 { border-bottom: 4px solid #f4b400; }
+.card-color-0 { border-bottom: 4px solid #16a1b1; }
+.card-color-1 { border-bottom: 4px solid #264c73; }
+.card-color-2 { border-bottom: 4px solid #0ba54d; }
+.card-color-3 { border-bottom: 4px solid #e64848; }
+.card-color-4 { border-bottom: 4px solid #d5a52b; }
 
 /* ================= ROLE LABEL ================= */
 
@@ -108,11 +108,11 @@ ion-header.dark-toolbar {
 }
 
 /* Role text color matches border */
-.card-color-0 .role-label { color: #1ebbd7; }
-.card-color-1 .role-label { color: #23395d; }
-.card-color-2 .role-label { color: #28a745; }
-.card-color-3 .role-label { color: #f04438; }
-.card-color-4 .role-label { color: #f4b400; }
+.card-color-0 .role-label { color: #16a1b1; }
+.card-color-1 .role-label { color: #264c73; }
+.card-color-2 .role-label { color: #0ba54d; }
+.card-color-3 .role-label { color: #e64848; }
+.card-color-4 .role-label { color: #d5a52b; }
 
 /* ================= CARD CONTENT ================= */
 
@@ -135,11 +135,11 @@ ion-header.dark-toolbar {
 }
 
 /* Avatar background colors */
-.avatar-0 { background: #1ebbd7; }
-.avatar-1 { background: #23395d; }
-.avatar-2 { background: #28a745; }
-.avatar-3 { background: #f04438; }
-.avatar-4 { background: #f4b400; }
+.avatar-0 { background: #16a1b1; }
+.avatar-1 { background: #264c73; }
+.avatar-2 { background: #0ba54d; }
+.avatar-3 { background: #e64848; }
+.avatar-4 { background: #d5a52b; }
 
 .avatar ion-icon {
   font-size: 26px;
@@ -148,15 +148,16 @@ ion-header.dark-toolbar {
 /* ================= TEXT ================= */
 
 .details .name {
-  font-size: 17px;
-  font-weight: 600;
-  color: #222;
+  font-size: 18px;
+  font-weight: 700;
+  color: #000000;
   margin-bottom: 6px;
 }
 
 .details .login-id {
-  font-size: 14px;
-  color: #666;
+  font-size: 18px;
+  font-weight: 500;
+  color: #696969;
 }
 .avatar-icon {
   width: 28px;   /* increase this */
