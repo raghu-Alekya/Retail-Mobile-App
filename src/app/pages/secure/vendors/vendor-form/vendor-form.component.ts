@@ -15,6 +15,8 @@ export class VendorFormComponent implements OnInit {
 
   @Input() mode: 'add' | 'edit' = 'add';
   @Input() vendor: any;
+  phoneError: string = '';
+  emailError: string = '';
 
   form = {
     title: '',
@@ -43,12 +45,74 @@ export class VendorFormComponent implements OnInit {
     }
   }
 
+  onPhoneInput(event: any) {
+  let value = event.target.value || '';
+
+  // remove non-numeric
+  value = value.replace(/\D/g, '');
+
+  // limit to 10 digits
+  value = value.substring(0, 10);
+
+  this.form.phone = value;
+
+  this.validatePhone();
+}
+
+  validatePhone() {
+  const phone = this.form.phone || '';
+  const cleaned = phone.replace(/\D/g, '');
+
+  if (cleaned.length === 0) {
+    this.phoneError = '';
+  } else if (cleaned.length !== 10) {
+    this.phoneError = 'Phone number must be exactly 10 digits';
+  } else {
+    this.phoneError = '';
+  }
+}
+
+onEmailInput(event: any) {
+  let value = event.target.value || '';
+
+  // optional: trim spaces
+  value = value.trim();
+
+  this.form.email = value;
+
+  this.validateEmail();
+}
+
+validateEmail() {
+  const email = this.form.email || '';
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!email) {
+    this.emailError = '';
+  } else if (!emailRegex.test(email)) {
+    this.emailError = 'Please enter a valid email address';
+  } else {
+    this.emailError = '';
+  }
+}
   async save() {
 
     if (!this.form.title) {
       await this.presentToast('Vendor name is required', 'warning');
       return;
     }
+
+    this.validatePhone();
+  this.validateEmail(); // 👈 ADD THIS
+
+  if (this.phoneError || this.emailError) {
+    await this.presentToast(
+      this.phoneError || this.emailError,
+      'warning'
+    );
+    return;
+  }
 
     const payload = {
       title: this.form.title,

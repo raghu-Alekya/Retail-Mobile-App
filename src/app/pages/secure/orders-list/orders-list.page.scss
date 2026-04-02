@@ -1,5 +1,7 @@
 .orders-header {
   background: #264c73;
+  padding-bottom: 12px;   /* reduced from 12px */
+
 
   ion-toolbar {
     --background: #264c73;
@@ -51,6 +53,7 @@
     color: #373535;
   }
 }
+
 
 .order-meta {
   margin: 0px 0;
@@ -318,6 +321,7 @@ ion-content {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
+  color: #373535;
 }
 
 .expand-meta {

@@ -8,12 +8,15 @@ import { AlertController } from '@ionic/angular';
   selector: 'app-pos-settings',
   templateUrl: './pos-settings.page.html',
   styleUrls: ['./pos-settings.page.scss'],
+  
 })
 export class PosSettingsPage implements OnInit {
 
   form!: FormGroup;
   user: any;
   isLoadingSettings = false;
+  emailError: string = '';
+  phoneError: string = '';
 
   settings: any = {
     address: {
@@ -48,6 +51,41 @@ export class PosSettingsPage implements OnInit {
     private toastController: ToastController,
     private alertController: AlertController
   ) {}
+
+  validateEmail() {
+  const email = this.settings.address.pinaka_pos_email;
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (email && !emailRegex.test(email)) {
+    this.emailError = 'Please enter a valid email address';
+  } else {
+    this.emailError = '';
+  }
+}
+
+onPhoneInput(event: any) {
+  let value = event.target.value || '';
+
+  value = value.replace(/\D/g, '');
+  value = value.substring(0, 10);
+
+  this.settings.address.pinaka_pos_phone = value;
+
+  this.validatePhone();
+}
+
+validatePhone() {
+  const phone = this.settings.address.pinaka_pos_phone || '';
+
+  if (phone.length === 0) {
+    this.phoneError = '';
+  } else if (phone.length !== 10) {
+    this.phoneError = 'Phone number must be exactly 10 digits';
+  } else {
+    this.phoneError = '';
+  }
+}
 
   /* ================= INIT ================= */
 
@@ -136,6 +174,16 @@ export class PosSettingsPage implements OnInit {
 
 
   async saveAddress() {
+    this.validateEmail(); // 👈 run validation first
+    this.validatePhone();
+
+    if (this.emailError || this.phoneError) {
+      await this.presentToast(
+        this.emailError || this.phoneError,
+        'danger'
+      );
+      return;
+    }
     const payload = {
       shop_address: {
         pinaka_pos_name: this.settings.address.pinaka_pos_name,
@@ -544,4 +592,6 @@ export class PosSettingsPage implements OnInit {
       .replace(/\s+/g, '-')           // replace spaces with -
       .replace(/-+/g, '-');           // remove duplicate -
   }
+
+  
 }

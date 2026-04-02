@@ -48,12 +48,13 @@
   --background: #264c73;
   --color: #ffffff;
   --min-height: 56px;
+  ion-title {
+    padding-left: 0;
+    margin-left: -6px;
+    
+  }
 }
 
-ion-title {
-  font-size: 17px;
-  font-weight: 600;
-}
 
 /* ================= CONTENT ================= */
 ion-content {
@@ -310,8 +311,11 @@ ion-note.stock-badge {
 /* ================= DELETE BUTTON ================= */
 .delete-btn {
   margin: 20px 16px;
-  border-radius: 12px;
+  --border-radius: 14px;
+
+  height: 50px;
   font-weight: 600;
+  font-size:18px;
 
   --background: white;
   --color: #ef5350;        /* text color */
@@ -320,12 +324,20 @@ ion-note.stock-badge {
 }
 
 .save-btn {
-  margin: 20px 16px;
-  border-radius: 12px;
-  font-weight: 600;
+  --background: #264c73;
+  --background-hover: #264c73;
+  --background-activated: #264c73;
 
-  --background: #264c73 !important;
-  --color: #ffffff;        /* white text */
+  --border-radius: 14px;
+  font-size:18px;
+
+  height: 50px;
+  font-weight: 600;
+  
+
+  margin: 20px 16px;
+
+  text-transform: none !important;
 }
 
 // .attribute-row {
@@ -422,4 +434,16 @@ ion-note.stock-badge {
   margin-top: 8px;   /* 👈 space between label & value */
   font-size: 15px;
   color: #444;
+}
+
+.save-btn,
+.delete-btn {
+  text-transform: none !important;
+}
+
+.error-text {
+  color: #ef5350; /* soft red */
+  font-size: 14px;
+  margin: 4px 12px 8px;
+  display: block;
 }

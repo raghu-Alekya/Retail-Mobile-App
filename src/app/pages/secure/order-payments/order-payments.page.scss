@@ -200,62 +200,62 @@ ion-content {
 ================================ */
 
 /* BLUE */
-.card-0 { border-bottom-color: #2f4f6f; }
+.card-0 { border-bottom-color: #d1c876; }
 
 .card-0 .accepted-by {
-  color: #2f4f6f;
+  color: #d1c876;
 }
 
 .card-0 .dot {
-  background: #2f4f6f;
+  background: #d1c876;
 }
 
 
 /* GREEN */
-.card-1 { border-bottom-color: #1f9d55; }
+.card-1 { border-bottom-color: #de667c; }
 
 .card-1 .accepted-by {
-  color: #1f9d55;
+  color: #de667c;
 }
 
 .card-1 .dot {
-  background: #1f9d55;
+  background: #de667c;
 }
 
 
 /* TEAL */
-.card-2 { border-bottom-color: #17a2b8; }
+.card-2 { border-bottom-color: #6ac2c3; }
 
 .card-2 .accepted-by {
-  color: #17a2b8;
+  color: #6ac2c3;
 }
 
 .card-2 .dot {
-  background: #17a2b8;
+  background: #6ac2c3;
 }
 
 
 /* RED */
-.card-3 { border-bottom-color: #e3342f; }
+.card-3 { border-bottom-color: #db8366; }
 
 .card-3 .accepted-by {
-  color: #e3342f;
+  color: #db8366;
 }
 
 .card-3 .dot {
-  background: #e3342f;
+  background: #db8366;
 }
 
 
 /* YELLOW */
-.card-4 { border-bottom-color: #d69e2e; }
+.card-4 { border-bottom-color: #66a8de; }
 
 .card-4 .accepted-by {
-  color: #d69e2e;
+  color: #66a8de;
 }
 
 .card-4 .dot {
-  background: #d69e2e;
+  background: #66a8de;
 }
 
 
@@ -285,7 +285,8 @@ ion-content {
 }
 
 .transaction-row .mode {
-  color: #666;
+  color: #2f2f2f;
+  font-weight:500px;
 }
 
 .transaction-row .right {

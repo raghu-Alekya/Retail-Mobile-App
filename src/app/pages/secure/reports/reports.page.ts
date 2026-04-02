@@ -70,6 +70,11 @@ ordersPerEmployee: any[] = [];
     this.loadSales();
   }
 
+  openDatePicker() {
+  const input = document.querySelector('input[type="date"]') as HTMLElement;
+  input?.click();
+}
+
   // ================= SHIFT REPORT =================
 async loadShiftReport(date: string) {
 

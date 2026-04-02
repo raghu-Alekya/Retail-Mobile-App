@@ -142,10 +142,12 @@ ion-select::part(icon) {
   --border-radius: 14px;
 
   height: 50px;
-  font-weight: 600;
-  letter-spacing: 0.6px;
+  font-size:18px;
+  font-weight: 700px;
 
   margin-top: 24px;
+
+  text-transform: none !important;
 }
 
 /* Remove ionic internal white background */

@@ -43,15 +43,13 @@ showDatePicker = false;
   ) {}
 
   startEdit(field: string) {
-
   this.editing = field;
 
-  // wait for DOM render
   setTimeout(() => {
-    const input = document.querySelector('ion-input input') as HTMLInputElement;
-    input?.focus();
-  }, 200);
-
+    const inputs = document.querySelectorAll('ion-input input');
+    const activeInput = inputs[inputs.length - 1] as HTMLInputElement;
+    activeInput?.focus();
+  }, 100);
 }
   showCalendar = false;
 

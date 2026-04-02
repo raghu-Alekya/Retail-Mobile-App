@@ -384,7 +384,7 @@
   <ion-card class="settings-card">
 
     <!-- REGULAR PRICE -->
-    <ion-item lines="none" (click)="enableRegularPriceEdit()">
+    <ion-item lines="none" class="editable-item" (click)="enableRegularPriceEdit()">
   
   <ion-label position="stacked">
     Regular price
@@ -408,7 +408,7 @@
 </ion-item>
 
     <!-- SALE PRICE -->
-    <ion-item lines="none" (click)="enableSalePriceEdit()">
+    <ion-item lines="none" class="editable-item" (click)="enableSalePriceEdit()">
   
   <ion-label position="stacked">
     Sale price
@@ -430,6 +430,9 @@
 ></ion-input>
 
 </ion-item>
+<div class="error-text" *ngIf="salePriceError">
+  {{ salePriceError }}
+</div>
 
   </ion-card>
 

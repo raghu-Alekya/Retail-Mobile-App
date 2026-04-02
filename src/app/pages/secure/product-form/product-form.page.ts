@@ -66,30 +66,51 @@ export class ProductFormPage implements OnInit {
 
   async ngOnInit() {
 
-  const id = this.route.snapshot.paramMap.get('id');
+    const id = this.route.snapshot.paramMap.get('id');
 
-  // detect edit mode immediately
-  if (id) {
-    this.isEdit = true;
-    this.productId = +id;
+    // detect edit mode immediately
+    if (id) {
+      this.isEdit = true;
+      this.productId = +id;
+    }
+
+    // ✅ show UI immediately
+  this.pageReady = true;
+
+  this.loadInitialData();
+
+    await Promise.all([
+      this.loadCategories(),
+      this.loadTags(),
+      this.loadTaxClasses()
+    ]);
+    // load product if editing
+    if (this.isEdit) {
+      await this.loadProduct();
+    }
+
+    if (this.product.type === 'variable') {
+      await this.loadAttributes();
+    }
+
+    // ✅ allow UI to render
+    // this.pageReady = true;
   }
 
-  // load base data
-  await this.loadCategories();
-  await this.loadTags();
-  await this.loadTaxClasses();
+  async loadInitialData() {
+  await Promise.all([
+    this.loadCategories(),
+    this.loadTags(),
+    this.loadTaxClasses()
+  ]);
 
-  // load product if editing
   if (this.isEdit) {
     await this.loadProduct();
   }
 
   if (this.product.type === 'variable') {
-    await this.loadAttributes();
+    this.loadAttributes(); // no await ❗
   }
-
-  // ✅ allow UI to render
-  this.pageReady = true;
 }
   // buildVariationKey(combo: any[]): string {
   //   return combo
@@ -1030,12 +1051,30 @@ onPriceInput(event: any, field: 'regular_price' | 'sale_price') {
 
   // save value
   this.product[field] = numberValue.toFixed(2);
+  this.validatePrices();
 }
 
 formatPrice(value: any): string {
   if (!value) return '';
 
   return Number(value).toFixed(2);
+}
+
+salePriceError: string = '';
+
+validatePrices() {
+  const regular = parseFloat(this.product.regular_price);
+  const sale = parseFloat(this.product.sale_price);
+
+  if (!isNaN(regular) && !isNaN(sale)) {
+    if (sale >= regular) {
+      this.salePriceError = 'Sale price should be less than regular price';
+    } else {
+      this.salePriceError = '';
+    }
+  } else {
+    this.salePriceError = '';
+  }
 }
   // taxClasses = [
   //   { id: 1, name: 'Standard rate', percentage: 18, slug: '' },

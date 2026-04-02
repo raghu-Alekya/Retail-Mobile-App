@@ -55,9 +55,11 @@ ion-select {
 
 .save-btn {
   --background: #264c73;
-  --border-radius: 10px;
+  --border-radius: 16px;
   height: 50px;
+  font-size: 18px;
   font-weight: 600;
+  text-transform: none !important;
 }
 
 .error-text {

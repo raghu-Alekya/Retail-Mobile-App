@@ -90,11 +90,11 @@ ion-header.dark-toolbar {
 }
 
 /* Bottom colored border */
-.card-color-0 { border-bottom: 4px solid #16a1b1; }
-.card-color-1 { border-bottom: 4px solid #264c73; }
-.card-color-2 { border-bottom: 4px solid #0ba54d; }
-.card-color-3 { border-bottom: 4px solid #e64848; }
-.card-color-4 { border-bottom: 4px solid #d5a52b; }
+.card-color-0 { border-bottom: 4px solid #d1c876; }
+.card-color-1 { border-bottom: 4px solid #de667c; }
+.card-color-2 { border-bottom: 4px solid #6ac2c3; }
+.card-color-3 { border-bottom: 4px solid #db8366; }
+.card-color-4 { border-bottom: 4px solid #66a8de; }
 
 /* ================= ROLE LABEL ================= */
 
@@ -108,11 +108,11 @@ ion-header.dark-toolbar {
 }
 
 /* Role text color matches border */
-.card-color-0 .role-label { color: #16a1b1; }
-.card-color-1 .role-label { color: #264c73; }
-.card-color-2 .role-label { color: #0ba54d; }
-.card-color-3 .role-label { color: #e64848; }
-.card-color-4 .role-label { color: #d5a52b; }
+.card-color-0 .role-label { color: #d1c876; }
+.card-color-1 .role-label { color: #de667c; }
+.card-color-2 .role-label { color: #6ac2c3; }
+.card-color-3 .role-label { color: #db8366; }
+.card-color-4 .role-label { color: #66a8de; }
 
 /* ================= CARD CONTENT ================= */
 
@@ -135,11 +135,11 @@ ion-header.dark-toolbar {
 }
 
 /* Avatar background colors */
-.avatar-0 { background: #16a1b1; }
-.avatar-1 { background: #264c73; }
-.avatar-2 { background: #0ba54d; }
-.avatar-3 { background: #e64848; }
-.avatar-4 { background: #d5a52b; }
+.avatar-0 { background: #d1c876; }
+.avatar-1 { background: #de667c; }
+.avatar-2 { background: #6ac2c3; }
+.avatar-3 { background: #db8366; }
+.avatar-4 { background: #66a8de; }
 
 .avatar ion-icon {
   font-size: 26px;
@@ -154,10 +154,17 @@ ion-header.dark-toolbar {
   margin-bottom: 6px;
 }
 
+// .details .login-id {
+//   font-size: 16px;
+//   font-weight: 500;
+//   color: #696969;
+// }
+
 .details .login-id {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
-  color: #696969;
+  color:#342F2F;
+ 
 }
 .avatar-icon {
   width: 28px;   /* increase this */
