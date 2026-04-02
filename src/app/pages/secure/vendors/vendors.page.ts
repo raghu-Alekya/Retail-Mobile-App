@@ -20,11 +20,11 @@ export class VendorsPage implements OnInit {
   filteredVendors: any[] = [];
 
 accentColors: string[] = [
-    '#2bb0a8', // teal
-    '#8b8ee8', // blue
-    '#f3b431', // yellow
-    '#cc77da', // purple
-    '#f28b54'  // orange
+    '#d1c876', // yellow
+    '#de667c', // green
+    '#6ac2c3', // red
+    '#db8366', // teal
+    '#66a8de'  // blue
   ];
 
   constructor(

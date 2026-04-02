@@ -86,20 +86,45 @@
 
 
 .coupon-card {
-  background: #ffffff !important;
-  --background: #ffffff;
+  background: #ffffff !important;   /* 👈 light grey like image */
 
-  border: none;
-  border-radius: 14px;
+  margin: 10px 0;
+  padding-left: 15px;
+  padding-top: 15px;
+  border-radius: 12px;
 
-  margin: 12px 0;
-  padding: 16px;
+  border-bottom: 4px solid transparent;   /* 👈 important */
 
-  /* 🔥 shadow like your image */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
+
+.coupon-card:nth-child(5n+1) {
+  border-bottom: 4px solid #d1c876;   /* teal */
+}
+
+.coupon-card:nth-child(5n+2) {
+  border-bottom: 4px solid #de667c;   /* blue-purple */
+}
+
+.coupon-card:nth-child(5n+3) {
+  border-bottom: 4px solid #6ac2c3;   /* yellow */
+}
+
+.coupon-card:nth-child(5n+4) {
+  border-bottom: 4px solid #db8366;   /* green */
+}
+
+.coupon-card:nth-child(5n+5) {
+  border-bottom: 4px solid #66a8de;   /* red */
+}
+
+.coupon-card:nth-child(5n+1) .icon-box { background: #d1c876; }
+.coupon-card:nth-child(5n+2) .icon-box { background: #de667c; }
+.coupon-card:nth-child(5n+3) .icon-box { background: #6ac2c3; }
+.coupon-card:nth-child(5n+4) .icon-box { background: #db8366; }
+.coupon-card:nth-child(5n+5) .icon-box { background: #66a8de; }
+
+
 ion-item-sliding{
   margin:12px;
   border:1px solid #e6e6e6;
@@ -110,6 +135,7 @@ ion-content{
   --padding-start:12px;
   --padding-end:12px;
   --background: #f6f6f6;
+  --padding-top: 8px;
 }
 ion-item-sliding{
   margin:12px 0;
@@ -138,24 +164,32 @@ ion-item-option{
 /* ICON */
 .icon-box {
   display: flex;
-  align-items: flex-start;
-  margin-top: 6px;   /* 🔥 adjust this */
+  align-items: center;
+  justify-content: center;
+
+  width: 55px;
+  height: 55px;
+
+  background: #587291;   /* 👈 background color */
+  border-radius: 8px;   /* 👈 rounded box */
+
+  margin-top: 6px;
 }
 
 .coupon-icon {
-  width: 60px;   /* 🔥 increase */
-  height: 60px;
-  object-fit: contain
+  width: 25px;   /* 🔥 increase */
+  height: 25px;
+  //object-fit: contain
 }
 
 .card-content {
   flex: 1;
-  padding: 16px;
+  padding: 10px;
 
   display: flex;
   flex-direction: column;
   align-items: flex-start;   /* 🔥 align left cleanly */
-  gap: 6px;
+  gap: 4px;
 }
 
 /* CODE */
@@ -164,6 +198,8 @@ ion-item-option{
   font-size: 21px;
   font-weight: 600;;
   color:#2e3135;
+  margin: 2px 0;        /* 🔥 reduce vertical gap */
+  line-height: 1.0;
 }
 
 /* DESCRIPTION */
@@ -172,6 +208,8 @@ ion-item-option{
   font-size: 16px;
   color: #6f6f6f;
   margin-top: 4px;
+  margin: 2px 0;        /* 🔥 reduce vertical gap */
+  line-height: 1.0;
 }
 /* AMOUNT */
 
@@ -179,6 +217,8 @@ ion-item-option{
   font-size:16px;
   color:#cc7a00;
   margin-top:8px;
+  margin: 2px 0;        /* 🔥 reduce vertical gap */
+  line-height: 1.0;
 }
 .divider-row {
   display: flex;
@@ -188,18 +228,24 @@ ion-item-option{
   margin-left: -76px;         /* 🔥 pull across icon */
 
   margin-top: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 0px;
 }
 .divider-line {
   flex: 1;
-  height: 1px;
-  background: #999999;
+  height: 2px;
+  background: #e1e1e1;
 }
 
 .coupon-id {
   font-size: 12px;
   color: #9b9b9b;
   margin-left: 8px;
+}
+
+.expiry-text {
+  font-size: 12px;
+  color: #9b9b9b;
+  margin-right: 8px;
 }
 .content-row {
   width: 100%;
@@ -209,7 +255,7 @@ ion-item-option{
   justify-content: flex-end;   /* 👉 push to right */
   align-items: center;
   gap: 10px;                  /* space between */
-  margin-top: 10px;
+  margin-top: 2px;
 }
 .bottom-row {
   display: flex;
@@ -231,20 +277,23 @@ ion-item-option{
 
 /* usage (inside group) */
 .usage {
-  background: #dcdcdc;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
+  background: #ebebeb;
+    padding: 6px 6px;
+    border-radius: 6px;
+    color: #585858;
+    font-size: 14px;
+    font-weight:600;
+    margin: 0px 6px;
 }
 
 /* publish button */
 .status {
-  background: #b9e4c6;
-  color: #1f7a3f;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
+  background: #e8ffef;
+  color: #1ba629;
+  padding: 6px 6px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight:600;
 }
 
 .coupons-header ion-buttons[slot="start"] {

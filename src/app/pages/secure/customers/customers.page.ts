@@ -10,7 +10,7 @@ export class CustomersPage {
 
   customers: any[] = [];
   page = "1";
-  perPage = "20";
+  perPage = "100";
   searchTerm = '';
   hasMore = true;
   loading = false;
@@ -61,7 +61,20 @@ export class CustomersPage {
       );
 
       if (Array.isArray(response) && response.length > 0) {
-        this.customers = [...this.customers, ...response];
+        const filtered = (response || []).filter((user: any) => {
+        const name = (
+          (user.first_name || '') + ' ' + (user.last_name || '')
+        ).toLowerCase();
+
+        const fallback = (user.name || user.email || '').toLowerCase();
+
+        const term = this.searchTerm.toLowerCase();
+
+        return name.includes(term) || fallback.includes(term);
+      });
+
+      // ✅ append only filtered results
+      this.customers = [...this.customers, ...filtered];
 
         // ⚠️ Important: This condition is NOT reliable due to filtering
         if (response.length < perPageNum) {

@@ -72,27 +72,21 @@ setDate(event: any) {
 
   const isAlreadyOpen = this.editField[field];
 
-  // close all fields
+  // close all
   Object.keys(this.editField).forEach(f => {
     this.editField[f] = false;
   });
 
+  // if opening
   if (!isAlreadyOpen) {
-
     this.editField[field] = true;
 
-    // wait for input render
     setTimeout(() => {
-
       const inputs = document.querySelectorAll('ion-input input');
       const lastInput = inputs[inputs.length - 1] as HTMLInputElement;
-
       lastInput?.focus();
-
-    }, 300);
-
+    }, 100);
   }
-
 }
   
 

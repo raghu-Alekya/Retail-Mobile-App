@@ -253,12 +253,14 @@ ion-note {
 }
 
 .save-address-btn {
-  --background: #2f4157;
-  --background-hover: #3a516d;
-  --background-activated: #253447;
+  --background: #264c73;
+  --background-hover: #264c73;
+  --background-activated: #264c73;
   --color: #ffffff;
-  --border-radius: 12px;
+  --border-radius: 14px;
+  font-size: 18px;
   font-weight: 600;
+  text-transform: none !important;
 }
 
 .primary-btn {
@@ -267,5 +269,17 @@ ion-note {
   --background-activated: #264c73;
   --color: #ffffff;
   --border-radius: 8px;
+  font-weight: 500;
+}
+
+ion-input.error {
+  --border-color: #d32f2f;
+  --highlight-color-focused: #d32f2f;
+}
+
+.error-text {
+  color: #d32f2f !important;
+  font-size: 13px;
+  margin: 4px 0 8px 4px;
   font-weight: 500;
 }

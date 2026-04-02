@@ -45,18 +45,27 @@
               <ion-input
                 label="Email"
                 placeholder="Enter email"
-                [(ngModel)]="settings.address.pinaka_pos_email">
+                [(ngModel)]="settings.address.pinaka_pos_email"
+                (ionInput)="validateEmail()"
+                [class.error]="emailError">
               </ion-input>
             </ion-item>
+            <div class="error-text" *ngIf="emailError">
+              {{ emailError }}
+            </div>
 
             <ion-item>
               <ion-input
-                label="Phone"
-                placeholder="Enter phone"
-                [(ngModel)]="settings.address.pinaka_pos_phone">
+                type="tel"
+                
+                [(ngModel)]="settings.address.pinaka_pos_phone"
+                (ionInput)="onPhoneInput($event)"
+                [class.error]="phoneError">
               </ion-input>
             </ion-item>
-
+            <div class="error-text" *ngIf="phoneError">
+              {{ phoneError }}
+            </div>
             <ion-item>
               <ion-input
                 label="Address line 1"

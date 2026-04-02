@@ -44,7 +44,7 @@
 
     <!-- LEFT ICON -->
     <div class="icon-box">
-      <img src="assets/icons/coupon.svg" class="coupon-icon" />
+      <img src="assets/icons/coupons.svg" class="coupon-icon" />
     </div>
 
     <!-- RIGHT CONTENT -->
@@ -61,9 +61,13 @@
       </div>
 
       <div class="divider-row">
+        <div class="expiry-text" *ngIf="coupon.date_expires">
+          Expiration: {{ coupon.date_expires | date:'MMM d, yyyy' }}
+        </div>
         <div class="divider-line"></div>
         <div class="coupon-id">#{{ coupon.id }}</div>
       </div>
+      
 
       <div class="bottom-row">
         <div class="action-group">

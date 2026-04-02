@@ -52,15 +52,30 @@
 </ion-chip>
 </div>
 <ion-content class="coupon-content">
-    <ion-card *ngFor="let c of discounts" class="discount-card" (click)="openEdit(c)">
+    <ion-card 
+    *ngFor="let c of discounts" 
+    class="discount-card"
+    [ngClass]="{
+      'auto-card': c.type === 'auto',
+      'multipack-card': c.type === 'multipack',
+      'mixmatch-card': c.type === 'mix_match'
+    }"
+    (click)="openEdit(c)">
   <ion-card-content>
 
     <!-- Top Row -->
     <div class="top-row">
       
       <!-- Left Icon -->
-      <div class="icon-box">
-        <img src="assets/icons/iconamoon_discount.svg" class="discount-icon" />
+      <div 
+        class="icon-box"
+        [ngClass]="{
+          'auto': c.type === 'auto',
+          'multipack': c.type === 'multipack',
+          'mixmatch': c.type === 'mix_match'
+        }"
+      >
+        <img src="assets/icons/discounts.svg" class="discount-icon" />
       </div>
 
       <!-- Middle Content -->
@@ -102,14 +117,26 @@
     <!-- Bottom Row -->
     <div class="bottom-row">
 
-      <div class="dates">
-        <div *ngIf="c.start_date">Start Date: {{ c.start_date | date:'dd MMM yyyy' }}</div>
-        <div *ngIf="c.expiry_date">End Date: {{ c.expiry_date | date:'dd MMM yyyy' }}</div>
-      </div>
-
-      
-
+  <div class="dates">
+    
+    <div *ngIf="c.start_date">
+      <span class="label">Start Date:</span>
+      <span class="value">{{ c.start_date | date:'MMM d, yyyy' }}</span>
     </div>
+
+    <div *ngIf="c.expiry_date">
+      <span class="label">End Date:</span>
+      <span class="value">{{ c.expiry_date | date:'MMM d, yyyy' }}</span>
+    </div>
+
+  </div>
+
+  <!-- ✅ RIGHT SIDE PUBLISH -->
+  <div class="publish-badge">
+    Publish
+  </div>
+
+</div>
 
   </ion-card-content>
 </ion-card>
@@ -136,20 +163,37 @@
       <div class="scroll-wrapper">
         <ion-label position="stacked" >Type</ion-label>
         <ion-item>
-          
+
+          <!-- READ ONLY (EDIT MODE) -->
+          <ion-input 
+            *ngIf="editingCoupon"
+            [value]="form.type === 'mix_match' 
+              ? 'Mix & Match Discount' 
+              : (form.type | titlecase)"
+            readonly>
+          </ion-input>
+
+          <!-- SELECT (CREATE MODE) -->
           <ion-select
+            *ngIf="!editingCoupon"
             placeholder="Select discount type"
-            [(ngModel)]="form.type" (ionChange)="onDiscountTypeChange($event)">
+            [(ngModel)]="form.type"
+            (ionChange)="onDiscountTypeChange($event)">
+
             <ion-select-option value="mix_match">
               Mix & Match Discount
             </ion-select-option>
+
             <ion-select-option value="auto">
               Auto Discount
             </ion-select-option>
+
             <ion-select-option value="multipack">
               Multipack Discount
             </ion-select-option>
+
           </ion-select>
+
         </ion-item>
         <ion-label position="stacked">
           {{ form.type === 'mix_match' ? 'Main Product (Trigger)' : 'Product' }}
@@ -251,7 +295,10 @@
           <ion-label position="stacked">Discount Type</ion-label>
           <ion-item>
             
-            <ion-select [(ngModel)]="form.discount_type" (ngModelChange)="markChanged()">
+            <ion-select 
+            [(ngModel)]="form.discount_type" 
+            (ngModelChange)="markChanged()"
+            [disabled]="!!editingCoupon">
               <!-- Auto -->
               <ng-container *ngIf="form.type === 'auto'">
                 <ion-select-option value="percent">Percentage</ion-select-option>
@@ -278,8 +325,8 @@
           <ion-input type="number" [(ngModel)]="form.amount" (ngModelChange)="markChanged()"></ion-input>
         </ion-item>
         <div *ngIf="form.type === 'multipack'">
+           <ion-label position="stacked">Quantity</ion-label>
             <ion-item>
-              <ion-label position="stacked">Quantity</ion-label>
               <ion-input type="number" [(ngModel)]="form.qty"></ion-input>
             </ion-item>
         </div>
@@ -305,8 +352,8 @@
         </div>
         <!-- <div *ngIf="filter_type === 'auto' || filter_type === 'multipack' || activeFilter === 'auto' || activeFilter === 'multipack'"> -->
           <div *ngIf="form.type === 'auto' || form.type === 'multipack'">
-          <ion-item>
             <ion-label position="stacked">{{ form.type === 'auto' ? 'Usage Limit' : 'Order Usage' }}</ion-label>
+          <ion-item>
             <ion-input type="number" [(ngModel)]="form.usage_limit" (ngModelChange)="markChanged()"></ion-input>
           </ion-item>
         </div>

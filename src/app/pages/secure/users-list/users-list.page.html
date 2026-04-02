@@ -51,7 +51,7 @@
 
           <div class="details">
             <div class="name">
-              {{ user.first_name }} {{ user.last_name }}
+              {{ user.first_name }}
             </div>
       <div class="login-id">
 
@@ -91,7 +91,7 @@
 
     
     <!-- Username -->
-     <label>User Name:</label>
+     <ion-label position="stacked">User Name</ion-label>
 <div class="form-field">
   <ion-input
     placeholder="Enter username"
@@ -102,7 +102,7 @@
 </div>
 
     <!-- Email -->
-     <label>Email:</label>
+     <ion-label position="stacked">Email</ion-label>
     <div class="form-field">
       <ion-input
         placeholder="Enter email address"
@@ -118,7 +118,7 @@
     </p>
 
     <!-- First Name -->
-     <label>First Name:</label>
+     <ion-label position="stacked">First Name</ion-label>
     <div class="form-field">
 
       <ion-input
@@ -129,7 +129,7 @@
     </div>
 
     <!-- Last Name -->
-     <label>Last Name:</label>
+     <ion-label position="stacked">Last Name</ion-label>
     <div class="form-field">
       <ion-input
         placeholder="Enter last name"
@@ -139,7 +139,7 @@
     </div>
 
     <!-- Role -->
-     <label>Employee Role:</label>
+     <ion-label position="stacked">Employee Role</ion-label>
     <div class="form-field">
       <ion-select
         placeholder="Select Employee Role"
@@ -157,7 +157,7 @@
     </div>
 
     <!-- Phone -->
-     <label>Phone:</label>
+     <ion-label position="stacked">Phone</ion-label>
     <div class="form-field"
      [class.invalid]="phoneTouched && editedUser.phone && !isValidPhone(editedUser.phone)">
       <ion-input
@@ -174,7 +174,7 @@
     </p>
 
     <!-- Login PIN -->
-     <label>Login PIN:</label>
+     <ion-label position="stacked">Login PIN</ion-label>
     <div class="form-field"
      [class.invalid]="pinTouched && editedUser.emp_login_pin && !isValidPin(editedUser.emp_login_pin)">
       <ion-input
@@ -195,34 +195,30 @@
     </p>
 
 
-<!-- Buttons -->
-<div class="form-buttons">
+<!-- Save Button -->
+<ion-button
+  expand="block"
+  class="save-btn"
+  [disabled]="
+    !editedUser.email ||
+    !editedUser.role ||
+    !isValidEmail(editedUser.email) ||
+    (editedUser.phone && !isValidPhone(editedUser.phone)) ||
+    (editedUser.emp_login_pin && !isValidPin(editedUser.emp_login_pin))
+  "
+  (click)="saveChanges()">
+  Save Changes
+</ion-button>
 
-    <ion-button
-      expand="block"
-      class="save-btn"
-      [disabled]="
-        !editedUser.email ||
-        !editedUser.role ||
-        !isValidEmail(editedUser.email) ||
-        (editedUser.phone && !isValidPhone(editedUser.phone)) ||
-        (editedUser.emp_login_pin && !isValidPin(editedUser.emp_login_pin))
-      "
-      (click)="saveChanges()">
-      Save Changes
-    </ion-button>
-
-    <div class="delete-section">
-      <ion-button
-        expand="block"
-        color="danger"
-        fill="outline"
-        (click)="deleteUser(editingUserId)">
-        Delete Employee
-      </ion-button>
-    </div>
-
-</div>
+<!-- Delete Button -->
+<ion-button
+  expand="block"
+  color="danger"
+  fill="outline"
+  class="delete-btn"
+  (click)="deleteUser(editingUserId)">
+  Delete Employee
+</ion-button>
       <!-- <ion-button
         expand="block"
         fill="clear"

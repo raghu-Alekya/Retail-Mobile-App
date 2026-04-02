@@ -20,10 +20,10 @@
   <ion-label position="stacked">Code</ion-label>
 
   <div *ngIf="editing !== 'code'" class="value-row">
-    <span>{{ coupon.code || '----' }}</span>
-    <ion-icon name="pencil-outline"
-      (click)="startEdit('code')">
-    </ion-icon>
+    <span (click)="startEdit('code')" class="editable-text">
+      {{ coupon.code || '----' }}
+    </span>
+    
   </div>
 
   <ion-input
@@ -39,10 +39,9 @@
   <ion-label position="stacked">Description</ion-label>
 
   <div *ngIf="editing !== 'description'" class="value-row">
-    <span>{{ coupon.description || '----' }}</span>
-    <ion-icon name="pencil-outline"
-      (click)="startEdit('description')">
-    </ion-icon>
+    <span (click)="startEdit('description')" class="editable-text">
+      {{ coupon.description || '----' }}
+    </span>
   </div>
 
   <ion-input
@@ -69,10 +68,9 @@
   <ion-label position="stacked">Amount</ion-label>
 
   <div *ngIf="editing !== 'amount'" class="value-row">
-    <span>{{ coupon.amount || '0' }}</span>
-    <ion-icon name="pencil-outline"
-      (click)="startEdit('amount')">
-    </ion-icon>
+    <span (click)="startEdit('amount')" class="editable-text">
+      {{ coupon.amount || '0' }}
+    </span>
   </div>
 
   <ion-input
@@ -122,10 +120,9 @@
   <ion-label position="stacked">Usage limit</ion-label>
 
   <div *ngIf="editing !== 'usageLimit'" class="value-row">
-    <span>{{ coupon.usageLimit || '----' }}</span>
-    <ion-icon name="pencil-outline"
-      (click)="startEdit('usageLimit')">
-    </ion-icon>
+    <span (click)="startEdit('usageLimit')" class="editable-text">
+      {{ coupon.usageLimit || '----' }}
+    </span>
   </div>
 
   <ion-input
@@ -141,10 +138,9 @@
   <ion-label position="stacked">Usage limit per user</ion-label>
 
   <div *ngIf="editing !== 'usageLimitPerUser'" class="value-row">
-    <span>{{ coupon.usageLimitPerUser || '----' }}</span>
-    <ion-icon name="pencil-outline"
-      (click)="startEdit('usageLimitPerUser')">
-    </ion-icon>
+    <span (click)="startEdit('usageLimitPerUser')" class="editable-text">
+      {{ coupon.usageLimitPerUser || '----' }}
+    </span>
   </div>
 
   <ion-input
@@ -175,10 +171,9 @@
   <ion-label position="stacked">Minimum amount</ion-label>
 
   <div *ngIf="editing !== 'minAmount'" class="value-row">
-    <span>{{ coupon.minAmount || '0.00' }}</span>
-    <ion-icon name="pencil-outline"
-      (click)="startEdit('minAmount')">
-    </ion-icon>
+    <span (click)="startEdit('minAmount')" class="editable-text">
+      {{ coupon.minAmount || '0.00' }}
+    </span>
   </div>
 
   <ion-input
@@ -194,10 +189,9 @@
   <ion-label position="stacked">Maximum amount</ion-label>
 
   <div *ngIf="editing !== 'maxAmount'" class="value-row">
-    <span>{{ coupon.maxAmount || '0.00' }}</span>
-    <ion-icon name="pencil-outline"
-      (click)="startEdit('maxAmount')">
-    </ion-icon>
+    <span (click)="startEdit('maxAmount')" class="editable-text">
+      {{ coupon.maxAmount || '0.00' }}
+    </span>
   </div>
 
   <ion-input

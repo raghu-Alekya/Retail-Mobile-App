@@ -23,12 +23,33 @@
 
     <div class="form-group">
       <label>Phone</label>
-      <ion-input [(ngModel)]="form.phone"></ion-input>
+
+      <ion-input
+        type="tel"
+        maxlength="10"
+        [(ngModel)]="form.phone"
+        (ionInput)="onPhoneInput($event)"
+        [class.error]="phoneError">
+      </ion-input>
+
+      <div class="error-text" *ngIf="phoneError">
+        {{ phoneError }}
+      </div>
     </div>
 
     <div class="form-group">
       <label>Email</label>
-      <ion-input [(ngModel)]="form.email"></ion-input>
+
+      <ion-input
+        type="email"
+        [(ngModel)]="form.email"
+        (ionInput)="onEmailInput($event)"
+        [class.error]="emailError">
+      </ion-input>
+
+      <div class="error-text" *ngIf="emailError">
+        {{ emailError }}
+      </div>
     </div>
 
     <div class="form-group">
@@ -38,29 +59,31 @@
 
   </div>
 
+  <!-- ACTION BUTTONS -->
+<div class="form-buttons">
+
+  <!-- CREATE / UPDATE -->
+  <ion-button
+    expand="block"
+    class="save-btn"
+    (click)="save()"
+  >
+    {{ mode === 'add' ? 'Create Vendor' : 'Update Vendor' }}
+  </ion-button>
+
+  <!-- DELETE (ONLY EDIT) -->
+  <ion-button
+    *ngIf="mode === 'edit'"
+    expand="block"
+    fill="outline"
+    color="danger"
+    class="delete-btn"
+    (click)="deleteVendor()"
+  >
+    Delete Vendor
+  </ion-button>
+
+</div>
+
 </ion-content>
 
-<!-- Create Vendor -->
-<ion-footer class="vendor-footer" *ngIf="mode === 'add'">
-  <ion-button expand="block" (click)="save()">
-    Create Vendor
-  </ion-button>
-</ion-footer>
-
-<!-- Update Vendor -->
-<ion-footer class="vendor-footer" *ngIf="mode === 'edit'">
-  <ion-button expand="block" (click)="save()">
-    Update Vendor
-  </ion-button>
-</ion-footer>
-
-<!-- Delete Vendor -->
-<ion-button
-  *ngIf="mode === 'edit'"
-  expand="block"
-  fill="outline"
-  class="delete-btn"
-  (click)="deleteVendor()"
->
-  Delete Vendor
-</ion-button>

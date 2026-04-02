@@ -34,37 +34,30 @@
 
 <ion-content class="products-content ion-padding">
 <div class="product-tabs">
-  <button
+  <ion-chip
     class="tab"
     [class.active]="stockFilter === 'all'"
     (click)="setStockFilter('all')"
   >
     All
-  </button>
+  </ion-chip>
 
-  <button
+  <ion-chip
     class="tab"
     [class.active]="stockFilter === 'instock'"
     (click)="setStockFilter('instock')"
   >
     Instock
-  </button>
+  </ion-chip>
 
-  <button
+  <ion-chip
     class="tab"
     [class.active]="stockFilter === 'outofstock'"
     (click)="setStockFilter('outofstock')"
   >
     Out of stock
-  </button>
+  </ion-chip>
 
-  <button
-    class="tab"
-    [class.active]="stockFilter === 'onbackorder'"
-    (click)="setStockFilter('onbackorder')"
-  >
-    Back order
-  </button>
 </div>
   <!-- Sort -->
   <div class="sort-row">
@@ -86,8 +79,20 @@
 
       <div class="product-info">
         <h3 class="product-name">{{ product.name }}</h3>
-        <h6 class="price-text">Regular Price: {{ (product?.regular_price || product?.price || 0) | currency }}</h6>
-        <h6 class="price-text">Sale Price: {{ (product?.sale_price || 0) | currency }}</h6>
+
+  <h6 class="price-text">
+    <span class="price-label">Regular Price:</span>
+    <span class="price-value">
+      {{ (product?.regular_price || product?.price || 0) | currency }}
+    </span>
+  </h6>
+
+  <h6 class="price-text">
+    <span class="price-label">Sale Price:</span>
+    <span class="price-value">
+      {{ (product?.sale_price || 0) | currency }}
+    </span>
+  </h6>
 
         <!-- <span
           class="stock"
@@ -104,11 +109,11 @@
           Out of Stock
         </span>
 
-        <span class="stock backorder" *ngIf="product.stock_status === 'onbackorder'">
+        <!-- <span class="stock backorder" *ngIf="product.stock_status === 'onbackorder'">
           Back Order
-        </span>
+        </span> -->
 
-        <p>Total sales: {{ product.total_sales }}</p>
+        
       </div>
     </div>
 

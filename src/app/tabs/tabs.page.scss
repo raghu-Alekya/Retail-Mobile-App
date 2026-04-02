@@ -18,7 +18,7 @@ ion-label {
 ion-tab-bar {
   position: relative;
   height: 60px;
-  background: #083a57 !important;
+  background: #00395e !important;
   border: none;
   overflow: visible !important;
   isolation: isolate;  /* VERY IMPORTANT */
@@ -26,7 +26,7 @@ ion-tab-bar {
 
 /* Ionic internal layer */
 ion-tab-bar::part(container) {
-  background: #083a57 !important;
+  background: #00395e !important;
 }
 
 
@@ -66,24 +66,24 @@ ion-tab-button ion-icon {
 
 
 
-ion-tab-bar::before{
-  content:"";
-  position:absolute;
-  top:-1px;
-  left:50%;
-  transform:translateX(-50%);
+// ion-tab-bar::before{
+//   content:"";
+//   position:absolute;
+//   top:-1px;
+//   left:50%;
+//   transform:translateX(-50%);
 
-  width:80px;          /* width of dip */
-  height:40px;          /* depth of dip */
+//   width:80px;          /* width of dip */
+//   height:40px;          /* depth of dip */
 
-  background:#ffffff;   /* page background */
+//   background:#ffffff;   /* page background */
 
-  border-bottom-left-radius:60px;
-  border-bottom-right-radius:60px;
+//   border-bottom-left-radius:60px;
+//   border-bottom-right-radius:60px;
 
 
-  z-index:2;
-}
+//   z-index:2;
+// }
 
 
 /* ============================
@@ -134,7 +134,7 @@ ion-tab-bar {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background:#083a57;
+  background:#A0C6DF;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -164,16 +164,20 @@ ion-tab-bar {
   width: 60px;
   height: 60px;          /* same as width */
   border-radius: 50%;    /* perfect circle */
-  background:#00395e;
+  background:#1777db;
 
   display:flex;
   align-items:center;
   justify-content:center;
+  //border: 1.5px solid #00395e;   /* 🔥 your border */
 
-  color:#fff;
+  color:#ffffff;
   font-size:28px;
 
-  box-shadow: 0 4px 10px rgba(0,0,0,0.25); /* optional depth */
+  box-shadow: 
+    0 4px 10px rgba(0,0,0,0.25),   /* outer */
+    // inset 0 3px 6px rgba(0,0,0,0.15),
+    // inset 0 3px 6px rgba(0,0,0,0.15); /* inner top */
 }
 
 .main-fab ion-icon{
@@ -289,3 +293,9 @@ ion-tab-bar::part(container) {
 }
 
 
+ion-tab-button[tab="charts"] {
+  transform: translateX(-12px); /* adjust value as needed */
+}
+ion-tab-button[tab="payments"] {
+  transform: translateX(12px); /* move right */
+}

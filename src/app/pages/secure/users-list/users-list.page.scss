@@ -102,11 +102,11 @@ ion-header.dark-toolbar {
 }
 
 /* Bottom colored border */
-.card-color-0 { border-bottom: 4px solid #16a1b1; }
-.card-color-1 { border-bottom: 4px solid #264c73; }
-.card-color-2 { border-bottom: 4px solid #0ba54d; }
-.card-color-3 { border-bottom: 4px solid #e64848; }
-.card-color-4 { border-bottom: 4px solid #d5a52b; }
+.card-color-0 { border-bottom: 4px solid #d1c876; }
+.card-color-1 { border-bottom: 4px solid #de667c; }
+.card-color-2 { border-bottom: 4px solid #6ac2c3; }
+.card-color-3 { border-bottom: 4px solid #db8366; }
+.card-color-4 { border-bottom: 4px solid #66a8de; }
 
 /* ================= ROLE LABEL ================= */
 
@@ -120,11 +120,11 @@ ion-header.dark-toolbar {
 }
 
 /* Role text color matches border */
-.card-color-0 .role-label { color: #16a1b1; }
-.card-color-1 .role-label { color: #264c73; }
-.card-color-2 .role-label { color: #0ba54d; }
-.card-color-3 .role-label { color: #e64848; }
-.card-color-4 .role-label { color: #d5a52b; }
+.card-color-0 .role-label { color: #d1c876; }
+.card-color-1 .role-label { color: #de667c; }
+.card-color-2 .role-label { color: #6ac2c3; }
+.card-color-3 .role-label { color: #db8366; }
+.card-color-4 .role-label { color: #66a8de; }
 
 /* ================= CARD CONTENT ================= */
 
@@ -147,11 +147,11 @@ ion-header.dark-toolbar {
 }
 
 /* Avatar background colors */
-.avatar-0 { background: #16a1b1; }
-.avatar-1 { background: #264c73; }
-.avatar-2 { background: #0ba54d; }
-.avatar-3 { background: #e64848; }
-.avatar-4 { background: #d5a52b; }
+.avatar-0 { background: #d1c876; }
+.avatar-1 { background: #de667c; }
+.avatar-2 { background: #6ac2c3; }
+.avatar-3 { background: #db8366; }
+.avatar-4 { background: #66a8de; }
 
 .avatar ion-icon {
   font-size: 26px;
@@ -164,10 +164,15 @@ ion-header.dark-toolbar {
   font-weight: 700;
   color: #000000;
   margin-bottom: 6px;
+
+  max-width: 12ch;        /* limits to ~12 characters */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .details .login-id {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   color: #696969;
   
@@ -210,16 +215,7 @@ ion-item-sliding {
 
 /* ================= EDIT SCREEN ================= */
 
-.edit-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #f4f6f9;
-  z-index: 9999;
-  overflow-y: auto;
-}
+
 
 /* FORM CONTAINER */
 
@@ -234,28 +230,24 @@ ion-item-sliding {
   background: #e4e8ee;
   border-radius: 10px;
   padding: 8px 12px;   /* 👈 reduce from 12px → 8px */
-  margin-bottom: 12px; /* slightly tighter spacing */
+  width: 100%;
+  margin: 6px auto;
 }
 
 /* LABEL */
 
-.form-field label {
+ion-label[position="stacked"] {
   font-size: 16px;
   font-weight: 600;
   color: #374151;
-  display: block;
+
+  margin-top: 6px;
   margin-bottom: 6px;
-}
-.edit-overlay {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;   /* 👈 full screen */
+   padding-left: 10px;
 }
 
-.edit-content {
-  flex: 1;
-  overflow-y: auto;   /* 👈 scroll only form */
-}
+
+
 
 .form-buttons {
   padding: 12px 16px 20px;
@@ -281,22 +273,40 @@ ion-item-sliding {
 }
 
 .form-buttons ion-button[color="danger"] {
-  margin-top: 40px;
+  margin-top: 16px;
   --border-radius: 12px;
   border-radius: 12px;
   height: 50px;
 }
-.save-btn {
-  margin-top: 25px;
-  height: 48px;
+/* Common button style (ALL buttons same) */
 
-  --background: linear-gradient(135deg, #264c73, #264c73);
+.save-btn{
+  --background: #264c73;
+  --background-hover: #264c73;
+  --background-activated: #264c73;
   --border-radius: 14px;
 
-  font-weight: 600;
-  letter-spacing: 0.5px;
+ margin-top: 30px;
+ margin-bottom: 20px;
+ font-size:18px;
+ font-weight: 700px;
 
-  --box-shadow: 0 6px 14px rgba(74,108,247,0.3);
+  text-transform: none !important;
+  width:100%;
+  height: 50px;
+}
+
+/* Delete button override */
+.delete-btn {
+  --background: transparent;
+  --color: #e53935;
+  --border-radius: 14px;
+  font-size:18px;
+  font-weight: 700px;
+  width:100%;
+  height: 50px;
+  margin-bottom: 20px;
+  text-transform: none !important;
 }
 .edit-overlay {
   position: fixed;
@@ -314,12 +324,13 @@ ion-item-sliding {
   flex-direction: column;
   min-height: 100%;   /* 👈 important */
   padding: 4px 16px 12px;
+   overflow-y: auto;  
 }
-.details .login-id {
-  font-size: 17px;   /* decrease size */
-  color: #888;
-  margin-bottom: 7px;
-}
+// .details .login-id {
+//   font-size: 16px;   /* decrease size */
+//   color: #888;
+//   margin-bottom: 7px;
+// }
 
 .details .login-id .pin-number {
   color: #252525;

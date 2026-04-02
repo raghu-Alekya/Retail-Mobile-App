@@ -23,7 +23,9 @@
   <div class="field-block">
     <div class="label">Code</div>
 
-    <div *ngIf="!editField.code" class="value">
+    <div *ngIf="!editField.code"
+     class="value editable-text"
+     (click)="toggleEdit('code')">
       {{ coupon?.code }}
     </div>
 
@@ -32,11 +34,6 @@
       [(ngModel)]="coupon.code">
     </ion-input>
 
-    <ion-icon
-      name="pencil-outline"
-      class="edit-icon"
-      (click)="toggleEdit('code')">
-    </ion-icon>
   </div>
 
   <div class="divider"></div>
@@ -45,7 +42,9 @@
   <div class="field-block">
     <div class="label">Description</div>
 
-    <div *ngIf="!editField.description" class="value">
+    <div *ngIf="!editField.description"
+     class="value editable-text"
+     (click)="toggleEdit('description')">
       {{ coupon?.description || 'Add description' }}
     </div>
 
@@ -54,11 +53,6 @@
       [(ngModel)]="coupon.description">
     </ion-input>
 
-    <ion-icon
-      name="pencil-outline"
-      class="edit-icon"
-      (click)="toggleEdit('description')">
-    </ion-icon>
   </div>
 
 </div>
@@ -82,7 +76,9 @@
   <div class="field-block">
     <div class="label">Amount</div>
 
-    <div *ngIf="!editField.amount" class="value">
+    <div *ngIf="!editField.amount"
+     class="value editable-text"
+     (click)="toggleEdit('amount')">
       {{ coupon?.amount }}
     </div>
 
@@ -91,12 +87,6 @@
       *ngIf="editField.amount"
       [(ngModel)]="coupon.amount">
     </ion-input>
-
-    <ion-icon
-      name="pencil-outline"
-      class="edit-icon"
-      (click)="toggleEdit('amount')">
-    </ion-icon>
   </div>
 
   <div class="divider"></div>
@@ -146,7 +136,9 @@
   <div class="field-block">
     <div class="label">Usage limit</div>
 
-    <div *ngIf="!editField.usage_limit" class="value">
+    <div *ngIf="!editField.usage_limit"
+     class="value editable-text"
+     (click)="toggleEdit('usage_limit')">
       {{ coupon?.usage_limit }}
     </div>
 
@@ -155,12 +147,6 @@
       *ngIf="editField.usage_limit"
       [(ngModel)]="coupon.usage_limit">
     </ion-input>
-
-    <ion-icon
-      name="pencil-outline"
-      class="edit-icon"
-      (click)="toggleEdit('usage_limit')">
-    </ion-icon>
   </div>
 
   <div class="divider"></div>
@@ -169,7 +155,9 @@
   <div class="field-block">
     <div class="label">Usage limit per user</div>
 
-    <div *ngIf="!editField.usage_limit_per_user" class="value">
+    <div *ngIf="!editField.usage_limit_per_user"
+     class="value editable-text"
+     (click)="toggleEdit('usage_limit_per_user')">
       {{ coupon?.usage_limit_per_user }}
     </div>
 
@@ -179,11 +167,6 @@
       [(ngModel)]="coupon.usage_limit_per_user">
     </ion-input>
 
-    <ion-icon
-      name="pencil-outline"
-      class="edit-icon"
-      (click)="toggleEdit('usage_limit_per_user')">
-    </ion-icon>
   </div>
 
   <div class="divider"></div>
@@ -208,7 +191,9 @@
   <div class="field-block">
     <div class="label">Minimum amount</div>
 
-    <div *ngIf="!editField.minimum_amount" class="value">
+    <div *ngIf="!editField.minimum_amount"
+     class="value editable-text"
+     (click)="toggleEdit('minimum_amount')">
       {{ coupon?.minimum_amount || '0.00' }}
     </div>
 
@@ -217,12 +202,6 @@
       *ngIf="editField.minimum_amount"
       [(ngModel)]="coupon.minimum_amount">
     </ion-input>
-
-    <ion-icon
-      name="pencil-outline"
-      class="edit-icon"
-      (click)="toggleEdit('minimum_amount')">
-    </ion-icon>
   </div>
 
   <div class="divider"></div>
@@ -231,7 +210,9 @@
   <div class="field-block">
     <div class="label">Maximum amount</div>
 
-    <div *ngIf="!editField.maximum_amount" class="value">
+    <div *ngIf="!editField.maximum_amount"
+     class="value editable-text"
+     (click)="toggleEdit('maximum_amount')">
       {{ coupon?.maximum_amount || '0.00' }}
     </div>
 
@@ -240,12 +221,6 @@
       *ngIf="editField.maximum_amount"
       [(ngModel)]="coupon.maximum_amount">
     </ion-input>
-
-    <ion-icon
-      name="pencil-outline"
-      class="edit-icon"
-      (click)="toggleEdit('maximum_amount')">
-    </ion-icon>
   </div>
 
 </div>
@@ -264,10 +239,12 @@
 
     <!-- Edit icon -->
     <ion-icon
-      name="pencil-outline"
+      name="calendar-outline"
       class="edit-icon"
       (click)="openDatePicker()">
     </ion-icon>
+
+    
 
   </div>
 

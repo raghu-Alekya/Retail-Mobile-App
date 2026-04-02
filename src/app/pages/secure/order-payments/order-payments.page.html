@@ -28,7 +28,7 @@
   <div class="search-wrapper">
     <ion-icon name="search-outline" class="search-icon"></ion-icon>
     <input
-      placeholder="Search by order id"
+      placeholder="Search by order Id"
       (input)="onSearch($event)"
     />
 
@@ -60,7 +60,7 @@
     <!-- Top Row -->
     <div class="top-row">
       <div class="date">
-        {{ p?.created_at ? (p.created_at | date:'dd/MM/yyyy | hh:mm a') : '-' }}
+        {{ p?.created_at ? (p.created_at | date:'MMM d, yyyy | hh:mm a') : '-' }}
       </div>
 
       <div class="accepted-by" *ngIf="p?.accepted_by">

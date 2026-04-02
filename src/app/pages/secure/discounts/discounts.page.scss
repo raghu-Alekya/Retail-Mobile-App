@@ -37,7 +37,7 @@
     padding-left: 0;
     margin-left: -6px;
     font-size: 22px;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   ion-button ion-icon {
@@ -144,7 +144,7 @@ ion-chip {
 }
 
 ion-chip.active {
-  background: var(--ion-color-primary);
+  background: #264c73;
   color: white;
 }
 .actions {
@@ -154,11 +154,29 @@ ion-chip.active {
   flex-shrink: 0;
 }
 
+/* BASE CARD */
 .discount-card {
   margin: 12px;
   border-radius: 12px;
   background: #fff;
-   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+
+  border-bottom: 4px solid transparent; /* default */
+}
+
+/* AUTO (green) */
+.auto-card {
+  border-bottom: 4px solid #7979d0;
+}
+
+/* MULTIPACK (blue) */
+.multipack-card {
+  border-bottom: 4px solid #359a9c;
+}
+
+/* MIX MATCH (orange) */
+.mixmatch-card {
+  border-bottom: 4px solid #de9b43;
 }
 
 /* top section */
@@ -168,20 +186,42 @@ ion-chip.active {
   gap: 12px;
 }
 
+/* DEFAULT */
 .icon-box {
-  background: #e0e0e0;
-  border-radius: 10px;
-  padding: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  width: 55px;
+  height: 55px;
+
+  background: #587291;   /* 👈 background color */
+  border-radius: 8px;   /* 👈 rounded box */
+
+  margin-top: 6px;
+  
 }
 
-.icon-box ion-icon {
-  font-size: 22px;
-  color: #0a0909;
+.discount-icon {
+  width: 30px;   /* 🔥 increase */
+  height: 30px;
+  //object-fit: contain
 }
 
+/* AUTO (green) */
+.icon-box.auto {
+  background: #7979d0;
+}
+
+/* MULTIPACK (blue) */
+.icon-box.multipack {
+  background: #359a9c;
+}
+
+/* MIX MATCH (orange) */
+.icon-box.mixmatch {
+  background: #de9b43;
+}
 .details {
   flex: 1;
 }
@@ -194,7 +234,7 @@ ion-chip.active {
 
 .title {
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
   color: #333;
 }
 
@@ -231,26 +271,26 @@ ion-chip.active {
 
 /* MULTIPACK (blue) */
 .tag.multipack {
-  color: #1e88e5;
+  color: #359a9c;
 }
 .tag.multipack::before {
-  background: #1e88e5;
+  background: #359a9c;
 }
 
 /* MIX & MATCH (orange) */
 .tag.mixmatch {
-  color: #fb8c00;
+  color: #de9b43;
 }
 .tag.mixmatch::before {
-  background: #fb8c00;
+  background: #de9b43;
 }
 
 /* AUTO DISCOUNT (red) */
 .tag.auto {
-  color: #28a745;
+  color: #7979d0;
 }
 .tag.auto::before {
-  background: #28a745;
+  background: #7979d0;
 }
 
 /* divider */
@@ -269,7 +309,19 @@ hr {
 
 .dates {
   font-size: 15px;
-  color: #777;
+}
+
+/* Label (Start Date / End Date) */
+.dates .label {
+  color: #787878;
+  font-weight: 400;
+  margin-right: 4px;
+}
+
+/* Value (actual date) */
+.dates .value {
+  color: #2f2f2f;
+  font-weight: 400;
 }
 
 .status {
@@ -399,15 +451,34 @@ hr {
 /* SAVE BUTTON */
 /* ============================= */
 
-.save-btn {
-  margin-top: 25px;
-  --background: #3f5065;
-  --background-activated: #364658;
-  --background-hover: #364658;
-  --border-radius: 10px;
-  height: 48px;
+.bottom-row {
+  display: flex;
+  justify-content: space-between; /* 🔥 pushes left & right */
+  align-items: center;
+}
+
+.publish-badge {
+  background: #e8ffef;
+  color: #1ba629;
+  padding: 6px 6px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight:600;
+}
+
+
+.delete-btn{
+  //margin: 20px 16px;
+  --border-radius: 14px;
+
+  height: 50px;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  font-size:18px;
+
+  --background: white;
+  --color: #ef5350;        /* text color */
+  --border-color: #ef5350; /* border */
+  --border-width: 2px;
 }
 .discount-buttons {
   display: flex;
@@ -538,33 +609,55 @@ hr {
   --background: #264c73;
   --background-activated: #264c73;
   --background-hover: #264c73;
-  --border-radius: 10px;
-  height: 48px;
+  --border-radius: 14px;
+  font-size: 18px;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  height: 48px;
+  text-transform: none !important;
 }
 
 .filter-tabs {
   display: flex;
-  gap: 10px;
-  padding: 10px 12px;
-  overflow-x: auto;
+  gap: 8px;
+  padding: 8px;
+ 
 }
 
+/* Hide scrollbar (Chrome, Edge, Safari) */
+.filter-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar (Firefox) */
+.filter-tabs {
+  scrollbar-width: none;
+}
+
+/* Keep scrolling working */
+.filter-tabs {
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
 /* Default chip */
 .filter-tabs ion-chip {
-  background: #e0e0e0;
-  color: #333;
-  border-radius: 6px;   /* rectangular shape */
-  height: 28px;         /* smaller height */
-  font-size: 13px;
-  padding: 0 10px;
+  --background: #e4e4e4;
+  --color: #000000;
+  border-radius: 10px;   /* makes rectangular shape */
+  height: 40px;
+  font-size: 16px;
+  padding: 10px 14px;
+  
 }
 
-/* Active chip */
 .filter-tabs ion-chip.active {
-  background: #264c73;  /* dark blue like image */
-  color: #fff;
+  --background: #264c73;  /* dark active color */
+  --color: #fff;
+}
+
+/* Force border radius override (important for Ionic) */
+.filter-tabs ion-chip::part(native) {
+  border-radius: 6px;
 }
 
 /* Field container */
@@ -630,18 +723,4 @@ hr {
   font-size: 14px;
   color: #333;
 }
-.discount-icon {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-}
 
-.icon-box {
-  background: #f1f1f1;   /* optional (matches your UI) */
-  padding: 8px;
-  border-radius: 10px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
