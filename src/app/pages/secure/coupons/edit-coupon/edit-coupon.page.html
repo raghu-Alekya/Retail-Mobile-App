@@ -234,7 +234,11 @@
 
     <!-- Display -->
     <div class="value" (click)="openDatePicker()">
-      {{ coupon?.date_expires || 'Select date' }}
+      {{
+        coupon?.date_expires
+          ? (coupon.date_expires | date:'yyyy-MM-dd')
+          : 'Select date'
+      }}
     </div>
 
     <!-- Edit icon -->
