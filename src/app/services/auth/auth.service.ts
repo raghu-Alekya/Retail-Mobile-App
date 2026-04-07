@@ -16,8 +16,8 @@ export class AuthService {
     private apiConfig: ApiConfigService,
   ) {
     this.loadUserFromStorage();
-    this.wpBase = localStorage.getItem('wp_base_url');
-    this.base = localStorage.getItem('wp_base_url');
+    this.wpBase = localStorage.getItem('wp_base_url') || '';
+    this.base = localStorage.getItem('wp_base_url') || '';
   }
 
 
@@ -89,7 +89,7 @@ async login(email: string, password: string, siteUrl: string) {
     return this.currentUserSubject.value;
   }
 
-  getAuthHeaders() {
+  getAuthHeaders(): any {
   const token = localStorage.getItem('wc_token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
@@ -1208,13 +1208,15 @@ async deleteDiscount(id: number, type: string, data: any = {}) {
 }
 
 
-// Business Settings
 async saveBussinessInfo(payload: any) {
   const res = await Http.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/business-info`,
-    headers: this.getAuthHeaders(),
-    data: payload
+    headers: {
+      ...this.getAuthHeaders(),
+      'Content-Type': 'application/json'   // ✅ MUST
+    },
+    data: payload          // 🔥 IMPORTANT FIX
   });
 
   return res.data;
