@@ -2,10 +2,10 @@
   <ion-toolbar>
 
   <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
-    </ion-buttons>
+    <ion-back-button defaultHref="/home" text=""></ion-back-button>
+  </ion-buttons>
 
-  <ion-title>Vendors</ion-title>
+  <ion-title class="ion-text-start">Vendors</ion-title>
 
   <ion-buttons slot="end">
     <ion-icon
@@ -17,13 +17,13 @@
 
 </ion-toolbar>
 
-  <div class="header-search">
-    <ion-searchbar
-  search-icon="search-outline"
-  placeholder="Search by name"
-  (ionInput)="search($event)">
-</ion-searchbar>
-  </div>
+  <div class="header-search search-wrapper">
+  <ion-icon name="search-outline"></ion-icon>
+  <input
+    type="text"
+    placeholder="Search by name"
+    (input)="search($event)">
+</div>
 </ion-header>
 
 <ion-content>

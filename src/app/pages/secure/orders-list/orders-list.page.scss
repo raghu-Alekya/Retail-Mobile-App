@@ -470,3 +470,40 @@ ion-content {
   font-size: inherit;
   font-weight: inherit;
 }
+
+/////////////////////////////////////////////
+
+/* iOS ONLY - Orders Header Fix */
+:host-context(.ios) .orders-header ion-toolbar {
+  display: flex;
+  align-items: center;
+}
+
+/* Fix back button spacing */
+:host-context(.ios) .orders-header ion-buttons[slot="start"] {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Remove iOS default title centering */
+:host-context(.ios) .orders-header ion-title {
+  position: static !important;
+  transform: none !important;
+  text-align: left;
+  padding-left: 0;
+  margin-left: 2px;   /* 👈 same 2px spacing */
+  flex: 1;
+}
+
+/* Reduce back button padding */
+:host-context(.ios) .orders-header ion-back-button {
+  --padding-start: 0px;
+  margin-left: 2px;
+}
+
+/* Hide "Back" text */
+:host-context(.ios) ion-back-button::part(text) {
+  display: none;
+}

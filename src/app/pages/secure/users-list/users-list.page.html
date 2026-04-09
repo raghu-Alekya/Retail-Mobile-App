@@ -1,7 +1,7 @@
 <ion-header class="dark-toolbar" *ngIf="!editingUserId">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
 
     <ion-title>Employees</ion-title>
@@ -76,7 +76,10 @@
     <ion-toolbar>
       <ion-buttons slot="start">
         <ion-button (click)="cancelEdit()">
-          <ion-icon name="arrow-back-outline"></ion-icon>
+          <ion-icon 
+      ios="chevron-back" 
+      md="arrow-back-outline">
+    </ion-icon>
         </ion-button>
       </ion-buttons>
 

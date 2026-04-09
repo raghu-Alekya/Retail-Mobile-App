@@ -27,43 +27,46 @@
 
 .header-search {
   margin: 10px;
-  background: #264c73;   /* keep header background same */
+  background: #264c73;
 }
 
-/* 🔥 Make ion-searchbar look like your custom design */
-.header-search ion-searchbar {
-  --background: #ffffff;
-  --border-radius: 8px;
+/* 🔥 Your custom search wrapper */
+.header-search.search-wrapper {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 
-  --box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-
-  --color: #3b3b3b;
-  --placeholder-color: #3b3b3b;
-  --placeholder-opacity: 0.55;
-
-  padding: 0;
-}
-
-/* 🔥 Increase height & spacing */
-.header-search ion-searchbar .searchbar-input {
-  font-size: 18px;
-  font-weight: 400;
+  display: flex;
+  align-items: center;
   padding: 10px 12px;
 }
 
+/* 🔥 Input styling */
+.header-search.search-wrapper input {
+  font-size: 18px;
+  font-weight: 400;
+
+  border: none;
+  outline: none;
+  background: transparent;
+
+  color: #3b3b3b;
+  flex: 1;
+}
+
 /* 🔥 Icon styling */
-.header-search ion-searchbar .searchbar-search-icon {
+.header-search.search-wrapper ion-icon {
   color: #3b3b3b;
   font-size: 22px;
   opacity: 0.75;
 }
 
 /* Placeholder */
-.header-search input::placeholder {
+.header-search.search-wrapper input::placeholder {
   color: #3b3b3b;
-  opacity: 0.55;            /* lighter than text */
+  opacity: 0.55;
   font-weight: 400;
-  font-size: 17px; 
+  font-size: 17px;
 }
 
 
@@ -215,4 +218,37 @@
 .bottom-actions {
   display: flex;
   gap: 12px;
+}
+
+///////////////////////
+
+:host-context(.ios) .vendor-header ion-toolbar {
+  display: flex;
+  align-items: center;
+}
+
+/* Fix back button spacing */
+:host-context(.ios) .vendor-header ion-buttons[slot="start"] {
+  margin: 0;
+  padding: 0;
+}
+
+/* Remove default title centering behavior */
+:host-context(.ios) .vendor-header ion-title {
+  position: static !important;
+  transform: none !important;
+  text-align: left;
+  padding-left: 0;
+  margin-left: 2px;
+  flex: 1;
+}
+
+/* Reduce back button internal padding */
+:host-context(.ios) .vendor-header ion-back-button {
+  --padding-start: 0px;
+  margin-left: 2px;
+}
+
+:host-context(.ios) ion-back-button::part(text) {
+  display: none;
 }
