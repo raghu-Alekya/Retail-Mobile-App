@@ -75,13 +75,10 @@
   <ion-header class="dark-toolbar edit-header">
     <ion-toolbar>
       <ion-buttons slot="start">
-        <ion-button (click)="cancelEdit()">
-          <ion-icon 
-      ios="chevron-back" 
-      md="arrow-back-outline">
-    </ion-icon>
-        </ion-button>
-      </ion-buttons>
+  <ion-button (click)="cancelEdit()" fill="clear" class="back-btn">
+    <ion-icon ios="chevron-back" md="arrow-back-outline"></ion-icon>
+  </ion-button>
+</ion-buttons>
 
       <ion-title>Edit Employee</ion-title>
     </ion-toolbar>

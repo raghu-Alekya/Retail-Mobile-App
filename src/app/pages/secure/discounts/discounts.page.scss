@@ -541,7 +541,7 @@ hr {
 
 /* Move arrow closer */
 .discount-toolbar ion-button {
-  margin-left: -13px;   /* 👈 adjust here */
+  margin-left: -11px;   /* 👈 adjust here */
   margin-right: 10px; 
   padding-left: 0;
 }
@@ -759,4 +759,46 @@ hr {
 /* Hide "Back" text */
 :host-context(.ios) ion-back-button::part(text) {
   display: none;
+}
+
+/* ================= FINAL FIX (DO NOT MODIFY ABOVE CODE) ================= */
+
+/* ANDROID (FIX GAP BETWEEN BACK + TITLE) */
+:host-context(.md) .discount-toolbar ion-button {
+  margin-left: -11px !important;
+  margin-right: 10px !important;
+}
+
+:host-context(.md) .discount-toolbar ion-title {
+  margin-left: -6px !important;
+}
+
+/* iOS (REMOVE GAP COMPLETELY) */
+:host-context(.ios) .discount-toolbar ion-toolbar {
+  display: flex;
+  align-items: center;
+}
+
+:host-context(.ios) .discount-toolbar ion-buttons[slot="start"] {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-width: auto !important;
+  width: auto !important;
+}
+
+:host-context(.ios) .discount-toolbar ion-button {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+
+  --padding-start: 0 !important;
+  --padding-end: 0 !important;
+}
+
+:host-context(.ios) .discount-toolbar ion-title {
+  position: static !important;
+  transform: none !important;
+  text-align: left !important;
+
+  margin-left: 2px !important;
 }

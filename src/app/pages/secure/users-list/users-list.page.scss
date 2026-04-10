@@ -23,9 +23,12 @@
 }
 
 .edit-header ion-title {
-  font-size: 20px;   /* 👈 bigger */
-  font-weight: 600;
-  --min-height: 56px;
+  font-size: 20px;     /* 👈 same as Add */
+  font-weight: 500;    /* 👈 same as Add */
+}
+
+.edit-header ion-toolbar {
+  --min-height: 56px;  /* 👈 match height */
 }
 
 /* Make entire header area navy */
@@ -370,7 +373,7 @@ ion-label[position="stacked"] {
 /* Back icon spacing fix */
 :host-context(.ios) .dark-toolbar ion-button {
   margin: 0 !important;
-  padding: 0 4px !important;
+  padding: 0 !important;
 }
 
 /* Remove iOS center title */
@@ -385,4 +388,15 @@ ion-label[position="stacked"] {
 /* Remove "Back" text */
 :host-context(.ios) ion-back-button::part(text) {
   display: none;
+}
+
+:host-context(.ios) .edit-header ion-buttons[slot="start"] {
+  min-width: auto !important;
+  width: auto !important;
+}
+
+:host-context(.ios) .edit-header ion-button {
+  --padding-start: 0 !important;
+  --padding-end: 0 !important;
+  min-width: 0 !important;
 }

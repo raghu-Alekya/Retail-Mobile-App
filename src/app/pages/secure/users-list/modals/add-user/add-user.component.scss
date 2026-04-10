@@ -165,37 +165,51 @@ ion-select::part(icon) {
 
 /////////////////////////////////////////////
 
-/* iOS ONLY - Orders Header Fix */
+/* ================= iOS HEADER FINAL FIX ================= */
+
 :host-context(.ios) .dark-toolbar ion-toolbar {
+  --padding-start: 0 !important;
+  --padding-end: 0 !important;
   display: flex;
   align-items: center;
 }
 
-/* Fix back button spacing */
+/* Remove default spacing from buttons container */
+:host-context(.ios) .dark-toolbar ion-buttons {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 🔥 Remove hidden reserved width (MAIN FIX) */
 :host-context(.ios) .dark-toolbar ion-buttons[slot="start"] {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  align-items: center;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  min-width: auto !important;
+  width: auto !important;
 }
 
-/* Remove iOS default title centering */
+/* 🔥 Remove button internal spacing + width */
+:host-context(.ios) .dark-toolbar ion-button {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+
+  --padding-start: 0 !important;
+  --padding-end: 0 !important;
+}
+
+/* Title alignment (remove iOS center behavior) */
 :host-context(.ios) .dark-toolbar ion-title {
   position: static !important;
   transform: none !important;
-  text-align: left;
-  padding-left: 0;
-  margin-left: 2px;   /* 👈 same 2px spacing */
-  flex: 1;
+  text-align: left !important;
+
+  margin-left: 2px !important;   /* 👈 adjust 0–4px if needed */
+  padding-left: 0 !important;
 }
 
-/* Reduce back button padding */
-:host-context(.ios) .dark-toolbar ion-back-button {
-  --padding-start: 0px;
-  margin-left: 2px;
-}
-
-/* Hide "Back" text */
-:host-context(.ios) ion-back-button::part(text) {
-  display: none;
+/* Icon size + spacing */
+:host-context(.ios) .dark-toolbar ion-icon {
+  font-size: 22px;
+  margin-right: 2px;
 }
