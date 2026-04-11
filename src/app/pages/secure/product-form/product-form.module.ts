@@ -15,6 +15,6 @@ import { ProductFormPage } from './product-form.page';
     IonicModule,
     ProductFormPageRoutingModule
   ],
-  declarations: [ProductFormPage]
+  declarations: [ProductFormPage] // ✅ MUST be here
 })
 export class ProductFormPageModule {}

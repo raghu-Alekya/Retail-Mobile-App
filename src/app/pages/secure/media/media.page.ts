@@ -88,4 +88,16 @@ export class MediaPage implements OnInit {
       console.error('Delete failed', error);
     }
   }
+
+  refresh(event: any) {
+    this.page = 1;
+    this.mediaList = [];
+    this.hasMore = true;
+
+    this.loadMedia(event);
+  }
+
+  openCamera() {
+    console.log('Open camera clicked');
+  }
 }

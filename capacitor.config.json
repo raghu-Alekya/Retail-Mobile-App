@@ -1,5 +1,5 @@
 {
-	"appId": "com.pinaka.wcadmin",
+	"appId": "com.pinaka.adminwc",
 	"appName": "Pinaka WC",
 	"webDir": "www",
 	"bundledWebRuntime": false,

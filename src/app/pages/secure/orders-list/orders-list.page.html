@@ -29,7 +29,7 @@
     <ion-icon name="search-outline"></ion-icon>
     <input
       placeholder="Search by order Id"
-      (input)="onSearch($event.target.value)"
+      (input)="onSearch($event)"
     />
   </div>
 </ion-header>
@@ -104,9 +104,9 @@
         *ngFor="let item of order.line_items | slice:0:4"
       >
         <img
-          [src]="item.image?.src || 'assets/img/placeholder.png'"
+          [src]="($any(item).image?.src) || 'assets/img/placeholder.png'"
         />
-        <span class="qty">{{ item.quantity }}</span>
+        <span class="qty">{{ $any(item).quantity }}</span>
       </div>
     </div>
 
@@ -199,7 +199,7 @@
           <div class="expand-thumb-wrapper">
             <img
               class="expand-thumb"
-              [src]="item.image?.src || 'assets/img/placeholder.png'"
+              [src]="($any(item).image?.src) || 'assets/img/placeholder.png'"
             />
             <span class="expand-qty">{{ item.quantity }}</span>
           </div>

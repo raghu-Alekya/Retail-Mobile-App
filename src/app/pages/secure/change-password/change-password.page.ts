@@ -7,6 +7,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ChangePasswordPage implements OnInit {
 
+  // 👇 ADD THESE
+  showOld: boolean = false;
+  showNew: boolean = false;
+  showConfirm: boolean = false;
+
   constructor() { }
 
   ngOnInit() {

@@ -35,21 +35,6 @@ export class UsersListPage {
   private toastCtrl: ToastController
 ) {}
 
-//   async ionViewDidEnter() {
-
-//   this.loadUsers();
-
-//   const navigation = this.router.getCurrentNavigation();
-//   const state = navigation?.extras?.state as any;
-
-//   if (state?.autoOpenCreate) {
-//     console.log('Auto-opening Add User modal');
-//     this.openAddEmployee();
-//   }
-
-// }
-
-
 async ngOnInit() {
 
   const loading = await this.loadingCtrl.create({
@@ -119,23 +104,6 @@ editEmployee(user: any) {
 
 }
   
-  // openEditUser(user: any, slidingItem: any) {
-  //   slidingItem.close(); 
-  //   this.editingUserId = user.id;
-
-  //   this.editedUser = {
-  //     username: user.username || user.name || '',
-  //     email: user.email || '',
-  //     first_name: user.first_name || '',
-  //     last_name: user.last_name || '',
-
-  //     role: Array.isArray(user?.roles) ? user.roles[0] : '',
-  //     phone: user?.meta?.billing_phone || '',
-  //     emp_login_pin: user?.meta?.emp_login_pin || ''
-  //   };
-
-  //   this.originalUser = { ...this.editedUser };
-  // }
   checkChanges() {
     this.isChanged =
       JSON.stringify(this.originalUser) !==

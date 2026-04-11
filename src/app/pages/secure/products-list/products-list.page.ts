@@ -6,17 +6,16 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner/ngx';
 
 @Component({
-  standalone: true,
   selector: 'app-products-list',
   templateUrl: './products-list.page.html',
-  styleUrls: ['./products-list.page.scss'],
-  imports: [IonicModule, CommonModule, RouterModule],
+  styleUrls: ['./products-list.page.scss']
 })
 export class ProductsListPage implements OnInit {
 
   products: any[] = [];
   page = 1;
   search = '';
+  searchTerm: string = '';
   stock = ''; 
   loading = false;
   hasMore = true;
@@ -95,6 +94,10 @@ setStockFilter(value: string){
         event.target.disabled = true;
       }
     }
+  }
+
+  onSearchChange() {
+    this.onSearch(this.searchTerm);
   }
 
   // Add pull-to-refresh

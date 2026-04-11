@@ -12,8 +12,7 @@ import { ReportsPage } from './reports.page';
   imports: [
     CommonModule,
     FormsModule,
-    IonicModule,
-    ReportsPageRoutingModule
+    IonicModule
   ],
   declarations: [ReportsPage]
 })

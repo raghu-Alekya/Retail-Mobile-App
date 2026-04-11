@@ -1,24 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { AlertController, IonicModule } from '@ionic/angular';
+import { AlertController, IonicModule, IonInput, IonTextarea } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { BarcodeService } from 'src/app/services/barcode-service.service';
-import { ViewChild } from '@angular/core';
-import { IonInput, IonTextarea } from '@ionic/angular';
 
 @Component({
   selector: 'app-product-form',
   templateUrl: './product-form.page.html',
-  styleUrls: ['./product-form.page.scss'],
-  imports: [IonicModule, CommonModule, RouterModule],
+  styleUrls: ['./product-form.page.scss']
 })
 export class ProductFormPage implements OnInit {
 
   @ViewChild('titleInput') titleInput!: IonInput;
-@ViewChild('descInput') descInput!: IonTextarea;
-@ViewChild('regularPriceInput') regularPriceInput!: IonInput;
-@ViewChild('salePriceInput') salePriceInput!: IonInput;
+  @ViewChild('descInput') descInput!: IonTextarea;
+  @ViewChild('regularPriceInput') regularPriceInput!: IonInput;
+  @ViewChild('salePriceInput') salePriceInput!: IonInput;
 
   isEdit = false;
   productId!: number;

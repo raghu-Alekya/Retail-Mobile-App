@@ -15,6 +15,6 @@ import { ProductsListPage } from './products-list.page';
     IonicModule,
     ProductsListPageRoutingModule
   ],
-  declarations: [ProductsListPage]
+  declarations: [ProductsListPage] // ✅ correct
 })
 export class ProductsListPageModule {}

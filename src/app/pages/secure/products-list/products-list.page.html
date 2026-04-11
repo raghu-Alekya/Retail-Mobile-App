@@ -22,10 +22,11 @@
   <div class="search-wrapper">
   <ion-icon name="search-outline"></ion-icon>
 
-  <input
-    placeholder="Search by name"
-    (input)="onSearch($event.target.value)"
-  />
+  <ion-input
+    placeholder="Search products..."
+    [(ngModel)]="searchTerm"
+    (ionChange)="onSearchChange()"
+  ></ion-input>
 
   
 </div>

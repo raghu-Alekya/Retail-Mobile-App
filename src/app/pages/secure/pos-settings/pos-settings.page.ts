@@ -373,7 +373,7 @@ validatePhone() {
     }
   }
 
-  async removeTag(tag: string) {
+  async removeTag(tag: { id: number; name: string }) {
 
     const alert = await this.alertController.create({
       header: 'Delete Tag',
@@ -387,7 +387,7 @@ validatePhone() {
           text: 'Delete',
           role: 'destructive',
           handler: () => {
-            this.deleteTag(tag);
+            this.deleteTag(tag.id); // ✅ use id
           }
         }
       ]
@@ -395,7 +395,6 @@ validatePhone() {
 
     await alert.present();
   }
-
 
   async deleteTag(tag: any){
 

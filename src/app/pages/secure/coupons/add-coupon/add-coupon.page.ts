@@ -5,9 +5,6 @@ import { IonDatetime } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { pencil } from 'ionicons/icons';
 
-
-
-
 addIcons({ pencil });
 
 @Component({
@@ -116,5 +113,8 @@ onDateSelected(event: any) {
   }
 }
 
+markDirty() {
+  this.isDirty = true;
+}
 
 }

@@ -468,5 +468,9 @@ close() {
   this.showForm = false;
 }
 
+onAutoApplyChange(event: any) {
+  this.form.pinaka_discount_auto_apply =
+    event.detail.checked ? 'yes' : 'no';
+}
   ///////////////////////////////
 }

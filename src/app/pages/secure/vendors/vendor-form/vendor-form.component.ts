@@ -174,7 +174,7 @@ validateEmail() {
     await alert.present();
   }
 
-  private async deleteVendor() {
+    async deleteVendor() {
     if (!this.vendor?.id) return;
 
     try {

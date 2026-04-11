@@ -24,6 +24,8 @@ export class ProfilePage implements OnInit {
   isBlurActive = false;
   isPreviewMode = false;
 
+  isEditing = false;
+
   previewImage: string | ArrayBuffer | null = null;
   savedImage: string | ArrayBuffer | null = null;
 

@@ -13,8 +13,7 @@ import { OrderListPage } from './orders-list.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    OrdersListPageRoutingModule
-  ],
-  declarations: [OrderListPage]
+    OrdersListPageRoutingModule   // ✅ correct
+  ]
 })
 export class OrdersListPageModule {}

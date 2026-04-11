@@ -345,7 +345,7 @@
             <ion-checkbox
             slot="start"
             [checked]="form.pinaka_discount_auto_apply === 'yes'"
-            (ionChange)="form.pinaka_discount_auto_apply = $event.detail.checked ? 'yes' : 'no'">
+            (ionChange)="onAutoApplyChange($event)">
           </ion-checkbox>
             <ion-label>Auto apply</ion-label>
           </ion-item>

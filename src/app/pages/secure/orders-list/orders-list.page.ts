@@ -111,22 +111,25 @@ export class OrderListPage implements OnInit {
   /* ================================
      SEARCH (Debounced)
   ================================= */
-  onSearch(value: string) {
+  onSearch(event: any) {
+    const value = event?.target?.value || '';
+    // OR for ion-input:
+    // const value = event?.detail?.value || '';
 
-  const term = value?.trim() || '';
+    const term = value.trim();
 
-  clearTimeout(this.searchTimeout);
+    clearTimeout(this.searchTimeout);
 
-  this.searchTimeout = setTimeout(() => {
-    this.searchTerm = term;
-    this.page = 1;
-    this.orders = [];
-    this.hasMore = true;
-    this.loading = false;
+    this.searchTimeout = setTimeout(() => {
+      this.searchTerm = term;
+      this.page = 1;
+      this.orders = [];
+      this.hasMore = true;
+      this.loading = false;
 
-    this.loadOrders();
-  }, 400);
-}
+      this.loadOrders();
+    }, 400);
+  }
 
   /* ================================
      EXPAND ORDER
