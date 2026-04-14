@@ -158,7 +158,7 @@ validateEmail() {
 
     const alert = await this.alertCtrl.create({
       header: 'Delete Vendor',
-      message: `Delete <b>${this.form.title || 'this vendor'}</b>?`,
+      message: `Are you sure you want to delete "${this.form.title || 'this vendor'}"?`,
       buttons: [
         { text: 'Cancel', role: 'cancel' },
         {

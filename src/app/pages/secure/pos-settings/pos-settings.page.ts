@@ -387,7 +387,7 @@ validatePhone() {
           text: 'Delete',
           role: 'destructive',
           handler: () => {
-            this.deleteTag(tag.id); // ✅ use id
+            this.deleteTag(tag); // ✅ use id
           }
         }
       ]

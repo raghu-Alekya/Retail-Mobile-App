@@ -73,15 +73,15 @@
 
   <!-- DELETE (ONLY EDIT) -->
   <ion-button
-    *ngIf="mode === 'edit'"
-    expand="block"
-    fill="outline"
-    color="danger"
-    class="delete-btn"
-    (click)="deleteVendor()"
-  >
-    Delete Vendor
-  </ion-button>
+  *ngIf="mode === 'edit'"
+  expand="block"
+  fill="outline"
+  color="danger"
+  class="delete-btn"
+  (click)="confirmDelete()"
+>
+  Delete Vendor
+</ion-button>
 
 </div>
 

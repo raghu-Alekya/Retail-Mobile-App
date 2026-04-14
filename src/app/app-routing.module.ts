@@ -63,17 +63,21 @@ const routes: Routes = [
     canActivate: [PublicGuard]
   },
  
+
   {
     path: 'orders-list',
-    loadComponent: () =>
-      import('./pages/secure/orders-list/orders-list.page')
-        .then(m => m.OrderListPage)
+    loadChildren: () =>
+      import('./pages/secure/orders-list/orders-list.module')
+        .then(m => m.OrdersListPageModule),
+    canActivate: [AuthGuard]
   },
+  
+
   {
     path: 'products-list',
-    loadComponent: () =>
-      import('./pages/secure/products-list/products-list.page')
-        .then(m => m.ProductsListPage),
+    loadChildren: () =>
+      import('./pages/secure/products-list/products-list.module')
+        .then(m => m.ProductsListPageModule),
     canActivate: [AuthGuard]
   },
   {
@@ -120,13 +124,15 @@ const routes: Routes = [
         .then(m => m.PaymentsPageModule),
     canActivate: [AuthGuard]  
   },
+
   {
     path: 'reports',
-    loadComponent: () =>
-      import('./pages/secure/reports/reports.page')
-        .then(m => m.ReportsPage),
+    loadChildren: () =>
+      import('./pages/secure/reports/reports.module')
+        .then(m => m.ReportsPageModule),
     canActivate: [AuthGuard]
   },
+  
   { path: "order-payments",
     loadChildren: () => import("./pages/secure/order-payments/order-payments.module").then(m => m.OrderPaymentsPageModule),
     canActivate: [AuthGuard]

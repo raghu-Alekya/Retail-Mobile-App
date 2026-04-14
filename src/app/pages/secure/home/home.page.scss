@@ -139,11 +139,13 @@ ion-card-title {
   padding: 4px !important;
 }
 
-.grid-card {
-  background-color: transparent !important;
-}
+// .grid-card {
+//   background-color: transparent !important;
+// }
 
-/* Compact card */
+
+
+// /* Compact card */
 .grid-card {
   margin: 0 !important;
   border-radius: 10px;
@@ -153,15 +155,29 @@ ion-card-title {
   //border: 1px solid #e1e1e1; 
 }
 
-/* Reduce card content padding */
-.grid-card ion-card-content {
-  padding: 20px 6px !important;
-  background-color: #ffffff !important;
+// /* Reduce card content padding */
+// .grid-card ion-card-content {
+//   padding: 20px 6px !important;
+//   background-color: transparent !important;
+// }
+
+// ion-card {
+//   --background: transparent !important;
+//   background: transparent !important;
+// }
+
+.outer-card {
+  --background: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
+
+
 
 /* Smaller title spacing */
 .grid-card ion-card-title {
-  font-size: 12px;
+  font-size: 16px !important;   /* keep your size */
+  font-weight: 600 !important;  /* 🔥 this is what you need */
 }
 
 
@@ -275,7 +291,7 @@ ion-label.home-slides {
 }
 
 .grid-title {
-  font-size: 14px !important;
+  //font-size: 14px !important;
   font-weight: 600;
   color: #242323;
 }
