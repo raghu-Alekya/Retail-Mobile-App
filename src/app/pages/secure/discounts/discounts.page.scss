@@ -479,6 +479,7 @@ hr {
   --color: #ef5350;        /* text color */
   --border-color: #ef5350; /* border */
   --border-width: 2px;
+  text-transform: none !important;
 }
 .discount-buttons {
   display: flex;
