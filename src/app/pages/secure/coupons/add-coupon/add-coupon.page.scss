@@ -197,6 +197,9 @@ ion-item::part(native) {
 .editable-text {
   cursor: text;
 }
+.placeholder-text {
+  color: #9e9e9e; /* light grey like placeholder */
+}
 
 /////////////////////////////////////////////
 
@@ -233,4 +236,40 @@ ion-item::part(native) {
 /* Hide "Back" text */
 :host-context(.ios) ion-back-button::part(text) {
   display: none;
+}
+
+/* FIX: perfectly center icon inside circle */
+:host-context(.ios) .coupon-header ion-back-button::part(native) {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.15);
+
+  padding: 0 !important;   /* 🔥 important */
+}
+
+/* Increase clickable area */
+:host-context(.ios) .coupon-header ion-back-button {
+  --padding-start: 6px;
+  --padding-end: 6px;
+  margin-left: 14px;
+  margin-right: 8px;
+}
+
+/* remove internal offset */
+:host-context(.ios) .coupon-header ion-back-button::part(icon) {
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: translateX(0px); /* reset iOS shift */
+  font-size: 20px;
+}
+
+/* iOS ONLY - Add bottom padding to header */
+:host-context(.ios) .coupon-header ion-toolbar {
+  --padding-bottom: 10px;   /* 👈 adjust (10–16px based on your UI) */
 }

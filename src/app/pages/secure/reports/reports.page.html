@@ -10,17 +10,17 @@
     <!-- Dropdown on right -->
     <ion-buttons slot="end">
       <ion-select
-  interface="popover"
-  [(ngModel)]="activeTab"
-  (ionChange)="onTabChange($event)"
-  class="report-dropdown">
+        interface="popover"
+        [(ngModel)]="activeTab"
+        (ionChange)="onTabChange($event)"
+        class="report-dropdown">
 
-  <ion-select-option value="sales">Sales</ion-select-option>
-  <ion-select-option value="shift">Sales Per Employee</ion-select-option>
+        <ion-select-option value="sales">Sales</ion-select-option>
+        <ion-select-option value="shift">Emp Sales</ion-select-option>
 
-</ion-select>
+      </ion-select>
 
-<ion-icon name="chevron-down-outline" class="dropdown-arrow"></ion-icon>
+      <ion-icon name="chevron-down-outline" class="dropdown-arrow"></ion-icon>
     </ion-buttons>
 
   </ion-toolbar>

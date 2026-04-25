@@ -323,11 +323,9 @@ ion-label[position="stacked"] {
   flex-direction: column;
 }
 .edit-content {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;   /* 👈 important */
+  --background: #f5f7fa;
   padding: 4px 16px 12px;
-   overflow-y: auto;  
+  -webkit-overflow-scrolling: touch;
 }
 // .details .login-id {
 //   font-size: 16px;   /* decrease size */
@@ -365,11 +363,16 @@ ion-label[position="stacked"] {
 }
 
 /* Remove space before back button */
-:host-context(.ios) .dark-toolbar ion-buttons[slot="start"] {
-  margin: 0 !important;
-  padding: 0 !important;
-}
+// :host-context(.ios) .dark-toolbar ion-buttons[slot="start"] {
+//   margin: 0 !important;
+//   padding: 0 !important;
+// }
 
+/* FORCE spacing for edit back button */
+:host-context(.ios) .edit-header ion-buttons[slot="start"] {
+  margin-left: 12px !important;
+  margin-right: 10px !important;
+}
 /* Back icon spacing fix */
 :host-context(.ios) .dark-toolbar ion-button {
   margin: 0 !important;
@@ -399,4 +402,110 @@ ion-label[position="stacked"] {
   --padding-start: 0 !important;
   --padding-end: 0 !important;
   min-width: 0 !important;
+}
+
+/* iOS Back Button Touch Area Fix */
+:host-context(.ios) .dark-toolbar ion-back-button::part(native) {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.15);
+
+  padding: 0 !important;   /* 🔥 important */
+}
+
+/* Increase clickable area */
+:host-context(.ios) .dark-toolbar ion-back-button {
+  --padding-start: 6px;
+  --padding-end: 6px;
+  margin-left: 14px;
+  margin-right: 8px;
+}
+
+/* Optional: bigger icon */
+:host-context(.ios) .dark-toolbar ion-back-button::part(icon) {
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: translateX(0px); /* reset iOS shift */
+  font-size: 20px;
+}
+
+/* iOS ONLY - Add Button Circle */
+:host-context(.ios) .dark-toolbar ion-buttons[slot="end"] ion-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.15);
+
+  margin-right: 20px; /* spacing from right edge */
+}
+
+/* Remove extra padding */
+:host-context(.ios) .dark-toolbar ion-buttons[slot="end"] ion-button::part(native) {
+  padding: 0 !important;
+}
+
+/* Center icon perfectly */
+:host-context(.ios) .dark-toolbar ion-buttons[slot="end"] ion-icon {
+  font-size: 22px;
+}
+
+:host-context(.ios) .dark-toolbar .search-wrapper {
+  border-radius: 48px;
+  padding: 4px 14px;   /* 👈 top/bottom reduced */
+  margin-left: 12px;
+  margin-right: 12px;
+}
+
+/* container spacing */
+:host-context(.ios) .dark-toolbar ion-buttons[slot="end"] {
+  margin-right: 12px;
+}
+
+/* button styling */
+:host-context(.ios) .dark-toolbar ion-buttons[slot="end"] ion-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  padding: 0 !important;
+}
+ 
+/* iOS ONLY - Edit screen back button circle */
+:host-context(.ios) .edit-header ion-button.back-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255,255,255,0.15);
+
+}
+
+/* FIX: give space to container */
+:host-context(.ios) .edit-header ion-buttons[slot="start"] {
+  margin-left: 12px;
+}
+
+/* remove default padding */
+:host-context(.ios) .edit-header ion-button.back-btn::part(native) {
+  padding: 0 !important;
+}
+
+/* center icon */
+:host-context(.ios) .edit-header ion-button.back-btn ion-icon {
+  font-size: 20px;
 }

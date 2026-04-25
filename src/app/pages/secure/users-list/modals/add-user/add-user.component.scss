@@ -182,7 +182,7 @@ ion-select::part(icon) {
 
 /* 🔥 Remove hidden reserved width (MAIN FIX) */
 :host-context(.ios) .dark-toolbar ion-buttons[slot="start"] {
-  margin-left: 0 !important;
+  //margin-left: 0 !important;
   padding-left: 0 !important;
   min-width: auto !important;
   width: auto !important;
@@ -212,4 +212,27 @@ ion-select::part(icon) {
 :host-context(.ios) .dark-toolbar ion-icon {
   font-size: 22px;
   margin-right: 2px;
+}
+
+/* iOS ONLY - Add Employee back button spacing */
+:host-context(.ios) .dark-toolbar ion-buttons[slot="start"] {
+  margin-left: 12px !important;
+  margin-right: 10px !important;
+}
+
+/* iOS ONLY - Back button circle */
+:host-context(.ios) .dark-toolbar ion-buttons[slot="start"] ion-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255,255,255,0.15);
+}
+
+:host-context(.ios) .dark-toolbar ion-buttons[slot="start"] ion-icon {
+  font-size: 20px;
 }

@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar class="dark-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/products-list" text=""></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
 
     <ion-title>
@@ -24,7 +24,7 @@
   />
 
   <!-- Image / Placeholder -->
-  <div class="image-box" (click)="fileInput.click()">
+  <div class="image-box" (click)="pickProductImage(fileInput)">
     <ng-container *ngIf="imagePreview; else emptyState">
       <img [src]="imagePreview" />
     </ng-container>
@@ -170,30 +170,22 @@
 
     <!-- Value row -->
     <ion-item lines="none">
-      <ion-label>  
-          {{ selectedTaxClass?.name || 'Select tax class' }}
-        <p *ngIf="selectedTaxClass">
-          {{ selectedTaxClass.percentage }}%
-        </p>
-      </ion-label>
+  <ion-label>Tax Class</ion-label>
 
-      <!-- Invisible select for full-row click -->
-      <ion-select
-        interface="popover"
-        slot="end"
-        [(ngModel)]="selectedTaxClass"
-      >
-        <ion-select-option
-          *ngFor="let tax of taxClasses"
-          [value]="tax"
-        >
-          {{ tax.name }} ({{ tax.percentage }}%)
-        </ion-select-option>
-      </ion-select>
-
-
-      
-    </ion-item>
+  <ion-select
+    slot="end"
+    [(ngModel)]="selectedTaxClassSlug"
+    [selectedText]="getSelectedTaxLabel()"
+    interface="popover"
+  >
+    <ion-select-option
+      *ngFor="let tax of taxClasses"
+      [value]="tax.slug"
+    >
+      {{ tax.name }} ({{ tax.percentage }}%)
+    </ion-select-option>
+  </ion-select>
+</ion-item>
 
   </ion-card>
 
@@ -202,20 +194,21 @@
    <!-- Categories -->
   <ion-card class="settings-card">
   <ion-item lines="none">
-    <ion-label>
-      {{ getCategoryName(product.category_id) || 'Select category' }}
-    </ion-label>
+  <ion-label>Category</ion-label>
 
-    <ion-select
-      slot="end"
-      [(ngModel)]="product.category_id"
-      interface="popover"
+  <ion-select
+    slot="end"
+    [(ngModel)]="product.category_id"
+    interface="popover"
+  >
+    <ion-select-option
+      *ngFor="let cat of categories"
+      [value]="cat.id"
     >
-      <ion-select-option *ngFor="let cat of categories" [value]="cat.id">
-        {{ cat.name }}
-      </ion-select-option>
-    </ion-select>
-  </ion-item>
+      {{ cat.name }}
+    </ion-select-option>
+  </ion-select>
+</ion-item>
 </ion-card>
 
 
@@ -528,24 +521,25 @@
 </ion-card> -->
 
   <!-- SAVE / PUBLISH BUTTON -->
-<ion-button
-  expand="block"
-  class="save-btn"
-  (click)="publishProduct()"
->
-  {{ isEdit ? 'Save Changes' : 'Publish' }}
-</ion-button>
+  <ion-button
+    expand="block"
+    class="save-btn"
+    (click)="publishProduct()"
+    [disabled]="isSubmitting"
+  >
+    {{ isSubmitting ? 'Please wait...' : (isEdit ? 'Save Changes' : 'Publish') }}
+  </ion-button>
 
-<!-- DELETE BUTTON (EDIT ONLY) -->
-<ion-button
-  *ngIf="isEdit"
-  expand="block"
-  fill="outline"  
-  color="danger"
-  class="delete-btn"
-  (click)="confirmDelete()"
->
-  Delete Product
-</ion-button>
+  <!-- DELETE BUTTON (EDIT ONLY) -->
+  <ion-button
+    *ngIf="isEdit"
+    expand="block"
+    fill="outline"  
+    color="danger"
+    class="delete-btn"
+    (click)="confirmDelete()"
+  >
+    Delete Product
+  </ion-button>
 
 </ion-content>

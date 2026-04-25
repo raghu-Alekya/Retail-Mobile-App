@@ -340,3 +340,63 @@ ion-item-option{
 :host-context(.ios) ion-back-button::part(text) {
   display: none;
 }
+
+/* iOS ONLY - Back Button Circle */
+:host-context(.ios) .coupons-header ion-back-button::part(native) {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.15);
+
+  padding: 0 !important;
+}
+
+/* Fix back icon alignment */
+:host-context(.ios) .coupons-header ion-back-button::part(icon) {
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  font-size: 20px;
+}
+
+/* Spacing for back button */
+:host-context(.ios) .coupons-header ion-back-button {
+  --icon-margin-start: 0;
+  --icon-margin-end: 0;
+
+  margin-left: 0px;   /* reset default */
+  margin-right: 6px;
+}
+
+/* iOS ONLY - Add Button Circle */
+:host-context(.ios) .coupons-header ion-buttons[slot="end"] ion-button {
+  width: 40px;
+  height: 40px;
+
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+}
+
+/* Center + icon */
+:host-context(.ios) .coupons-header ion-buttons[slot="end"] ion-icon {
+  font-size: 22px;
+  margin: 0;
+}
+
+:host-context(.ios) .coupons-header .search-wrapper {
+  border-radius: 48px;
+  padding: 4px 14px;   /* 👈 top/bottom reduced */
+  margin-left: 12px;
+  margin-right: 12px;
+}

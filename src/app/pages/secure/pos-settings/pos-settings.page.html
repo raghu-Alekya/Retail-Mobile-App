@@ -200,8 +200,9 @@
                 slot="end"
                 size="small"
                 class="primary-btn"
+                [disabled]="isAddingCategory"
                 (click)="addCategory()">
-                Add
+                {{ isAddingCategory ? 'Adding...' : 'Add' }}
               </ion-button>
             </ion-item>
 
@@ -240,12 +241,13 @@
               </ion-input>
               
               <ion-button
-                slot="end"
-                size="small"
-                class="primary-btn"
-                (click)="addTag()">
-                Add
-              </ion-button>
+              slot="end"
+              size="small"
+              class="primary-btn"
+              [disabled]="isAddingTag"
+              (click)="addTag()">
+              {{ isAddingTag ? 'Adding...' : 'Add' }}
+            </ion-button>
             </ion-item>
 
             <ion-item *ngFor="let tag of tags">

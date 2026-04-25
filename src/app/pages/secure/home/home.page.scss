@@ -125,8 +125,8 @@ ion-card-title {
   font-size: 0.9rem;
 }
 .dashboard-icon {
-  font-size: 35px !important;
-  padding: 14px;
+  font-size: 32px !important;
+  padding: 12px;
   border-radius: 50%;
 }
 /* Remove default grid padding */
@@ -155,6 +155,10 @@ ion-card-title {
   //border: 1px solid #e1e1e1; 
 }
 
+.grid-card ion-card-content {
+  padding: 14px 8px !important;
+}
+
 // /* Reduce card content padding */
 // .grid-card ion-card-content {
 //   padding: 20px 6px !important;
@@ -176,8 +180,10 @@ ion-card-title {
 
 /* Smaller title spacing */
 .grid-card ion-card-title {
-  font-size: 16px !important;   /* keep your size */
-  font-weight: 600 !important;  /* 🔥 this is what you need */
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  line-height: 1.2;
+  margin-top: 8px;
 }
 
 
@@ -276,8 +282,8 @@ ion-toolbar {
 
 /* Add linear gradient background to the entire content */
 ion-content {
-  --background: linear-gradient(180deg, #CBDCF3 20%, #FFFFFF 80%) !important;
-  background: linear-gradient(180deg, #CBDCF3 20%, #FFFFFF 80%) !important;
+  --background: linear-gradient(180deg, #CBDCF3 20%, #f0f0f0 80%) !important;
+  background: linear-gradient(180deg, #CBDCF3 20%, #f0f0f0 80%) !important;
   --padding-top: 0px;
 }
 
@@ -291,7 +297,13 @@ ion-label.home-slides {
 }
 
 .grid-title {
-  //font-size: 14px !important;
+  font-size: 12px !important;
   font-weight: 600;
   color: #242323;
+  text-align: center;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
+  max-width: 100%;
 }

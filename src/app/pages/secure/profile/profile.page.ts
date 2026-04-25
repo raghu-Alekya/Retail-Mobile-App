@@ -38,38 +38,29 @@ export class ProfilePage implements OnInit {
 ) {}
 
 ngOnInit() {
-
   this.authService.currentUser$.subscribe(user => {
     this.user = user;
   });
-
+}
+ionViewWillEnter() {
   this.loadProfile();
-
 }
 
-loadProfile() {
-
-  const token = this.authService.getToken();
-
-  this.http.get<any>(
-    'https://merchantretail.alektasolutions.com/wp-json/pinaka-pos/v1/profile',
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }
-  ).subscribe(res => {
+async loadProfile() {
+  try {
+    const res = await this.authService.getProfile();
 
     console.log("PROFILE DATA:", res);
+
+    this.user = res;
 
     if (res.profile_image) {
       this.savedImage = res.profile_image;
     }
 
-  }, err => {
+  } catch (err) {
     console.error("Profile load error", err);
-  });
-
+  }
 }
   // 🔹 Open file manager
   openFilePicker() {
@@ -104,43 +95,26 @@ loadProfile() {
     reader.readAsDataURL(file);
   }
 
-  // 🔹 Save image
-  saveImage() {
-
-  const file = this.fileInput.nativeElement.files[0];
-  if (!file) return;
-
-  const token = this.authService.getToken();
-
-  const formData = new FormData();
-  formData.append('profile_image', file);
-
-  this.http.post(
-    'https://merchantretail.alektasolutions.com/wp-json/pinaka-pos/v1/profile',
-    formData,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
+  async saveImage() {
+    const file = this.fileInput.nativeElement.files[0];
+    if (!file) return;
+  
+    try {
+      const res = await this.authService.uploadProfileImage(file);
+  
+      console.log("UPLOAD RESPONSE:", res);
+  
+      if (res.status) {
+        this.isPreviewMode = false;
+        this.previewImage = null;
+  
+        await this.loadProfile();
       }
+  
+    } catch (err) {
+      console.error("Upload failed", err);
     }
-  ).subscribe((res: any) => {
-
-    console.log("UPLOAD RESPONSE:", res);
-
-    if (res.status) {
-
-      this.isPreviewMode = false;
-      this.previewImage = null;
-
-      this.loadProfile();
-
-    }
-
-  }, err => {
-    console.error("Upload failed", err);
-  });
-
-}
+  }
 
  
   goToEditProfile() {

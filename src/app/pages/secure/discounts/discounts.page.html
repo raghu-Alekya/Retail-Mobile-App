@@ -148,16 +148,19 @@
   (didDismiss)="showForm=false">
   <ng-template>
     <ion-header>
-      <ion-toolbar class="discount-toolbar">
-        <ion-title>
-          {{ editingCoupon ? 'Edit Discount' : 'Create Discount' }}
-        </ion-title>
-        <ion-buttons slot="start">
-  <ion-button (click)="close()">
-    <ion-icon ios="chevron-back" md="arrow-back-outline"></ion-icon>
-  </ion-button>
-</ion-buttons>
-      </ion-toolbar>
+      <ion-toolbar class="discount-toolbar" [ngClass]="{ 'edit-mode': editingCoupon }">
+
+  <ion-buttons slot="start">
+    <ion-button (click)="close()" class="custom-back-btn">
+  <ion-icon ios="chevron-back" md="arrow-back-outline"></ion-icon>
+</ion-button>
+  </ion-buttons>
+
+  <ion-title>
+    {{ editingCoupon ? 'Edit Discount' : 'Create Discount' }}
+  </ion-title>
+
+</ion-toolbar>
     </ion-header>
     <ion-content class="form-content">
       <div class="scroll-wrapper">

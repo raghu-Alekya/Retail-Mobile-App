@@ -20,11 +20,14 @@
   <ion-label position="stacked">Code</ion-label>
 
   <div *ngIf="editing !== 'code'" class="value-row">
-    <span (click)="startEdit('code')" class="editable-text">
-      {{ coupon.code || '----' }}
-    </span>
-    
-  </div>
+  <span
+    (click)="startEdit('code')"
+    class="editable-text"
+    [ngClass]="{ 'placeholder-text': !coupon.code }">
+
+    {{ coupon.code || 'Enter code' }}
+  </span>
+</div>
 
   <ion-input
     *ngIf="editing === 'code'"

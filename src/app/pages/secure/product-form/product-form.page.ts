@@ -4,6 +4,8 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AlertController, IonicModule, IonInput, IonTextarea } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { BarcodeService } from 'src/app/services/barcode-service.service';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-product-form',
@@ -20,7 +22,8 @@ export class ProductFormPage implements OnInit {
   isEdit = false;
   productId!: number;
   imagePreview: string | null = null;
-  selectedFile!: File;
+  selectedFile: File | null = null;
+  selectedNativeImagePath: string | null = null;
   categories: any[] = [];
   tags: any[] = [];
   attributes: any[] = [];
@@ -28,12 +31,14 @@ export class ProductFormPage implements OnInit {
   variationPrices: { [key: string]: number } = {};
   selectedAttributes: { [key: number]: string[] } = {};
   expandedAttributes: { [key: number]: boolean } = {};
+  selectedTaxClassSlug: string = '';
   private attributesLoaded = false;
   private isLoadingAttributes = false;
   // stock_quantity : any = null;
   stock_status: any = null;
   isScanning = false;
   pageReady = false;
+  isSubmitting = false;
   product: any = {
     name: '',
     description: '',
@@ -47,7 +52,7 @@ export class ProductFormPage implements OnInit {
     // featured: false,
     sold_individually: false,
     reviews_allowed: true,
-    selectedTaxClass:'',
+    //selectedTaxClass:'',
     // stock_quantity: null,
     manage_stock: false,
     category_id: null,
@@ -61,52 +66,45 @@ export class ProductFormPage implements OnInit {
     private barcodeService: BarcodeService
   ) {}
 
+  getSelectedTaxClass() {
+  return this.taxClasses.find(
+    t => t.slug === this.selectedTaxClassSlug
+  );
+}
+
   async ngOnInit() {
 
-    const id = this.route.snapshot.paramMap.get('id');
+  const id = this.route.snapshot.paramMap.get('id');
 
-    // detect edit mode immediately
-    if (id) {
-      this.isEdit = true;
-      this.productId = +id;
-    }
+  // detect edit mode
+  if (id) {
+    this.isEdit = true;
+    this.productId = +id;
+  }
 
-    // ✅ show UI immediately
+  // show UI
   this.pageReady = true;
 
-  this.loadInitialData();
-
+  try {
+    // ✅ STEP 1: Load base data first
     await Promise.all([
       this.loadCategories(),
       this.loadTags(),
       this.loadTaxClasses()
     ]);
-    // load product if editing
+
+    // ✅ STEP 2: Load product (after taxClasses)
     if (this.isEdit) {
       await this.loadProduct();
     }
 
+    // ✅ STEP 3: Load attributes if needed
     if (this.product.type === 'variable') {
       await this.loadAttributes();
     }
 
-    // ✅ allow UI to render
-    // this.pageReady = true;
-  }
-
-  async loadInitialData() {
-  await Promise.all([
-    this.loadCategories(),
-    this.loadTags(),
-    this.loadTaxClasses()
-  ]);
-
-  if (this.isEdit) {
-    await this.loadProduct();
-  }
-
-  if (this.product.type === 'variable') {
-    this.loadAttributes(); // no await ❗
+  } catch (error) {
+    console.error('Init failed:', error);
   }
 }
   // buildVariationKey(combo: any[]): string {
@@ -215,9 +213,7 @@ export class ProductFormPage implements OnInit {
       };
       this.stock_status = res.stock_status;
       console.log(this.stock_status);
-      this.selectedTaxClass = this.taxClasses.find(
-        tax => tax.slug === res.tax_class
-      ) || null;
+      this.selectedTaxClassSlug = (res.tax_class ?? '').trim();
       // Set image preview
       if (res.images && res.images.length > 0) {
         this.imagePreview = res.images[0].src;
@@ -270,6 +266,10 @@ export class ProductFormPage implements OnInit {
 
     } catch (e) {
       console.error('Failed to load product', e);
+    }
+    // ✅ fallback if nothing selected
+    if (!this.selectedTaxClassSlug && this.taxClasses.length > 0) {
+      this.selectedTaxClassSlug = this.taxClasses[0].slug;
     }
   }
   async loadExistingVariations() {
@@ -440,6 +440,8 @@ export class ProductFormPage implements OnInit {
     }
   }
   async publishProduct() {
+    if (this.isSubmitting) return; // 🚫 block multiple clicks
+    this.isSubmitting = true;  
     try {
       const payload: any = {
         name: this.product.name,
@@ -454,8 +456,8 @@ export class ProductFormPage implements OnInit {
         // featured: this.product.featured,
         sold_individually: this.product.sold_individually,
         reviews_allowed: this.product.reviews_allowed,
-        tax_status: this.selectedTaxClass ? 'taxable' : 'none',
-        tax_class: this.selectedTaxClass?.slug || '',
+        tax_status: this.selectedTaxClassSlug ? 'taxable' : 'none',
+tax_class: this.selectedTaxClassSlug || '',
         // stock_quantity: this.product.stock_quantity,
         // manage_stock: Number(this.product.stock_quantity) > 0 ? true : false
       };
@@ -480,15 +482,24 @@ export class ProductFormPage implements OnInit {
 
       // Add categories and tags
       if (this.product.category_id) {
-  payload.categories = [{ id: this.product.category_id }];
-}
+        payload.categories = [{ id: this.product.category_id }];
+      }
 
       if (this.product.tag_ids?.length) {
         payload.tags = this.product.tag_ids.map((id: number) => ({ id }));
       }
 
       // Upload image if new file selected
-      if (this.selectedFile) {
+      if (this.selectedNativeImagePath) {
+        try {
+          const media = await this.authService.uploadMediaFromPath(
+            this.selectedNativeImagePath
+          );
+          payload.images = [{ id: media.id }];
+        } catch (error) {
+          console.error('Failed to upload image', error);
+        }
+      } else if (this.selectedFile) {
         try {
           const media = await this.authService.uploadMedia(this.selectedFile);
           console.log(media);
@@ -580,7 +591,10 @@ export class ProductFormPage implements OnInit {
         error?.response?.data?.message || error?.message || 'Something went wrong',
         'danger'
       );
-    }
+    }finally {
+    // ✅ ALWAYS reset
+    this.isSubmitting = false;
+  }
   }
   getTermByName(attrId: number, termName: string) {
     if (!this.attributes?.length) return null;
@@ -864,11 +878,70 @@ export class ProductFormPage implements OnInit {
     if (!file) return;
 
     this.selectedFile = file;
+    this.selectedNativeImagePath = null;
 
     // Preview
     const reader = new FileReader();
     reader.onload = () => (this.imagePreview = reader.result as string);
     reader.readAsDataURL(file);
+  }
+
+  async pickProductImage(fileInput: HTMLInputElement) {
+    if (Capacitor.isNativePlatform()) {
+      await this.openNativeGallery();
+      return;
+    }
+
+    fileInput.click();
+  }
+
+  async openNativeGallery() {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Photos
+      });
+
+      this.selectedFile = null;
+
+      if (image.path) {
+        this.selectedNativeImagePath = image.path;
+      } else {
+        this.selectedNativeImagePath = null;
+      }
+
+      const previewUrl =
+        image.webPath ||
+        (image.path ? Capacitor.convertFileSrc(image.path) : null);
+
+      if (!previewUrl) {
+        this.imagePreview = null;
+        return;
+      }
+
+      try {
+        // Data URL preview is the most reliable format on iOS WebView.
+        this.imagePreview = await this.toDataUrl(previewUrl);
+      } catch {
+        // Fallback to direct URL if conversion fails.
+        this.imagePreview = previewUrl;
+      }
+    } catch (error) {
+      console.error('Image pick failed', error);
+    }
+  }
+
+  private async toDataUrl(url: string): Promise<string> {
+    const response = await fetch(url);
+    const blob = await response.blob();
+
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
   }
 
   async showAlert(
@@ -917,39 +990,63 @@ export class ProductFormPage implements OnInit {
 
     await alert.present();
   }
+
+  
   async loadTaxClasses() {
-    try {
-      const classesRes = await this.authService.getTaxClasses();
-      const ratesRes = await this.authService.getTaxRates();
+  try {
+    const classesRes = await this.authService.getTaxClasses();
+    const ratesRes = await this.authService.getTaxRates();
 
-      const classes = classesRes.data;
-      const rates = ratesRes.data;
+    const classes = classesRes?.data || [];
+    const rates = ratesRes?.data || [];
 
-      // Add Standard manually (WooCommerce does not return it)
-      const formattedClasses = [
-        // { slug: '', name: 'Standard rate' },
-        ...classes
-      ];
+    const taxClasses: any[] = [];
 
-      this.taxClasses = formattedClasses.map(cls => {
+    // ✅ 1. Add STANDARD from rates (class = '')
+    const standardRate = rates.find((r: any) => !r.class);
 
-        const matchingRate = rates.find(
-          (rate: any) => rate.class === cls.slug
-        );
-
-        return {
-          name: cls.name,
-          slug: cls.slug,
-          percentage: matchingRate ? Number(matchingRate.rate) : 0
-        };
+    if (standardRate) {
+      taxClasses.push({
+        name: 'Standard rate',
+        slug: '',
+        percentage: Number(standardRate.rate)
       });
-
-      console.log('Loaded Tax Classes:', this.taxClasses);
-
-    } catch (error) {
-      console.error('Failed to load tax classes', error);
     }
+
+    // ✅ 2. Add other classes
+    classes.forEach((cls: any) => {
+      const matchingRate = rates.find(
+        (r: any) => r.class === cls.slug
+      );
+
+      taxClasses.push({
+        name: cls.name,
+        slug: cls.slug,
+        percentage: matchingRate ? Number(matchingRate.rate) : 0
+      });
+    });
+
+    this.taxClasses = taxClasses;
+
+    console.log('Final Tax Classes:', this.taxClasses);
+
+  } catch (error) {
+    console.error('Failed to load tax classes', error);
+    this.taxClasses = [];
   }
+}
+
+getSelectedTaxLabel(): string {
+  if (!this.taxClasses?.length) return '';
+
+  const selected = this.taxClasses.find(
+    t => (t.slug || '') === (this.selectedTaxClassSlug || '')
+  );
+
+  return selected
+    ? `${selected.name} (${selected.percentage}%)`
+    : '';
+}
   async deleteProduct() {
     try {
       await this.authService.deleteProduct(this.productId);
@@ -999,6 +1096,7 @@ export class ProductFormPage implements OnInit {
   removeImage() {
     this.imagePreview = null;
     this.selectedFile = null;
+    this.selectedNativeImagePath = null;
   }
 
   enableTitleEdit() {

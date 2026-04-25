@@ -98,21 +98,26 @@ validateEmail() {
 }
   async save() {
 
-    if (!this.form.title) {
-      await this.presentToast('Vendor name is required', 'warning');
-      return;
-    }
+    const title = (this.form.title || '').trim();
+
+if (!title) {
+  await this.presentToast('Vendor name is required', 'warning');
+  return;
+}
+
+// ✅ update trimmed value back
+this.form.title = title;
 
     this.validatePhone();
-  this.validateEmail(); // 👈 ADD THIS
+    this.validateEmail(); // 👈 ADD THIS
 
-  if (this.phoneError || this.emailError) {
-    await this.presentToast(
-      this.phoneError || this.emailError,
-      'warning'
-    );
-    return;
-  }
+    if (this.phoneError || this.emailError) {
+      await this.presentToast(
+        this.phoneError || this.emailError,
+        'warning'
+      );
+      return;
+    }
 
     const payload = {
       title: this.form.title,

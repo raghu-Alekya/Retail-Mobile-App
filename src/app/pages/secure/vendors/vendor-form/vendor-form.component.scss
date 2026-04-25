@@ -2,7 +2,7 @@
 /* HEADER CONTAINER */
 .vendor-header {
   background: #264c73;
-  
+  padding-bottom: 10px;   /* ⬅ increase blue height */
 }
 
 /* TOOLBAR */
@@ -133,7 +133,7 @@ ion-button::part(native) {
 
 /* 🔥 shrink button */
 :host-context(.ios) .vendor-header ion-button {
-  margin: 0 !important;
+  //margin: 0 !important;
   padding: 0 !important;
   min-width: 0 !important;
 
@@ -155,4 +155,29 @@ ion-button::part(native) {
 :host-context(.ios) .vendor-header ion-icon {
   font-size: 22px;
   margin-right: 2px;
+}
+
+/* iOS ONLY - Custom back button circle */
+:host-context(.ios) .vendor-header ion-buttons[slot="start"] ion-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* center icon */
+:host-context(.ios) .vendor-header ion-buttons[slot="start"] ion-icon {
+  font-size: 20px;
+}
+
+:host-context(.ios) .vendor-header ion-buttons[slot="start"] {
+  margin-left: 12px;
+}
+:host-context(.ios) .vendor-header ion-buttons[slot="start"] ion-button {
+  margin-right: 8px;
 }

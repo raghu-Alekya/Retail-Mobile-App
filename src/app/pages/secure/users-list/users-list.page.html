@@ -85,58 +85,58 @@
   </ion-header>
 
   <!-- Scrollable Form -->
-  <div class="edit-content">
+  <ion-content class="edit-content">
 
     <div class="edit-popup">
 
     
     <!-- Username -->
      <ion-label position="stacked">User Name</ion-label>
-<div class="form-field">
-  <ion-input
-    placeholder="Enter username"
-    [(ngModel)]="editedUser.username"
-    (ionInput)="checkChanges()"
-    [disabled]="isUsernameLocked">
-  </ion-input>
-</div>
+      <div class="form-field">
+        <ion-input
+          placeholder="Enter username"
+          [(ngModel)]="editedUser.username"
+          (ionInput)="checkChanges()"
+          [disabled]="isUsernameLocked">
+        </ion-input>
+      </div>
 
-    <!-- Email -->
+      <!-- Email -->
      <ion-label position="stacked">Email</ion-label>
-    <div class="form-field">
-      <ion-input
-        placeholder="Enter email address"
-        [(ngModel)]="editedUser.email"
-        (ionInput)="checkChanges()"
-        (ionBlur)="emailTouched = true">
-      </ion-input>
-    </div>
+      <div class="form-field">
+        <ion-input
+          placeholder="Enter email address"
+          [(ngModel)]="editedUser.email"
+          (ionInput)="checkChanges()"
+          (ionBlur)="emailTouched = true">
+        </ion-input>
+      </div>
 
-    <p class="error-text"
-      *ngIf="emailTouched && editedUser.email && !isValidEmail(editedUser.email)">
-      Please enter a valid email format
-    </p>
+      <p class="error-text"
+        *ngIf="emailTouched && editedUser.email && !isValidEmail(editedUser.email)">
+        Please enter a valid email format
+      </p>
 
     <!-- First Name -->
      <ion-label position="stacked">First Name</ion-label>
-    <div class="form-field">
+      <div class="form-field">
 
-      <ion-input
-        placeholder="Enter first name"
-        [(ngModel)]="editedUser.first_name"
-        (ionInput)="checkChanges()">
-      </ion-input>
-    </div>
+        <ion-input
+          placeholder="Enter first name"
+          [(ngModel)]="editedUser.first_name"
+          (ionInput)="checkChanges()">
+        </ion-input>
+      </div>
 
     <!-- Last Name -->
      <ion-label position="stacked">Last Name</ion-label>
-    <div class="form-field">
-      <ion-input
-        placeholder="Enter last name"
-        [(ngModel)]="editedUser.last_name"
-        (ionInput)="checkChanges()">
-      </ion-input>
-    </div>
+      <div class="form-field">
+        <ion-input
+          placeholder="Enter last name"
+          [(ngModel)]="editedUser.last_name"
+          (ionInput)="checkChanges()">
+        </ion-input>
+      </div>
 
     <!-- Role -->
      <ion-label position="stacked">Employee Role</ion-label>
@@ -158,67 +158,67 @@
 
     <!-- Phone -->
      <ion-label position="stacked">Phone</ion-label>
-    <div class="form-field"
-     [class.invalid]="phoneTouched && editedUser.phone && !isValidPhone(editedUser.phone)">
-      <ion-input
-        placeholder="Enter phone number"
-        [(ngModel)]="editedUser.phone"
-        (ionInput)="limitPhoneLength($event); checkChanges()"
-        (ionBlur)="phoneTouched = true">
-      </ion-input>
-    </div>
+      <div class="form-field"
+      [class.invalid]="phoneTouched && editedUser.phone && !isValidPhone(editedUser.phone)">
+        <ion-input
+          placeholder="Enter phone number"
+          [(ngModel)]="editedUser.phone"
+          (ionInput)="limitPhoneLength($event); checkChanges()"
+          (ionBlur)="phoneTouched = true">
+        </ion-input>
+      </div>
 
-    <p class="error-text"
-      *ngIf="phoneTouched && editedUser.phone && !isValidPhone(editedUser.phone)">
-      Please enter a valid 10-digit phone number
-    </p>
+      <p class="error-text"
+        *ngIf="phoneTouched && editedUser.phone && !isValidPhone(editedUser.phone)">
+        Please enter a valid 10-digit phone number
+      </p>
 
     <!-- Login PIN -->
      <ion-label position="stacked">Login PIN</ion-label>
-    <div class="form-field"
-     [class.invalid]="pinTouched && editedUser.emp_login_pin && !isValidPin(editedUser.emp_login_pin)">
-      <ion-input
-        placeholder="Enter 6-digit PIN"
-        [(ngModel)]="editedUser.emp_login_pin"
-        (ionInput)="limitPinLength($event); checkChanges()"
-        (ionBlur)="pinTouched = true">
-      </ion-input>
-    </div>
+      <div class="form-field"
+      [class.invalid]="pinTouched && editedUser.emp_login_pin && !isValidPin(editedUser.emp_login_pin)">
+        <ion-input
+          placeholder="Enter 6-digit PIN"
+          [(ngModel)]="editedUser.emp_login_pin"
+          (ionInput)="limitPinLength($event); checkChanges()"
+          (ionBlur)="pinTouched = true">
+        </ion-input>
+      </div>
 
-    <p class="error-text"
-      *ngIf="pinTouched && editedUser.emp_login_pin && !isValidPin(editedUser.emp_login_pin)">
-      PIN must be exactly 6 digits
-    </p>
+      <p class="error-text"
+        *ngIf="pinTouched && editedUser.emp_login_pin && !isValidPin(editedUser.emp_login_pin)">
+        PIN must be exactly 6 digits
+      </p>
 
-    <p class="error-text" *ngIf="pinError">
-      {{ pinError }}
-    </p>
+      <p class="error-text" *ngIf="pinError">
+        {{ pinError }}
+      </p>
 
 
-<!-- Save Button -->
-<ion-button
-  expand="block"
-  class="save-btn"
-  [disabled]="
-    !editedUser.email ||
-    !editedUser.role ||
-    !isValidEmail(editedUser.email) ||
-    (editedUser.phone && !isValidPhone(editedUser.phone)) ||
-    (editedUser.emp_login_pin && !isValidPin(editedUser.emp_login_pin))
-  "
-  (click)="saveChanges()">
-  Save Changes
-</ion-button>
+    <!-- Save Button -->
+    <ion-button
+      expand="block"
+      class="save-btn"
+      [disabled]="
+        !editedUser.email ||
+        !editedUser.role ||
+        !isValidEmail(editedUser.email) ||
+        (editedUser.phone && !isValidPhone(editedUser.phone)) ||
+        (editedUser.emp_login_pin && !isValidPin(editedUser.emp_login_pin))
+      "
+      (click)="saveChanges()">
+      Save Changes
+    </ion-button>
 
-<!-- Delete Button -->
-<ion-button
-  expand="block"
-  color="danger"
-  fill="outline"
-  class="delete-btn"
-  (click)="deleteUser(editingUserId)">
-  Delete Employee
-</ion-button>
+    <!-- Delete Button -->
+    <ion-button
+      expand="block"
+      color="danger"
+      fill="outline"
+      class="delete-btn"
+      (click)="deleteUser(editingUserId)">
+      Delete Employee
+    </ion-button>
       <!-- <ion-button
         expand="block"
         fill="clear"
@@ -230,5 +230,5 @@
 
   </div>
 
-</div>
+</ion-content >
 </div>

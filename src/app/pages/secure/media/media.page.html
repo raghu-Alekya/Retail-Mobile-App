@@ -1,4 +1,3 @@
-<ion-content class="media-content" fullscreen="true">
 <ion-header class="media-header">
   <ion-toolbar>
     <ion-buttons slot="start">
@@ -9,7 +8,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="media-content">
 
   <!-- Pull to refresh -->
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
@@ -27,10 +26,10 @@
     </div>
 
     <!-- Custom Item -->
-    <div class="media-item custom-item">
+    <!-- <div class="media-item custom-item" (click)="openCamera()">
       <ion-icon name="image-outline"></ion-icon>
-      <span>Custom Item</span>
-    </div>
+      <span>Add Media</span>
+    </div> -->
   </div>
 
   <!-- Infinite Scroll -->
@@ -48,26 +47,38 @@
 
 <!-- Floating Upload Button -->
 <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+
+  <!-- Main FAB -->
+   <input
+    type="file"
+    accept="image/*"
+    hidden  
+    #fileInput
+    (change)="onFileSelect($event)"
+  />
   <ion-fab-button class="upload-fab">
-    <ion-icon name="image"></ion-icon>
+    <ion-icon name="add"></ion-icon>
   </ion-fab-button>
 
+  <!-- FAB Options -->
   <ion-fab-list side="top">
+
+    <!-- Camera -->
     <ion-fab-button class="fab-action" (click)="openCamera()">
       <ion-icon name="camera-outline"></ion-icon>
     </ion-fab-button>
 
-    <ion-fab-button class="fab-action">
+    <!-- Gallery -->
+    <!-- <ion-fab-button class="fab-action" (click)="openGallery()">
       <ion-icon name="images-outline"></ion-icon>
+    </ion-fab-button> -->
 
-      <input
-        type="file"
-        accept="image/*"
-        class="fab-file-input"
-        (change)="onFileSelect($event)"
-      />
+    <ion-fab-button class="fab-action" (click)="pickImage(fileInput)">
+      <ion-icon name="images-outline"></ion-icon>
     </ion-fab-button>
+
   </ion-fab-list>
+
 </ion-fab>
 
 <!-- Modal -->
@@ -83,7 +94,7 @@
         <img class="popup-image"
           [src]="selectedMedia?.source_url" />
 
-        <h2>{{ selectedMedia?.title?.rendered || 'Custom Item' }}</h2>
+        <h2>{{ selectedMedia?.title?.rendered || 'Media Item' }}</h2>
 
         <div class="file-delete-row">
           <div class="file-name">

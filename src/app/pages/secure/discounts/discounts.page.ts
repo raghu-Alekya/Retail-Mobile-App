@@ -90,7 +90,7 @@ markChanged() {
   this.form.type = value;   // ✅ only update form
 }
   onProductSearch(event: any) {
-    const value = event.target.value?.trim();
+    const value = event?.detail?.value?.trim();
     clearTimeout(this.searchTimeout);
     if (!value) {
       this.showSuggestions = false;
@@ -220,7 +220,9 @@ markChanged() {
       this.productSuggestions = [];
 
       if (coupon.product_label) {
-        this.restoreProduct(coupon.product_label);
+        this.productSearch = coupon.product_label;   // ✅ FIX
+  this.selectedProductName = coupon.product_label;
+
       } else {
         this.productSearch = '';
         this.selectedProductName = '';

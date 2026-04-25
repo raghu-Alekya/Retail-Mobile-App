@@ -73,7 +73,10 @@ ion-toolbar {
 :host-context(.ios) ion-toolbar {
   --padding-start: 0 !important;
   --padding-end: 0 !important;
+  --padding-bottom: 10px; 
 }
+
+
 /* Top Section */
 .profile-top {
   text-align: center;
@@ -256,13 +259,25 @@ ion-avatar {
 
 .save-btn-small {
   margin-top: 12px;
-  --background: #324763;   // same as header
-  --background-hover: #324763;
+  --background: #264c73;   // same as header
+  --background-hover: #264c73;
   --border-radius: 8px;
   font-weight: 500;
   width: 120px;
   display: block;
   margin: 12px auto 0 auto;
+}
+
+.save-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+:host-context(.ios) .save-btn-small {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  display: block;
 }
 // .avatar-wrapper {
 //   position: relative;
@@ -356,4 +371,36 @@ ion-avatar img {
   z-index: 20;
   color: white;
   font-size: 28px;
+}
+
+/* iOS ONLY - Profile Back Button Circle */
+:host-context(.ios) ion-header ion-back-button::part(native) {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.15);
+
+  padding: 0 !important;
+}
+
+/* Fix icon alignment */
+:host-context(.ios) ion-header ion-back-button::part(icon) {
+  position: static !important;
+  transform: none !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  font-size: 20px;
+}
+
+/* Remove iOS default offset */
+:host-context(.ios) ion-header ion-back-button {
+  --icon-margin-start: 0;
+  --icon-margin-end: 0;
+  margin-left: 14px;   /* 👈 adjust (4–10px) */
+  margin-right: 8px;  /* 👈 keeps balance */
 }

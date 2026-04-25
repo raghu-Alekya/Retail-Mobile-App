@@ -24,7 +24,7 @@ showDatePicker = false;
   code: '',
   description: '',
   amount: null,
-  type: 'fixed_cart',
+  type: null,
   individualUse: false,
   usageLimit: null,
   usageLimitPerUser: null,
@@ -84,7 +84,9 @@ onDateSelected(event: any) {
     code: this.coupon.code,
     description: this.coupon.description,
     amount: this.coupon.amount,
-    type: 'fixed_cart',
+
+    // ✅ FIX HERE
+    type: this.coupon.type,
 
     individual_use: this.coupon.individualUse,
     usage_limit: this.coupon.usageLimit,
@@ -101,10 +103,10 @@ onDateSelected(event: any) {
 
   try {
     const response = await this.auth.createCoupon(payload);
-    console.log("API RESPONSE:", response);
 
     if (response.success) {
       alert('Coupon Created Successfully');
+      this.resetForm();
       this.router.navigateByUrl('/secure/coupons');
     }
 
@@ -112,9 +114,28 @@ onDateSelected(event: any) {
     console.error("API ERROR:", error);
   }
 }
+resetForm() {
+  this.coupon = {
+    code: '',
+    description: '',
+    amount: null,
+    type: null,
+    individualUse: false,
+    usageLimit: null,
+    usageLimitPerUser: null,
+    excludeSale: false,
+    minAmount: null,
+    maxAmount: null,
+    expireDate: ''
+  };
 
+  this.editing = null;
+  this.isDirty = false;
+}
 markDirty() {
   this.isDirty = true;
 }
-
+ionViewWillEnter() {
+  this.resetForm();
+}
 }

@@ -372,13 +372,13 @@ private fileToBase64(file: File): Promise<string> {
 async uploadMedia(file: File) {
 
   const formData = new FormData();
-  formData.append('file', file, file.name);
+  // Ensure a filename is always sent (iOS/WKWebView can be picky)
+  formData.append('file', file, file?.name || 'upload.jpg');
 
   const res = await fetch(`${this.wpBase}/wp-json/wp/v2/media`, {
     method: 'POST',
     headers: {
-      ...this.getAuthHeaders()
-     
+      Authorization: this.getAuthHeaders().Authorization
     },
     body: formData
   });
@@ -390,6 +390,41 @@ async uploadMedia(file: File) {
   }
 
   return await res.json();
+}
+
+async uploadMediaFromPath(
+  filePath: string,
+  _fileName: string = 'upload.jpg'
+) {
+  const res = await Http.uploadFile({
+    url: `${this.wpBase}/wp-json/wp/v2/media`,
+    name: 'file',
+    filePath,
+    headers: {
+      Authorization: this.getAuthHeaders().Authorization
+    }
+  });
+
+  const status = (res as any)?.status ?? 0;
+  const data = (res as any)?.data;
+
+  const parsed =
+    typeof data === 'string'
+      ? (() => {
+          try {
+            return JSON.parse(data);
+          } catch {
+            return data;
+          }
+        })()
+      : data;
+
+  if (status >= 400 || status === 0) {
+    console.error('Upload error:', parsed);
+    throw new Error('Upload failed');
+  }
+
+  return parsed;
 }
 async updateStoreCurrency(currency: string) {
   const res = await Http.request({
@@ -1492,22 +1527,73 @@ async loadShiftSales( date: string ){
   
 }
 
-async updateProfile(formData: FormData) {
+// async updateProfile(formData: FormData) {
 
-  const token = localStorage.getItem('wc_token');
+//   const token = localStorage.getItem('wc_token');
 
-  const res = await fetch(`${this.wpBase}/wp-json/pinaka-pos/v1/profile`, {
-    method: 'POST',
+//   const res = await fetch(`${this.wpBase}/wp-json/pinaka-pos/v1/profile`, {
+//     method: 'POST',
+//     headers: {
+//       Authorization: `Bearer ${token}`
+//       // ⚠️ DO NOT add Content-Type
+//     },
+//     body: formData
+//   });
+
+//   const data = await res.json();
+
+//   return data;
+// }
+
+async getProfile() {
+  const token = this.getToken();
+  const baseUrl = this.apiConfig.getBaseUrl();
+
+  const res = await Http.request({
+    method: 'GET',
+    url: `${baseUrl}/wp-json/pinaka-pos/v1/profile`,
     headers: {
       Authorization: `Bearer ${token}`
-      // ⚠️ DO NOT add Content-Type
-    },
-    body: formData
+    }
   });
 
-  const data = await res.json();
+  return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+}
 
-  return data;
+async updateProfile(data: any) {
+  const token = this.getToken();
+  const baseUrl = this.apiConfig.getBaseUrl();
+
+  const res = await Http.request({
+    method: 'POST',
+    url: `${baseUrl}/wp-json/pinaka-pos/v1/profile`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    data
+  });
+
+  return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+}
+
+async uploadProfileImage(file: File) {
+  const token = this.getToken();
+  const baseUrl = this.apiConfig.getBaseUrl();
+
+  const formData = new FormData();
+  formData.append('profile_image', file);
+
+  const res = await Http.request({
+    method: 'POST',
+    url: `${baseUrl}/wp-json/pinaka-pos/v1/profile`,
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    data: formData
+  });
+
+  return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
 }
 
 }

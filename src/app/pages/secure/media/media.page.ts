@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-media',
@@ -97,7 +99,76 @@ export class MediaPage implements OnInit {
     this.loadMedia(event);
   }
 
-  openCamera() {
-    console.log('Open camera clicked');
+  async openCamera(type: 'camera' | 'gallery' = 'camera') {
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        resultType: CameraResultType.Uri,
+        source: type === 'camera' ? CameraSource.Camera : CameraSource.Photos
+      });
+
+      // Prefer native file-path upload on device (more reliable on iOS)
+      if (Capacitor.isNativePlatform() && image.path) {
+        const ext = image.format || 'jpg';
+        await this.mediaService.uploadMediaFromPath(image.path, `upload.${ext}`);
+        this.page = 1;
+        this.mediaList = [];
+        this.hasMore = true;
+        await this.loadMedia();
+        return;
+      }
+
+      if (!image.webPath) return;
+
+      // Convert to Blob
+      const response = await fetch(image.webPath);
+      const blob = await response.blob();
+
+      const file = new File([blob], 'upload.jpg', { type: blob.type || 'image/jpeg' });
+
+      await this.uploadFile(file);
+
+    } catch (err) {
+      console.error('Camera error', err);
+    }
   }
+
+  async uploadFile(file: File) {
+    try {
+      await this.mediaService.uploadMedia(file);
+
+      // Reload media
+      this.page = 1;
+      this.mediaList = [];
+      this.hasMore = true;
+      await this.loadMedia();
+
+    } catch (error) {
+      console.error('Upload failed', error);
+    }
+  }
+
+  async openGallery() {
+    await this.openCamera('gallery');
+  }
+
+  pickImage(fileInput: any) {
+  const platform = Capacitor.getPlatform();
+
+  console.log('Platform:', platform);
+
+  // ✅ iOS (including simulator) → use file picker fallback
+  if (platform === 'ios') {
+    fileInput.click();
+    return;
+  }
+
+  // ✅ Android real device
+  if (Capacitor.isNativePlatform()) {
+    this.openGallery();
+  } else {
+    // ✅ Web
+    fileInput.click();
+  }
+}
 }

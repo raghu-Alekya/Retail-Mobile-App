@@ -17,6 +17,8 @@ export class PosSettingsPage implements OnInit {
   isLoadingSettings = false;
   emailError: string = '';
   phoneError: string = '';
+  isAddingCategory = false;
+isAddingTag = false;
 
   settings: any = {
     address: {
@@ -243,7 +245,11 @@ validatePhone() {
 
   async addCategory() {
 
+  if (this.isAddingCategory) return; // 🚫 block multiple clicks
+
   if (!this.newCategory.trim()) return;
+
+  this.isAddingCategory = true; // 🔒 lock
 
   const payload = {
     name: this.newCategory.trim()
@@ -252,8 +258,6 @@ validatePhone() {
   try {
 
     const response = await this.authService.saveCategory(payload);
-
-    console.log("CATEGORY RESPONSE:", response);
 
     this.categories.push({
       id: response.id,
@@ -267,6 +271,8 @@ validatePhone() {
   } catch (err) {
     console.error(err);
     await this.presentToast('Failed to create category', 'danger');
+  } finally {
+    this.isAddingCategory = false; // 🔓 unlock
   }
 }
 
@@ -345,33 +351,36 @@ validatePhone() {
 
   async addTag() {
 
-    if (!this.newTag.trim()) return;
+  if (this.isAddingTag) return; // 🚫 block multiple clicks
 
-    const payload = {
-      name: this.newTag.trim()
-    };
+  if (!this.newTag.trim()) return;
 
-    try {
+  this.isAddingTag = true; // 🔒 lock
 
-      const res = await this.authService.createTag(payload);
+  const payload = {
+    name: this.newTag.trim()
+  };
 
-      this.tags.push({
-        id: res.id,
-        name: res.name
-      });
+  try {
 
-      this.newTag = '';
+    const res = await this.authService.createTag(payload);
 
-      await this.presentToast('Tag created successfully','success');
+    this.tags.push({
+      id: res.id,
+      name: res.name
+    });
 
-    } catch (err) {
+    this.newTag = '';
 
-      console.error(err);
+    await this.presentToast('Tag created successfully','success');
 
-      await this.presentToast('Failed to create tag','danger');
-
-    }
+  } catch (err) {
+    console.error(err);
+    await this.presentToast('Failed to create tag','danger');
+  } finally {
+    this.isAddingTag = false; // 🔓 unlock
   }
+}
 
   async removeTag(tag: { id: number; name: string }) {
 

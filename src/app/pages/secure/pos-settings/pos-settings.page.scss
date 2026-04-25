@@ -320,3 +320,34 @@ ion-input.error {
 :host-context(.ios) ion-back-button::part(text) {
   display: none;
 }
+
+/* FIX: perfectly center icon inside circle */
+:host-context(.ios) .dark-toolbar ion-back-button::part(native) {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.15);
+
+  padding: 0 !important;   /* 🔥 important */
+}
+
+/* Increase clickable area */
+:host-context(.ios) .dark-toolbar ion-back-button {
+  --padding-start: 6px;
+  --padding-end: 6px;
+  margin-left: 14px;
+  margin-right: 8px;
+}
+
+/* remove internal offset */
+:host-context(.ios) .dark-toolbar ion-back-button::part(icon) {
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: translateX(0px); /* reset iOS shift */
+  font-size: 20px;
+}

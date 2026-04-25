@@ -251,8 +251,8 @@ ion-footer {
   padding-right: 20px;   /* adjust 10–16px if needed */
 }
 .report-dropdown {
-  padding-right: 18px;   /* space for arrow */
-  --padding-end: 20px;
+  padding-right: 8px;   /* space for arrow */
+  // --padding-end: 20px;
   font-size: 18px
   
 }
@@ -323,4 +323,40 @@ ion-footer {
 /* Hide "Back" text */
 :host-context(.ios) ion-back-button::part(text) {
   display: none;
+}
+
+:host-context(.ios) .report-dropdown {
+  max-width: 140px;   /* 🔥 control width */
+  //font-size: 18px;    /* reduce size */
+}
+
+/* FIX: perfectly center icon inside circle */
+:host-context(.ios) .products-header ion-back-button::part(native) {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.15);
+
+  padding: 0 !important;   /* 🔥 important */
+}
+
+/* Increase clickable area */
+:host-context(.ios) .products-header ion-back-button {
+  --padding-start: 6px;
+  --padding-end: 6px;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+/* remove internal offset */
+:host-context(.ios) .products-header ion-back-button::part(icon) {
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: translateX(0px); /* reset iOS shift */
+  font-size: 20px;
 }

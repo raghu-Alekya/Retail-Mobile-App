@@ -45,58 +45,35 @@ export class EditPage implements OnInit {
   }
 
   async loadProfile() {
-
-  const token = this.authService.getToken();
-
-  const res = await Http.request({
-    method: 'GET',
-    url: `${this.wpUrl}/wp-json/pinaka-pos/v1/profile`,
-    headers: {
-      Authorization: `Bearer ${token}`
+    const res = await this.authService.getProfile();
+  
+    this.editForm.patchValue({
+      first_name: res.first_name,
+      last_name: res.lastname,
+      username: res.username,
+      email: res.email,
+      gender: res.gender,
+      phone: res.phone
+    });
+  
+    if (res.email) {
+      this.editForm.get('email')?.disable();
     }
-  });
+  }
 
-  console.log(res.data);
-
-  this.editForm.patchValue({
-    first_name: res.data.first_name,
-    last_name: res.data.lastname,
-    username: res.data.username,
-    email: res.data.email,
-    gender: res.data.gender,
-    phone: res.data.phone
-  });
-
-  // ✅ Disable email if already exists
-if (res.data.email) {
-  this.editForm.get('email')?.disable();
-}
-
-}
-
- async saveProfile() {
-
-  const token = this.authService.getToken();
-
-  const res = await Http.request({
-    method: 'POST',
-    url: `${this.wpUrl}/wp-json/pinaka-pos/v1/profile`,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    },
-    data: this.editForm.value
-  });
-
-  const toast = await this.toastCtrl.create({
-    message: res.data.message,
-    duration: 1500,
-    color: 'success'
-  });
-
-  await toast.present();
-
-  // 🔥 Navigate back after save
-  this.navCtrl.navigateRoot('/tabs/profile');
-}
+  async saveProfile() {
+    const formData = this.editForm.getRawValue();
+  
+    const res = await this.authService.updateProfile(formData);
+  
+    const toast = await this.toastCtrl.create({
+      message: res.message,
+      duration: 1500,
+      color: 'success'
+    });
+  
+    await toast.present();
+  
+    this.navCtrl.navigateRoot('/tabs/profile');
+  }
 }
