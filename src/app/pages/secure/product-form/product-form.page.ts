@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AlertController, IonicModule, IonInput, IonTextarea } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
@@ -63,7 +63,8 @@ export class ProductFormPage implements OnInit {
     private authService: AuthService,
     private alertCtrl: AlertController,
     private router: Router, 
-    private barcodeService: BarcodeService
+    private barcodeService: BarcodeService,
+    private ngZone: NgZone
   ) {}
 
   getSelectedTaxClass() {
@@ -1085,11 +1086,28 @@ getSelectedTaxLabel(): string {
   }
   
   async scanSku() {
+    if (this.isScanning) return;
+
     this.isScanning = true;
-    const code = await this.barcodeService.scan();
-    this.isScanning = false;
-    if (code) {
-      this.product.sku = code;
+    try {
+      const scanResult = await this.barcodeService.scan();
+      const code = (scanResult || '').trim();
+
+      if (!code) return;
+
+      // Barcode plugin callbacks can run outside Angular zone.
+      this.ngZone.run(() => {
+        this.product.sku = code;
+      });
+    } catch (error) {
+      console.error('SKU scan failed:', error);
+      await this.showAlert(
+        'Scan Failed',
+        'Unable to scan SKU. Please try again.',
+        'danger'
+      );
+    } finally {
+      this.isScanning = false;
     }
   }
 

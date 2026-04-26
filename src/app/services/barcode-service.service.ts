@@ -1,24 +1,31 @@
 import { Injectable } from '@angular/core';
-import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner/ngx';
+import { Capacitor } from '@capacitor/core';
+import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 
 @Injectable({ providedIn: 'root' })
 export class BarcodeService {
-
-  constructor(private barcodeScanner: BarcodeScanner) {}
-
   async scan(): Promise<string | null> {
-    const data = await this.barcodeScanner.scan({
-      preferFrontCamera: false,
-      showFlipCameraButton: true,
-      showTorchButton: true,
-      prompt: 'Scan product barcode',
-      formats: 'EAN_13,EAN_8,UPC_A,UPC_E,CODE_128,QR_CODE',
-    });
-
-    if (!data.cancelled) {
-      return data.text;
+    if (!Capacitor.isNativePlatform()) {
+      return null;
     }
 
-    return null;
+    await BarcodeScanner.prepare();
+
+    const status = await BarcodeScanner.checkPermission({ force: true });
+    if (!status.granted) {
+      return null;
+    }
+
+    BarcodeScanner.hideBackground();
+    document.body.classList.add('scanner-active');
+
+    try {
+      const result = await BarcodeScanner.startScan();
+      return (result?.content || '').trim() || null;
+    } finally {
+      await BarcodeScanner.stopScan();
+      BarcodeScanner.showBackground();
+      document.body.classList.remove('scanner-active');
+    }
   }
 }
