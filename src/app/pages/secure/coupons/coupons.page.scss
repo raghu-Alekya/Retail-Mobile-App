@@ -304,6 +304,27 @@ ion-item-option{
   margin-left: -4px;   /* 👈 extra fine tuning */
 }
 
+///////page loading state///////
+
+.loader-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  color: #666;
+}
+
+.loader-wrapper ion-spinner {
+  width: 40px;
+  height: 40px;
+}
+
+.loader-wrapper p {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
 /////////////////////////////////////////////
 
 /* iOS ONLY - Orders Header Fix */

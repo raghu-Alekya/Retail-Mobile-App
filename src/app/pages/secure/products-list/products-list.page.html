@@ -34,7 +34,12 @@
 
 
 <ion-content class="products-content ion-padding">
-<div class="product-tabs">
+
+    <!-- LOADING -->
+<div *ngIf="loading && products.length === 0" class="loader-wrapper">
+  <ion-spinner name="crescent"></ion-spinner>
+</div>
+<div class="product-tabs" *ngIf="!(loading && products.length === 0)">
   <ion-chip
     class="tab"
     [class.active]="stockFilter === 'all'"
@@ -61,7 +66,7 @@
 
 </div>
   <!-- Sort -->
-  <div class="sort-row">
+  <div class="sort-row" *ngIf="!(loading && products.length === 0)">
     <ion-icon name="swap-vertical-outline"></ion-icon>
     <span>Sort by:</span>
     <strong>Newest first</strong>

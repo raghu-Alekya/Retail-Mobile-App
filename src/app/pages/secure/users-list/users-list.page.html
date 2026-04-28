@@ -26,7 +26,10 @@
 </ion-header>
 <ion-content class="employees-content">
 
-
+  <!-- LOADING -->
+<div *ngIf="loading && filteredUsers.length === 0" class="loader-wrapper">
+  <ion-spinner name="crescent"></ion-spinner>
+</div>
 
   <ion-list>
 
