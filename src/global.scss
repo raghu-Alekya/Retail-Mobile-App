@@ -141,3 +141,11 @@ ion-toolbar {
   --background: var(--ion-toolbar-background);
   --color: var(--ion-toolbar-color);
 }
+
+body.scanner-active {
+  background: transparent !important;
+}
+
+body.scanner-active ion-app {
+  opacity: 0;
+}

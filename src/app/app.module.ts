@@ -13,7 +13,6 @@ import { ReactiveFormsModule } from '@angular/forms';
 // NgCharts
 import { NgChartsModule } from 'ng2-charts';
 import { SwiperModule } from 'swiper/angular';
-import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -26,7 +25,7 @@ import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner/ngx';
     NgChartsModule,
     SwiperModule
   ],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy, }, BarcodeScanner],
+  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy, }],
   bootstrap: [AppComponent],
 })
 export class AppModule { }

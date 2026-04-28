@@ -101,14 +101,21 @@ export class MediaPage implements OnInit {
 
   async openCamera(type: 'camera' | 'gallery' = 'camera') {
     try {
+      if (Capacitor.getPlatform() === 'android') {
+        await Camera.requestPermissions({ permissions: ['photos', 'camera'] });
+      }
+
       const image = await Camera.getPhoto({
         quality: 90,
         resultType: CameraResultType.Uri,
         source: type === 'camera' ? CameraSource.Camera : CameraSource.Photos
       });
 
-      // Prefer native file-path upload on device (more reliable on iOS)
-      if (Capacitor.isNativePlatform() && image.path) {
+      const platform = Capacitor.getPlatform();
+
+      // Keep iOS native-path upload (already working).
+      // Android can return path/URI values that native upload can't always resolve.
+      if (platform === 'ios' && image.path) {
         const ext = image.format || 'jpg';
         await this.mediaService.uploadMediaFromPath(image.path, `upload.${ext}`);
         this.page = 1;
