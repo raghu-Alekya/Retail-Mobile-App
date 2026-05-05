@@ -62,7 +62,15 @@
       </div>
 
       <div class="amount">
-        Amount: {{ coupon.amount }} (fixed cart)
+        Amount: ${{ coupon.amount }} (
+        {{
+          coupon.discount_type === 'fixed_cart'
+            ? 'Cart Discount'
+            : coupon.discount_type === 'fixed_product'
+            ? 'Product Discount'
+            : coupon.discount_type
+        }}
+        )
       </div>
 
       <div class="divider-row">
@@ -78,7 +86,7 @@
         <div class="action-group">
           <div class="usage">
             {{ coupon.usage_count || 0 }}/
-            {{ coupon.usage_limit ? coupon.usage_limit : '100' }}
+            {{ coupon.usage_limit === 0 ? '∞' : coupon.usage_limit }}
           </div>
           <div class="status">Publish</div>
         </div>

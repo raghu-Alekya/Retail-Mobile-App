@@ -230,9 +230,9 @@ async deleteUser(id: number) {
       }
 
       this.filteredUsers = this.users.filter(user =>
-        user?.name?.toLowerCase().includes(value) ||
-        user?.email?.toLowerCase().includes(value) ||
-        user?.id?.toString().includes(value)
+        user?.first_name?.toLowerCase().startsWith(value) ||
+        user?.email?.toLowerCase().startsWith(value) ||
+        user?.id?.toString().startsWith(value)
       );
     }, 300);
   }

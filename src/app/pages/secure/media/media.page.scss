@@ -41,6 +41,7 @@ ion-content.media-content {
   --padding-end: 0;
   --padding-top: 0;
   --padding-bottom: 0;
+  --background: #f6f6f6 !important;
 }
 
 /* FORCE grid layout */
@@ -299,6 +300,7 @@ ion-fab-button.fab-action ion-icon {
   height: 36px;
   display: flex;
   align-items: center;
+  text-transform: none !important;
 }
 
 .delete-btn::part(native) {

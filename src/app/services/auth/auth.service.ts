@@ -1584,16 +1584,79 @@ async uploadProfileImage(file: File) {
   const formData = new FormData();
   formData.append('profile_image', file);
 
+  const res = await fetch(
+    `${baseUrl}/wp-json/pinaka-pos/v1/profile/upload-image`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      body: formData
+    }
+  );
+
+  return await res.json();
+}
+
+async getProfileImage() {
+  const token = this.getToken();
+  const baseUrl = this.apiConfig.getBaseUrl();
+
   const res = await Http.request({
-    method: 'POST',
-    url: `${baseUrl}/wp-json/pinaka-pos/v1/profile`,
+    method: 'GET',
+    url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/get-image`,
     headers: {
       Authorization: `Bearer ${token}`
-    },
-    data: formData
+    }
   });
 
-  return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
+}
+
+async deleteProfileImage() {
+  const token = this.getToken();
+  const baseUrl = this.apiConfig.getBaseUrl();
+
+  const res = await Http.request({
+    method: 'DELETE',
+    url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/delete-image`,
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
+}
+
+async validateToken(token: string): Promise<{ valid: boolean }> {
+
+  this.wpBase = this.apiConfig.getBaseUrl();
+
+  try {
+    const res = await Http.request({
+      method: 'GET',
+      url: `${this.wpBase}/wp-json/pinaka-pos/v1/profile`, // ✅ existing safe endpoint
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json'
+      }
+    });
+
+    // If API success → token valid
+    if (res?.status === 200) {
+      return { valid: true };
+    }
+
+    return { valid: false };
+
+  } catch (error) {
+    console.error('Token validation failed:', error);
+    return { valid: false };
+  }
 }
 
 }

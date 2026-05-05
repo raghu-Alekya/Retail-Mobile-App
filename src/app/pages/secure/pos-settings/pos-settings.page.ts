@@ -245,18 +245,27 @@ validatePhone() {
 
   async addCategory() {
 
-  if (this.isAddingCategory) return; // 🚫 block multiple clicks
+  if (this.isAddingCategory) return;
 
-  if (!this.newCategory.trim()) return;
+  const name = this.newCategory.trim();
 
-  this.isAddingCategory = true; // 🔒 lock
+  if (!name) return;
 
-  const payload = {
-    name: this.newCategory.trim()
-  };
+  // ✅ DUPLICATE CHECK
+  const alreadyExists = this.categories.some(
+    cat => cat.name.toLowerCase() === name.toLowerCase()
+  );
+
+  if (alreadyExists) {
+    await this.presentToast('Category already exists', 'warning');
+    return;
+  }
+
+  this.isAddingCategory = true;
+
+  const payload = { name };
 
   try {
-
     const response = await this.authService.saveCategory(payload);
 
     this.categories.push({
@@ -272,7 +281,7 @@ validatePhone() {
     console.error(err);
     await this.presentToast('Failed to create category', 'danger');
   } finally {
-    this.isAddingCategory = false; // 🔓 unlock
+    this.isAddingCategory = false;
   }
 }
 
@@ -351,18 +360,27 @@ validatePhone() {
 
   async addTag() {
 
-  if (this.isAddingTag) return; // 🚫 block multiple clicks
+  if (this.isAddingTag) return;
 
-  if (!this.newTag.trim()) return;
+  const name = this.newTag.trim();
 
-  this.isAddingTag = true; // 🔒 lock
+  if (!name) return;
 
-  const payload = {
-    name: this.newTag.trim()
-  };
+  // ✅ DUPLICATE CHECK
+  const alreadyExists = this.tags.some(
+    tag => tag.name.toLowerCase() === name.toLowerCase()
+  );
+
+  if (alreadyExists) {
+    await this.presentToast('Tag already exists', 'warning');
+    return;
+  }
+
+  this.isAddingTag = true;
+
+  const payload = { name };
 
   try {
-
     const res = await this.authService.createTag(payload);
 
     this.tags.push({
@@ -378,7 +396,7 @@ validatePhone() {
     console.error(err);
     await this.presentToast('Failed to create tag','danger');
   } finally {
-    this.isAddingTag = false; // 🔓 unlock
+    this.isAddingTag = false;
   }
 }
 
@@ -514,32 +532,46 @@ validatePhone() {
       buttons: [
         { text: 'Cancel', role: 'cancel' },
         {
-          text: 'Update',
-          handler: async (data) => {
+  text: 'Update',
+  handler: async (data) => {
 
-            if (!data.name.trim()) return false;
+    const newName = data.name.trim();
 
-            try {
+    if (!newName) return false;
 
-              const res = await this.authService.updateCategory(
-                category.id,
-                { name: data.name, slug: this.createSlug(data.name) }
-              );
+    // ✅ DUPLICATE CHECK (exclude current category)
+    const alreadyExists = this.categories.some(
+      cat =>
+        cat.id !== category.id &&   // 👈 important (ignore same item)
+        cat.name.toLowerCase() === newName.toLowerCase()
+    );
 
-              category.name = res.name;
+    if (alreadyExists) {
+      await this.presentToast('Category already exists', 'warning');
+      return false; // ❌ stop alert from closing
+    }
 
-              this.presentToast('Category updated successfully','success');
+    try {
 
-            } catch (error) {
+      const res = await this.authService.updateCategory(
+        category.id,
+        { name: newName, slug: this.createSlug(newName) }
+      );
 
-              console.error(error);
+      category.name = res.name;
 
-              this.presentToast('Failed to update category','danger');
+      this.presentToast('Category updated successfully','success');
 
-            }
+    } catch (error) {
 
-          }
-        }
+      console.error(error);
+
+      this.presentToast('Failed to update category','danger');
+
+    }
+
+  }
+}
       ]
     });
 
@@ -560,32 +592,46 @@ validatePhone() {
       buttons: [
         { text: 'Cancel', role: 'cancel' },
         {
-          text: 'Update',
-          handler: async (data) => {
+  text: 'Update',
+  handler: async (data) => {
 
-            if (!data.name.trim()) return false;
+    const newName = data.name.trim();
 
-            try {
+    if (!newName) return false;
 
-              const res = await this.authService.updateTag(
-                tag.id,
-                { name: data.name, slug: this.createSlug(data.name) }
-              );
+    // ✅ DUPLICATE CHECK (ignore current tag)
+    const alreadyExists = this.tags.some(
+      t =>
+        t.id !== tag.id &&   // 👈 important
+        t.name.toLowerCase() === newName.toLowerCase()
+    );
 
-              tag.name = res.name;
+    if (alreadyExists) {
+      await this.presentToast('Tag already exists', 'warning');
+      return false; // ❌ keep alert open
+    }
 
-              this.presentToast('Tag updated successfully','success');
+    try {
 
-            } catch (error) {
+      const res = await this.authService.updateTag(
+        tag.id,
+        { name: newName, slug: this.createSlug(newName) }
+      );
 
-              console.error(error);
+      tag.name = res.name;
 
-              this.presentToast('Failed to update tag','danger');
+      this.presentToast('Tag updated successfully','success');
 
-            }
+    } catch (error) {
 
-          }
-        }
+      console.error(error);
+
+      this.presentToast('Failed to update tag','danger');
+
+    }
+
+  }
+}
       ]
     });
 

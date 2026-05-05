@@ -166,6 +166,8 @@
         <ion-input
           placeholder="Enter phone number"
           [(ngModel)]="editedUser.phone"
+          maxlength="10"
+          inputmode="numeric"
           (ionInput)="limitPhoneLength($event); checkChanges()"
           (ionBlur)="phoneTouched = true">
         </ion-input>
@@ -183,6 +185,8 @@
         <ion-input
           placeholder="Enter 6-digit PIN"
           [(ngModel)]="editedUser.emp_login_pin"
+          maxlength="6"
+          inputmode="numeric"
           (ionInput)="limitPinLength($event); checkChanges()"
           (ionBlur)="pinTouched = true">
         </ion-input>

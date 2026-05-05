@@ -84,6 +84,8 @@
     
     <ion-input
       type="tel"
+      inputmode="numeric"
+      maxlength="10"
       [(ngModel)]="user.phone"
       (ionInput)="limitPhoneLength($event)"
       (ionBlur)="phoneTouched = true"
@@ -107,6 +109,8 @@
   
  <ion-input
   type="tel"
+  inputmode="numeric"
+  maxlength="6"
   [(ngModel)]="user.emp_login_pin"
   (ionInput)="limitPinLength($event)"
   (ionBlur)="pinTouched = true"
