@@ -37,6 +37,11 @@
 
 <ion-content class="ion-padding">
 
+   <!-- LOADING STATE -->
+  <div *ngIf="loading && payments.length === 0" class="loader-wrapper">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
   <!-- PAGE LOADER -->
   <div *ngIf="loading && payments.length === 0" class="page-loader">
     <ion-spinner name="crescent"></ion-spinner>

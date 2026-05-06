@@ -48,7 +48,7 @@
   border-radius: 8px;
   display: flex;
   align-items: center;
-  padding: 8px 18px;
+  padding: 2px 12px;
   gap: 10px;
  
   input {
@@ -235,6 +235,26 @@ ion-footer ion-segment-button:nth-child(2) {
   font-size: 28px !important; // increase as needed (32px, 36px, etc.)
 }
 
+///////page loading state///////
+
+.loader-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  color: #666;
+}
+
+.loader-wrapper ion-spinner {
+  width: 40px;
+  height: 40px;
+}
+
+.loader-wrapper p {
+  margin-top: 10px;
+  font-size: 14px;
+}
 
 /////////////////////////////////////////////
 

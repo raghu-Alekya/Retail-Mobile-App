@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { AlertController } from '@ionic/angular';
+import { AlertController, NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-edit-coupon',
@@ -26,8 +26,8 @@ export class EditCouponPage implements OnInit {
   constructor(
     private router: Router,
     private auth: AuthService,
-    private alertCtrl: AlertController
-    
+    private alertCtrl: AlertController,
+    private navCtrl: NavController
   ) {}
 
   
@@ -91,14 +91,16 @@ setDate(event: any) {
   
 
   // Update coupon API
-  async updateCoupon() {
-    try {
-      await this.auth.updateCoupon(this.coupon.id, this.coupon);
-      this.router.navigate(['/coupons']);
-    } catch (error) {
-      console.error('Update failed:', error);
-    }
+async updateCoupon() {
+  try {
+    await this.auth.updateCoupon(this.coupon.id, this.coupon);
+
+    this.navCtrl.navigateBack('/tabs/coupons');
+
+  } catch (error) {
+    console.error('Update failed:', error);
   }
+}
 
   // Delete coupon
   async deleteCoupon() {
@@ -120,7 +122,7 @@ setDate(event: any) {
         handler: async () => {
           try {
             await this.auth.deleteCoupon(this.coupon.id);
-            this.router.navigate(['/coupons']);
+            this.navCtrl.navigateBack('/tabs/coupons');
           } catch (error) {
             console.error('Delete failed:', error);
           }

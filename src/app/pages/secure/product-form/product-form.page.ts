@@ -109,6 +109,10 @@ export class ProductFormPage implements OnInit {
     console.error('Init failed:', error);
   }
 }
+stripHtml(html: string): string {
+  if (!html) return '';
+  return html.replace(/<[^>]*>/g, '').trim();
+}
   // buildVariationKey(combo: any[]): string {
   //   return combo
   //     .map(a => `${a.id}_${a.option}`)
@@ -465,22 +469,24 @@ tax_class: this.selectedTaxClassSlug || '',
       };
 
       if(this.product.name === '') {
-        await this.showAlert(
-          'Validation Error',
-          'Product name is required',
-          'danger'
-        );
-        return;
-      } 
+  this.isSubmitting = false;
+  await this.showAlert(
+  'Validation Error',
+  'Product name is required',
+  'danger'
+);
+  return;
+}
 
-      if(this.categories.length === 0) {
-        await this.showAlert(
-          'Validation Error',
-          'At least one category is required',
-          'danger'
-        );
-        return;
-      }
+    if(this.categories.length === 0) {
+  this.isSubmitting = false; // 🔥 ADD THIS
+  await this.showAlert(
+    'Validation Error',
+    'At least one category is required',
+    'danger'
+  );
+  return;
+}
 
       // Add categories and tags
       if (this.product.category_id) {
@@ -604,10 +610,11 @@ tax_class: this.selectedTaxClassSlug || '',
         error?.response?.data?.message || error?.message || 'Something went wrong',
         'danger'
       );
-    }finally {
-    // ✅ ALWAYS reset
-    this.isSubmitting = false;
-  }
+    }
+  //   finally {
+  //   // ✅ ALWAYS reset
+  //   this.isSubmitting = false;
+  // }
   }
   getTermByName(attrId: number, termName: string) {
     if (!this.attributes?.length) return null;
@@ -626,29 +633,31 @@ tax_class: this.selectedTaxClassSlug || '',
     });
   }
   async showAlertWithCallback(
-    header: string,
-    message: string,
-    color: 'success' | 'danger' | 'warning' = 'success',
-    callback?: () => void
-  ) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: [
-        {
-          text: 'OK',
-          handler: () => {
-            if (callback) {
-              callback();
-            }
-          },
+  header: string,
+  message: string,
+  color: 'success' | 'danger' | 'warning' = 'success',
+  callback?: () => void
+) {
+  const alert = await this.alertCtrl.create({
+    header,
+    message,
+    backdropDismiss: false, // 🔥 ADD THIS
+    buttons: [
+      {
+        text: 'OK',
+        handler: () => {
+          this.isSubmitting = false; // ✅ reset HERE only
+          if (callback) {
+            callback();
+          }
         },
-      ],
-      cssClass: `alert-${color}`,
-    });
+      },
+    ],
+    cssClass: `alert-${color}`,
+  });
 
-    await alert.present();
-  }
+  await alert.present();
+}
   getAttributeName(attrId: number): string {
     const attr = this.attributes.find(a => a.id === attrId);
     return attr?.name || `Attribute ${attrId}`;
@@ -970,39 +979,36 @@ tax_class: this.selectedTaxClassSlug || '',
   }
 
   async showAlert(
-    header: string,
-    message: string,
-    color: 'success' | 'danger' = 'success',
-    redirect = false
-  ) {
-    const alert = await this.alertCtrl.create({
-      header,
-      message,
-      buttons: [
-        {
-          text: 'OK',
-          handler: () => {
-            if (redirect) {
-              this.router.navigate(['/products-list'], { replaceUrl: true });
-            }
-          },
+  header: string,
+  message: string,
+  color: 'success' | 'danger' = 'success',
+  redirect = false
+) {
+  const alert = await this.alertCtrl.create({
+    header,
+    message,
+    backdropDismiss: false, // 🔥 ADD THIS (VERY IMPORTANT)
+    buttons: [
+      {
+        text: 'OK',
+        handler: () => {
+          this.isSubmitting = false; // 🔥 reset here
+          if (redirect) {
+            this.router.navigate(['/products-list'], { replaceUrl: true });
+          }
         },
-      ],
-      cssClass: color === 'success' ? 'alert-success' : 'alert-danger',
-    });
+      },
+    ],
+    cssClass: color === 'success' ? 'alert-success' : 'alert-danger',
+  });
 
-    await alert.present();
-  }
-
-  stripHtml(html: string): string {
-    if (!html) return '';
-    return html.replace(/<[^>]*>/g, '').trim();
-  }
+  await alert.present();
+}
 
   async confirmDelete() {
     const alert = await this.alertCtrl.create({
       header: 'Delete product?',
-      message: 'This action cannot be undone.',
+      message: `Are you sure you want to delete "${this.product.name || 'this product'}"?`,
       buttons: [
         { text: 'Cancel', role: 'cancel' },
         {

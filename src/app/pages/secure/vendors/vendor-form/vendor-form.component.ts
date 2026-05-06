@@ -17,6 +17,7 @@ export class VendorFormComponent implements OnInit {
   @Input() vendor: any;
   phoneError: string = '';
   emailError: string = '';
+  isSaving = false;
 
   form = {
     title: '',
@@ -97,13 +98,17 @@ validateEmail() {
   }
 }
   async save() {
+  if (this.isSaving) return;
 
-    const title = (this.form.title || '').trim();
+  this.isSaving = true;
 
-if (!title) {
-  await this.presentToast('Vendor name is required', 'warning');
-  return;
-}
+  const title = (this.form.title || '').trim();
+
+  if (!title) {
+    await this.presentToast('Vendor name is required', 'warning');
+    this.isSaving = false;
+    return;
+  }
 
 // ✅ update trimmed value back
 this.form.title = title;
@@ -112,12 +117,13 @@ this.form.title = title;
     this.validateEmail(); // 👈 ADD THIS
 
     if (this.phoneError || this.emailError) {
-      await this.presentToast(
-        this.phoneError || this.emailError,
-        'warning'
-      );
-      return;
-    }
+  await this.presentToast(
+    this.phoneError || this.emailError,
+    'warning'
+  );
+  this.isSaving = false; // ✅ ADD THIS LINE
+  return;
+}
 
     const payload = {
       title: this.form.title,
@@ -155,7 +161,11 @@ this.form.title = title;
         'Failed to save vendor';
 
       await this.presentToast(errorMessage, 'danger');
-    }
+    }finally {
+  setTimeout(() => {
+    this.isSaving = false;
+  }, 500);
+}
   }
 
   async confirmDelete() {

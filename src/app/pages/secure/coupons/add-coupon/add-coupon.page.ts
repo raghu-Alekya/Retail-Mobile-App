@@ -4,6 +4,7 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { IonDatetime } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { pencil } from 'ionicons/icons';
+import { NavController } from '@ionic/angular';
 
 addIcons({ pencil });
 
@@ -35,6 +36,7 @@ showDatePicker = false;
 };
 
   constructor(
+    private navCtrl: NavController,
     private auth: AuthService,
     private router: Router
   ) {}
@@ -107,7 +109,7 @@ onDateSelected(event: any) {
     if (response.success) {
       alert('Coupon Created Successfully');
       this.resetForm();
-      this.router.navigateByUrl('/secure/coupons');
+      this.navCtrl.navigateBack('/tabs/coupons');
     }
 
   } catch (error) {

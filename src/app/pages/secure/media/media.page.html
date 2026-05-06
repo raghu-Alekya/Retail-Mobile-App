@@ -10,6 +10,11 @@
 
 <ion-content class="media-content">
 
+  <!-- LOADING STATE -->
+  <div *ngIf="loading && mediaList.length === 0" class="loader-wrapper">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
   <!-- Pull to refresh -->
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
     <ion-refresher-content></ion-refresher-content>
@@ -107,7 +112,7 @@
             color="danger"
             (click)="handleDelete(selectedMedia.id)">
 
-            <ion-icon name="trash-outline" slot="start"></ion-icon>
+            
             Delete
           </ion-button>
 

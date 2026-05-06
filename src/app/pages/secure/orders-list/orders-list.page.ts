@@ -30,7 +30,7 @@ export class OrderListPage implements OnInit {
   constructor(
     private authService: AuthService,
     private assetsService: AssetsService
-  ) {}
+  ) { }
 
   async ngOnInit() {
     await this.loadOrders();
@@ -49,6 +49,7 @@ export class OrderListPage implements OnInit {
     this.page = 1;
     this.orders = [];
     this.hasMore = true;
+    this.loading = false; // release lock to prevent deadlock
     this.loadOrders();
   }
   async loadOrders(event?: any) {
@@ -61,43 +62,110 @@ export class OrderListPage implements OnInit {
     this.loading = true;
 
     try {
-      let data: any = [];
-      if (this.selectedStatus !== 'partial-refund') {
+      let allData: any[] = [];
 
-        data = await this.authService.getOrders(
+      let activeSearchTerm = this.searchTerm;
+      let activeStatus = this.selectedStatus;
+
+      if (this.searchTerm) {
+        let searchVal = this.searchTerm.replace('#', '').trim();
+        
+        // 1. EXACT MATCH CHECK
+        // If they typed a number, ask the API for the exact order ID first.
+        if (this.page === 1 && searchVal && !isNaN(Number(searchVal))) {
+          try {
+            let exactData = await this.authService.getOrders(
+              1,
+              searchVal,
+              this.selectedStatus !== 'all' ? this.selectedStatus : ''
+            );
+            
+            if (this.searchTerm !== activeSearchTerm || this.selectedStatus !== activeStatus) return;
+
+            if (Array.isArray(exactData) && exactData.length > 0) {
+              let exactMatch = exactData.find(o => o.id?.toString() === searchVal);
+              if (exactMatch) {
+                // If we found the EXACT order, exclude the rest and show ONLY this one
+                this.orders = [exactMatch];
+                this.hasMore = false;
+                this.loading = false;
+                event?.target?.complete();
+                return;
+              }
+            }
+          } catch (e) {
+            console.error('Exact search error:', e);
+          }
+        }
+
+        // 2. PARTIAL MATCH BATCH SEARCH (Fallback)
+        let keepFetching = true;
+        let loopCount = 0;
+        
+        while (keepFetching) {
+          let promises = [];
+          for (let i = 0; i < 5; i++) {
+             promises.push(
+                this.authService.getOrders(this.page + i, '', this.selectedStatus !== 'all' ? this.selectedStatus : '')
+                .catch(() => [])
+             );
+          }
+          let results = await Promise.all(promises);
+          
+          // ABORT if the user changed the search term or status while we were fetching
+          if (this.searchTerm !== activeSearchTerm || this.selectedStatus !== activeStatus) {
+             return;
+          }
+          
+          let foundDataInBatch = false;
+          let newMatches: any[] = [];
+          
+          for (let pageData of results) {
+            if (Array.isArray(pageData) && pageData.length > 0) {
+              foundDataInBatch = true;
+              let matches = pageData.filter(order =>
+                order.id?.toString().includes(searchVal)
+              );
+              newMatches = [...newMatches, ...matches];
+            }
+          }
+          
+          if (newMatches.length > 0) {
+             this.orders = this.orders.length === 0
+               ? newMatches
+               : [...this.orders, ...newMatches];
+          }
+          
+          this.page += 5;
+          loopCount++;
+          
+          if (!foundDataInBatch || this.orders.length >= 10 || loopCount >= 10) {
+             keepFetching = false;
+             if (!foundDataInBatch) {
+               this.hasMore = false;
+             }
+          }
+        }
+      } else {
+        let data = await this.authService.getOrders(
           this.page,
-          this.searchTerm,
+          '',
           this.selectedStatus !== 'all' ? this.selectedStatus : ''
         );
 
-      } else {
-
-        data = await this.authService.getPartialOrders(
-          this.page,
-          this.searchTerm,
-          'partial-refund'
-        );
-
-      }
-      if (Array.isArray(data) && data.length > 0) {
-
-        // replace results when new search
-        this.orders = this.page === 1
-          ? data
-          : [...this.orders, ...data];
-
-        // stop infinite scroll when:
-        // ✔ searching
-        // ✔ results less than page size
-        if (this.searchTerm || data.length < 10) {
-          this.hasMore = false;
-        } else {
-          this.page++;
+        // ABORT if the user changed the search term or status while we were fetching
+        if (this.searchTerm !== activeSearchTerm || this.selectedStatus !== activeStatus) {
+           return;
         }
 
-      } else {
-        this.hasMore = false;
-        if (event) event.target.disabled = true;
+        if (Array.isArray(data) && data.length > 0) {
+          this.orders = this.page === 1
+            ? data
+            : [...this.orders, ...data];
+          this.page++;
+        } else {
+          this.hasMore = false;
+        }
       }
 
     } catch (err) {
@@ -112,20 +180,17 @@ export class OrderListPage implements OnInit {
      SEARCH (Debounced)
   ================================= */
   onSearch(event: any) {
-    const value = event?.target?.value || '';
-    // OR for ion-input:
-    // const value = event?.detail?.value || '';
-
-    const term = value.trim();
+    const value = event.target.value?.trim();
 
     clearTimeout(this.searchTimeout);
 
     this.searchTimeout = setTimeout(() => {
-      this.searchTerm = term;
+      this.searchTerm = value || '';
+
       this.page = 1;
       this.orders = [];
       this.hasMore = true;
-      this.loading = false;
+      this.loading = false; // release lock to prevent deadlock
 
       this.loadOrders();
     }, 400);
@@ -204,11 +269,102 @@ export class OrderListPage implements OnInit {
   }
 
   formatAmount(value: any): string {
-  const num = Number(value || 0);
+    const num = Number(value || 0);
 
-  return num < 0
-    ? `-${this.currencySymbol}${Math.abs(num)}`
-    : `${this.currencySymbol}${num}`;
-}
+    return num < 0
+      ? `-${this.currencySymbol}${Math.abs(num)}`
+      : `${this.currencySymbol}${num}`;
+  }
 
+  getProductDiscount(order: any): number {
+    let total = 0;
+
+    order.line_items?.forEach((item: any) => {
+      item.meta_data?.forEach((meta: any) => {
+
+        // ✅ NEW CORRECT KEY
+        if (meta.key === '_pos_auto_discount') {
+          total += Number(meta.value || 0);
+        }
+
+        // OPTIONAL (future safe)
+        if (
+          meta.key === '_pinaka_multipack_product_discount' ||
+          meta.key === 'Discount Applied'
+        ) {
+          total += Number(meta.value || 0);
+        }
+
+      });
+    });
+
+    return total;
+  }
+  getDiscount(item: any): any | null {
+    if (!item?.meta_data) return null;
+
+    const typeMeta = item.meta_data.find(
+      (m: any) => m.key === '_pos_discount_type'
+    );
+
+    if (!typeMeta) return null;
+
+    const type = typeMeta.value;
+
+    const amountMeta = item.meta_data.find(
+      (m: any) => m.key === '_pos_auto_discount'
+    );
+
+    const amount = Number(amountMeta?.value || 0);
+
+    if (!amount) return null;
+
+    let label = 'Discount';
+    switch (type) {
+      case 'auto':
+        label = 'Auto Discount';
+        break;
+
+      case 'multipack':
+        label = 'Multipack Discount';
+        break;
+
+      case 'mixmatch':
+        label = 'Combo Discount';
+        break;
+    }
+
+    return { type, label, amount };
+  }
+  getRefundedQty(item: any): number {
+    const meta = item.meta_data?.find(
+      (m: any) => m.key === '_pos_refunded_items'
+    );
+
+    return Number(meta?.value || 0);
+  }
+  getRefundType(item: any): 'none' | 'partial' | 'full' {
+    const refunded = this.getRefundedQty(item);
+    const qty = Number(item.quantity || 0);
+
+    if (refunded === 0) return 'none';
+    if (refunded < qty) return 'partial';
+    return 'full';
+  }
+  getOrderTotal(order: any): number {
+    const meta = order.meta_data?.find(
+      (m: any) => m.key === '_pos_partial_order_total'
+    );
+
+    return Number(meta?.value || order.total || 0);
+  }
+  getOrderTax(order: any): number {
+    const meta = order.meta_data?.find(
+      (m: any) => m.key === '_pos_partial_tax_total'
+    );
+
+    const value = Number(meta?.value || order.total_tax || 0);
+
+    return Number(value.toFixed(2));
+  }
 }

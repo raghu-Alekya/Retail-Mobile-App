@@ -19,6 +19,11 @@
 
 <ion-content class="employees-content">
 
+  <!-- LOADING STATE -->
+  <div *ngIf="loading && customers.length === 0" class="loader-wrapper">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
   <!-- <div class="list-heading">
     Customers List
   </div> -->

@@ -74,7 +74,7 @@ ion-header.dark-toolbar {
 }
 
 .dark-toolbar ion-icon[name="add-outline"] {
-  font-size: 26px;   /* increase size */
+  font-size: 28px !important;   /* increase size */
 }
 
 
@@ -349,6 +349,27 @@ ion-label[position="stacked"] {
   font-size: 14px;
   margin: 4px 12px 8px;
   display: block;
+}
+
+///////page loading state///////
+
+.loader-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  color: #666;
+}
+
+.loader-wrapper ion-spinner {
+  width: 40px;
+  height: 40px;
+}
+
+.loader-wrapper p {
+  margin-top: 10px;
+  font-size: 14px;
 }
 
 /////////////////////////////////////////////

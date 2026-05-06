@@ -12,11 +12,6 @@ const routes: Routes = [
         loadChildren: () => import('../pages/secure/home/home.module').then(m => m.HomePageModule)
       },
       {
-        path: '',
-        redirectTo: 'home',
-        pathMatch: 'full'
-      },
-      {
         path: 'charts',
         loadChildren: () => import('../pages/secure/reports/reports.module').then(m => m.ReportsPageModule)
       },
@@ -26,34 +21,29 @@ const routes: Routes = [
       },
       {
         path: 'profile',
-        loadChildren: () =>import('../pages/secure/profile/profile.module').then(m => m.ProfilePageModule)
+        loadChildren: () => import('../pages/secure/profile/profile.module').then(m => m.ProfilePageModule)
       },
       {
         path: 'editprofile',
-        loadChildren: () =>import('../pages/secure/profile/edit/edit.module').then(m => m.EditPageModule)
+        loadChildren: () => import('../pages/secure/profile/edit/edit.module').then(m => m.EditPageModule)
       },
       {
-          path: 'change-password',
-          loadChildren: () =>import('../pages/secure/change-password/change-password.module').then(m => m.ChangePasswordPageModule),
+        path: 'change-password',
+        loadChildren: () => import('../pages/secure/change-password/change-password.module').then(m => m.ChangePasswordPageModule),
       },
-      // {
-      //   path: 'address',
-      //   loadChildren: () =>import('../pages/secure/address/address.module').then(m => m.AddressPageModule)
-      // },
+
+      // ✅🔥 ADD THIS (VERY IMPORTANT)
       {
-        path: 'secure/users-list',
+        path: 'coupons',
         loadChildren: () =>
-          import('../pages/secure/users-list/users-list.module').then(
-            m => m.UsersListPageModule
+          import('../pages/secure/coupons/coupons.module').then(
+            m => m.CouponsPageModule
           )
       },
-      {
-        path: 'styleguide',
-        loadChildren: () => import('../pages/secure/styleguide/styleguide.module').then(m => m.StyleguidePageModule)
-      },
+
       {
         path: '',
-        redirectTo: '/tabs/home',
+        redirectTo: 'home',
         pathMatch: 'full'
       }
     ]
@@ -64,4 +54,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class TabsPageRoutingModule { }
+export class TabsPageRoutingModule {}

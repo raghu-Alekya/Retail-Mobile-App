@@ -115,7 +115,7 @@ ion-card:hover,
   align-items: center;
 }
 ion-icon {
-  margin-bottom: 10px; /* Spacing between icon and title */
+  margin-bottom: -3px; /* Spacing between icon and title */
 }
 .dashboard-card ion-icon {
   font-size: 32px;  // increase this (default is around 20px)

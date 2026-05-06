@@ -1,5 +1,9 @@
 .coupon-content {
-  --background: #fff;
+   --background: #f6f6f6 !important;
+}
+
+.filter-tabs {
+  background: #f6f6f6;
 }
 
 .coupon-card {
@@ -723,6 +727,27 @@ hr {
   --padding-end: 5px;
   font-size: 14px;
   color: #333;
+}
+
+///////page loading state///////
+
+.loader-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  color: #666;
+}
+
+.loader-wrapper ion-spinner {
+  width: 40px;
+  height: 40px;
+}
+
+.loader-wrapper p {
+  margin-top: 10px;
+  font-size: 14px;
 }
 
 /////////////////////////////////////////////

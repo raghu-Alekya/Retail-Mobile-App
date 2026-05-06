@@ -12,13 +12,27 @@ export class AuthGuard implements CanActivate {
     private authService: AuthService
   ) {}
 
-  canActivate(): boolean | UrlTree {
+  async canActivate(): Promise<boolean | UrlTree> {
+
     const token = localStorage.getItem('wc_token');
 
-    if (!token) {
+    if (!token || token === 'undefined' || token === 'null') {
       return this.router.createUrlTree(['/welcome']);
     }
 
-    return true;
+    try {
+      const res = await this.authService.validateToken(token);
+
+      if (res?.valid) {
+        return true;
+      }
+
+      localStorage.clear();
+      return this.router.createUrlTree(['/welcome']);
+
+    } catch {
+      localStorage.clear();
+      return this.router.createUrlTree(['/welcome']);
+    }
   }
 }

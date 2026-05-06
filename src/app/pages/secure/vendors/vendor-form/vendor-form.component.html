@@ -64,12 +64,16 @@
 
   <!-- CREATE / UPDATE -->
   <ion-button
-    expand="block"
-    class="save-btn"
-    (click)="save()"
-  >
-    {{ mode === 'add' ? 'Create Vendor' : 'Update Vendor' }}
-  </ion-button>
+  expand="block"
+  class="save-btn"
+  (click)="save()"
+  [disabled]="isSaving"
+>
+  {{ isSaving 
+      ? (mode === 'add' ? 'Creating...' : 'Updating...') 
+      : (mode === 'add' ? 'Create Vendor' : 'Update Vendor') 
+  }}
+</ion-button>
 
   <!-- DELETE (ONLY EDIT) -->
   <ion-button
