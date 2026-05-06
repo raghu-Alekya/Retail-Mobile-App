@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AlertController, IonicModule, IonInput, IonTextarea } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { BarcodeService } from 'src/app/services/barcode-service.service';
+import { BarcodeServiceService } from 'src/app/services/barcode-service.service';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
 
@@ -24,6 +24,7 @@ export class ProductFormPage implements OnInit {
   imagePreview: string | null = null;
   selectedFile: File | null = null;
   selectedNativeImagePath: string | null = null;
+  selectedNativeImageDataUrl: string | null = null;
   categories: any[] = [];
   tags: any[] = [];
   attributes: any[] = [];
@@ -63,7 +64,8 @@ export class ProductFormPage implements OnInit {
     private authService: AuthService,
     private alertCtrl: AlertController,
     private router: Router, 
-    private barcodeService: BarcodeService
+    private barcodeService: BarcodeServiceService,
+    private ngZone: NgZone
   ) {}
 
   getSelectedTaxClass() {
@@ -505,6 +507,17 @@ tax_class: this.selectedTaxClassSlug || '',
         } catch (error) {
           console.error('Failed to upload image', error);
         }
+      } else if (this.selectedNativeImageDataUrl) {
+        try {
+          const nativeImageFile = this.dataUrlToFile(
+            this.selectedNativeImageDataUrl,
+            `product-${Date.now()}.jpg`
+          );
+          const media = await this.authService.uploadMedia(nativeImageFile);
+          payload.images = [{ id: media.id }];
+        } catch (error) {
+          console.error('Failed to upload image', error);
+        }
       } else if (this.selectedFile) {
         try {
           const media = await this.authService.uploadMedia(this.selectedFile);
@@ -888,6 +901,7 @@ tax_class: this.selectedTaxClassSlug || '',
 
     this.selectedFile = file;
     this.selectedNativeImagePath = null;
+    this.selectedNativeImageDataUrl = null;
 
     // Preview
     const reader = new FileReader();
@@ -906,38 +920,49 @@ tax_class: this.selectedTaxClassSlug || '',
 
   async openNativeGallery() {
     try {
-      const image = await Camera.getPhoto({
-        quality: 90,
-        resultType: CameraResultType.Uri,
-        source: CameraSource.Photos
-      });
+      const isAndroid = Capacitor.getPlatform() === 'android';
 
-      this.selectedFile = null;
+      // Request explicit permissions to avoid Android runtime edge-cases.
+      const permission = isAndroid
+        ? await Camera.requestPermissions({ permissions: ['photos', 'camera'] })
+        : await Camera.requestPermissions({ permissions: ['photos'] });
 
-      if (image.path) {
-        this.selectedNativeImagePath = image.path;
-      } else {
-        this.selectedNativeImagePath = null;
-      }
+      const hasPhotoPermission =
+        permission.photos === 'granted' || permission.photos === 'limited';
 
-      const previewUrl =
-        image.webPath ||
-        (image.path ? Capacitor.convertFileSrc(image.path) : null);
-
-      if (!previewUrl) {
-        this.imagePreview = null;
+      if (!hasPhotoPermission) {
+        await this.showAlert(
+          'Permission Required',
+          'Please allow photo access to pick an image.',
+          'danger'
+        );
         return;
       }
 
-      try {
-        // Data URL preview is the most reliable format on iOS WebView.
-        this.imagePreview = await this.toDataUrl(previewUrl);
-      } catch {
-        // Fallback to direct URL if conversion fails.
-        this.imagePreview = previewUrl;
+      const image = await Camera.getPhoto({
+        quality: 80,
+        resultType: CameraResultType.DataUrl, // 🔥 CHANGE THIS
+        source: CameraSource.Photos
+      });
+
+      // Reset file
+      this.selectedFile = null;
+      this.selectedNativeImagePath = null;
+      this.selectedNativeImageDataUrl = image.dataUrl || null;
+
+      if (image.dataUrl) {
+        this.imagePreview = image.dataUrl;
+      } else {
+        this.imagePreview = null;
       }
+
     } catch (error) {
       console.error('Image pick failed', error);
+      await this.showAlert(
+        'Image Pick Failed',
+        'Unable to open gallery. Please check app permissions and try again.',
+        'danger'
+      );
     }
   }
 
@@ -1091,11 +1116,35 @@ getSelectedTaxLabel(): string {
   }
   
   async scanSku() {
+    if (this.isScanning) return;
+
     this.isScanning = true;
-    const code = await this.barcodeService.scan();
-    this.isScanning = false;
-    if (code) {
-      this.product.sku = code;
+    try {
+      const scanResult = await this.barcodeService.scanBarcode();
+      const code = (scanResult || '').trim();
+
+      if (!code) {
+        await this.showAlert(
+          'Scan Failed',
+          'No barcode detected. Please try again.',
+          'danger'
+        );
+        return;
+      }
+
+      // Barcode plugin callbacks can run outside Angular zone.
+      this.ngZone.run(() => {
+        this.product.sku = code;
+      });
+    } catch (error) {
+      console.error('SKU scan failed:', error);
+      await this.showAlert(
+        'Scan Failed',
+        'Unable to scan SKU. Please try again.',
+        'danger'
+      );
+    } finally {
+      this.isScanning = false;
     }
   }
 
@@ -1103,6 +1152,7 @@ getSelectedTaxLabel(): string {
     this.imagePreview = null;
     this.selectedFile = null;
     this.selectedNativeImagePath = null;
+    this.selectedNativeImageDataUrl = null;
   }
 
   enableTitleEdit() {
@@ -1176,6 +1226,21 @@ validatePrices() {
   } else {
     this.salePriceError = '';
   }
+}
+
+private dataUrlToFile(dataUrl: string, filename: string): File {
+  const [meta, base64Data] = dataUrl.split(',');
+  const mimeMatch = meta?.match(/data:(.*?);base64/);
+  const mime = mimeMatch?.[1] || 'image/jpeg';
+
+  const byteString = atob(base64Data || '');
+  const byteNumbers = new Array(byteString.length);
+  for (let i = 0; i < byteString.length; i++) {
+    byteNumbers[i] = byteString.charCodeAt(i);
+  }
+
+  const byteArray = new Uint8Array(byteNumbers);
+  return new File([byteArray], filename, { type: mime });
 }
   // taxClasses = [
   //   { id: 1, name: 'Standard rate', percentage: 18, slug: '' },

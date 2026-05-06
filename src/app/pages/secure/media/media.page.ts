@@ -57,21 +57,21 @@ export class MediaPage implements OnInit {
     if (event) event.target.complete();
   }
 
-  async onFileSelect(event: any) {
-    const file = event.target.files[0];
-    if (!file) return;
+  async onFileSelect(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file || this.uploading) {
+      if (input) input.value = '';
+      return;
+    }
 
+    this.uploading = true;
     try {
-      await this.mediaService.uploadMedia(file);
-
-      // Reload after upload
-      this.page = 1;
-      this.mediaList = [];
-      this.hasMore = true;
-      await this.loadMedia();
-
-    } catch (error) {
-      console.error('Upload failed', error);
+      await this.uploadFile(file);
+    } finally {
+      this.uploading = false;
+      // Reset value so selecting the same image again still emits change.
+      if (input) input.value = '';
     }
   }
 
@@ -101,14 +101,21 @@ export class MediaPage implements OnInit {
 
   async openCamera(type: 'camera' | 'gallery' = 'camera') {
     try {
+      if (Capacitor.getPlatform() === 'android') {
+        await Camera.requestPermissions({ permissions: ['photos', 'camera'] });
+      }
+
       const image = await Camera.getPhoto({
         quality: 90,
         resultType: CameraResultType.Uri,
         source: type === 'camera' ? CameraSource.Camera : CameraSource.Photos
       });
 
-      // Prefer native file-path upload on device (more reliable on iOS)
-      if (Capacitor.isNativePlatform() && image.path) {
+      const platform = Capacitor.getPlatform();
+
+      // Keep iOS native-path upload (already working).
+      // Android can return path/URI values that native upload can't always resolve.
+      if (platform === 'ios' && image.path) {
         const ext = image.format || 'jpg';
         await this.mediaService.uploadMediaFromPath(image.path, `upload.${ext}`);
         this.page = 1;
@@ -152,23 +159,25 @@ export class MediaPage implements OnInit {
     await this.openCamera('gallery');
   }
 
-  pickImage(fileInput: any) {
-  const platform = Capacitor.getPlatform();
+  pickImage(fileInput: HTMLInputElement, event?: Event) {
+    event?.preventDefault();
+    event?.stopPropagation();
 
-  console.log('Platform:', platform);
+    if (this.uploading) return;
 
-  // ✅ iOS (including simulator) → use file picker fallback
-  if (platform === 'ios') {
+    const platform = Capacitor.getPlatform();
+
+    // Use native gallery on iOS to avoid WKWebView file-upload issues.
+    if (platform === 'ios') {
+      this.openGallery();
+      return;
+    }
+
+    if (Capacitor.isNativePlatform()) {
+      this.openGallery();
+      return;
+    }
+
     fileInput.click();
-    return;
   }
-
-  // ✅ Android real device
-  if (Capacitor.isNativePlatform()) {
-    this.openGallery();
-  } else {
-    // ✅ Web
-    fileInput.click();
-  }
-}
 }
