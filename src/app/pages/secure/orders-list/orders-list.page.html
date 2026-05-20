@@ -110,7 +110,7 @@
         *ngFor="let item of order.line_items | slice:0:4"
       >
         <img
-          [src]="($any(item).image?.src) || 'assets/img/placeholder.png'"
+          [src]="($any(item).image?.src) || 'assets/img/Custom image.png'"
         />
         <span class="qty">{{ $any(item).quantity }}</span>
       </div>
@@ -206,7 +206,7 @@
           <div class="expand-thumb-wrapper">
             <img
               class="expand-thumb"
-              [src]="($any(item).image?.src) || 'assets/img/placeholder.png'"
+              [src]="($any(item).image?.src) || 'assets/img/Custom image.png'"
             />
             <span class="expand-qty">{{ item.quantity }}</span>
           </div>

@@ -1624,7 +1624,7 @@ async deleteProfileImage() {
   const token = this.getToken();
   const baseUrl = this.apiConfig.getBaseUrl();
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'DELETE',
     url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/delete-image`,
     headers: {
@@ -1642,7 +1642,7 @@ async validateToken(token: string): Promise<{ valid: boolean }> {
   this.wpBase = this.apiConfig.getBaseUrl();
 
   try {
-    const res = await Http.request({
+    const res = await CapacitorHttp.request({
       method: 'GET',
       url: `${this.wpBase}/wp-json/pinaka-pos/v1/profile`, // ✅ existing safe endpoint
       headers: {
@@ -1663,5 +1663,23 @@ async validateToken(token: string): Promise<{ valid: boolean }> {
     return { valid: false };
   }
 }
+
+async getProfileImage() {
+  const token = this.getToken();
+  const baseUrl = this.apiConfig.getBaseUrl();
+ 
+  const res = await CapacitorHttp.request({
+    method: 'GET',
+    url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/get-image`,
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+ 
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
+}
+
 
 }
