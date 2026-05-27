@@ -28,6 +28,7 @@ export class AddUserComponent implements OnInit {
   customRoles: any[] = [];
   userRole = '';
   pinError: string | null = null;
+  isCreatingUser = false;
   user: any = {
   username: '',
   email: '',
@@ -95,6 +96,12 @@ async loadCustomRoles() {
 
   
  async submit() {
+
+  // 🚫 prevent multiple clicks
+  if (this.isCreatingUser) {
+    return;
+  }
+   this.isCreatingUser = true;
 
   console.log('USER OBJECT:', this.user);
 
@@ -183,7 +190,12 @@ async loadCustomRoles() {
       this.showAlert('Error', errorMsg);
     }
   });
-}
+}finally {
+
+    // ✅ reset button
+    this.isCreatingUser = false;
+
+  }
 }
 
   async showAlert(header: string, message: string) {

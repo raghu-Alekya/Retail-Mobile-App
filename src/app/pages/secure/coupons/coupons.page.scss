@@ -5,6 +5,7 @@
   ion-toolbar {
     --background: #264c73;
     --color: #fff;
+    --border-width: 0;
     --padding-start: 0px;   /* reduces left space of toolbar */
   }
 
@@ -17,7 +18,7 @@
 }
 
 .coupons-header ion-button ion-icon {
-  font-size: 30px;   /* increase size */
+  font-size: 28px;   /* increase size */
 }
 
 /* header row */
@@ -304,6 +305,27 @@ ion-item-option{
   margin-left: -4px;   /* 👈 extra fine tuning */
 }
 
+///////page loading state///////
+
+.loader-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  color: #666;
+}
+
+.loader-wrapper ion-spinner {
+  width: 40px;
+  height: 40px;
+}
+
+.loader-wrapper p {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
 /////////////////////////////////////////////
 
 /* iOS ONLY - Orders Header Fix */
@@ -390,7 +412,7 @@ ion-item-option{
 
 /* Center + icon */
 :host-context(.ios) .coupons-header ion-buttons[slot="end"] ion-icon {
-  font-size: 22px;
+  font-size: 24px;
   margin: 0;
 }
 

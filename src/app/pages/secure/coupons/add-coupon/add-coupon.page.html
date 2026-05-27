@@ -1,7 +1,12 @@
 <ion-header class="coupon-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/coupons" text=""></ion-back-button>
+      <ion-button fill="clear" (click)="goBack()">
+  <ion-icon
+    ios="chevron-back"
+    md="arrow-back-outline">
+  </ion-icon>
+</ion-button>
     </ion-buttons>
 
     <ion-title>Add Coupon</ion-title>

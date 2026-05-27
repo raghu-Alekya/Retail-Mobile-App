@@ -52,6 +52,12 @@
 </ion-chip>
 </div>
 <ion-content class="coupon-content">
+
+  <!-- LOADING STATE -->
+  <div *ngIf="loading && discounts.length === 0" class="loader-wrapper">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+  
     <ion-card 
     *ngFor="let c of discounts" 
     class="discount-card"
@@ -363,10 +369,18 @@
         <div class="discount-buttons">
 
   <ion-button
-    class="save-btn"
-    (click)="saveCoupon()">
-    {{ editingCoupon ? 'Update Discount' : 'Create Discount' }}
-  </ion-button>
+  class="save-btn"
+  (click)="saveCoupon()"
+  [disabled]="isSaving">
+
+  
+
+  {{ isSaving
+      ? (editingCoupon ? 'Updating...' : 'Creating...')
+      : (editingCoupon ? 'Update Discount' : 'Create Discount')
+  }}
+
+</ion-button>
 
   <ion-button
   *ngIf="editingCoupon"

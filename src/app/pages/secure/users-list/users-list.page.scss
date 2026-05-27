@@ -7,6 +7,7 @@
   ion-toolbar {
     --background: #264c73;
     --color: #ffffff;
+    --border-width: 0;
     --padding-start: 0px; 
   }
 
@@ -74,7 +75,7 @@ ion-header.dark-toolbar {
 }
 
 .dark-toolbar ion-icon[name="add-outline"] {
-  font-size: 26px;   /* increase size */
+  font-size: 24px !important;   /* increase size */
 }
 
 
@@ -351,6 +352,27 @@ ion-label[position="stacked"] {
   display: block;
 }
 
+///////page loading state///////
+
+.loader-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  color: #666;
+}
+
+.loader-wrapper ion-spinner {
+  width: 40px;
+  height: 40px;
+}
+
+.loader-wrapper p {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
 /////////////////////////////////////////////
 
 /* ================= iOS HEADER FIX ================= */
@@ -457,7 +479,7 @@ ion-label[position="stacked"] {
 
 /* Center icon perfectly */
 :host-context(.ios) .dark-toolbar ion-buttons[slot="end"] ion-icon {
-  font-size: 22px;
+  font-size: 18px;
 }
 
 :host-context(.ios) .dark-toolbar .search-wrapper {

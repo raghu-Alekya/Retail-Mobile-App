@@ -7,6 +7,7 @@
   ion-toolbar {
     --background: #264c73;
     --color: #fff;
+    --border-width: 0;
     --padding-start: 0px;
   }
 
@@ -169,6 +170,27 @@ ion-header.dark-toolbar {
 .avatar-icon {
   width: 28px;   /* increase this */
   height: 28px;
+}
+
+///////page loading state///////
+
+.loader-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  color: #666;
+}
+
+.loader-wrapper ion-spinner {
+  width: 40px;
+  height: 40px;
+}
+
+.loader-wrapper p {
+  margin-top: 10px;
+  font-size: 14px;
 }
 
 /////////////////////////////////////////////

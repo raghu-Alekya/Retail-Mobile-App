@@ -23,7 +23,7 @@
   <div class="blur-overlay" *ngIf="isEditing"></div>
 
   <!-- Avatar Wrapper -->
-  <div class="avatar-wrapper" (click)="openFilePicker()">
+  <div class="avatar-wrapper" (click)="openImageOptions()">
   <ion-avatar>
     <img [src]="previewImage || savedImage || 'assets/card-media.png'" />
   </ion-avatar>
@@ -39,7 +39,7 @@
   </div>
 
   <h2>{{ user?.first_name }} {{ user?.lastname }}</h2>
-  <p>{{ user?.email }}</p>
+  <p>{{ user?.role | titlecase }}</p>
 
   <!-- Save Button -->
  <!-- <ion-button
@@ -119,5 +119,35 @@
     </div>
 
   </div>
+
+  <!-- BACKDROP -->
+<div class="custom-backdrop" *ngIf="showImagePopup" (click)="closePopup()"></div>
+
+<!-- BOTTOM POPUP -->
+<div class="custom-popup" *ngIf="showImagePopup">
+
+
+  <!-- Choose -->
+  <div class="popup-item" (click)="openFilePicker(); closePopup()">
+    <div class="popup-icon">
+      <ion-icon name="image-outline"></ion-icon>
+    </div>
+    <div class="popup-text">Choose from Gallery</div>
+  </div>
+
+  <!-- Delete -->
+  <div class="popup-item delete" *ngIf="savedImage" (click)="confirmDeleteImage()">
+    <div class="popup-icon delete-bg">
+      <ion-icon name="trash-outline"></ion-icon>
+    </div>
+    <div class="popup-text">Delete Image</div>
+  </div>
+
+  <!-- Cancel -->
+  <div class="popup-cancel" (click)="closePopup()">
+    Cancel
+  </div>
+
+</div>
 
 </ion-content>

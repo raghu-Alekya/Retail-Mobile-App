@@ -62,38 +62,43 @@ ion-textarea {
 /* ================= BUTTONS ================= */
 
 /* SAME AS SAVE BUTTON */
+/* SAME AS SAVE BUTTON */
 .save-btn {
   --background: #264c73;
   --background-hover: #264c73;
   --background-activated: #264c73;
 
   --border-radius: 14px;
-  font-size:18px;
 
+  width: 85%;
   height: 50px;
-  font-weight: 600;
-  width:90%;
-  
 
-  margin: 20px 16px;
+  font-size: 18px;
+  font-weight: 600;
 
   text-transform: none !important;
+
+  display: block;
+  margin: 20px auto; /* center */
 }
 
 /* SAME AS DELETE BUTTON */
 .delete-btn {
-  margin: 20px 16px;
   --border-radius: 14px;
-  width:90%;
 
+  width: 85%;
   height: 50px;
+
+  font-size: 18px;
   font-weight: 600;
-  font-size:18px;
 
   --background: white;
-  --color: #ef5350;        /* text color */
-  --border-color: #ef5350; /* border */
+  --color: #ef5350;
+  --border-color: #ef5350;
   --border-width: 2px;
+
+  display: block;
+  margin: 20px auto; /* center */
 }
 
 /* REMOVE UPPERCASE */

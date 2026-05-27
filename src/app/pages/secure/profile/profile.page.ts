@@ -4,6 +4,9 @@ import { AlertController } from '@ionic/angular';
 import { NavController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { HttpClient } from '@angular/common/http';
+import { ActionSheetController } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
+
 
 @Component({
   selector: 'app-profile',
@@ -23,6 +26,7 @@ export class ProfilePage implements OnInit {
   // UI States
   isBlurActive = false;
   isPreviewMode = false;
+  
 
   isEditing = false;
 
@@ -34,29 +38,29 @@ export class ProfilePage implements OnInit {
   private router: Router,
   private navCtrl: NavController,
   private alertController: AlertController,
-  private authService: AuthService
+  private authService: AuthService,
+  private actionSheetCtrl: ActionSheetController,
+  private toastController: ToastController,
 ) {}
 
 ngOnInit() {
   this.authService.currentUser$.subscribe(user => {
-    this.user = user;
+    if (user) this.user = user;
   });
 }
+
 ionViewWillEnter() {
   this.loadProfile();
+  
 }
 
 async loadProfile() {
   try {
     const res = await this.authService.getProfile();
-
-    console.log("PROFILE DATA:", res);
-
     this.user = res;
 
-    if (res.profile_image) {
-      this.savedImage = res.profile_image;
-    }
+    const imageRes = await this.authService.getProfileImage();
+    this.savedImage = imageRes?.image || null;
 
   } catch (err) {
     console.error("Profile load error", err);
@@ -71,50 +75,67 @@ async loadProfile() {
     }, 100);
   }
 
-  // 🔹 When image selected
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
+  selectedFile: File | null = null;
 
-    // If user cancels
-    if (!file) {
-      this.isBlurActive = false;
-      return;
-    }
+onFileSelected(event: any) {
+  const file = event.target.files[0];
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.previewImage = reader.result;
-
-      // Remove blur
-      this.isBlurActive = false;
-
-      // Enable preview mode (highlight + save button)
-      this.isPreviewMode = true;
-    };
-
-    reader.readAsDataURL(file);
+  if (!file) {
+    this.isBlurActive = false;
+    return;
   }
+
+  this.selectedFile = file; // ✅ store file
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    this.previewImage = reader.result;
+    this.isBlurActive = false;
+    this.isPreviewMode = true;
+  };
+
+  reader.readAsDataURL(file);
+}
 
   async saveImage() {
-    const file = this.fileInput.nativeElement.files[0];
-    if (!file) return;
-  
-    try {
-      const res = await this.authService.uploadProfileImage(file);
-  
-      console.log("UPLOAD RESPONSE:", res);
-  
-      if (res.status) {
-        this.isPreviewMode = false;
-        this.previewImage = null;
-  
-        await this.loadProfile();
-      }
-  
-    } catch (err) {
-      console.error("Upload failed", err);
+  const file = this.selectedFile;
+  if (!file) return;
+
+  try {
+    const res = await this.authService.uploadProfileImage(file);
+
+    if (res.status) {
+      this.isPreviewMode = false;
+      this.previewImage = null;
+      this.savedImage = res.image ? res.image + '?t=' + Date.now() : null;
+
+      this.fileInput.nativeElement.value = '';
+      this.selectedFile = null;
+      this.isEditing = false;
+      this.isBlurActive = false;
+
+      // ✅ SUCCESS POPUP
+      const toast = await this.toastController.create({
+  message: 'Profile image updated successfully!',
+  duration: 2000,
+  position: 'top',
+  color: 'success',
+  cssClass: 'ios-success-toast',
+  buttons: [
+    {
+      icon: 'checkmark-circle',
+      side: 'start'
     }
+  ]
+});
+
+await toast.present();
+    }
+
+  } catch (err) {
+    console.error("Upload failed", err);
   }
+}
 
  
   goToEditProfile() {
@@ -154,5 +175,74 @@ async signOut() {
   });
 
   await alert.present();
+}
+
+resetState() {
+  this.previewImage = null;
+  this.isPreviewMode = false;
+  this.isBlurActive = false;
+
+  // optional but useful
+  this.fileInput.nativeElement.value = '';
+}
+ionViewWillLeave() {
+  this.resetState();     // 👈 CLEAR OLD UI
+  this.loadProfile();
+}
+
+showImagePopup = false;
+
+openImageOptions() {
+  this.showImagePopup = true;
+}
+
+closePopup() {
+  this.showImagePopup = false;
+}
+
+async confirmDeleteImage() {
+  this.closePopup(); // close popup first
+
+  const alert = await this.alertController.create({
+    header: 'Delete Image',
+    message: 'Are you sure you want to delete your profile image?',
+    buttons: [
+      { text: 'Cancel', role: 'cancel' },
+      {
+        text: 'Delete',
+        role: 'destructive',
+        handler: () => {
+          this.deleteImage(); // 👈 call delete
+        }
+      }
+    ]
+  });
+
+  await alert.present();
+}
+
+async deleteImage() {
+  try {
+    console.log('DELETE API CALLED'); // for debug
+
+    const res = await this.authService.deleteProfileImage();
+
+    if (res.status) {
+      // clear UI
+      this.savedImage = null;
+      this.previewImage = null;
+
+      const alert = await this.alertController.create({
+        header: 'Success',
+        message: 'Profile image deleted successfully!',
+        buttons: ['OK']
+      });
+
+      await alert.present();
+    }
+
+  } catch (err) {
+    console.error('Delete failed', err);
+  }
 }
 }

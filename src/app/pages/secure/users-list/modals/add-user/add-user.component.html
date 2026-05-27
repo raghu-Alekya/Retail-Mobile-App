@@ -59,23 +59,7 @@
     </ion-input>
   </ion-item>
 
-  <!-- Employee Role -->
-   <ion-label position="stacked">Employee Role</ion-label>
-  <ion-item class="form-field">
-    
-    <ion-select
-      [(ngModel)]="user.role"
-      placeholder="Select Employee Role"
-      interface="popover">
-
-      <ion-select-option
-        *ngFor="let role of customRoles"
-        [value]="role.key">
-        {{ role.name }}
-      </ion-select-option>
-
-    </ion-select>
-  </ion-item>
+  
 
   <!-- Phone -->
    <ion-label position="stacked">Phone</ion-label>
@@ -84,6 +68,8 @@
     
     <ion-input
       type="tel"
+      inputmode="numeric"
+      maxlength="10"
       [(ngModel)]="user.phone"
       (ionInput)="limitPhoneLength($event)"
       (ionBlur)="phoneTouched = true"
@@ -107,6 +93,8 @@
   
  <ion-input
   type="tel"
+  inputmode="numeric"
+  maxlength="6"
   [(ngModel)]="user.emp_login_pin"
   (ionInput)="limitPinLength($event)"
   (ionBlur)="pinTouched = true"
@@ -125,17 +113,37 @@
   {{ pinError }}
 </p>
 
-  <!-- Create User Button -->
-  <ion-button
+<!-- Employee Role -->
+   <ion-label position="stacked">Employee Role</ion-label>
+  <ion-item class="form-field">
+    
+    <ion-select
+      [(ngModel)]="user.role"
+      placeholder="Select Employee Role"
+      interface="popover">
+
+      <ion-select-option
+        *ngFor="let role of customRoles"
+        [value]="role.key">
+        {{ role.name }}
+      </ion-select-option>
+
+    </ion-select>
+  </ion-item>
+
+ <ion-button
   expand="block"
   class="create-user-btn"
   [disabled]="
+    isCreatingUser ||
     !isValidEmail(user.email) ||
     (user.phone && !isValidPhone(user.phone)) ||
     (user.emp_login_pin && !isValidPin(user.emp_login_pin))
   "
   (click)="submit()">
-  Create User
+
+  {{ isCreatingUser ? 'Creating User...' : 'Create User' }}
+
 </ion-button>
 
 </ion-content>

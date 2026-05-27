@@ -23,6 +23,8 @@ export class UsersListPage {
   isChanged = false;
   customRoles: any[] = [];
   isUsernameLocked = false;
+  loading = false;
+  isDeletingUser = false;
 
   private searchTimeout: any;
 
@@ -31,18 +33,10 @@ export class UsersListPage {
   private modalCtrl: ModalController,
   private alertCtrl: AlertController,
   private router: Router,
-  private loadingCtrl: LoadingController,
   private toastCtrl: ToastController
 ) {}
 
 async ngOnInit() {
-
-  const loading = await this.loadingCtrl.create({
-    message: '',
-    spinner: 'crescent'
-  });
-
-  await loading.present();
 
   try {
 
@@ -59,8 +53,6 @@ async ngOnInit() {
   } catch (error) {
     console.error(error);
   }
-
-  loading.dismiss();
 }
   async openAddEmployee() {
 
@@ -115,6 +107,7 @@ async deleteUser(id: number) {
   const alert = await this.alertCtrl.create({
     header: 'Delete Employee',
     message: 'Are you sure you want to delete this employee?',
+    backdropDismiss: false,
     buttons: [
       {
         text: 'Cancel',
@@ -124,6 +117,13 @@ async deleteUser(id: number) {
         text: 'Delete',
         role: 'destructive',
         handler: async () => {
+
+          // 🚫 prevent multiple clicks
+          if (this.isDeletingUser) {
+            return false;
+          }
+
+          this.isDeletingUser = true;
 
           try {
 
@@ -136,7 +136,7 @@ async deleteUser(id: number) {
             // reload employee list
             await this.loadUsers();
 
-            // show success message
+            // success toast
             const toast = await this.toastCtrl.create({
               message: 'Employee deleted successfully',
               duration: 2000,
@@ -147,9 +147,17 @@ async deleteUser(id: number) {
             await toast.present();
 
           } catch (error) {
+
             console.error('Delete error:', error);
+
+          } finally {
+
+            this.isDeletingUser = false;
+
           }
 
+          // ✅ close confirmation popup
+          return true;
         }
       }
     ]
@@ -239,9 +247,9 @@ async deleteUser(id: number) {
       }
 
       this.filteredUsers = this.users.filter(user =>
-        user?.name?.toLowerCase().includes(value) ||
-        user?.email?.toLowerCase().includes(value) ||
-        user?.id?.toString().includes(value)
+        user?.first_name?.toLowerCase().startsWith(value) ||
+        user?.email?.toLowerCase().startsWith(value) ||
+        user?.id?.toString().startsWith(value)
       );
     }, 300);
   }
@@ -257,8 +265,11 @@ async deleteUser(id: number) {
     }
   }
 
-  // ✅ Load Users
   async loadUsers() {
+  if (this.loading) return;
+
+  this.loading = true;
+
   try {
 
     const usersArray = await this.authService.getUsers("1", "50", '');
@@ -267,13 +278,15 @@ async deleteUser(id: number) {
       Array.isArray(user?.roles) && !user.roles.includes('customer')
     );
 
-    // ⭐ NEW: show newest employee on top
+    // newest first
     this.users.sort((a: any, b: any) => b.id - a.id);
 
     this.filteredUsers = [...this.users];
 
   } catch (error) {
     console.error('Error loading users', error);
+  } finally {
+    this.loading = false;
   }
 }
 

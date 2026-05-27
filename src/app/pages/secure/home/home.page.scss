@@ -115,7 +115,7 @@ ion-card:hover,
   align-items: center;
 }
 ion-icon {
-  margin-bottom: 10px; /* Spacing between icon and title */
+  margin-bottom: -3px; /* Spacing between icon and title */
 }
 .dashboard-card ion-icon {
   font-size: 32px;  // increase this (default is around 20px)
@@ -284,9 +284,12 @@ ion-toolbar {
 ion-content {
   --background: linear-gradient(180deg, #CBDCF3 20%, #f0f0f0 80%) !important;
   background: linear-gradient(180deg, #CBDCF3 20%, #f0f0f0 80%) !important;
-  --padding-top: 0px;
+  //overscroll-behavior-y: none;
+  //--padding-top: 0px;
 }
-
+:host {
+  background: linear-gradient(180deg, #CBDCF3 20%, #f0f0f0 80%);
+}
 ion-label.home-slides {
   display: block;
   padding-top: 0px;

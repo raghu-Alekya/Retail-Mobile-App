@@ -1,5 +1,9 @@
 .coupon-content {
-  --background: #fff;
+   --background: #f6f6f6 !important;
+}
+
+.filter-tabs {
+  background: #f6f6f6;
 }
 
 .coupon-card {
@@ -30,6 +34,7 @@
   ion-toolbar {
     --background: #264c73;
     --color: #fff;
+    --border-width: 0;
     --padding-start: 0px;   /* reduces left space of toolbar */
   }
 
@@ -41,7 +46,7 @@
   }
 
   ion-button ion-icon {
-    font-size: 28px;   /* 🔥 increase size */
+    font-size: 24px;   /* 🔥 increase size */
   }
 } 
 
@@ -714,6 +719,27 @@ hr {
   color: #333;
 }
 
+///////page loading state///////
+
+.loader-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  color: #666;
+}
+
+.loader-wrapper ion-spinner {
+  width: 40px;
+  height: 40px;
+}
+
+.loader-wrapper p {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
 /* Input / Select / Textarea */
 .form-content ion-input,
 .form-content ion-select,
@@ -757,7 +783,7 @@ hr {
 }
 
 .discount-toolbar.edit-mode ion-title {
-  margin-left: 2px;   /* 👈 reduce gap only for Edit */
+  margin-left: -20px;   /* 👈 reduce gap only for Edit */
 }
 
 /* Hide "Back" text */
@@ -784,6 +810,13 @@ hr {
   text-align: left;
 
   margin-left: 4px;   /* adjust spacing from back icon */
+}
+
+:host-context(.ios) .products-header .search-container {
+  border-radius: 48px;
+  padding: 4px 14px;   /* 👈 top/bottom reduced */
+  margin-left: 12px;
+  margin-right: 12px;
 }
 
 /* ===============================

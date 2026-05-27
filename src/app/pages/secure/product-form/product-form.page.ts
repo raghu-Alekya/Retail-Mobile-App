@@ -34,11 +34,13 @@ export class ProductFormPage implements OnInit {
   selectedTaxClassSlug: string = '';
   private attributesLoaded = false;
   private isLoadingAttributes = false;
+  fromFab = false;
   // stock_quantity : any = null;
   stock_status: any = null;
   isScanning = false;
   pageReady = false;
   isSubmitting = false;
+  isDeleting = false;
   product: any = {
     name: '',
     description: '',
@@ -56,6 +58,7 @@ export class ProductFormPage implements OnInit {
     // stock_quantity: null,
     manage_stock: false,
     category_id: null,
+    
   };
 
   constructor(
@@ -75,6 +78,9 @@ export class ProductFormPage implements OnInit {
 
   async ngOnInit() {
 
+    const nav = this.router.getCurrentNavigation();
+
+this.fromFab = nav?.extras?.state?.['fromFab'] || false;
   const id = this.route.snapshot.paramMap.get('id');
 
   // detect edit mode
@@ -107,6 +113,22 @@ export class ProductFormPage implements OnInit {
   } catch (error) {
     console.error('Init failed:', error);
   }
+}
+
+handleSuccessNavigation() {
+
+  if (this.fromFab) {
+
+    this.router.navigate(['/tabs/home'], {
+      replaceUrl: true
+    });
+
+  } else {
+
+    this.navigateToProductList();
+
+  }
+
 }
   // buildVariationKey(combo: any[]): string {
   //   return combo
@@ -464,6 +486,7 @@ tax_class: this.selectedTaxClassSlug || '',
       };
 
       if(this.product.name === '') {
+        this.isSubmitting = false;
         await this.showAlert(
           'Validation Error',
           'Product name is required',
@@ -473,6 +496,7 @@ tax_class: this.selectedTaxClassSlug || '',
       } 
 
       if(this.categories.length === 0) {
+        this.isSubmitting = false; 
         await this.showAlert(
           'Validation Error',
           'At least one category is required',
@@ -567,7 +591,7 @@ tax_class: this.selectedTaxClassSlug || '',
           'Product Updated',
           'Updated successfully',
           'success',
-          () => this.navigateToProductList()
+          () => this.handleSuccessNavigation()
         );
       } 
       else 
@@ -582,7 +606,7 @@ tax_class: this.selectedTaxClassSlug || '',
           'Product Created',
           'Created successfully',
           'success',
-          () => this.navigateToProductList()
+          () => this.handleSuccessNavigation()
         ); 
       }
     } catch (error: any) {
@@ -592,10 +616,11 @@ tax_class: this.selectedTaxClassSlug || '',
         error?.response?.data?.message || error?.message || 'Something went wrong',
         'danger'
       );
-    }finally {
-    // ✅ ALWAYS reset
-    this.isSubmitting = false;
-  }
+    }
+  //   finally {
+  //   // ✅ ALWAYS reset
+  //   this.isSubmitting = false;
+  // }
   }
   getTermByName(attrId: number, termName: string) {
     if (!this.attributes?.length) return null;
@@ -622,10 +647,12 @@ tax_class: this.selectedTaxClassSlug || '',
     const alert = await this.alertCtrl.create({
       header,
       message,
+      backdropDismiss: false, // 🔥 ADD THIS
       buttons: [
         {
           text: 'OK',
           handler: () => {
+            this.isSubmitting = false; // ✅ reset HERE only
             if (callback) {
               callback();
             }
@@ -954,10 +981,12 @@ tax_class: this.selectedTaxClassSlug || '',
     const alert = await this.alertCtrl.create({
       header,
       message,
+      backdropDismiss: false, // 🔥 ADD THIS (VERY IMPORTANT)
       buttons: [
         {
           text: 'OK',
           handler: () => {
+            this.isSubmitting = false; // 🔥 reset here
             if (redirect) {
               this.router.navigate(['/products-list'], { replaceUrl: true });
             }
@@ -975,22 +1004,44 @@ tax_class: this.selectedTaxClassSlug || '',
     return html.replace(/<[^>]*>/g, '').trim();
   }
 
-  async confirmDelete() {
-    const alert = await this.alertCtrl.create({
-      header: 'Delete product?',
-      message: 'This action cannot be undone.',
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        {
-          text: 'Delete',
-          role: 'destructive',
-          handler: () => this.deleteProduct(),
-        },
-      ],
-    });
 
-    await alert.present();
-  }
+async confirmDelete() {
+
+  const alert = await this.alertCtrl.create({
+    header: 'Delete product?',
+    message: `Are you sure you want to delete "${this.product.name || 'this product'}"?`,
+    backdropDismiss: false,
+    buttons: [
+      {
+        text: 'Cancel',
+        role: 'cancel',
+      },
+      {
+        text: 'Delete',
+        role: 'destructive',
+        handler: async () => {
+
+          // 🚫 prevent multiple clicks
+          if (this.isDeleting) {
+            return false;
+          }
+
+          this.isDeleting = true;
+
+          try {
+            await this.deleteProduct();
+          } finally {
+            this.isDeleting = false;
+          }
+
+          return true;
+        },
+      },
+    ],
+  });
+
+  await alert.present();
+}
 
   
   async loadTaxClasses() {
@@ -1049,22 +1100,28 @@ getSelectedTaxLabel(): string {
     : '';
 }
   async deleteProduct() {
-    try {
-      await this.authService.deleteProduct(this.productId);
-      await this.showAlert(
-        'Product Deleted',
-        'Product deleted successfully',
-        'success',
-        true
-      );
-    } catch (error) {
-      await this.showAlert(
-        'Delete Failed',
-        'Failed to delete product',
-        'danger'
-      );
-    }
+
+  try {
+
+    await this.authService.deleteProduct(this.productId);
+
+    await this.showAlert(
+      'Product Deleted',
+      'Product deleted successfully',
+      'success',
+      true
+    );
+
+  } catch (error) {
+
+    await this.showAlert(
+      'Delete Failed',
+      'Failed to delete product',
+      'danger'
+    );
+
   }
+}
 
   // Helper methods to add to the component class
   logSelectedAttributes() {

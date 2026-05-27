@@ -157,7 +157,7 @@ getAvatarColor(index: number) {
   try {
     const res = await this.authService.getShifts(
       this.page,
-      this.search,
+      '',   // ❌ remove search from API
       this.status
     );
 
@@ -168,7 +168,14 @@ getAvatarColor(index: number) {
       const mapped = res.data.map((s: any) => this.mapShift(s));
 
       this.shifts.push(...mapped);
-      this.filteredShifts = [...this.shifts];
+      //this.filteredShifts = [...this.shifts];
+      if (this.search) {
+        this.filteredShifts = this.shifts.filter(shift =>
+          shift.staffName?.toLowerCase().trim().startsWith(this.search)
+        );
+      } else {
+        this.filteredShifts = [...this.shifts];
+      }
 
       this.page++;   // ✅ load next page next time
       this.hasMore = res.pagination?.has_more ?? false;
@@ -229,29 +236,28 @@ getAvatarColor(index: number) {
 
   this.search = value;
 
-  // reset list
-  this.page = 1;
-  this.shifts = [];
-  this.filteredShifts = [];
-  this.hasMore = true;
+  if (!value) {
+    this.filteredShifts = [...this.shifts];
+    return;
+  }
 
-  this.loadShifts();
+  this.filteredShifts = this.shifts.filter(shift =>
+    shift.staffName?.toLowerCase().trim().startsWith(value)
+  );
 }
 
 
 mapShift(apiShift: any) {
-  const opening = this.getSafeDropTotal(apiShift);
-  const sales = Number(apiShift.total_sale_amount || 0);
-  const vendor = this.getVendorTotal(apiShift);
 
   return {
     staffName: apiShift.user_name,
     date: apiShift.start_time,
 
-    openingBalance: opening,
-    closingBalance: opening + sales - vendor,
+    // ✅ use backend values directly
+    openingBalance: Number(apiShift.opening_balance || 0),
+    closingBalance: Number(apiShift.closing_balance || 0),
 
-    sales: sales,
+    sales: Number(apiShift.total_sale_amount || 0),
     overShort: Number(apiShift.over_short || 0),
 
     startTime: apiShift.start_time?.split(' ')[1] || '—',

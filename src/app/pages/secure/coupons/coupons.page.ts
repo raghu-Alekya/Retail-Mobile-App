@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, AlertController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -13,7 +15,8 @@ import { Router } from '@angular/router';
   styleUrls: ['./coupons.page.scss'],
   imports: [IonicModule, CommonModule, FormsModule]
 })
-export class CouponsPage {
+export class CouponsPage implements OnInit, OnDestroy {
+  private routerSub!: Subscription;
 searchTerm: string = '';
 coupons: any[] = [];
 filteredCoupons: any[] = [];
@@ -36,8 +39,26 @@ filteredCoupons: any[] = [];
   constructor(
   private auth: AuthService,
   private alertCtrl: AlertController,
-  private router: Router
+  private router: Router,
+  private cdr: ChangeDetectorRef
 ) {}
+
+  ngOnInit() {
+    this.routerSub = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      // Trigger reload when navigating back to coupons page
+      if (event.urlAfterRedirects && event.urlAfterRedirects.includes('coupons')) {
+        this.loadCoupons();
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.routerSub) {
+      this.routerSub.unsubscribe();
+    }
+  }
   editCoupon(coupon: any) {
   this.router.navigate(['/edit-coupon'], {
     state: { coupon }
@@ -46,13 +67,24 @@ filteredCoupons: any[] = [];
 openAddCoupon() {
   this.router.navigate(['/add-coupon']);
 }
+ionViewDidEnter() {
+  this.loadCoupons();
+}
 async loadCoupons() {
   this.loading = true;
 
   try {
     const response = await this.auth.getCoupons();
-    this.coupons = response || [];
-    this.filteredCoupons = [...this.coupons];   // ✅ important
+
+    // 🔥 FIXED
+    const data = response?.data ? response.data : response;
+
+    this.coupons = data || [];
+    this.filteredCoupons = [...this.coupons];
+
+    console.log("Updated coupons:", this.coupons);
+    this.cdr.detectChanges();
+
   } catch (error) {
     console.error('Error loading coupons:', error);
     this.coupons = [];
@@ -61,16 +93,17 @@ async loadCoupons() {
     this.loading = false;
   }
 }
-  ionViewWillEnter() {
-    const state = history.state;
-    if (state?.autoOpenCreate) {
-      this.openCreate();
-      
-      history.replaceState({}, '');
-    }
-    this.loadCoupons();
+ionViewWillEnter() {
+  const state = history.state;
+
+  if (state?.autoOpenCreate) {
+    this.openCreate();
+    history.replaceState({}, '');
   }
- 
+
+  console.log("Refreshing coupons..."); // 🔥 debug
+  this.loadCoupons();
+}
 
   openCreate() {
     this.resetForm();

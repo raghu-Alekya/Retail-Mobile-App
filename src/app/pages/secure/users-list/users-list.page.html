@@ -26,7 +26,10 @@
 </ion-header>
 <ion-content class="employees-content">
 
-
+  <!-- LOADING -->
+<div *ngIf="loading && filteredUsers.length === 0" class="loader-wrapper">
+  <ion-spinner name="crescent"></ion-spinner>
+</div>
 
   <ion-list>
 
@@ -138,23 +141,7 @@
         </ion-input>
       </div>
 
-    <!-- Role -->
-     <ion-label position="stacked">Employee Role</ion-label>
-    <div class="form-field">
-      <ion-select
-        placeholder="Select Employee Role"
-        [(ngModel)]="editedUser.role"
-        (ionChange)="checkChanges()"
-        interface="popover">
-
-        <ion-select-option
-          *ngFor="let role of customRoles"
-          [value]="role.key">
-          {{ role.name }}
-        </ion-select-option>
-
-      </ion-select>
-    </div>
+    
 
     <!-- Phone -->
      <ion-label position="stacked">Phone</ion-label>
@@ -163,6 +150,8 @@
         <ion-input
           placeholder="Enter phone number"
           [(ngModel)]="editedUser.phone"
+          maxlength="10"
+          inputmode="numeric"
           (ionInput)="limitPhoneLength($event); checkChanges()"
           (ionBlur)="phoneTouched = true">
         </ion-input>
@@ -180,6 +169,8 @@
         <ion-input
           placeholder="Enter 6-digit PIN"
           [(ngModel)]="editedUser.emp_login_pin"
+          maxlength="6"
+          inputmode="numeric"
           (ionInput)="limitPinLength($event); checkChanges()"
           (ionBlur)="pinTouched = true">
         </ion-input>
@@ -194,6 +185,23 @@
         {{ pinError }}
       </p>
 
+      <!-- Role -->
+     <ion-label position="stacked">Employee Role</ion-label>
+    <div class="form-field">
+      <ion-select
+        placeholder="Select Employee Role"
+        [(ngModel)]="editedUser.role"
+        (ionChange)="checkChanges()"
+        interface="popover">
+
+        <ion-select-option
+          *ngFor="let role of customRoles"
+          [value]="role.key">
+          {{ role.name }}
+        </ion-select-option>
+
+      </ion-select>
+    </div>
 
     <!-- Save Button -->
     <ion-button

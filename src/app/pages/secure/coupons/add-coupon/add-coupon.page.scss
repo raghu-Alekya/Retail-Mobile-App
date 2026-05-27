@@ -209,13 +209,13 @@ ion-item::part(native) {
   align-items: center;
 }
 
-/* Fix back button spacing */
-:host-context(.ios) .coupon-header ion-buttons[slot="start"] {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  align-items: center;
-}
+// /* Fix back button spacing */
+// :host-context(.ios) .coupon-header ion-buttons[slot="start"] {
+//   margin: 0;
+//   padding: 0;
+//   display: flex;
+//   align-items: center;
+// }
 
 /* Remove iOS default title centering */
 :host-context(.ios) .coupon-header ion-title {
@@ -228,48 +228,80 @@ ion-item::part(native) {
 }
 
 /* Reduce back button padding */
-:host-context(.ios) .coupon-header ion-back-button {
-  --padding-start: 0px;
-  margin-left: 2px;
-}
+// :host-context(.ios) .coupon-header ion-back-button {
+//   --padding-start: 0px;
+//   margin-left: 2px;
+// }
 
 /* Hide "Back" text */
-:host-context(.ios) ion-back-button::part(text) {
-  display: none;
-}
+// :host-context(.ios) ion-back-button::part(text) {
+//   display: none;
+// }
 
 /* FIX: perfectly center icon inside circle */
-:host-context(.ios) .coupon-header ion-back-button::part(native) {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+// :host-context(.ios) .coupon-header ion-back-button::part(native) {
+//   width: 40px;
+//   height: 40px;
+//   border-radius: 50%;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
 
-  background: rgba(255, 255, 255, 0.15);
+//   background: rgba(255, 255, 255, 0.15);
 
-  padding: 0 !important;   /* 🔥 important */
-}
+//   padding: 0 !important;   /* 🔥 important */
+// }
 
 /* Increase clickable area */
-:host-context(.ios) .coupon-header ion-back-button {
-  --padding-start: 6px;
-  --padding-end: 6px;
-  margin-left: 14px;
-  margin-right: 8px;
-}
+// :host-context(.ios) .coupon-header ion-back-button {
+//   --padding-start: 6px;
+//   --padding-end: 6px;
+//   margin-left: 14px;
+//   margin-right: 8px;
+// }
 
 /* remove internal offset */
-:host-context(.ios) .coupon-header ion-back-button::part(icon) {
-  margin: 0 !important;
-  padding: 0 !important;
-  transform: translateX(0px); /* reset iOS shift */
-  font-size: 20px;
-}
+// :host-context(.ios) .coupon-header ion-back-button::part(icon) {
+//   margin: 0 !important;
+//   padding: 0 !important;
+//   transform: translateX(0px); /* reset iOS shift */
+//   font-size: 20px;
+// }
 
 /* iOS ONLY - Add bottom padding to header */
 :host-context(.ios) .coupon-header ion-toolbar {
   --padding-bottom: 10px;   /* 👈 adjust (10–16px based on your UI) */
+}
+
+/* iOS custom back button */
+:host-context(.ios) .coupon-header ion-buttons[slot="start"] {
+  margin-left: 14px;
+  margin-right: 8px;
+
+  display: flex;
+  align-items: center;
+}
+
+/* Circular back button */
+:host-context(.ios) .coupon-header ion-button {
+  --background: rgba(255,255,255,0.15);
+  --border-radius: 50%;
+
+  width: 40px;
+  height: 40px;
+
+  margin: 0;
+  padding: 0;
+
+  --padding-start: 0;
+  --padding-end: 0;
+
+  min-height: 40px;
+}
+
+/* Icon */
+:host-context(.ios) .coupon-header ion-button ion-icon {
+  color: #ffffff;
+  font-size: 20px;
 }

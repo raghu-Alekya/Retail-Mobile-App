@@ -4,6 +4,7 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { IonDatetime } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { pencil } from 'ionicons/icons';
+import { NavController } from '@ionic/angular';
 
 addIcons({ pencil });
 
@@ -16,6 +17,7 @@ export class AddCouponPage {
 
   @ViewChild('datePicker', { static: false }) datePicker!: IonDatetime;
 showDatePicker = false;
+fromFab = false;
   editing: string | null = null;
 
   isDateModalOpen = false;
@@ -35,9 +37,14 @@ showDatePicker = false;
 };
 
   constructor(
+    private navCtrl: NavController,
     private auth: AuthService,
     private router: Router
-  ) {}
+  ) {
+    const nav = this.router.getCurrentNavigation();
+
+this.fromFab = nav?.extras?.state?.['fromFab'] || false;
+  }
 
   startEdit(field: string) {
   this.editing = field;
@@ -70,6 +77,23 @@ onDateSelected(event: any) {
   stopEdit() {
     this.editing = null;
   }
+
+  goBack() {
+
+  if (this.fromFab) {
+
+    this.router.navigate(
+      ['/tabs/home'],
+      { replaceUrl: true }
+    );
+
+  } else {
+
+    this.navCtrl.navigateBack('/tabs/coupons');
+
+  }
+
+}
 
 
   
@@ -105,9 +129,21 @@ onDateSelected(event: any) {
     const response = await this.auth.createCoupon(payload);
 
     if (response.success) {
+      this.coupon.code = response.original_code;
       alert('Coupon Created Successfully');
       this.resetForm();
-      this.router.navigateByUrl('/secure/coupons');
+      if (this.fromFab) {
+
+  this.router.navigate(
+    ['/tabs/home'],
+    { replaceUrl: true }
+  );
+
+} else {
+
+  this.navCtrl.navigateBack('/tabs/coupons');
+
+}
     }
 
   } catch (error) {

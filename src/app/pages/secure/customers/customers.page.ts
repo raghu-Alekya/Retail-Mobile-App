@@ -23,21 +23,8 @@ export class CustomersPage {
   // ✅ Better for Ionic pages
   async ionViewDidEnter() {
 
-  const loading = await this.loadingCtrl.create({
-    message: '',
-    spinner: 'crescent'
-  });
-
-  await loading.present();
-
-  try {
-    await this.loadCustomers(true);
-  } catch (error) {
-    console.error(error);
+    this.loadCustomers(true);
   }
-
-  await loading.dismiss();
-}
 
   async loadCustomers(reset = false) {
     if (this.loading) return;

@@ -17,6 +17,8 @@ export class VendorFormComponent implements OnInit {
   @Input() vendor: any;
   phoneError: string = '';
   emailError: string = '';
+  isSaving = false;
+  isDeleting = false;
 
   form = {
     title: '',
@@ -97,13 +99,17 @@ validateEmail() {
   }
 }
   async save() {
+  if (this.isSaving) return;
 
-    const title = (this.form.title || '').trim();
+  this.isSaving = true;
 
-if (!title) {
-  await this.presentToast('Vendor name is required', 'warning');
-  return;
-}
+  const title = (this.form.title || '').trim();
+
+  if (!title) {
+    await this.presentToast('Vendor name is required', 'warning');
+    this.isSaving = false;
+    return;
+  }
 
 // ✅ update trimmed value back
 this.form.title = title;
@@ -112,12 +118,13 @@ this.form.title = title;
     this.validateEmail(); // 👈 ADD THIS
 
     if (this.phoneError || this.emailError) {
-      await this.presentToast(
-        this.phoneError || this.emailError,
-        'warning'
-      );
-      return;
-    }
+  await this.presentToast(
+    this.phoneError || this.emailError,
+    'warning'
+  );
+  this.isSaving = false; // ✅ ADD THIS LINE
+  return;
+}
 
     const payload = {
       title: this.form.title,
@@ -155,46 +162,83 @@ this.form.title = title;
         'Failed to save vendor';
 
       await this.presentToast(errorMessage, 'danger');
-    }
+    }finally {
+  setTimeout(() => {
+    this.isSaving = false;
+  }, 500);
+}
   }
 
   async confirmDelete() {
-    if (!this.vendor?.id) return;
 
-    const alert = await this.alertCtrl.create({
-      header: 'Delete Vendor',
-      message: `Are you sure you want to delete "${this.form.title || 'this vendor'}"?`,
-      buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        {
-          text: 'Delete',
-          role: 'destructive',
-          handler: async () => {
-            await this.deleteVendor();
+  if (!this.vendor?.id) return;
+
+  const alert = await this.alertCtrl.create({
+    header: 'Delete Vendor',
+    message: `Are you sure you want to delete "${this.form.title || 'this vendor'}"?`,
+    backdropDismiss: false,
+    buttons: [
+      {
+        text: 'Cancel',
+        role: 'cancel'
+      },
+      {
+        text: 'Delete',
+        role: 'destructive',
+        handler: async () => {
+
+          // 🚫 prevent multiple clicks
+          if (this.isDeleting) {
+            return false;
           }
-        }
-      ]
-    });
 
-    await alert.present();
-  }
+          this.isDeleting = true;
+
+          try {
+
+            await this.deleteVendor();
+
+          } finally {
+
+            this.isDeleting = false;
+
+          }
+
+          // ✅ close popup
+          return true;
+        }
+      }
+    ]
+  });
+
+  await alert.present();
+}
 
     async deleteVendor() {
-    if (!this.vendor?.id) return;
 
-    try {
-      const res = await this.authService.deleteVendor(this.vendor.id);
-      await this.presentToast(res?.data?.message || 'Vendor deleted', 'success');
-      this.modalCtrl.dismiss(true);
-    } catch (err: any) {
-      const errorMessage =
-        err?.response?.data?.message ||
-        err?.message ||
-        'Failed to delete vendor';
+  if (!this.vendor?.id) return;
 
-      await this.presentToast(errorMessage, 'danger');
-    }
+  try {
+
+    const res = await this.authService.deleteVendor(this.vendor.id);
+
+    await this.presentToast(
+      res?.data?.message || 'Vendor deleted',
+      'success'
+    );
+
+    this.modalCtrl.dismiss(true);
+
+  } catch (err: any) {
+
+    const errorMessage =
+      err?.response?.data?.message ||
+      err?.message ||
+      'Failed to delete vendor';
+
+    await this.presentToast(errorMessage, 'danger');
   }
+}
 
   
     async presentToast(message: string, color: 'success' | 'danger' | 'warning' = 'success') {

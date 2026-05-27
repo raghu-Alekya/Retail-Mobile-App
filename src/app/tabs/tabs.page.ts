@@ -3,6 +3,10 @@ import { ActionSheetController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { AddUserComponent } from '../pages/secure/users-list/modals/add-user/add-user.component';
+import { NavController } from '@ionic/angular';
+import { Platform, IonRouterOutlet } from '@ionic/angular';
+import { ViewChild } from '@angular/core';
+
  
 @Component({
   selector: 'app-tabs',
@@ -10,6 +14,8 @@ import { AddUserComponent } from '../pages/secure/users-list/modals/add-user/add
   styleUrls: ['tabs.page.scss']
 })
 export class TabsPage {
+ 
+
 isOpen = false;
  
 toggle() {
@@ -19,16 +25,29 @@ toggle() {
   hideTabBar: boolean = false;
  
   constructor(
+  private navCtrl: NavController,
   private actionSheetController: ActionSheetController,
   private router: Router,
-  private modalCtrl: ModalController
+  private modalCtrl: ModalController,
+  private platform: Platform
 ) {
 
+  // ✅ BACK BUTTON LOGIC
+  this.platform.backButton.subscribeWithPriority(10, () => {
+
+    if (this.router.url === '/tabs/home') {
+      (navigator as any).app?.exitApp();
+    } else {
+      this.navCtrl.back();
+    }
+
+  });
+
+  // existing logic
   this.router.events.subscribe(() => {
 
     const url = this.router.url;
 
-    // 🔹 CLOSE FAB whenever navigation happens
     this.isOpen = false;
 
     this.hideTabBar =
@@ -36,6 +55,7 @@ toggle() {
       url.includes('/tabs/edit') ||
       url.includes('/tabs/charts') ||
       url.includes('/tabs/payments') ||
+      url.includes('/tabs/coupons') ||
       url.startsWith('/tabs/address') ||
       url.startsWith('/tabs/change-password');
 
@@ -91,18 +111,35 @@ toggle() {
   }
 
   goToAddProduct() {
-    this.isOpen = false;
-    this.router.navigate(['products/add']);
-  }
+
+  this.isOpen = false;
+
+  this.router.navigate(
+    ['products/add'],
+    {
+      state: {
+        fromFab: true
+      }
+    }
+  );
+
+}
 
   goToAddCoupon() {
-    this.isOpen = false;
-    this.router.navigate(['coupons/add-coupon'], {
+
+  this.isOpen = false;
+
+  this.navCtrl.navigateForward(
+    '/tabs/coupons/add-coupon',
+    {
       state: {
-        autoOpenCreate: true
+        autoOpenCreate: true,
+        fromFab: true
       }
-    });
-  }
+    }
+  );
+
+}
 
 // closeFab() {
 //   this.isOpen = false;

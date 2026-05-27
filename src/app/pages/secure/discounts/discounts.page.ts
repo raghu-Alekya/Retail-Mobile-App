@@ -13,6 +13,7 @@ export class DiscountsPage implements OnInit {
     activeFilter: string = 'all';
     loading = false;
     showForm = false;
+    isSaving = false;
     editingCoupon: any = null;
     page = 1;
     perPage = 10;
@@ -47,7 +48,7 @@ export class DiscountsPage implements OnInit {
       type: '',
       qty: '',
       selectedProductPrice: '',
-      discount_product_ids: []
+      discount_product_ids: [] as number[]
     };
 
     
@@ -90,7 +91,7 @@ markChanged() {
   this.form.type = value;   // ✅ only update form
 }
   onProductSearch(event: any) {
-    const value = event?.detail?.value?.trim();
+    const value = event.target.value?.trim();
     clearTimeout(this.searchTimeout);
     if (!value) {
       this.showSuggestions = false;
@@ -220,9 +221,7 @@ markChanged() {
       this.productSuggestions = [];
 
       if (coupon.product_label) {
-        this.productSearch = coupon.product_label;   // ✅ FIX
-  this.selectedProductName = coupon.product_label;
-
+        this.restoreProduct(coupon.product_label);
       } else {
         this.productSearch = '';
         this.selectedProductName = '';
@@ -260,24 +259,48 @@ markChanged() {
       }
     }
     async saveCoupon() {
-      this.formSubmitted = true;
 
-      if (!this.isFormValid()) {
-        return;
-      }
-      let prevfilter = this.activeFilter;
-      if (this.editingCoupon) {
-        await this.auth.updateDiscount(this.editingCoupon.id, this.form);
-      } else {
-        await this.auth.createDiscount(this.form);
-        prevfilter = 'all';
-      }
-      
-      this.showForm = false;
-      this.resetForm();     
-      await this.loadDiscounts();
-      this.setFilter(prevfilter);
+  // ✅ Prevent multiple clicks
+  if (this.isSaving) {
+    return;
+  }
+
+  this.formSubmitted = true;
+
+  if (!this.isFormValid()) {
+    return;
+  }
+
+  this.isSaving = true;
+
+  try {
+
+    let prevfilter = this.activeFilter;
+
+    if (this.editingCoupon) {
+      await this.auth.updateDiscount(this.editingCoupon.id, this.form);
+    } else {
+      await this.auth.createDiscount(this.form);
+      prevfilter = 'all';
     }
+
+    this.showForm = false;
+    this.resetForm();
+
+    await this.loadDiscounts();
+
+    this.setFilter(prevfilter);
+
+  } catch (err) {
+
+    this.presentToast('Failed to save discount');
+
+  } finally {
+
+    this.isSaving = false;
+
+  }
+}
     isFormValid(): boolean {
       const f = this.form;
       if (!f.product_id) {
