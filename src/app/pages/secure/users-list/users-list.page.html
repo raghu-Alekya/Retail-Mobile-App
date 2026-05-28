@@ -95,14 +95,34 @@
     
     <!-- Username -->
      <ion-label position="stacked">User Name</ion-label>
-      <div class="form-field">
-        <ion-input
-          placeholder="Enter username"
-          [(ngModel)]="editedUser.username"
-          (ionInput)="checkChanges()"
-          [disabled]="isUsernameLocked">
-        </ion-input>
-      </div>
+
+<div
+  class="form-field"
+  [class.invalid]="
+    usernameTouched &&
+    editedUser.username &&
+    containsEmoji(editedUser.username)
+  "
+>
+  <ion-input
+    placeholder="Enter username"
+    [(ngModel)]="editedUser.username"
+    (ionInput)="onUsernameInput($event)"
+    (ionBlur)="usernameTouched = true"
+    [disabled]="isUsernameLocked">
+  </ion-input>
+</div>
+
+<p
+  class="error-text"
+  *ngIf="
+    usernameTouched &&
+    editedUser.username &&
+    containsEmoji(editedUser.username)
+  "
+>
+  Username cannot contain emojis
+</p>
 
       <!-- Email -->
      <ion-label position="stacked">Email</ion-label>
@@ -122,24 +142,63 @@
 
     <!-- First Name -->
      <ion-label position="stacked">First Name</ion-label>
-      <div class="form-field">
 
-        <ion-input
-          placeholder="Enter first name"
-          [(ngModel)]="editedUser.first_name"
-          (ionInput)="checkChanges()">
-        </ion-input>
-      </div>
+<div
+  class="form-field"
+  [class.invalid]="
+    firstNameTouched &&
+    editedUser.first_name &&
+    containsEmoji(editedUser.first_name)
+  "
+>
+  <ion-input
+    placeholder="Enter first name"
+    [(ngModel)]="editedUser.first_name"
+    (ionInput)="onFirstNameInput($event)"
+    (ionBlur)="firstNameTouched = true">
+  </ion-input>
+</div>
+
+<p
+  class="error-text"
+  *ngIf="
+    firstNameTouched &&
+    editedUser.first_name &&
+    containsEmoji(editedUser.first_name)
+  "
+>
+  First Name cannot contain emojis
+</p>
 
     <!-- Last Name -->
      <ion-label position="stacked">Last Name</ion-label>
-      <div class="form-field">
-        <ion-input
-          placeholder="Enter last name"
-          [(ngModel)]="editedUser.last_name"
-          (ionInput)="checkChanges()">
-        </ion-input>
-      </div>
+
+<div
+  class="form-field"
+  [class.invalid]="
+    lastNameTouched &&
+    editedUser.last_name &&
+    containsEmoji(editedUser.last_name)
+  "
+>
+  <ion-input
+    placeholder="Enter last name"
+    [(ngModel)]="editedUser.last_name"
+    (ionInput)="onLastNameInput($event)"
+    (ionBlur)="lastNameTouched = true">
+  </ion-input>
+</div>
+
+<p
+  class="error-text"
+  *ngIf="
+    lastNameTouched &&
+    editedUser.last_name &&
+    containsEmoji(editedUser.last_name)
+  "
+>
+  Last Name cannot contain emojis
+</p>
 
     <!-- Role -->
      <ion-label position="stacked">Employee Role</ion-label>
@@ -207,12 +266,15 @@
       expand="block"
       class="save-btn"
       [disabled]="
-        !editedUser.email ||
-        !editedUser.role ||
-        !isValidEmail(editedUser.email) ||
-        (editedUser.phone && !isValidPhone(editedUser.phone)) ||
-        (editedUser.emp_login_pin && !isValidPin(editedUser.emp_login_pin))
-      "
+  containsEmoji(editedUser.username) ||
+  containsEmoji(editedUser.first_name) ||
+  containsEmoji(editedUser.last_name) ||
+  !editedUser.email ||
+  !editedUser.role ||
+  !isValidEmail(editedUser.email) ||
+  (editedUser.phone && !isValidPhone(editedUser.phone)) ||
+  (editedUser.emp_login_pin && !isValidPin(editedUser.emp_login_pin))
+"
       (click)="saveChanges()">
       Save Changes
     </ion-button>

@@ -1659,4 +1659,51 @@ async validateToken(token: string): Promise<{ valid: boolean }> {
   }
 }
 
+async logout_by_id(emp_login_pin: number) {
+
+    const emp_login_pinn = emp_login_pin || 0;
+
+    let url = localStorage.getItem('wp_base_url');
+
+    if (!url) {
+      url = this.apiConfig.getBaseUrl();
+    }
+
+    const res = await Http.request({
+      method: 'POST',
+      url: `${url}/wp-json/pinaka-pos/v1/token/logout-by-id`,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: {
+        emp_login_pin: emp_login_pinn
+      }
+    });
+
+    return res.data;
+  }
+  async validateuser(token: string): Promise<{ valid: boolean }> {
+
+    this.wpBase = this.apiConfig.getBaseUrl();
+
+    try {
+      const res = await Http.request({
+        method: 'GET',
+        url: `${this.wpBase}/wp-json/pinaka-pos/v1/profile`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json'
+        }
+      });
+      if (res?.status === 403 || res?.status === 401) {
+        return { valid: false };
+      }
+      else{
+        return { valid: true };
+      }
+    } catch (error) {
+      console.error('Token validation failed:', error);
+      return { valid: false };
+    }
+  }
 }

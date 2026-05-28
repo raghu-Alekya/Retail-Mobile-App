@@ -132,7 +132,7 @@
 .actions ion-icon {
   cursor: pointer;
 }
- 
+
  
 /* Search */
 .search-wrapper {
@@ -192,11 +192,14 @@
 /* Expand section */
 .order-expand {
   //margin-top: 12px;
-  padding: 14px;
+  padding: 6px;
   background: #ffffff;
   border-radius: 12px;
 }
  
+.payment-total-row ion-icon {
+  margin-right: 10px !important; /* value adjust cheskondi */
+}
 .expand-section {
   margin-bottom: 12px;
 }
@@ -432,20 +435,39 @@ ion-content {
   display: flex;
   gap: 8px;
   padding: 8px;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+
+  -webkit-overflow-scrolling: touch;
+
+  scrollbar-width: none; /* Firefox */
+}
+
+.filter-tabs::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
 }
  
 .filter-tabs ion-chip {
-  --background: #e4e4e4;
+  flex-shrink: 0;
+  --background: #ffffff;
   --color: #000000;
-  border-radius: 10px;   /* makes rectangular shape */
+  border-radius: 10px;
   height: 40px;
   font-size: 16px;
   padding: 10px 14px;
+  border-width: 0.8px;
+  border-style: solid;
+  border-color:#dbdbdb;
+  margin-top:5px;
 }
  
 .filter-tabs ion-chip.active {
   --background: #264c73;  /* dark active color */
   --color: #fff;
+  border-color:#dbdbdb;
+  font-weight:600;
 }
  
 /* Force border radius override (important for Ionic) */
@@ -460,13 +482,13 @@ ion-content {
   margin-top:8px;
 }
  
-.payment-total-row .payment{
+.payment-total-row .total{
   font-size: inherit;
   font-weight: inherit;
  
 }
  
-.payment-total-row .total{
+.payment-total-row .actions{
   font-size: inherit;
   font-weight: inherit;
 }
@@ -492,6 +514,189 @@ ion-content {
   font-size: 14px;
 }
  
+.summary {
+  background: #faf7ff;
+  border: 1px solid #e9e9e9;
+  border-radius: 14px;
+  padding: 4px 18px;
+  margin-top: 10px;
+}
+
+.payment-summary-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #000000;
+
+  margin: 0 0 8px 0;
+  padding-left: 4px;
+}
+
+.summary .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #272727;
+}
+
+.summary .coupon {
+  color: #66bb6a;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: -8px;
+  margin-bottom: -20px;
+}
+
+.summary .net-total {
+  font-size: 22px;
+  font-weight: 700;
+  margin-top: -6px;
+  margin-bottom: -8px;
+}
+
+.summary .net-total span {
+  font-size: 16px;
+  font-weight: 600;
+  color: #272727;
+}
+
+.summary .tax {
+  color: #949494;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: -8px;
+}
+
+.summary .tax span:last-child {
+  color: #949494;
+  font-weight: 500;
+}
+
+.summary-footer {
+  background: #faf7ff;
+  border: 1px solid #e9e9e9;
+  border-radius: 12px;
+
+  padding: 10px 12px;
+  margin-top: 8px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.summary-total {
+  font-size: 16px;
+  font-weight: 700;
+  color: #373535;
+}
+
+.collapse-icon {
+  font-size: 18px;
+  color: #666;
+}
+
+.summary .merchant {
+  color: #007bff;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: -8px;
+}
+
+.summary .merchant span:last-child {
+  color: #007bff;
+  font-weight: 600;
+}
+
+.summary .cashback-fee {
+  color: #5ed1ba;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: -8px;
+}
+
+.summary .cashback-fee span:last-child {
+  color: #5ed1ba;
+  font-weight: 600;
+}
+
+.summary .service-charge {
+  color: #949494;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: -8px;
+  
+}
+
+.summary .service-charge span:last-child {
+  color: #949494;
+  font-weight: 500;
+}
+
+.separator {
+  border-top: 1px dashed #d8d8d8;
+  font-size: 16px;
+  margin: 8px 0;
+}
+
+.summary .row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.count-badge {
+  margin-left: 8px;
+  min-width: 30px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.completed-badge {
+  background: #e8ffef;
+  color: #1ba629;
+}
+.pending-badge {
+  background: #fff8e1;
+  color: #f9a825;
+}
+.processing-badge {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+.onhold-badge {
+  background: #ede7f6;
+  color: #673ab7;
+}
+.cancelled-badge {
+  background: #ffebee;
+  color: #e53935;
+}
+.refunded-badge {
+  background: #E8D9FF;
+  color: #7C3AED;
+}
+.partial-badge {
+  background: #FCE7F3;
+  color: #BE185D;
+}
+.all-badge {
+  background: #BEDDFF;
+  color: #007EFF;
+}
+.filter-tabs ion-chip.active .count-badge {
+  background: #ffffff;
+  color:#264c73;
+  font-weight:600;
+}
 /////////////////////////////////////////////
  
 /* iOS ONLY - Orders Header Fix */

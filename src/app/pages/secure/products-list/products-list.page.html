@@ -80,11 +80,18 @@
 
     <div class="product-top">
       <img
-        [src]="product.images?.[0]?.src || 'assets/img/placeholder.png'"
+        [src]="product.images?.[0]?.src || 'assets/img/Custom image.png'"
       />
 
       <div class="product-info">
-        <h3 class="product-name">{{ product.name }}</h3>
+        <h3 class="product-name">{{ product.name }}
+        <span
+  class="ebt-badge"
+  *ngIf="hasEbtTag(product)"
+>
+  EBT
+</span>
+</h3>
 
   <h6 class="price-text">
     <span class="price-label">Regular Price:</span>
@@ -124,7 +131,7 @@
     </div>
 
     <div class="product-bottom">
-      <span>#{{ product.id }}</span>
+      <span></span>
 
       <div class="badges">
         <span class="type">{{ product.type }}</span>

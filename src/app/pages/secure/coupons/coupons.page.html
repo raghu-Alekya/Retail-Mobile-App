@@ -60,9 +60,9 @@
       <div class="description" *ngIf="coupon.description">
         {{ coupon.description }}
       </div>
-
+      <!-- pravalika changes -->
       <div class="amount">
-        Amount: ${{ coupon.amount }} (
+        Amount: ${{ coupon.amount | number:'1.2-2'}} (
         {{
           coupon.discount_type === 'fixed_cart'
             ? 'Cart Discount'
@@ -72,6 +72,7 @@
         }}
         )
       </div>
+      <!-- end's here -->
 
       <div class="divider-row">
         <div class="expiry-text" *ngIf="coupon.date_expires">

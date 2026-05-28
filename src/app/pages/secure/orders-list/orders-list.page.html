@@ -40,30 +40,84 @@
   <div *ngIf="loading && orders.length === 0" class="loader-wrapper">
     <ion-spinner name="crescent"></ion-spinner>
   </div>
+  
  
   <div class="filter-tabs" *ngIf="!(loading && orders.length === 0)">
-    <ion-chip
+
+  <!-- All -->
+  <ion-chip
     [class.active]="activeFilter === 'all'"
     (click)="setFilter('all')">
-      All
-    </ion-chip>
- 
-    <ion-chip [class.active]="activeFilter === 'completed'"
+    All
+    <span class="count-badge all-badge">
+      {{ getStatusCount('all') }}
+    </span>
+  </ion-chip>
+
+  <!-- Selected Status (next to All) -->
+  <ion-chip
+    *ngIf="activeFilter !== 'all'"
+    class="active"
+    (click)="showMoreStatuses = true">
+
+    {{ getStatusLabel(activeFilter) }}
+
+    <span class="count-badge">
+      {{ getStatusCount(activeFilter) }}
+    </span>
+  </ion-chip>
+
+  <!-- Completed -->
+  <ion-chip
+    *ngIf="activeFilter !== 'completed'"
     (click)="setFilter('completed')">
-      Completed
-    </ion-chip>
- 
-    <ion-chip [class.active]="activeFilter === 'pending'"
+    Completed
+    <span class="count-badge completed-badge">
+      {{ getStatusCount('completed') }}
+    </span>
+  </ion-chip>
+
+  <!-- Pending -->
+  <ion-chip
+    *ngIf="activeFilter !== 'pending'"
     (click)="setFilter('pending')">
-      Pending
-    </ion-chip>
- 
-    <ion-chip
-      [class.active]="!['all','completed','pending'].includes(activeFilter)"
-      (click)="showMoreStatuses = true">
-      More
-    </ion-chip>
-  </div>
+    Pending
+    <span class="count-badge pending-badge">
+      {{ getStatusCount('pending') }}
+    </span>
+  </ion-chip>
+
+  <!-- Cancelled -->
+  <ion-chip
+    *ngIf="activeFilter !== 'cancelled'"
+    (click)="setFilter('cancelled')">
+    Cancelled
+    <span class="count-badge cancelled-badge">
+      {{ getStatusCount('cancelled') }}
+    </span>
+  </ion-chip>
+
+  <!-- Refunded -->
+  <ion-chip
+    *ngIf="activeFilter !== 'refunded'"
+    (click)="setFilter('refunded')">
+    Refunded
+    <span class="count-badge refunded-badge">
+      {{ getStatusCount('refunded') }}
+    </span>
+  </ion-chip>
+
+  <!-- Partial Refunded -->
+  <ion-chip
+    *ngIf="activeFilter !== 'partial-refund'"
+    (click)="setFilter('partial-refund')">
+    Partial Refunded
+    <span class="count-badge partial-badge">
+      {{ getStatusCount('partial-refund') }}
+    </span>
+  </ion-chip>
+
+</div>
   <!-- <div *ngIf="!orders || orders.length === 0" class="no-orders">
     No Orders Found
   </div> -->
@@ -100,7 +154,7 @@
     <!-- Meta -->
     <div class="order-meta">
       {{ timeAgo(order.date_created) }} ·
-      {{ order.line_items.length }} items
+      {{ getTotalItemCount(order) }} items
     </div>
    
     <!-- Product thumbnails -->
@@ -110,7 +164,7 @@
         *ngFor="let item of order.line_items | slice:0:4"
       >
         <img
-          [src]="($any(item).image?.src) || 'assets/img/placeholder.png'"
+          [src]="($any(item).image?.src) || 'assets/img/Custom image.png'"
         />
         <span class="qty">{{ $any(item).quantity }}</span>
       </div>
@@ -123,31 +177,32 @@
     </div>
  
     <!-- PAYMENT + TOTAL (UPDATED SECTION) -->
-      <div class="payment-total-row">
+      
+    <hr class="my-1"/>
+
+    <div class="payment-total-row">
  
-        <div class="payment">
-          {{ order.payment_method_title }}
- 
-          <span *ngIf="order.shipping_lines?.length">
-            &nbsp; | &nbsp; {{ order.shipping_lines[0].method_title }}
-          </span>
-        </div>
+        
  
         <div class="total">
           TOTAL:
           <span>
             <ng-container *ngIf="getOrderTotal(order) < 0; else normalTotal">
-              -{{currencySymbol}}{{ getOrderTotal(order) * -1 }}
+              -{{currencySymbol}}{{ getOrderTotal(order) * -1 | number:'1.2-2' }}
             </ng-container>
  
             <ng-template #normalTotal>
-              {{currencySymbol}}{{ getOrderTotal(order) }}
+              {{currencySymbol}}{{ getOrderTotal(order) | number:'1.2-2' }}
             </ng-template>
           </span>
         </div>
+
+        <ion-icon
+        name="expand-outline"
+        (click)="toggleExpand(order.id); $event.stopPropagation()"
+      ></ion-icon>
  
       </div>
-    <hr class="my-1"/>
     <!-- Actions -->
     <!-- <div class="actions">
        <ion-icon
@@ -168,10 +223,7 @@
      
  
       <!-- Expand / Fullscreen -->
-      <ion-icon
-        name="expand-outline"
-        (click)="toggleExpand(order.id); $event.stopPropagation()"
-      ></ion-icon>
+      
     </div>
     </ng-container>
  
@@ -184,7 +236,7 @@
             <h4>#{{ order.id }}</h4>
             <div class="expand-meta">
               {{ timeAgo(order.date_created) }} ·
-              {{ order.line_items.length }} items
+              {{ getTotalItemCount(order) }} items
             </div>
           </div>
  
@@ -199,14 +251,15 @@
         </div>
  
         <div
-          class="expand-item"
-          *ngFor="let item of order.line_items"
-          [class.refunded-item]="getRefundType(item) !== 'none'"
-        >
+  class="expand-item"
+  *ngFor="let item of order.line_items"
+  [hidden]="item.product_data?.slug === 'discount'"
+  [class.refunded-item]="getRefundType(item) !== 'none'"
+>
           <div class="expand-thumb-wrapper">
             <img
               class="expand-thumb"
-              [src]="($any(item).image?.src) || 'assets/img/placeholder.png'"
+              [src]="($any(item).image?.src) || 'assets/img/Custom image.png'"
             />
             <span class="expand-qty">{{ item.quantity }}</span>
           </div>
@@ -234,7 +287,7 @@
             class="qty-price"
             *ngIf="!['payout','cashback','discount'].includes(item.product_data?.slug)"
           >
-            Price: {{currencySymbol}}{{ item.product_data.price }}
+            Price: {{currencySymbol}}{{ item.product_data.price | number:'1.2-2' }}
           </div>
  
             <!-- <span *ngFor="let meta of item.meta_data"> -->
@@ -263,7 +316,7 @@
                   [ngClass]="getDiscount(item)?.type">
  
                   {{ getDiscount(item)?.label }}:
-                  -{{currencySymbol}}{{ getDiscount(item)?.amount }}
+                  -{{currencySymbol}}{{ getDiscount(item)?.amount | number:'1.2-2' }}
  
                 </div>
  
@@ -285,8 +338,12 @@
               {{currencySymbol}}0.00
             </ng-container>
  
-            <ng-template #normalAmount>
-              {{currencySymbol}}{{ item.total }}
+            <ng-container *ngIf="+item.subtotal < 0; else positiveAmount">
+              -{{ currencySymbol }}{{ (item.subtotal * -1) | number:'1.2-2' }}
+            </ng-container>
+
+            <ng-template #positiveAmount>
+              {{ currencySymbol }}{{ item.subtotal | number:'1.2-2' }}
             </ng-template>
  
           </div>
@@ -294,26 +351,26 @@
       </div>
  
       <!-- COUPONS -->
-      <div class="expand-section" *ngIf="order.coupon_lines?.length">
+      <!-- <div class="expand-section" *ngIf="order.coupon_lines?.length">
         <h4>Coupons</h4>
         <div
           class="row"
           *ngFor="let c of order.coupon_lines"
         >
-          <span>{{ c.code }}</span>
-          <span>-{{currencySymbol}}{{ c.discount }}</span>
+          <span>Code: {{ c.code }}</span>
+          <span>-{{currencySymbol}}{{ c.discount | number:'1.2-2' }}</span>
         </div>
-      </div>
+      </div> -->
  
       <!-- SUMMARY -->
-      <div class="expand-section summary">
-        <div class="row" *ngIf="getProductDiscount(order) > 0">
-  <span>Discount</span>
-  <span>-{{currencySymbol}}{{ getProductDiscount(order) }}</span>
-</div>
+      <!-- <div class="expand-section summary">
+        <div class="row" *ngIf="getDiscountLineItem(order) > 0">
+          <span>Merchant Discount</span>
+          <span>-{{currencySymbol}}{{ getDiscountLineItem(order) | number:'1.2-2' }}</span>
+        </div> -->
  
         <!-- Tax and Total in same row -->
-        <div class="tax-total-row">
+        <!-- <div class="tax-total-row">
           <div class="tax">
             Tax: {{ formatAmount(getOrderTax(order)) }}
           </div>
@@ -321,33 +378,100 @@
             Total: {{ formatAmount(getOrderTotal(order)) }}
           </div>
         </div>
-      </div>
+      </div> -->
+
+      <!-- SUMMARY -->
+      <h2 class="payment-summary-title">Payment Summary:</h2>
+<div class="expand-section summary">
+  <div class="row">
+  <span>Gross Total</span>
+  <span>
+  <ng-container *ngIf="getGrossTotal(order) < 0; else grossPositive">
+    -{{ currencySymbol }}{{ (getGrossTotal(order) * -1) | number:'1.2-2' }}
+  </ng-container>
+
+  <ng-template #grossPositive>
+    {{ currencySymbol }}{{ getGrossTotal(order) | number:'1.2-2' }}
+  </ng-template>
+</span>
+</div>
+
+<div class="row coupon">
+  <span>Coupon</span>
+  <span>
+    {{ getCouponTotal(order) > 0 ? '-' : '' }}
+    {{currencySymbol}}{{ getCouponTotal(order) | number:'1.2-2' }}
+  </span>
+</div>
+
+<div class="separator"></div>
+
+<div class="row net-total">
+  <span>Net Total</span>
+  <span>
+  <ng-container *ngIf="getNetTotal(order) < 0; else netPositive">
+    -{{ currencySymbol }}{{ (getNetTotal(order) * -1) | number:'1.2-2' }}
+  </ng-container>
+
+  <ng-template #netPositive>
+    {{ currencySymbol }}{{ getNetTotal(order) | number:'1.2-2' }}
+  </ng-template>
+</span>
+</div>
+
+<div class="row tax">
+  <span>Tax</span>
+  <span>{{ currencySymbol }}{{ getOrderTax(order) | number:'1.2-2' }}</span>
+</div>
+
+<div class="row merchant">
+  <span>Merchant Discount</span>
+  <span>
+    {{ getDiscountLineItem(order) > 0 ? '-' : '' }}
+    {{currencySymbol}}{{ getDiscountLineItem(order) | number:'1.2-2' }}
+  </span>
+</div>
+
+<div
+  class="row cashback-fee"
+  *ngIf="getCashbackFee(order) > 0"
+>
+  <span>Cashback Fee</span>
+  <span>
+    {{ currencySymbol }}{{ getCashbackFee(order) | number:'1.2-2' }}
+  </span>
+</div>
+
+<div class="row service-charge">
+  <span>Service Charges</span>
+  <span>{{currencySymbol}}{{ getServiceCharge(order) | number:'1.2-2' }}</span>
+</div>
+
+  </div>
+
+  <div class="summary-footer">
+
+  <div class="summary-total">
+    Total:
+<ng-container *ngIf="getFinalTotal(order) < 0; else totalPositive">
+  -{{ currencySymbol }}{{ (getFinalTotal(order) * -1) | number:'1.2-2' }}
+</ng-container>
+
+<ng-template #totalPositive>
+  {{ currencySymbol }}{{ getFinalTotal(order) | number:'1.2-2' }}
+</ng-template>
+  </div>
+
+  <ion-icon
+    class="collapse-icon"
+    name="contract-outline"
+    (click)="toggleExpand(order.id); $event.stopPropagation()">
+  </ion-icon>
+
+</div>
  
-      <!-- EXPAND FOOTER -->
+      
  
-      <div class="expand-footer">
-        <!-- Left: payment -->
-        <div class="payment">
-          {{ order.payment_method_title }}
-          <span *ngIf="order.shipping_lines?.length">
-            &nbsp; | &nbsp; {{ order.shipping_lines[0].method_title }}
-          </span>
-          <span *ngIf="!order.shipping_lines?.length">
-            &nbsp; | &nbsp; --
-          </span>
-        </div>
- 
-        <!-- Right: actions -->
-        <div class="expand-actions">
-         
- 
-          <!-- Collapse -->
-          <ion-icon
-            name="contract-outline"
-            (click)="toggleExpand(order.id); $event.stopPropagation()"
-          ></ion-icon>
-        </div>
-      </div>
     </div>
     </ng-container>
   </div>
@@ -385,7 +509,7 @@
           <ion-checkbox
             slot="start"
             [checked]="selectedStatus === s.value"
-            (ionChange)="selectStatus(s.value); showMoreStatuses=false"
+            
           >
           </ion-checkbox>
  

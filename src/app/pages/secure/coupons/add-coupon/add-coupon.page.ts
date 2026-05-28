@@ -21,6 +21,15 @@ showDatePicker = false;
 
   isDateModalOpen = false;
   isDirty = false;
+  // NEW VARIABLES
+  displayAmount = '0.00';
+  rawDigits = '';
+  displayMinAmount = '0.00';
+  rawMinDigits = '';
+  displayMaxAmount = '0.00';
+  rawMaxDigits = '';
+  couponCodeEmojiError = false;
+  today: string = new Date().toISOString().split('T')[0];
   coupon: any = {
   code: '',
   description: '',
@@ -41,8 +50,45 @@ showDatePicker = false;
     private router: Router
   ) {}
 
-  startEdit(field: string) {
+  containsEmoji(value: string): boolean {
+
+  if (!value) {
+    return false;
+  }
+
+  const emojiRegex =
+    /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
+
+  return emojiRegex.test(value);
+}
+
+onCouponCodeChange(value: string) {
+
+  if (this.containsEmoji(value)) {
+
+    this.coupon.code = value.replace(
+      /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu,
+      ''
+    );
+
+    this.couponCodeEmojiError = true;
+    return;
+  }
+
+  this.couponCodeEmojiError = false;
+  this.coupon.code = value;
+
+  this.markDirty();
+}
+
+startEdit(field: string) {
+
   this.editing = field;
+
+  if (field === 'amount') {
+    this.rawDigits = '';
+    this.displayAmount = '0.00';
+  }
 
   setTimeout(() => {
     const inputs = document.querySelectorAll('ion-input input');
@@ -72,7 +118,74 @@ onDateSelected(event: any) {
   stopEdit() {
     this.editing = null;
   }
+  onAmountInput(event: any) {
 
+  const value =
+    event?.detail?.value ||
+    event?.target?.value ||
+    '';
+
+  this.rawDigits = value.replace(/[^\d]/g, '');
+
+  const amount =
+    Number(this.rawDigits || '0') / 100;
+
+  this.displayAmount =
+    amount.toFixed(2);
+
+  this.coupon.amount = amount;
+
+  event.target.value = this.displayAmount;
+}
+  onMinAmountInput(event: any) {
+
+  const value =
+    event?.detail?.value ||
+    event?.target?.value ||
+    '';
+
+  this.rawMinDigits =
+    value.replace(/[^\d]/g, '');
+
+  const amount =
+    Number(this.rawMinDigits || '0') / 100;
+
+  this.displayMinAmount =
+    amount.toFixed(2);
+
+  this.coupon.minAmount =
+    amount.toFixed(2);
+
+  event.target.value =
+    this.displayMinAmount;
+
+  this.markDirty();
+}
+
+  onMaxAmountInput(event: any) {
+
+  const value =
+    event?.detail?.value ||
+    event?.target?.value ||
+    '';
+
+  this.rawMaxDigits =
+    value.replace(/[^\d]/g, '');
+
+  const amount =
+    Number(this.rawMaxDigits || '0') / 100;
+
+  this.displayMaxAmount =
+    amount.toFixed(2);
+
+  this.coupon.maxAmount =
+    amount.toFixed(2);
+
+  event.target.value =
+    this.displayMaxAmount;
+
+  this.markDirty();
+}
 
   
   async saveCoupon() {
@@ -81,6 +194,21 @@ onDateSelected(event: any) {
     alert('Code and Amount required');
     return;
   }
+
+  const min =
+  Number(this.coupon.minAmount || 0);
+
+const max =
+  Number(this.coupon.maxAmount || 0);
+
+if (min > 0 && max > 0 && min > max) {
+
+  alert(
+    'Minimum amount should be less than maximum amount'
+  );
+
+  return;
+}
 
   const payload = {
     code: this.coupon.code,
@@ -103,20 +231,33 @@ onDateSelected(event: any) {
 
   console.log("SENDING TO API:", payload);
 
-  try {
-    const response = await this.auth.createCoupon(payload);
+try {
 
-    if (response.success) {
-      alert('Coupon Created Successfully');
-      this.resetForm();
-      this.navCtrl.navigateBack('/tabs/coupons');
-    }
+  const response = await this.auth.createCoupon(payload);
 
-  } catch (error) {
-    console.error("API ERROR:", error);
+  console.log('RESPONSE:', response);
+
+  if (response?.code === 'duplicate_coupon') {
+
+    alert('Coupon code already exists');
+    return;
   }
+
+  alert('Coupon Created Successfully');
+
+  this.resetForm();
+
+  this.navCtrl.navigateBack('/tabs/coupons');
+
+} catch (error: any) {
+
+  console.error(error);
+
+  alert('Unable to create coupon');
+}
 }
 resetForm() {
+  this.couponCodeEmojiError = false;
   this.coupon = {
     code: '',
     description: '',

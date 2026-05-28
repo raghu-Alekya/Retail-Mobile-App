@@ -39,6 +39,9 @@ export class ProductFormPage implements OnInit {
   isScanning = false;
   pageReady = false;
   isSubmitting = false;
+  titleError = '';
+hasTitleEmoji = false;
+isDirty = false;
   product: any = {
     name: '',
     description: '',
@@ -56,6 +59,7 @@ export class ProductFormPage implements OnInit {
     // stock_quantity: null,
     manage_stock: false,
     category_id: null,
+    
   };
 
   constructor(
@@ -72,39 +76,41 @@ export class ProductFormPage implements OnInit {
   );
 }
 
+markDirty() {
+  this.isDirty = true;
+}
+
   async ngOnInit() {
+
+  this.pageReady = false;
 
   const id = this.route.snapshot.paramMap.get('id');
 
-  // detect edit mode
   if (id) {
     this.isEdit = true;
     this.productId = +id;
   }
 
-  // show UI
-  this.pageReady = true;
-
   try {
-    // ✅ STEP 1: Load base data first
+
     await Promise.all([
       this.loadCategories(),
       this.loadTags(),
       this.loadTaxClasses()
     ]);
 
-    // ✅ STEP 2: Load product (after taxClasses)
     if (this.isEdit) {
       await this.loadProduct();
     }
 
-    // ✅ STEP 3: Load attributes if needed
     if (this.product.type === 'variable') {
       await this.loadAttributes();
     }
 
   } catch (error) {
     console.error('Init failed:', error);
+  } finally {
+    this.pageReady = true;
   }
 }
 stripHtml(html: string): string {
@@ -275,6 +281,7 @@ stripHtml(html: string): string {
     if (!this.selectedTaxClassSlug && this.taxClasses.length > 0) {
       this.selectedTaxClassSlug = this.taxClasses[0].slug;
     }
+    this.isDirty = false;
   }
   async loadExistingVariations() {
     try {
@@ -1091,13 +1098,24 @@ getSelectedTaxLabel(): string {
   }
   
   async scanSku() {
+  try {
     this.isScanning = true;
+
     const code = await this.barcodeService.scan();
+
+    console.log('SCANNED CODE:', code);
+
     this.isScanning = false;
+
     if (code) {
       this.product.sku = code;
+      console.log('SKU UPDATED:', this.product.sku);
     }
+  } catch (e) {
+    this.isScanning = false;
+    console.error('SCAN ERROR:', e);
   }
+}
 
   removeImage() {
     this.imagePreview = null;
@@ -1142,6 +1160,7 @@ getCategoryName(id: number): string {
 }
 
 onPriceInput(event: any, field: 'regular_price' | 'sale_price') {
+  this.markDirty();
   let value = event.target.value || '';
 
   // remove all non-numbers
@@ -1153,6 +1172,23 @@ onPriceInput(event: any, field: 'regular_price' | 'sale_price') {
   // save value
   this.product[field] = numberValue.toFixed(2);
   this.validatePrices();
+}
+
+onTitleInput(event: any) {
+  this.markDirty();
+  const value = event.target.value || '';
+
+  const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+
+  if (emojiRegex.test(value)) {
+    this.hasTitleEmoji = true;
+    this.titleError = 'Emojis are not allowed in product title';
+  } else {
+    this.hasTitleEmoji = false;
+    this.titleError = '';
+  }
+
+  this.product.name = value.replace(emojiRegex, '');
 }
 
 formatPrice(value: any): string {
@@ -1177,6 +1213,24 @@ validatePrices() {
     this.salePriceError = '';
   }
 }
+
+onVariationPriceInput(combo: any[], event: any) {
+  this.markDirty();
+
+  let value = event.target.value || '';
+
+  // keep only digits
+  value = value.replace(/\D/g, '');
+
+  // right-to-left currency format
+  const numberValue = Number(value) / 100;
+
+  const formatted = numberValue.toFixed(2);
+
+  const key = this.buildVariationKey(combo);
+  this.variationPrices[key] = Number(formatted);
+}
+
   // taxClasses = [
   //   { id: 1, name: 'Standard rate', percentage: 18, slug: '' },
   //   { id: 2, name: 'Reduced rate', percentage: 5, slug: 'reduced-rate' },

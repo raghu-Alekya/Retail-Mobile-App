@@ -71,23 +71,19 @@
             Closing Bal:
             <span class="amount">${{ shift.closingBalance | number:'1.2-2' }}</span>
           </p>
-
+          <!-- pravalika changes  -->
           <p class="muted">
             Over/Short:
-            <span class="amount">
-    {{ shift.overShort | number:'1.2-2' }}
-  </span>
+            <span class="amount">{{ formatCurrency(shift.overShort) }}</span>
           </p>
+        <!-- ends here -->
         </div>
       </div>
-
-      
-
-      <div class="bottom-row">
-  <span>
-    <span class="label">Start:</span>
-    <span class="value">{{ shift.startTime }}</span>
-  </span>
+  <div class="bottom-row">
+    <span>
+      <span class="label">Start:</span>
+      <span class="value">{{ shift.startTime }}</span>
+    </span>
 
   <span>
     <span class="label">End:</span>

@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header *ngIf="!isScanning">
   <ion-toolbar class="dark-toolbar">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
@@ -11,6 +11,13 @@
     
   </ion-toolbar>
 </ion-header>
+
+<ng-container *ngIf="!pageReady">
+  <div class="page-loader">
+    <ion-spinner name="crescent"></ion-spinner>
+    <!-- <p>Loading product data...</p> -->
+  </div>
+</ng-container>
 
 <ion-content *ngIf="pageReady" [class.scanner-active]="isScanning">
   <ion-card class="settings-card image-block">
@@ -81,7 +88,10 @@
   <!-- <ion-card> -->
     <ion-item lines="full">
       <ion-label position="stacked">SKU</ion-label>
-      <ion-input [(ngModel)]="product.sku"></ion-input>
+      <ion-input
+  [(ngModel)]="product.sku"
+  (ionInput)="markDirty()">
+</ion-input>
       <!-- <ion-icon name="barcode-outline" slot="end"></ion-icon> -->
       <ion-button size="small" slot="end" (click)="scanSku()">Scan</ion-button>
     </ion-item>
@@ -113,8 +123,13 @@
   #titleInput
   [(ngModel)]="product.name"
   placeholder="Product name"
-  (ionBlur)="editTitle = false"
-></ion-input>
+  (ionInput)="onTitleInput($event); markDirty()"
+  (ionBlur)="editTitle = false">
+</ion-input>
+
+<div class="error-text" *ngIf="titleError">
+  {{ titleError }}
+</div>
 
   
 </ion-item>
@@ -142,8 +157,9 @@
   auto-grow="true"
   rows="2"
   placeholder="Add description"
-  (ionBlur)="editDescription = false"
-></ion-textarea>
+  (ionInput)="markDirty()"
+  (ionBlur)="editDescription = false">
+</ion-textarea>
 
   
 </ion-item>
@@ -173,11 +189,11 @@
   <ion-label>Tax Class</ion-label>
 
   <ion-select
-    slot="end"
-    [(ngModel)]="selectedTaxClassSlug"
-    [selectedText]="getSelectedTaxLabel()"
-    interface="popover"
-  >
+  slot="end"
+  [(ngModel)]="selectedTaxClassSlug"
+  (ionChange)="markDirty()"
+  [selectedText]="getSelectedTaxLabel()"
+  interface="popover">
     <ion-select-option
       *ngFor="let tax of taxClasses"
       [value]="tax.slug"
@@ -197,10 +213,10 @@
   <ion-label>Category</ion-label>
 
   <ion-select
-    slot="end"
-    [(ngModel)]="product.category_id"
-    interface="popover"
-  >
+  slot="end"
+  [(ngModel)]="product.category_id"
+  (ionChange)="markDirty()"
+  interface="popover">
     <ion-select-option
       *ngFor="let cat of categories"
       [value]="cat.id"
@@ -220,11 +236,11 @@
       </ion-label>
 
       <ion-select
-        slot="end"
-        multiple="true"
-        [(ngModel)]="product.tag_ids"
-        interface="popover"
-      >
+  slot="end"
+  multiple="true"
+  [(ngModel)]="product.tag_ids"
+  (ionChange)="markDirty()"
+  interface="popover">
         <ion-select-option *ngFor="let tag of tags" [value]="tag.id">
           {{ tag.name }}
         </ion-select-option>
@@ -243,11 +259,10 @@
       </ion-label>
 
       <ion-select
-        slot="end"
-        [(ngModel)]="product.type"
-        (ionChange)="onProductTypeChange()"
-        interface="popover"
-      >
+  slot="end"
+  [(ngModel)]="product.type"
+  (ionChange)="markDirty(); onProductTypeChange()"
+  interface="popover">
         <ion-select-option value="simple">Simple Product</ion-select-option>
         <ion-select-option value="variable">Variable Product</ion-select-option>
       </ion-select>
@@ -298,11 +313,10 @@
         <ion-item lines="none">
 
           <ion-checkbox
-            slot="start"
-            [checked]="selectedAttributes[attr.id]?.includes(term.name)"
-            (ionChange)="onAttributeToggle(attr.id, term.name, $event)"
-            >
-          </ion-checkbox>
+  slot="start"
+  [checked]="selectedAttributes[attr.id]?.includes(term.name)"
+  (ionChange)="markDirty(); onAttributeToggle(attr.id, term.name, $event)">
+</ion-checkbox>
 
           <ion-label>
             {{ term.name }}
@@ -363,12 +377,13 @@
       </div>
 
       <ion-input
-        type="number"
-        placeholder="Price"
-        class="variation-price"
-        [ngModel]="getVariationPrice(combo)"
-        (ngModelChange)="setVariationPrice(combo, $event)">
-      </ion-input>
+  type="tel"
+  inputmode="numeric"
+  placeholder="0.00"
+  class="variation-price"
+  [value]="formatPrice(getVariationPrice(combo))"
+  (ionInput)="onVariationPriceInput(combo, $event)">
+</ion-input>
     </div>
 
   </div>
@@ -385,18 +400,18 @@
 
   <!-- Display -->
   <div class="value-text" *ngIf="!editRegularPrice">
-    {{ product.regular_price ? formatPrice(product.regular_price) : 'Add regular price' }}
+    ${{ product.regular_price ? formatPrice(product.regular_price) : 'Add regular price' }}
   </div>
 
   <!-- Input -->
   <ion-input
   *ngIf="editRegularPrice"
   #regularPriceInput
-  type="text"
+  type="number"
   [value]="formatPrice(product.regular_price)"
-  (ionInput)="onPriceInput($event, 'regular_price')"
-  (ionBlur)="editRegularPrice = false"
-></ion-input>
+  (ionInput)="onPriceInput($event, 'regular_price'); markDirty()"
+  (ionBlur)="editRegularPrice = false">
+</ion-input>
 
 </ion-item>
 
@@ -409,18 +424,18 @@
 
   <!-- Display -->
   <div class="value-text" *ngIf="!editSalePrice">
-    {{ product.sale_price ? formatPrice(product.sale_price) : 'Add sale price' }}
+    ${{ product.sale_price ? formatPrice(product.sale_price) : 'Add sale price' }}
   </div>
 
   <!-- Input -->
   <ion-input
   *ngIf="editSalePrice"
   #salePriceInput
-  type="text"
+  type="number"
   [value]="formatPrice(product.sale_price)"
-  (ionInput)="onPriceInput($event, 'sale_price')"
-  (ionBlur)="editSalePrice = false"
-></ion-input>
+  (ionInput)="onPriceInput($event, 'sale_price'); markDirty()"
+  (ionBlur)="editSalePrice = false">
+</ion-input>
 
 </ion-item>
 <div class="error-text" *ngIf="salePriceError">
@@ -522,13 +537,12 @@
 
   <!-- SAVE / PUBLISH BUTTON -->
   <ion-button
-    expand="block"
-    class="save-btn"
-    (click)="publishProduct()"
-    [disabled]="isSubmitting"
-  >
-    {{ isSubmitting ? 'Please wait...' : (isEdit ? 'Save Changes' : 'Publish') }}
-  </ion-button>
+  expand="block"
+  class="save-btn"
+  (click)="publishProduct()"
+  [disabled]="isSubmitting || hasTitleEmoji || !isDirty">
+  {{ isSubmitting ? 'Please wait...' : (isEdit ? 'Save Changes' : 'Publish') }}
+</ion-button>
 
   <!-- DELETE BUTTON (EDIT ONLY) -->
   <ion-button
@@ -541,5 +555,16 @@
   >
     Delete Product
   </ion-button>
+
+  <!-- Scanner Overlay -->
+<div *ngIf="isScanning" class="scanner-overlay">
+  <div class="scan-box">
+    <div class="scan-line"></div>
+  </div>
+
+  <p class="scan-text">
+    Point camera at barcode
+  </p>
+</div>
 
 </ion-content>

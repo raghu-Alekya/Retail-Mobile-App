@@ -111,43 +111,45 @@
         <b>{{ t.tender_amount | currency:'INR' }}</b>
       </div>
     </div> -->
-    <div class="info-row">
-      <div>Order ID: <b>{{ p?.order_id || '-' }}</b></div>
-      <div>
-        Order Total:
-        <b>{{ p?.order_total ? (p.order_total) : '0.00' }}</b>
-      </div>
+  <div class="info-row">
+  <div>
+    Order ID:
+    <b>{{ p?.order_id || '-' }}</b>
+  </div>
+
+  <div>
+    Order Total:
+    <b>{{ formatCurrencyString(p?.order_total) }}</b>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="transactions">
+
+  <div
+    *ngFor="let t of p.transactions"
+    class="transaction-row">
+
+    <div class="mode">
+      Transaction ID:
+      <b>{{ t.transaction_id }}</b>
     </div>
-   <div class="divider"></div>
-    <!-- Transactions -->
-    <div class="transactions">
 
-      <div *ngFor="let t of p.transactions" class="transaction-row">
-
-        
-          <div class="mode">
-            Transaction ID: <b>{{ t.transaction_id }}</b>
-          </div>
-          
-        
-
-        
-            <div class="mode">
-              Tender Amount:
-              <b>{{ t.tender_amount }}</b>
-            </div>
-        
-
-        <div class="mode">
-            Payment Mode: <b>{{ t.pay_mode }}</b>
-        </div>
-
-      </div>
-
+    <div class="mode">
+      Tender Amount:
+      <b>{{ formatCurrencyString(t.tender_amount) }}</b>
     </div>
-    
 
-  </ion-card>
+    <div class="mode">
+      Payment Mode:
+      <b>{{ t.pay_mode }}</b>
+    </div>
+
+  </div>
+
+</div>
+</ion-card>
 
   <!-- Infinite Scroll -->
   <ion-infinite-scroll

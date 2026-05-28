@@ -18,6 +18,8 @@ export class VendorFormComponent implements OnInit {
   phoneError: string = '';
   emailError: string = '';
   isSaving = false;
+  vendorNameTouched = false;
+addressTouched = false;
 
   form = {
     title: '',
@@ -34,6 +36,29 @@ export class VendorFormComponent implements OnInit {
     private toastController: ToastController,
     private alertCtrl: AlertController
   ) {}
+
+  containsEmoji(text: string): boolean {
+  if (!text) return false;
+
+  return /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu.test(text);
+}
+
+removeEmojis(value: string): string {
+  return value.replace(
+    /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu,
+    ''
+  );
+}
+
+onVendorNameInput(event: any) {
+  const value = event.target.value || '';
+  this.form.title = this.removeEmojis(value);
+}
+
+onAddressInput(event: any) {
+  const value = event.target.value || '';
+  this.form.address = this.removeEmojis(value);
+}
 
   ngOnInit() {
     if (this.mode === 'edit' && this.vendor) {
@@ -98,6 +123,18 @@ validateEmail() {
   }
 }
   async save() {
+
+    if (
+  this.containsEmoji(this.form.title) ||
+  this.containsEmoji(this.form.address)
+) {
+  await this.presentToast(
+    'Vendor Name and Address cannot contain emojis',
+    'warning'
+  );
+  this.isSaving = false;
+  return;
+}
   if (this.isSaving) return;
 
   this.isSaving = true;

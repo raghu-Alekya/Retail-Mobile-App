@@ -82,8 +82,15 @@ ion-modal::part(content) {
 .field-block {
   position: relative;
   padding: 6px 0;
+  
 }
+.type-select {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
 
+  --padding-start: 0;
+  --inner-padding-start: 0;
+}
 .label {
   font-size: 15px;
   color: #353535;
@@ -239,6 +246,14 @@ ion-input {
   border-radius: 16px;
 }
 
+.field-error {
+  display: block;
+  color: var(--ion-color-danger);
+  font-size: 12px;
+  margin-top: 4px;
+  margin-left: 16px;
+}
+
 /////////////////////////////////////////////
 
 /* iOS ONLY - Orders Header Fix */
@@ -312,4 +327,16 @@ ion-input {
 /* iOS ONLY - Add bottom padding to header */
 :host-context(.ios) .custom-header ion-toolbar {
   --padding-bottom: 10px;   /* 👈 adjust (10–16px based on your UI) */
+}
+.currency-input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.currency-symbol {
+  font-size: 14px;
+  font-weight: 400;
+  margin-right: 0px;
+  margin-top:5px;
+  color: #111827;
 }

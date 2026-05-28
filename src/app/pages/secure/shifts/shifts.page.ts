@@ -290,12 +290,9 @@ getDuration(start: string, end: string): string {
 
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 }
-
 formatCurrency(value: number): string {
-  if (value < 0) {
-    return `-$${Math.abs(value)}`;
-  }
-  return `$${value}`;
+  const amount = Math.abs(value || 0).toFixed(2);
+  return value < 0 ? `-$${amount}` : `$${amount}`;
 }
 // openShift(shift: any) {
 //   console.log('Shift clicked:', shift);

@@ -201,6 +201,39 @@ ion-item::part(native) {
   color: #9e9e9e; /* light grey like placeholder */
 }
 
+.error-text {
+  color: #dc3545;
+  font-size: 12px;
+  margin: 6px 16px;
+}
+
+.currency-input-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.currency-symbol {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  margin-right: 4px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.currency-input-wrapper ion-input {
+  flex: 1;
+}
+
+.field-error {
+  display: block;
+  color: var(--ion-color-danger);
+  font-size: 12px;
+  margin-top: 4px;
+  margin-left: 16px;
+}
+
 /////////////////////////////////////////////
 
 /* iOS ONLY - Orders Header Fix */

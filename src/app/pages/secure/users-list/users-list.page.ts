@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController,NavController } from '@ionic/angular';
 import { AddUserComponent } from './modals/add-user/add-user.component';
 import { AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
@@ -24,16 +24,51 @@ export class UsersListPage {
   customRoles: any[] = [];
   isUsernameLocked = false;
   loading = false;
-
+  popupShown = false;
   private searchTimeout: any;
+  usernameTouched = false;
+firstNameTouched = false;
+lastNameTouched = false;
 
   constructor(
   private authService: AuthService,
   private modalCtrl: ModalController,
+  private navCtrl: NavController,
   private alertCtrl: AlertController,
   private router: Router,
   private toastCtrl: ToastController
 ) {}
+
+containsEmoji(text: string): boolean {
+  if (!text) return false;
+
+  return /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu.test(text);
+}
+
+removeEmojis(value: string): string {
+  return value.replace(
+    /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu,
+    ''
+  );
+}
+
+onUsernameInput(event: any) {
+  const value = event.target.value || '';
+  this.editedUser.username = this.removeEmojis(value);
+  this.checkChanges();
+}
+
+onFirstNameInput(event: any) {
+  const value = event.target.value || '';
+  this.editedUser.first_name = this.removeEmojis(value);
+  this.checkChanges();
+}
+
+onLastNameInput(event: any) {
+  const value = event.target.value || '';
+  this.editedUser.last_name = this.removeEmojis(value);
+  this.checkChanges();
+}
 
 async ngOnInit() {
 
@@ -54,7 +89,7 @@ async ngOnInit() {
   }
 }
   async openAddEmployee() {
-
+    this.checktoken();
   const modal = await this.modalCtrl.create({
     component: AddUserComponent,
     componentProps: {
@@ -76,6 +111,7 @@ async ngOnInit() {
 
 editEmployee(user: any) {
 
+  this.checktoken();  
   this.editingUserId = user.id;
 
   this.editedUser = {
@@ -149,6 +185,18 @@ async deleteUser(id: number) {
   await alert.present();
 }
   async saveChanges() {
+
+    if (
+  this.containsEmoji(this.editedUser.username) ||
+  this.containsEmoji(this.editedUser.first_name) ||
+  this.containsEmoji(this.editedUser.last_name)
+) {
+  this.showAlert(
+    'Validation Error',
+    'Username, First Name and Last Name cannot contain emojis'
+  );
+  return;
+}
     try {
 
       const payload: any = {
@@ -307,4 +355,107 @@ limitPinLength(event: any) {
   // clear backend error on typing
   this.pinError = '';
 }
+ async checktoken() {
+    
+  const token = localStorage.getItem('user_data') ? JSON.parse(localStorage.getItem('user_data')!).token : null;
+
+    if (!token || token === 'undefined' || token === 'null') {
+
+      await this.showLogoutPopup();
+
+      return false;
+    }
+
+    try {
+
+      const res: any = await this.authService.validateuser(token);
+      if (
+        res?.valid === 'false' ||
+        res?.valid === false ||
+        res?.valid === '0' ||
+        res?.valid === 0
+      ) {
+
+        await this.showLogoutPopup();
+
+        return false;
+      }
+
+      // TOKEN VALID
+      if (res?.valid) {
+        return true;
+      }
+
+      return true;
+
+    } catch (error: any) {
+  await this.showLogoutPopup();
+
+  return false;
+    }
+  }
+  async showLogoutPopup() {
+
+    if (this.popupShown) {
+      return;
+    }
+
+    this.popupShown = true;
+
+    let countdown = 5;
+
+    const alert = await this.alertCtrl.create({
+      cssClass: 'custom-logout-alert',
+      backdropDismiss: false,
+
+      message: `
+        <div class="logout-popup">
+
+          <img src="../../assets/session-logout.png" class="logout-img" />
+
+          <div class="logout-title">
+            You've been logged out
+          </div>
+
+          <div class="logout-message">
+            Your account was logged in from another device.
+            For security reasons your session has ended.
+          </div>
+
+          <div class="logout-countdown">
+            Redirecting in <span id="countdown">${countdown}</span>
+          </div>
+
+        </div>
+      `
+    });
+
+    await alert.present();
+
+    const interval = setInterval(async () => {
+
+      countdown--;
+
+      const countdownEl = document.getElementById('countdown');
+
+      if (countdownEl) {
+        countdownEl.innerText = countdown.toString();
+      }
+
+      if (countdown === 0) {
+
+        clearInterval(interval);
+
+        await alert.dismiss();
+
+        localStorage.clear();
+        sessionStorage.clear();
+
+        this.popupShown = false;
+
+        await this.navCtrl.navigateRoot('/signin');
+      }
+
+    }, 1000);
+  }
 }
