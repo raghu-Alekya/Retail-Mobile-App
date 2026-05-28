@@ -4,6 +4,7 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { Router } from '@angular/router';
+import { is, tr } from 'date-fns/locale';
 
 @Component({
   selector: 'app-signin',
@@ -19,6 +20,8 @@ export class SigninPage implements OnInit {
   showPassword = false;
   error = '';
   loading = false;
+  showSessionPopup = false;
+  loginResponse: any = null;
   constructor(
     private authService: AuthService,
     private loadingController: LoadingController,
@@ -35,8 +38,8 @@ export class SigninPage implements OnInit {
       site_url: ['', Validators.compose([Validators.required])]
     });
     // DEBUG: Prefill inputs
-    this.signin_form.get('email').setValue('vijay.nadipineni@alekyatechsolutions.com');
-    this.signin_form.get('password').setValue('Retail@1234$');
+    this.signin_form.get('email').setValue('KrishnamRaju.Gudla@AlekyaTechSolutions.com');
+    this.signin_form.get('password').setValue('Krishna@1234$');
     this.signin_form.get('site_url').setValue('merchantretail.alektasolutions.com');
   }
 
@@ -64,21 +67,23 @@ export class SigninPage implements OnInit {
     await loading.present();
 
     try {
-      // 🔥 IMPORTANT: await login
       const res = await this.authService.login(
         this.signin_form.value.email,
         this.signin_form.value.password,
         this.signin_form.value.site_url
       );
-
+      this.loginResponse = res;
+      if (res?.data?.isSessionActive) {
+        this.showSessionPopup = true;
+        return;
+      }
       // Optional safety check
       const token = localStorage.getItem('wc_token');
 
       if (!token) {
         throw new Error('Token not stored');
       }
-      console.log(token);
-      // ✅ Navigate ONLY after token exists
+
       await this.router.navigateByUrl('tabs/home', { replaceUrl: true });
 
     } catch (error) {
@@ -98,6 +103,41 @@ export class SigninPage implements OnInit {
   togglePassword() {
     this.showPassword = !this.showPassword;
   }
+  async continueLogin() {
+    try {
+      const logged_in_pin =
+        this.loginResponse?.data?.loggedInWithPin;
+      if (logged_in_pin) {
 
+        try {
+          await this.authService.logout_by_id(logged_in_pin);
+        } catch (err) {
 
+          console.log('Ignoring logout error', err);
+        }
+      }
+
+      this.showSessionPopup = false;
+      const token = localStorage.getItem('wc_token');
+
+      if (!token) {
+        throw new Error('Token not stored');
+      }
+      this.signIn();
+    } catch (e) {
+
+      console.error(e);
+
+      this.toastService.presentToast(
+        'Error',
+        'Unable to continue login',
+        'top',
+        'danger',
+        2000
+      );
+    }
+  }
+  closePopup() {
+    this.showSessionPopup = false;
+  }
 }

@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { AlertController, ToastController } from '@ionic/angular';
+import { AlertController, ToastController,NavController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import axios from 'axios';
 import { ApiConfigService } from 'src/app/services/api-config.service';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-discounts',
   templateUrl: './discounts.page.html',
@@ -13,7 +14,6 @@ export class DiscountsPage implements OnInit {
     activeFilter: string = 'all';
     loading = false;
     showForm = false;
-    isSaving = false;
     editingCoupon: any = null;
     page = 1;
     perPage = 10;
@@ -34,7 +34,7 @@ export class DiscountsPage implements OnInit {
     validationError: string = '';
     searchTerm: string = ''; //////////
     allDiscounts: any[] = []; /////////
-  
+    private popupShown = false;
     form = {
       code: '',
       discount_type: 'percent',
@@ -58,7 +58,8 @@ export class DiscountsPage implements OnInit {
       private auth: AuthService,
       private alertCtrl: AlertController,
       private toastCtrl: ToastController,
-      private apiConfig: ApiConfigService
+      private apiConfig: ApiConfigService,
+      private navCtrl: NavController
     ) {}
     wpBases = this.apiConfig.getBaseUrl();
   ngOnInit() {
@@ -185,6 +186,7 @@ markChanged() {
 
   
     openCreate() {
+      this.checktoken();
       this.resetForm();
       this.showForm = true;
       this.productSearch = '';
@@ -198,7 +200,7 @@ markChanged() {
   
     async openEdit(coupon: any) {
       // console.log(coupon);
-      
+      this.checktoken();
       this.filter_type = coupon.type;
       this.editingCoupon = coupon;
       this.formChanged = false;  
@@ -259,48 +261,24 @@ markChanged() {
       }
     }
     async saveCoupon() {
+      this.formSubmitted = true;
 
-  // ✅ Prevent multiple clicks
-  if (this.isSaving) {
-    return;
-  }
-
-  this.formSubmitted = true;
-
-  if (!this.isFormValid()) {
-    return;
-  }
-
-  this.isSaving = true;
-
-  try {
-
-    let prevfilter = this.activeFilter;
-
-    if (this.editingCoupon) {
-      await this.auth.updateDiscount(this.editingCoupon.id, this.form);
-    } else {
-      await this.auth.createDiscount(this.form);
-      prevfilter = 'all';
+      if (!this.isFormValid()) {
+        return;
+      }
+      let prevfilter = this.activeFilter;
+      if (this.editingCoupon) {
+        await this.auth.updateDiscount(this.editingCoupon.id, this.form);
+      } else {
+        await this.auth.createDiscount(this.form);
+        prevfilter = 'all';
+      }
+      
+      this.showForm = false;
+      this.resetForm();     
+      await this.loadDiscounts();
+      this.setFilter(prevfilter);
     }
-
-    this.showForm = false;
-    this.resetForm();
-
-    await this.loadDiscounts();
-
-    this.setFilter(prevfilter);
-
-  } catch (err) {
-
-    this.presentToast('Failed to save discount');
-
-  } finally {
-
-    this.isSaving = false;
-
-  }
-}
     isFormValid(): boolean {
       const f = this.form;
       if (!f.product_id) {
@@ -498,4 +476,112 @@ onAutoApplyChange(event: any) {
     event.detail.checked ? 'yes' : 'no';
 }
   ///////////////////////////////
+  async checktoken() {
+    
+  const token = localStorage.getItem('user_data') ? JSON.parse(localStorage.getItem('user_data')!).token : null;
+
+    if (!token || token === 'undefined' || token === 'null') {
+      this.showForm = false;
+
+      await this.showLogoutPopup();
+
+      return false;
+    }
+
+    try {
+
+      const res: any = await this.auth.validateuser(token);
+      if (
+        res?.valid === 'false' ||
+        res?.valid === false ||
+        res?.valid === '0' ||
+        res?.valid === 0
+      ) {
+        this.showForm = false;
+
+        await this.showLogoutPopup();
+
+        return false;
+      }
+
+      // TOKEN VALID
+      if (res?.valid) {
+        return true;
+      }
+
+      return true;
+
+    } catch (error: any) {
+
+       this.showForm = false;
+
+      await this.showLogoutPopup();
+
+      return false;
+    } 
+  }
+  async showLogoutPopup() {
+
+    if (this.popupShown) {
+      return;
+    }
+
+    this.popupShown = true;
+
+    let countdown = 5;
+
+    const alert = await this.alertCtrl.create({
+      cssClass: 'custom-logout-alert',
+      backdropDismiss: false,
+
+      message: `
+        <div class="logout-popup">
+
+          <img src="../../assets/session-logout.png" class="logout-img" />
+
+          <div class="logout-title">
+            You've been logged out
+          </div>
+
+          <div class="logout-message">
+            Your account was logged in from another device.
+            For security reasons your session has ended.
+          </div>
+
+          <div class="logout-countdown">
+            Redirecting in <span id="countdown">${countdown}</span>
+          </div>
+
+        </div>
+      `
+    });
+
+    await alert.present();
+
+    const interval = setInterval(async () => {
+
+      countdown--;
+
+      const countdownEl = document.getElementById('countdown');
+
+      if (countdownEl) {
+        countdownEl.innerText = countdown.toString();
+      }
+
+      if (countdown === 0) {
+
+        clearInterval(interval);
+
+        await alert.dismiss();
+
+        localStorage.clear();
+        sessionStorage.clear();
+
+        this.popupShown = false;
+
+        await this.navCtrl.navigateRoot('/signin');
+      }
+
+    }, 1000);
+  }
 }

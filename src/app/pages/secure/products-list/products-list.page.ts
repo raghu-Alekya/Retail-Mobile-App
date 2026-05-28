@@ -10,6 +10,7 @@ import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner/ngx';
   templateUrl: './products-list.page.html',
   styleUrls: ['./products-list.page.scss']
 })
+
 export class ProductsListPage implements OnInit {
 
   products: any[] = [];

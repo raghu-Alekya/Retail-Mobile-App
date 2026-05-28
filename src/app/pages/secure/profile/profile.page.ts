@@ -5,7 +5,6 @@ import { NavController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { ActionSheetController } from '@ionic/angular';
-import { ToastController } from '@ionic/angular';
 
 
 @Component({
@@ -39,8 +38,7 @@ export class ProfilePage implements OnInit {
   private navCtrl: NavController,
   private alertController: AlertController,
   private authService: AuthService,
-  private actionSheetCtrl: ActionSheetController,
-  private toastController: ToastController,
+  private actionSheetCtrl: ActionSheetController
 ) {}
 
 ngOnInit() {
@@ -59,9 +57,10 @@ async loadProfile() {
     const res = await this.authService.getProfile();
     this.user = res;
 
-    const imageRes = await this.authService.getProfileImage();
-    this.savedImage = imageRes?.image || null;
-
+    // const imageRes = await this.authService.getProfileImage();
+    const imageRes = null;
+    // this.savedImage = imageRes?.image || null;
+    this.savedImage = null;
   } catch (err) {
     console.error("Profile load error", err);
   }
@@ -115,21 +114,13 @@ onFileSelected(event: any) {
       this.isBlurActive = false;
 
       // ✅ SUCCESS POPUP
-      const toast = await this.toastController.create({
-  message: 'Profile image updated successfully!',
-  duration: 2000,
-  position: 'top',
-  color: 'success',
-  cssClass: 'ios-success-toast',
-  buttons: [
-    {
-      icon: 'checkmark-circle',
-      side: 'start'
-    }
-  ]
-});
+      const alert = await this.alertController.create({
+        header: 'Success',
+        message: 'Profile image updated successfully!',
+        buttons: ['OK']
+      });
 
-await toast.present();
+      await alert.present();
     }
 
   } catch (err) {
@@ -159,11 +150,14 @@ async signOut() {
       {
         text: 'Sign Out',
         handler: async () => {
-
+          const employeePin = localStorage.getItem('user_data') ? JSON.parse(localStorage.getItem('user_data')!).loggedInWithPin : null;
+          if(employeePin) {
+              await this.authService.logout_by_id(employeePin);
+          }
           // Clear everything properly
           localStorage.clear();
           sessionStorage.clear();
-
+          
           // If AuthService stores user
           this.authService.logout?.();  // (if you have logout method)
 
@@ -245,4 +239,20 @@ async deleteImage() {
     console.error('Delete failed', err);
   }
 }
+// async getProfileImage() {
+//   const token = this.getToken();
+//   const baseUrl = this.apiConfig.getBaseUrl();
+ 
+//   const res = await Http.request({
+//     method: 'GET',
+//     url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/get-image`,
+//     headers: {
+//       Authorization: `Bearer ${token}`
+//     }
+//   });
+ 
+//   return typeof res.data === 'string'
+//     ? JSON.parse(res.data)
+//     : res.data;
+// }
 }
