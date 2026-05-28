@@ -1,58 +1,65 @@
+// import { Injectable } from '@angular/core';
+// import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner/ngx';
+
+// @Injectable({ providedIn: 'root' })
+// export class BarcodeService {
+
+//   constructor(private barcodeScanner: BarcodeScanner) {}
+
+//   async scan(): Promise<string | null> {
+//     const data = await this.barcodeScanner.scan({
+//       preferFrontCamera: false,
+//       showFlipCameraButton: true,
+//       showTorchButton: true,
+//       prompt: 'Scan product barcode',
+//       formats: 'EAN_13,EAN_8,UPC_A,UPC_E,CODE_128,QR_CODE',
+//     });
+
+//     if (!data.cancelled) {
+//       return data.text;
+//     }
+
+//     return null;
+//   }
+// }
+
 import { Injectable } from '@angular/core';
-import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
+import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 
 @Injectable({
   providedIn: 'root'
 })
-export class BarcodeServiceService {
+export class BarcodeService {
 
-  async scanBarcode(): Promise<string | null> {
+  async scan(): Promise<string | null> {
     try {
-      const support = await BarcodeScanner.isSupported();
-      if (!support.supported) {
-        throw new Error('Barcode scanning is not supported on this device');
+
+      const status = await BarcodeScanner.checkPermission({ force: true });
+
+      if (!status.granted) {
+        return null;
       }
 
-      // Install Google scanner module on Android only when missing.
-      const moduleAvailability = await BarcodeScanner.isGoogleBarcodeScannerModuleAvailable();
-      if (!moduleAvailability.available) {
-        await BarcodeScanner.installGoogleBarcodeScannerModule();
-      }
+      BarcodeScanner.hideBackground();
 
-      // STEP 2: Request permission
-      const permission = await BarcodeScanner.requestPermissions();
+      const result = await BarcodeScanner.startScan();
 
-      if (permission.camera !== 'granted') {
-        throw new Error('Camera permission denied');
-      }
+console.log('SCAN RESULT:', result);
 
-      // STEP 3: Start scan
-      const result = await BarcodeScanner.scan();
+      BarcodeScanner.showBackground();
+      BarcodeScanner.stopScan();
 
-      if (result.barcodes.length > 0) {
-        return result.barcodes[0].rawValue || null;
+      if (result.hasContent) {
+        return result.content;
       }
 
       return null;
 
     } catch (error) {
-      console.error('Barcode scanning error:', error);
-      throw error;
+      console.error('Barcode scan failed', error);
+      BarcodeScanner.showBackground();
+      BarcodeScanner.stopScan();
+      return null;
     }
-  }
-
-  // Optional: Method to check permissions separately
-  async checkPermissions() {
-    return await BarcodeScanner.checkPermissions();
-  }
-
-  // Optional: Method to request permissions
-  async requestPermissions() {
-    return await BarcodeScanner.requestPermissions();
-  }
-
-  // Optional: Method to stop scanning if needed
-  async stopScan() {
-    await BarcodeScanner.stopScan();
   }
 }

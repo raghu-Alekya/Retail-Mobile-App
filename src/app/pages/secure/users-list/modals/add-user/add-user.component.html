@@ -15,14 +15,36 @@
 <ion-content class="ion-padding">
 
   <!-- Username -->
-   <ion-label position="stacked">Username</ion-label>
-  <ion-item class="form-field">
-    <ion-input
-      [(ngModel)]="user.username"
-      name="username"
-      placeholder="Enter username">
-    </ion-input>
-  </ion-item>
+   <!-- Username -->
+<ion-label position="stacked">Username</ion-label>
+
+<ion-item
+  class="form-field"
+  [class.invalid]="
+    usernameTouched &&
+    user.username &&
+    containsEmoji(user.username)
+  "
+>
+  <ion-input
+    [(ngModel)]="user.username"
+    name="username"
+    placeholder="Enter username"
+    (ionInput)="onUsernameInput($event)"
+    (ionBlur)="usernameTouched = true">
+  </ion-input>
+</ion-item>
+
+<p
+  class="error-text"
+  *ngIf="
+    usernameTouched &&
+    user.username &&
+    containsEmoji(user.username)
+  "
+>
+  Username cannot contain emojis
+</p>
 
   <!-- Email -->
   <ion-label position="stacked">Email</ion-label>
@@ -41,23 +63,61 @@
 
   <!-- First Name -->
    <ion-label position="stacked">First Name</ion-label>
-  <ion-item class="form-field">
-    
-    <ion-input
-      [(ngModel)]="user.first_name"
-      placeholder="Enter first name">
-    </ion-input>
-  </ion-item>
+
+<ion-item
+  class="form-field"
+  [class.invalid]="
+    firstNameTouched &&
+    user.first_name &&
+    containsEmoji(user.first_name)
+  "
+>
+  <ion-input
+    [(ngModel)]="user.first_name"
+    placeholder="Enter first name"
+    (ionBlur)="firstNameTouched = true">
+  </ion-input>
+</ion-item>
+
+<p
+  class="error-text"
+  *ngIf="
+    firstNameTouched &&
+    user.first_name &&
+    containsEmoji(user.first_name)
+  "
+>
+  First Name cannot contain emojis
+</p>
 
   <!-- Last Name -->
    <ion-label position="stacked">Last Name</ion-label>
-  <ion-item class="form-field">
-    
-    <ion-input
-      [(ngModel)]="user.last_name"
-      placeholder="Enter last name">
-    </ion-input>
-  </ion-item>
+
+<ion-item
+  class="form-field"
+  [class.invalid]="
+    lastNameTouched &&
+    user.last_name &&
+    containsEmoji(user.last_name)
+  "
+>
+  <ion-input
+    [(ngModel)]="user.last_name"
+    placeholder="Enter last name"
+    (ionBlur)="lastNameTouched = true">
+  </ion-input>
+</ion-item>
+
+<p
+  class="error-text"
+  *ngIf="
+    lastNameTouched &&
+    user.last_name &&
+    containsEmoji(user.last_name)
+  "
+>
+  Last Name cannot contain emojis
+</p>
 
   <!-- Employee Role -->
    <ion-label position="stacked">Employee Role</ion-label>
@@ -134,6 +194,9 @@
   expand="block"
   class="create-user-btn"
   [disabled]="
+    containsEmoji(user.username) ||
+    containsEmoji(user.first_name) ||
+    containsEmoji(user.last_name) ||
     !isValidEmail(user.email) ||
     (user.phone && !isValidPhone(user.phone)) ||
     (user.emp_login_pin && !isValidPin(user.emp_login_pin))

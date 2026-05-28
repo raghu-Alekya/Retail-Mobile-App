@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, NgZone, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AlertController, IonicModule, IonInput, IonTextarea } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { BarcodeServiceService } from 'src/app/services/barcode-service.service';
+import { BarcodeService } from 'src/app/services/barcode-service.service';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
 
@@ -24,7 +24,6 @@ export class ProductFormPage implements OnInit {
   imagePreview: string | null = null;
   selectedFile: File | null = null;
   selectedNativeImagePath: string | null = null;
-  selectedNativeImageDataUrl: string | null = null;
   categories: any[] = [];
   tags: any[] = [];
   attributes: any[] = [];
@@ -40,6 +39,9 @@ export class ProductFormPage implements OnInit {
   isScanning = false;
   pageReady = false;
   isSubmitting = false;
+  titleError = '';
+hasTitleEmoji = false;
+isDirty = false;
   product: any = {
     name: '',
     description: '',
@@ -57,6 +59,7 @@ export class ProductFormPage implements OnInit {
     // stock_quantity: null,
     manage_stock: false,
     category_id: null,
+    
   };
 
   constructor(
@@ -64,8 +67,7 @@ export class ProductFormPage implements OnInit {
     private authService: AuthService,
     private alertCtrl: AlertController,
     private router: Router, 
-    private barcodeService: BarcodeServiceService,
-    private ngZone: NgZone
+    private barcodeService: BarcodeService
   ) {}
 
   getSelectedTaxClass() {
@@ -74,39 +76,41 @@ export class ProductFormPage implements OnInit {
   );
 }
 
+markDirty() {
+  this.isDirty = true;
+}
+
   async ngOnInit() {
+
+  this.pageReady = false;
 
   const id = this.route.snapshot.paramMap.get('id');
 
-  // detect edit mode
   if (id) {
     this.isEdit = true;
     this.productId = +id;
   }
 
-  // show UI
-  this.pageReady = true;
-
   try {
-    // ✅ STEP 1: Load base data first
+
     await Promise.all([
       this.loadCategories(),
       this.loadTags(),
       this.loadTaxClasses()
     ]);
 
-    // ✅ STEP 2: Load product (after taxClasses)
     if (this.isEdit) {
       await this.loadProduct();
     }
 
-    // ✅ STEP 3: Load attributes if needed
     if (this.product.type === 'variable') {
       await this.loadAttributes();
     }
 
   } catch (error) {
     console.error('Init failed:', error);
+  } finally {
+    this.pageReady = true;
   }
 }
 stripHtml(html: string): string {
@@ -277,6 +281,7 @@ stripHtml(html: string): string {
     if (!this.selectedTaxClassSlug && this.taxClasses.length > 0) {
       this.selectedTaxClassSlug = this.taxClasses[0].slug;
     }
+    this.isDirty = false;
   }
   async loadExistingVariations() {
     try {
@@ -503,17 +508,6 @@ tax_class: this.selectedTaxClassSlug || '',
           const media = await this.authService.uploadMediaFromPath(
             this.selectedNativeImagePath
           );
-          payload.images = [{ id: media.id }];
-        } catch (error) {
-          console.error('Failed to upload image', error);
-        }
-      } else if (this.selectedNativeImageDataUrl) {
-        try {
-          const nativeImageFile = this.dataUrlToFile(
-            this.selectedNativeImageDataUrl,
-            `product-${Date.now()}.jpg`
-          );
-          const media = await this.authService.uploadMedia(nativeImageFile);
           payload.images = [{ id: media.id }];
         } catch (error) {
           console.error('Failed to upload image', error);
@@ -901,7 +895,6 @@ tax_class: this.selectedTaxClassSlug || '',
 
     this.selectedFile = file;
     this.selectedNativeImagePath = null;
-    this.selectedNativeImageDataUrl = null;
 
     // Preview
     const reader = new FileReader();
@@ -920,49 +913,38 @@ tax_class: this.selectedTaxClassSlug || '',
 
   async openNativeGallery() {
     try {
-      const isAndroid = Capacitor.getPlatform() === 'android';
-
-      // Request explicit permissions to avoid Android runtime edge-cases.
-      const permission = isAndroid
-        ? await Camera.requestPermissions({ permissions: ['photos', 'camera'] })
-        : await Camera.requestPermissions({ permissions: ['photos'] });
-
-      const hasPhotoPermission =
-        permission.photos === 'granted' || permission.photos === 'limited';
-
-      if (!hasPhotoPermission) {
-        await this.showAlert(
-          'Permission Required',
-          'Please allow photo access to pick an image.',
-          'danger'
-        );
-        return;
-      }
-
       const image = await Camera.getPhoto({
-        quality: 80,
-        resultType: CameraResultType.DataUrl, // 🔥 CHANGE THIS
+        quality: 90,
+        resultType: CameraResultType.Uri,
         source: CameraSource.Photos
       });
 
-      // Reset file
       this.selectedFile = null;
-      this.selectedNativeImagePath = null;
-      this.selectedNativeImageDataUrl = image.dataUrl || null;
 
-      if (image.dataUrl) {
-        this.imagePreview = image.dataUrl;
+      if (image.path) {
+        this.selectedNativeImagePath = image.path;
       } else {
-        this.imagePreview = null;
+        this.selectedNativeImagePath = null;
       }
 
+      const previewUrl =
+        image.webPath ||
+        (image.path ? Capacitor.convertFileSrc(image.path) : null);
+
+      if (!previewUrl) {
+        this.imagePreview = null;
+        return;
+      }
+
+      try {
+        // Data URL preview is the most reliable format on iOS WebView.
+        this.imagePreview = await this.toDataUrl(previewUrl);
+      } catch {
+        // Fallback to direct URL if conversion fails.
+        this.imagePreview = previewUrl;
+      }
     } catch (error) {
       console.error('Image pick failed', error);
-      await this.showAlert(
-        'Image Pick Failed',
-        'Unable to open gallery. Please check app permissions and try again.',
-        'danger'
-      );
     }
   }
 
@@ -1116,43 +1098,29 @@ getSelectedTaxLabel(): string {
   }
   
   async scanSku() {
-    if (this.isScanning) return;
-
+  try {
     this.isScanning = true;
-    try {
-      const scanResult = await this.barcodeService.scanBarcode();
-      const code = (scanResult || '').trim();
 
-      if (!code) {
-        await this.showAlert(
-          'Scan Failed',
-          'No barcode detected. Please try again.',
-          'danger'
-        );
-        return;
-      }
+    const code = await this.barcodeService.scan();
 
-      // Barcode plugin callbacks can run outside Angular zone.
-      this.ngZone.run(() => {
-        this.product.sku = code;
-      });
-    } catch (error) {
-      console.error('SKU scan failed:', error);
-      await this.showAlert(
-        'Scan Failed',
-        'Unable to scan SKU. Please try again.',
-        'danger'
-      );
-    } finally {
-      this.isScanning = false;
+    console.log('SCANNED CODE:', code);
+
+    this.isScanning = false;
+
+    if (code) {
+      this.product.sku = code;
+      console.log('SKU UPDATED:', this.product.sku);
     }
+  } catch (e) {
+    this.isScanning = false;
+    console.error('SCAN ERROR:', e);
   }
+}
 
   removeImage() {
     this.imagePreview = null;
     this.selectedFile = null;
     this.selectedNativeImagePath = null;
-    this.selectedNativeImageDataUrl = null;
   }
 
   enableTitleEdit() {
@@ -1192,6 +1160,7 @@ getCategoryName(id: number): string {
 }
 
 onPriceInput(event: any, field: 'regular_price' | 'sale_price') {
+  this.markDirty();
   let value = event.target.value || '';
 
   // remove all non-numbers
@@ -1203,6 +1172,23 @@ onPriceInput(event: any, field: 'regular_price' | 'sale_price') {
   // save value
   this.product[field] = numberValue.toFixed(2);
   this.validatePrices();
+}
+
+onTitleInput(event: any) {
+  this.markDirty();
+  const value = event.target.value || '';
+
+  const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+
+  if (emojiRegex.test(value)) {
+    this.hasTitleEmoji = true;
+    this.titleError = 'Emojis are not allowed in product title';
+  } else {
+    this.hasTitleEmoji = false;
+    this.titleError = '';
+  }
+
+  this.product.name = value.replace(emojiRegex, '');
 }
 
 formatPrice(value: any): string {
@@ -1228,20 +1214,23 @@ validatePrices() {
   }
 }
 
-private dataUrlToFile(dataUrl: string, filename: string): File {
-  const [meta, base64Data] = dataUrl.split(',');
-  const mimeMatch = meta?.match(/data:(.*?);base64/);
-  const mime = mimeMatch?.[1] || 'image/jpeg';
+onVariationPriceInput(combo: any[], event: any) {
+  this.markDirty();
 
-  const byteString = atob(base64Data || '');
-  const byteNumbers = new Array(byteString.length);
-  for (let i = 0; i < byteString.length; i++) {
-    byteNumbers[i] = byteString.charCodeAt(i);
-  }
+  let value = event.target.value || '';
 
-  const byteArray = new Uint8Array(byteNumbers);
-  return new File([byteArray], filename, { type: mime });
+  // keep only digits
+  value = value.replace(/\D/g, '');
+
+  // right-to-left currency format
+  const numberValue = Number(value) / 100;
+
+  const formatted = numberValue.toFixed(2);
+
+  const key = this.buildVariationKey(combo);
+  this.variationPrices[key] = Number(formatted);
 }
+
   // taxClasses = [
   //   { id: 1, name: 'Standard rate', percentage: 18, slug: '' },
   //   { id: 2, name: 'Reduced rate', percentage: 5, slug: 'reduced-rate' },

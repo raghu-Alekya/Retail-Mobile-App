@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning';
+import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner/ngx';
 
 @Component({
   selector: 'app-products-list',
@@ -129,6 +129,12 @@ setStockFilter(value: string){
   trackById(_: number, item: any) {
     return item.id;
   }
+
+  hasEbtTag(product: any): boolean {
+  return product?.tags?.some(
+    (tag: any) => tag.slug === 'ebt-eligible'
+  ) || false;
+}
 
   openProductDetails(productId: number) {
     this.router.navigate(['/products/edit', productId]);

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { CapacitorHttp } from '@capacitor/core';
+import { Http } from '@capacitor-community/http';
 import { ApiConfigService } from '../api-config.service';
 
 @Injectable({ providedIn: 'root' })
@@ -32,7 +32,7 @@ export class AssetsService {
 
     console.log("🔥 LOADING ASSETS (NATIVE HTTP)");
 
-    const res = await CapacitorHttp.request({
+    const res = await Http.request({
       method: 'GET',
       url,
       headers: {

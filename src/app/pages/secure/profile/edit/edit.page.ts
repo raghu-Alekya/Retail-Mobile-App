@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { Http } from '@capacitor-community/http';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { ToastController } from '@ionic/angular';
 import { NavController } from '@ionic/angular';

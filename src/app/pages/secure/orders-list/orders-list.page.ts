@@ -33,25 +33,73 @@ export class OrderListPage implements OnInit {
   ) { }
 
   async ngOnInit() {
-    await this.loadOrders();
 
-    this.assetsService.assets$.subscribe(assets => {
-      this.currencySymbol = assets?.currency_symbol;
-    });
-  }
+  await this.loadStatusCounts(); // <-- add this
 
+  await this.loadOrders();
+
+  this.assetsService.assets$.subscribe(assets => {
+    this.currencySymbol = assets?.currency_symbol;
+  });
+}
+
+async loadStatusCounts() {
+
+  const promises = this.statuses.map(async (s) => {
+    try {
+      const count = await this.authService.getDashboardStats(s.key);
+      return count;
+    } catch {
+      return 0;
+    }
+  });
+
+  const results = await Promise.all(promises);
+
+  this.statuses.forEach((status, index) => {
+    status.count = Number(results[index]) || 0;
+  });
+}
   /* ================================
      LOAD ORDERS
   ================================= */
-  setFilter(type: string) {
-    this.activeFilter = type;
-    this.selectedStatus = type;
-    this.page = 1;
-    this.orders = [];
-    this.hasMore = true;
-    this.loading = false; // release lock to prevent deadlock
-    this.loadOrders();
+  setFilter(status: string) {
+  this.activeFilter = status;
+  this.selectedStatus = status;
+
+  this.page = 1;
+  this.orders = [];
+  this.hasMore = true;
+
+  this.loadOrders();
+}
+
+statuses = [
+  { key: 'wc-completed', value: 'completed', count: 0 },
+  { key: 'wc-pending', value: 'pending', count: 0 },
+  { key: 'wc-cancelled', value: 'cancelled', count: 0 },
+  { key: 'wc-refunded', value: 'refunded', count: 0 },
+  { key: 'partial-refund', value: 'partial-refund', count: 0 },
+  { key: 'wc-on-hold', value: 'on-hold', count: 0 },
+  { key: 'wc-processing', value: 'processing', count: 0 }
+];
+
+  getStatusCount(value: string): number {
+
+  if (value === 'all') {
+    return this.statuses.reduce(
+      (total, status) => total + status.count,
+      0
+    );
   }
+
+  const status = this.statuses.find(
+    s => s.value === value
+  );
+
+  return status?.count || 0;
+}
+
   async loadOrders(event?: any) {
 
     if (this.loading || !this.hasMore) {
@@ -255,18 +303,18 @@ export class OrderListPage implements OnInit {
   ];
 
   showMoreStatuses = false;
-  selectStatus(status: string) {
-    if (this.loading) return;
-    this.selectedStatus = status;
-    this.activeFilter = status;
-    this.setFilter(status);
-    // reload when filter changes
-    this.page = 1;
-    this.orders = [];
-    this.hasMore = true;
+  // selectStatus(status: string) {
+  //   if (this.loading) return;
+  //   this.selectedStatus = status;
+  //   this.activeFilter = status;
+  //   this.setFilter(status);
+  //   // reload when filter changes
+  //   this.page = 1;
+  //   this.orders = [];
+  //   this.hasMore = true;
 
-    this.loadOrders();
-  }
+  //   this.loadOrders();
+  // }
 
   formatAmount(value: any): string {
     const num = Number(value || 0);
@@ -367,4 +415,91 @@ export class OrderListPage implements OnInit {
 
     return Number(value.toFixed(2));
   }
+
+  getDiscountLineItem(order: any): number {
+  const discountItem = order.line_items?.find(
+    (i: any) => i.product_data?.slug?.toLowerCase() === 'discount'
+  );
+
+  return Math.abs(Number(discountItem?.subtotal || 0));
+}
+
+getTotalItemCount(order: any): number {
+  return (order.line_items || [])
+    .filter((item: any) => item.product_data?.slug !== 'discount')
+    .reduce((sum: number, item: any) => sum + Number(item.quantity || 0), 0);
+}
+
+getCouponTotal(order: any): number {
+  return (order.coupon_lines || [])
+    .reduce((sum: number, c: any) => sum + Number(c.discount || 0), 0);
+}
+
+getServiceCharge(order: any): number {
+  return Number(order.shipping_total || 0);
+}
+
+getCashbackFee(order: any): number {
+  const hasCashback = (order.line_items || []).some(
+    (item: any) => item.product_data?.slug === 'cashback'
+  );
+
+  if (!hasCashback) {
+    return 0;
+  }
+
+  return (order.fee_lines || []).reduce(
+    (sum: number, fee: any) => sum + Number(fee.total || 0),
+    0
+  );
+}
+
+getGrossTotal(order: any): number {
+
+  const items = (order.line_items || [])
+    .filter((item: any) => item.product_data?.slug !== 'discount');
+
+  const total = items.reduce(
+    (sum: number, item: any) => sum + Number(item.subtotal || 0),
+    0
+  );
+
+  console.log('Gross Total =', total);
+
+  return total;
+}
+
+getNetTotal(order: any): number {
+  return this.getGrossTotal(order) - this.getCouponTotal(order);
+}
+
+getFinalTotal(order: any): number {
+  return (
+    this.getNetTotal(order) +
+    this.getOrderTax(order) -
+    this.getDiscountLineItem(order) +
+    this.getCashbackFee(order) +
+    this.getServiceCharge(order)
+  );
+}
+
+getStatusLabel(value: string): string {
+  const status = this.orderStatuses.find(s => s.value === value);
+  return status ? status.label : value;
+}
+
+selectStatus(status: string) {
+  this.activeFilter = status;
+  this.selectedStatus = status;
+  this.showMoreStatuses = false;
+  this.setFilter(status);
+}
+
+visibleStatuses = [
+  { value: 'pending', label: 'Pending' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'refunded', label: 'Refunded' },
+  { value: 'partial-refund', label: 'Partial Refunded' }
+];
 }

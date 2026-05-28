@@ -28,6 +28,9 @@ export class AddUserComponent implements OnInit {
   customRoles: any[] = [];
   userRole = '';
   pinError: string | null = null;
+  usernameTouched = false;
+firstNameTouched = false;
+lastNameTouched = false;
   user: any = {
   username: '',
   email: '',
@@ -64,6 +67,8 @@ get isFormDirty(): boolean {
   async ngOnInit() {
   await this.loadCustomRoles();
 }
+
+
 // async loadCustomRoles() {
 //   try {
 //     this.customRoles = await this.authService.getCustomRoles();
@@ -93,6 +98,7 @@ async loadCustomRoles() {
     this.modalCtrl.dismiss(false);
   }
 
+  
   
  async submit() {
 
@@ -137,6 +143,18 @@ async loadCustomRoles() {
     );
     return;
   }
+
+  if (
+  this.containsEmoji(this.user.username) ||
+  this.containsEmoji(this.user.first_name) ||
+  this.containsEmoji(this.user.last_name)
+) {
+  this.showAlert(
+    'Validation Error',
+    'Username, First Name and Last Name cannot contain emojis'
+  );
+  return;
+}
 
   try {
     const response = await this.authService.createEmployee({
@@ -221,5 +239,13 @@ async loadCustomRoles() {
   isValidPin(pin: string): boolean {
     return /^[0-9]{6}$/.test(pin);
   }
+
+ 
+
+containsEmoji(text: string): boolean {
+  if (!text) return false;
+
+  return /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu.test(text);
+}
   
 }

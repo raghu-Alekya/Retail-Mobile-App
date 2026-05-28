@@ -61,7 +61,34 @@
       </ion-button>
 
     </form>
+    <!-- SESSION ACTIVE MODAL -->
+    <div class="session-overlay" *ngIf="showSessionPopup">
 
+      <div class="session-popup">
+
+        <img src="../../../../assets/session-active.png" alt="session" class="session-img" />
+
+        <h2>Another Session Is Active</h2>
+
+        <p>
+          This account is currently active on another device.
+          Do you want to continue and log out from the other device?
+        </p>
+
+        <ion-button
+          expand="block"
+          class="continue-btn"
+          (click)="continueLogin()">
+          Continue
+        </ion-button>
+
+        <button class="cancel-btn" (click)="closePopup()">
+          Cancel
+        </button>
+
+      </div>
+
+    </div>
   </div>
 
 </ion-content>

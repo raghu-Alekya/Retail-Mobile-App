@@ -9,7 +9,10 @@ import { ApiConfigService } from 'src/app/services/api-config.service';
   styleUrls: ['./discounts.page.scss'],
 })
 export class DiscountsPage implements OnInit {
+    today: string = new Date().toISOString().split('T')[0];
     filteredDiscounts: any[] = [];
+    displayAmount = '0.00';
+    rawDigits = '';
     activeFilter: string = 'all';
     loading = false;
     showForm = false;
@@ -33,6 +36,8 @@ export class DiscountsPage implements OnInit {
     validationError: string = '';
     searchTerm: string = ''; //////////
     allDiscounts: any[] = []; /////////
+    discountEmojiError = false;
+    discountCodeEmojiError = false;
   
     form = {
       code: '',
@@ -49,6 +54,17 @@ export class DiscountsPage implements OnInit {
       selectedProductPrice: '',
       discount_product_ids: [] as number[]
     };
+    
+    getDiscountCount(type: string): number {
+
+    if (type === 'all') {
+      return this.allDiscounts.length;
+    }
+
+    return this.allDiscounts.filter(
+      d => d.type === type
+    ).length;
+  }
 
     
   
@@ -86,22 +102,80 @@ markChanged() {
   }
   
   onDiscountTypeChange(event: any) {
-  const value = event.target.value?.trim();
-  this.form.type = value;   // ✅ only update form
+
+  const selectedType =
+    event.detail.value;
+
+  Object.assign(this.form, {
+
+  type: selectedType,
+
+  code: '',
+  discount_type: '',
+
+  amount: '',
+  qty: '',
+
+  product_id: '',
+  discount_product_ids: [],
+
+  usage_limit: '',
+
+  date_starts: '',
+  date_expires: '',
+
+  pinaka_discount_auto_apply: 'no',
+
+  selectedProductPrice: ''
+});
+
+  // reset UI values
+  this.displayAmount = '0.00';
+  this.rawDigits = '';
+
+  // reset searches
+  this.productSearch = '';
+  this.discountSearch = '';
+
+  // reset selected products
+  this.selectedDiscountProducts = [];
+
+  // reset suggestions
+  this.productSuggestions = [];
+  this.discountSuggestions = [];
 }
   onProductSearch(event: any) {
-    const value = event.target.value?.trim();
-    clearTimeout(this.searchTimeout);
-    if (!value) {
-      this.showSuggestions = false;
-      this.productSuggestions = [];
-      return;
-    }
+  let value =
+    event?.detail?.value ??
+    event?.target?.value ??
+    '';
 
-    this.searchTimeout = setTimeout(() => {
-      this.fetchProducts(value);
-    }, 300);
+  // Block emojis
+  if (this.containsEmoji(value)) {
+    value = value.replace(
+      /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu,
+      ''
+    );
+
+    this.productSearch = value;
+    this.emojiError = true;
+    return;
   }
+
+  this.emojiError = false;
+
+  clearTimeout(this.searchTimeout);
+
+  if (!value) {
+    this.showSuggestions = false;
+    this.productSuggestions = [];
+    return;
+  }
+
+  this.searchTimeout = setTimeout(() => {
+    this.fetchProducts(value);
+  }, 300);
+}
 
   async fetchProducts(query: string) {
     try {
@@ -122,33 +196,62 @@ markChanged() {
     this.showSuggestions = false;
   }
   async onDiscountSearch(event: any) {
-    clearTimeout(this.searchTimeout);
 
-    const term =
-      event?.detail?.value ??
-      event?.target?.value ??
-      '';
+  let term =
+    event?.detail?.value ??
+    event?.target?.value ??
+    '';
 
-    this.searchTimeout = setTimeout(async () => {
-      if (!term || term.length < 2) {
-        this.discountSuggestions = [];
-        return;
-      }
+  // Block emojis
+  if (this.containsEmoji(term)) {
+    term = term.replace(
+      /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu,
+      ''
+    );
 
-      try {
-        const res: any = await this.auth.searchProducts(term);
-
-        console.log('SEARCH RESPONSE:', res);
-
-        // Since service already returns res.data
-        this.discountSuggestions = Array.isArray(res) ? res : [];
-
-      } catch (e) {
-        console.error('Discount product search failed', e);
-        this.discountSuggestions = [];
-      }
-    }, 300);
+    this.discountSearch = term;
+    this.discountEmojiError = true;
+    this.discountSuggestions = [];
+    return;
   }
+
+  this.discountEmojiError = false;
+
+  clearTimeout(this.searchTimeout);
+
+  this.searchTimeout = setTimeout(async () => {
+    if (!term || term.length < 2) {
+      this.discountSuggestions = [];
+      return;
+    }
+
+    try {
+      const res: any = await this.auth.searchProducts(term);
+      this.discountSuggestions = Array.isArray(res) ? res : [];
+    } catch (e) {
+      console.error('Discount product search failed', e);
+      this.discountSuggestions = [];
+    }
+  }, 300);
+}
+
+onDiscountCodeChange(value: string) {
+
+  if (this.containsEmoji(value)) {
+    this.form.code = value.replace(
+      /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu,
+      ''
+    );
+
+    this.discountCodeEmojiError = true;
+    return;
+  }
+
+  this.discountCodeEmojiError = false;
+  this.form.code = value;
+  this.markChanged();
+}
+
 
   selectDiscountProduct(product: any) {
     if (this.selectedDiscountProducts.find(p => p.id === product.id)) return;
@@ -184,6 +287,9 @@ markChanged() {
 
   
     openCreate() {
+      this.emojiError = false;
+  this.discountEmojiError = false;
+  this.discountCodeEmojiError = false;
       this.resetForm();
       this.showForm = true;
       this.productSearch = '';
@@ -196,6 +302,15 @@ markChanged() {
     }
   
     async openEdit(coupon: any) {
+
+      this.emojiError = false;
+  this.discountEmojiError = false;
+  this.discountCodeEmojiError = false;
+
+  // Add these
+  this.discountSearch = '';
+  this.discountSuggestions = [];
+  this.productSuggestions = [];
       // console.log(coupon);
       
       this.filter_type = coupon.type;
@@ -204,7 +319,7 @@ markChanged() {
       this.form = {
         code: coupon.code,
         discount_type: coupon.discount_type,
-        amount: coupon.coupon_amount,
+        amount: Number(coupon.coupon_amount).toFixed(2),
         date_starts : coupon.start_date?.substring(0, 10),
         date_expires: coupon.expiry_date?.substring(0, 10),
         pinaka_discount_auto_apply: coupon.pinaka_discount_auto_apply,
@@ -216,6 +331,12 @@ markChanged() {
         qty: coupon.qty,
         discount_product_ids: coupon.discount_product_ids
       };
+      this.displayAmount =
+  Number(coupon.coupon_amount || 0).toFixed(2);
+    this.rawDigits =
+  Math.round(
+    Number(coupon.coupon_amount || 0) * 100
+  ).toString();
       this.showSuggestions = false;
       this.productSuggestions = [];
 
@@ -306,21 +427,56 @@ markChanged() {
           return false;
         }
       }
-      const amount = Number(f.amount);
+      console.log('Amount value:', f.amount);
+      console.log('Discount type:', f.discount_type);
+
+      const amount = parseFloat(
+        String(f.amount || '').replace(/[^0-9.]/g, '')
+      );
+
+      console.log('Parsed amount:', amount);
+
+      if (isNaN(amount)) {
+
+        this.showValidationError(
+          'Please enter a valid amount'
+        );
+
+        return false;
+      }
+
+      if (amount < 0) {
+
+        this.showValidationError(
+          'Discount amount cannot be negative'
+        );
+
+        return false;
+      }
+
+      if (amount === 0) {
+
+        this.showValidationError(
+          'Discount amount must be greater than 0'
+        );
+
+        return false;
+      }
+
       if (
-        f.amount === '' ||
-        f.amount === null ||
-        f.amount === undefined ||
-        isNaN(amount) ||
-        amount <= 0
+        f.discount_type === 'percent' &&
+        amount > 100
       ) {
-        this.showValidationError('Discount amount must be greater than 0');
+
+        this.showValidationError(
+          'Percentage discount cannot exceed 100%'
+        );
+
         return false;
       }
-      if (f.discount_type === 'percent' && amount > 100) {
-        this.showValidationError('Percentage discount cannot exceed 100%');
-        return false;
-      }
+
+      // normalize value
+      f.amount = amount.toString();
       if(!f.date_starts)
       {
         this.showValidationError('start date is required');
@@ -389,6 +545,9 @@ markChanged() {
   await alert.present();
 }
     resetForm() {
+      this.emojiError = false;
+  this.discountEmojiError = false;
+  this.discountCodeEmojiError = false;
       this.formSubmitted = false;
       this.editingCoupon = null;
       this.form = {
@@ -465,6 +624,15 @@ markChanged() {
 }
 
 close() {
+  this.emojiError = false;
+  this.discountEmojiError = false;
+  this.discountCodeEmojiError = false;
+
+  this.productSearch = '';
+  this.discountSearch = '';
+  this.discountSuggestions = [];
+  this.productSuggestions = [];
+
   this.showForm = false;
 }
 
@@ -472,5 +640,54 @@ onAutoApplyChange(event: any) {
   this.form.pinaka_discount_auto_apply =
     event.detail.checked ? 'yes' : 'no';
 }
+formatPrice(price: any): string {
+  return '$' + Number(price || 0).toFixed(2);
+}
+onAmountInput(event: any) {
+
+  let value =
+    event?.detail?.value ??
+    event?.target?.value ??
+    '';
+
+  // Prevent negative values
+  if (value.includes('-')) {
+
+    value = value.replace(/-/g, '');
+
+    this.showValidationError(
+      'Discount amount cannot be negative'
+    );
+  }
+
+  // Keep only digits
+  this.rawDigits = value.replace(/\D/g, '');
+
+  const amount =
+    Number(this.rawDigits || '0') / 100;
+
+  this.displayAmount =
+    amount.toFixed(2);
+
+  this.form.amount =
+    amount.toFixed(2);
+
+  this.markChanged();
+}
+
+emojiError = false;
+
+containsEmoji(value: string): boolean {
+
+  if (!value) {
+    return false;
+  }
+
+  const emojiRegex =
+    /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
+
+  return emojiRegex.test(value);
+}
+//ends here
   ///////////////////////////////
 }

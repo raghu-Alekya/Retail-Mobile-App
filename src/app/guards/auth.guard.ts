@@ -1,38 +1,125 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router, UrlTree } from '@angular/router';
+import { CanActivate } from '@angular/router';
+import { AlertController } from '@ionic/angular';
 import { AuthService } from '../services/auth/auth.service';
-
+import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
 
+  private popupShown = false;
+
   constructor(
-    private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertController: AlertController,
+    private router: Router
   ) {}
 
-  async canActivate(): Promise<boolean | UrlTree> {
-
-    const token = localStorage.getItem('wc_token');
+  async canActivate(): Promise<boolean> {
+    
+    const token = localStorage.getItem('user_data') ? JSON.parse(localStorage.getItem('user_data')!).token : null;
 
     if (!token || token === 'undefined' || token === 'null') {
-      return this.router.createUrlTree(['/welcome']);
+
+      await this.showLogoutPopup();
+
+        return false;
     }
 
     try {
-      const res = await this.authService.validateToken(token);
 
+      const res: any = await this.authService.validateuser(token);
+      if (
+        res?.valid === 'false' ||
+        res?.valid === false ||
+        res?.valid === '0' ||
+        res?.valid === 0
+      ) {
+    
+        await this.showLogoutPopup();
+
+        return false;
+      }
+
+      // TOKEN VALID
       if (res?.valid) {
         return true;
       }
 
-      localStorage.clear();
-      return this.router.createUrlTree(['/welcome']);
+      return true;
 
-    } catch {
-      localStorage.clear();
-      return this.router.createUrlTree(['/welcome']);
+    } catch (error: any) {
+     
+      await this.showLogoutPopup();
+      return false;
     }
+  }
+
+  async showLogoutPopup() {
+
+    if (this.popupShown) {
+      return;
+    }
+
+    this.popupShown = true;
+
+    let countdown = 5;
+
+    const alert = await this.alertController.create({
+      cssClass: 'custom-logout-alert',
+      backdropDismiss: false,
+
+      message: `
+        <div class="logout-popup">
+
+          <img src="../../assets/session-logout.png" class="logout-img" />
+
+          <div class="logout-title">
+            You've been logged out
+          </div>
+
+          <div class="logout-message">
+            Your account was logged in from another device.
+            For security reasons your session has ended.
+          </div>
+
+          <div class="logout-countdown">
+            Redirecting in <span id="countdown">${countdown}</span>
+          </div>
+
+        </div>
+      `
+    });
+
+    await alert.present();
+
+    const interval = setInterval(() => {
+
+      countdown--;
+
+      const countdownEl = document.getElementById('countdown');
+
+      if (countdownEl) {
+        countdownEl.innerText = countdown.toString();
+      }
+
+      if (countdown === 0) {
+
+        clearInterval(interval);
+
+        alert.dismiss();
+
+        localStorage.clear();
+        sessionStorage.clear();
+
+        this.popupShown = false;
+
+        this.router.navigateByUrl('/signin', {
+          replaceUrl: true
+        });
+      }
+
+    }, 1000);
   }
 }
