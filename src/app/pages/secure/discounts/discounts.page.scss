@@ -909,4 +909,14 @@ hr {
   color: #264c73;
   font-weight: 500;
 }
+.form-content {
+  --overflow: auto;
+}
+
+.scroll-wrapper {
+  padding-bottom: 120px;
+}
+.ion-content::part(scroll) {
+  padding-bottom: 120px;
+}
 /* ends here */

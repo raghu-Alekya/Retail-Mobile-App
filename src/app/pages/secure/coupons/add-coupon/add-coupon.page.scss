@@ -214,10 +214,10 @@ ion-item::part(native) {
 }
 
 .currency-symbol {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 400;
   color: #111827;
-  margin-right: 4px;
+  margin-right: 1px;
   flex-shrink: 0;
   line-height: 1;
 }
@@ -285,7 +285,6 @@ ion-item::part(native) {
 
   padding: 0 !important;   /* 🔥 important */
 }
-
 /* Increase clickable area */
 :host-context(.ios) .coupon-header ion-back-button {
   --padding-start: 6px;

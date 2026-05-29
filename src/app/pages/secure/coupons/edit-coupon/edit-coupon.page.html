@@ -257,49 +257,23 @@
 <div class="card">
 
   <div class="field-block">
-    <div class="label">Expire date</div>
 
-    <!-- Display -->
-    <div class="value" (click)="openDatePicker()">
-      {{
-        coupon?.date_expires
-          ? (coupon.date_expires | date:'yyyy-MM-dd')
-          : 'Select date'
-      }}
+    <div class="label">
+      Expire date
     </div>
 
-    <!-- Edit icon -->
-    <ion-icon
-      name="calendar-outline"
-      class="edit-icon"
-      (click)="openDatePicker()">
-    </ion-icon>
+    <div class="date-input-wrapper">
 
-    
+      <input
+        type="date"
+        class="native-date-input"
+        [min]="today"
+        [(ngModel)]="coupon.date_expires" />
+      </div>
 
   </div>
 
 </div>
-
-<!-- DATE POPUP -->
-<ion-modal
-  [isOpen]="isDateModalOpen"
-  backdropDismiss="true"
-  cssClass="date-popup-modal"
-  (didDismiss)="isDateModalOpen = false"
->
-  <ng-template>
-    <div class="calendar-container">
-      <ion-datetime
-        presentation="date"
-        [min]="today"
-        class="custom-calendar"
-        [value]="coupon.date_expires"
-        (ionChange)="setDate($event)">
-      </ion-datetime>
-    </div>
-  </ng-template>
-</ion-modal>
 
 <!-- UPDATE BUTTON (BOTTOM) -->
 <div class="update-wrapper">

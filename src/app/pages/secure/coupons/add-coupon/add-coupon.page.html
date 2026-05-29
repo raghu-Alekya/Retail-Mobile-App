@@ -194,7 +194,7 @@
 
   <div *ngIf="editing !== 'minAmount'" class="value-row">
     <span (click)="startEdit('minAmount')" class="editable-text">
-      {{ coupon.minAmount ? ('$' + coupon.minAmount) : 'Enter Min Amount' }}
+      {{ coupon.minAmount ? ('$' + coupon.minAmount) : '$ 0.00' }}
     </span>
   </div>
 
@@ -220,7 +220,7 @@
 
   <div *ngIf="editing !== 'maxAmount'" class="value-row">
     <span (click)="startEdit('maxAmount')" class="editable-text">
-      {{ coupon.maxAmount ? ('$' + coupon.maxAmount) : 'Enter Max Amount' }}
+      {{ coupon.maxAmount ? ('$' + coupon.maxAmount) : '$ 0.00' }}
     </span>
   </div>
 
@@ -245,13 +245,21 @@
 
 <!-- EXPIRE DATE -->
 <ion-card class="coupon-card">
-  <ion-item lines="none" (click)="openDatePicker()">
-  <ion-label>
-    Expire date: {{ coupon.expireDate || 'Select date' }}
-  </ion-label>
 
-  <ion-icon name="calendar-outline" slot="end"></ion-icon>
-</ion-item>
+  <ion-item lines="none">
+
+    <ion-label position="stacked">
+      Expire date
+    </ion-label>
+
+    <input
+      type="date"
+      class="native-date-input"
+      [min]="today"
+      [(ngModel)]="coupon.expireDate" />
+
+  </ion-item>
+
 </ion-card>
 
 
