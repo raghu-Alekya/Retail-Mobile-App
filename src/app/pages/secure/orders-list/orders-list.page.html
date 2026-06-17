@@ -8,6 +8,8 @@
  
     <!-- Title -->
     <ion-title>Orders</ion-title>
+
+    
  
     <!-- Right icons -->
     <!-- <ion-buttons slot="end"> -->
@@ -32,6 +34,7 @@
       (input)="onSearch($event)"
     />
   </div>
+
 </ion-header>
  
 <ion-content class="orders-content ion-padding">
@@ -118,6 +121,210 @@
   </ion-chip>
 
 </div>
+
+<!-- Date Filter -->
+<div class="date-filter-card" (click)="showDateModal = true" *ngIf="!(loading && orders.length === 0)">
+  <div class="date-filter-left">
+  <div class="date-icon">
+    <ion-icon name="calendar-outline"></ion-icon>
+  </div>
+
+  <div>
+    <!-- When date selected -->
+    <ng-container *ngIf="selectedDateText; else defaultFilter">
+
+      <div class="date-selected-title">
+        {{ selectedDateText }}
+      </div>
+
+      <div class="date-applied">
+
+  {{ filterType === 'date'
+      ? 'Date Applied'
+      : 'Date Range Applied' }}
+
+  <span class="success-badge">
+    <ion-icon name="checkmark-outline"></ion-icon>
+  </span>
+
+</div>
+
+    </ng-container>
+
+    <!-- Default state -->
+    <ng-template #defaultFilter>
+      <div class="date-title">Date Filter</div>
+      <div class="date-value">Select a date or range</div>
+    </ng-template>
+
+  </div>
+</div>
+
+  <!-- Cross icon only when date selected -->
+<div
+  *ngIf="selectedDateText"
+  class="clear-icon"
+  (click)="clearDateFilter(); $event.stopPropagation()">
+
+  <ion-icon name="close-outline"></ion-icon>
+
+</div>
+
+<!-- Chevron only when no date selected -->
+<ion-icon
+  *ngIf="!selectedDateText"
+  class="date-arrow"
+  name="chevron-forward-outline">
+</ion-icon>
+</div>
+
+<ion-modal
+  [isOpen]="showDateModal"
+  class="date-modal"
+  (didDismiss)="resetDateModal()">
+
+  <ng-template>
+
+    <div class="calendar-popup">
+
+      <div class="calendar-header">
+        <h3>Date Filter</h3>
+
+        <div
+          class="close-icon"
+          (click)="showDateModal = false">
+
+          <ion-icon name="close-outline"></ion-icon>
+
+        </div>
+      </div>
+
+      <!-- Tabs -->
+
+      <div class="date-tabs">
+
+        <div
+          class="date-tab"
+          [class.active]="dateFilterTab === 'date'"
+          (click)="switchToDateTab()">
+
+          Date
+
+        </div>
+
+        <div
+          class="date-tab"
+          [class.active]="dateFilterTab === 'range'"
+          (click)="switchToRangeTab()">
+
+          Date Range
+
+        </div>
+
+      </div>
+
+      <!-- DATE TAB -->
+
+      <div *ngIf="dateFilterTab === 'date'">
+
+        <div
+          class="single-date-field"
+          (click)="openSingleDate()">
+
+          <div class="date-part">
+
+            <ion-icon name="calendar-outline"></ion-icon>
+
+            <span>
+              {{ fromDateValue
+                  ? (fromDateValue | date:'dd MMM yyyy')
+                  : 'Select Date' }}
+            </span>
+
+          </div>
+
+        </div>
+
+        <ion-datetime
+          *ngIf="calendarMode === 'single'"
+          presentation="date"
+          [max]="maxDate"
+          [(ngModel)]="fromDateValue"
+          (ionChange)="closeCalendar()">
+        </ion-datetime>
+
+      </div>
+
+      <!-- RANGE TAB -->
+
+      <div *ngIf="dateFilterTab === 'range'">
+
+        <div class="range-field">
+
+          <div
+            class="date-part"
+            (click)="openFromDate()">
+
+            <ion-icon name="calendar-outline"></ion-icon>
+
+            <span>
+              {{ fromDateValue
+                  ? (fromDateValue | date:'dd MMM yyyy')
+                  : 'From Date' }}
+            </span>
+
+          </div>
+
+          <span class="separator"></span>
+
+          <div
+            class="date-part"
+            (click)="openToDate()">
+
+            <ion-icon name="calendar-outline"></ion-icon>
+
+            <span>
+              {{ toDateValue
+                  ? (toDateValue | date:'dd MMM yyyy')
+                  : 'To Date' }}
+            </span>
+
+          </div>
+
+        </div>
+
+        <ion-datetime
+          *ngIf="calendarMode === 'from'"
+          presentation="date"
+          [max]="maxDate"
+          [(ngModel)]="fromDateValue"
+          (ionChange)="closeCalendar()">
+        </ion-datetime>
+
+        <ion-datetime
+          *ngIf="calendarMode === 'to'"
+          presentation="date"
+          [max]="maxDate"
+          [(ngModel)]="toDateValue"
+          (ionChange)="onToDateChange()">
+        </ion-datetime>
+
+      </div>
+
+      <ion-button
+        expand="block"
+        class="apply-btn"
+        (click)="applyDateFilter()">
+
+        Apply
+
+      </ion-button>
+
+    </div>
+
+  </ng-template>
+
+</ion-modal>
   <!-- <div *ngIf="!orders || orders.length === 0" class="no-orders">
     No Orders Found
   </div> -->
@@ -153,7 +360,7 @@
  
     <!-- Meta -->
     <div class="order-meta">
-      {{ timeAgo(order.date_created) }} ·
+      {{ order.date_created | date:'dd MMM yyyy, hh:mm a' }} ·
       {{ getTotalItemCount(order) }} items
     </div>
    
@@ -169,6 +376,7 @@
         <span class="qty">{{ $any(item).quantity }}</span>
       </div>
     </div>
+    
  
     <!-- Customer Note -->
     <div class="note" *ngIf="order.customer_note">
@@ -235,13 +443,13 @@
           <div class="expand-header-left">
             <h4>#{{ order.id }}</h4>
             <div class="expand-meta">
-              {{ timeAgo(order.date_created) }} ·
+              {{ order.date_created | date:'dd MMM yyyy, hh:mm a' }} ·
               {{ getTotalItemCount(order) }} items
             </div>
           </div>
  
           <ion-button
-            class="status-btn"
+            class="status"
             size="small"
             shape="round"
             [color]="getStatusColor(order.status)"
@@ -251,11 +459,11 @@
         </div>
  
         <div
-  class="expand-item"
-  *ngFor="let item of order.line_items"
-  [hidden]="item.product_data?.slug === 'discount'"
-  [class.refunded-item]="getRefundType(item) !== 'none'"
->
+          class="expand-item"
+          *ngFor="let item of order.line_items"
+          [hidden]="item.product_data?.slug === 'discount'"
+          [class.refunded-item]="getRefundType(item) !== 'none'"
+        >
           <div class="expand-thumb-wrapper">
             <img
               class="expand-thumb"
@@ -265,17 +473,32 @@
           </div>
  
           <div class="info">
-            <div class="name">{{ item.name }}
+            <div class="name">
+              {{ item.name }}
+
+              <span
+                class="ebt-badge"
+                *ngIf="hasEbtTag(item)"
+              >
+                EBT
+              </span>
+
               <span class="refund-badge partial"
                     *ngIf="getRefundType(item) === 'partial'">
                 {{ getRefundedQty(item) }}/{{ item.quantity }} Refunded
               </span>
- 
-              <!-- Full -->
+
               <span class="refund-badge full"
                     *ngIf="getRefundType(item) === 'full'">
                 Refunded
               </span>
+
+              <span
+              class="variable-badge-img"
+              *ngIf="item.product_data?.type === 'variable'"
+            >
+              <img src='assets/icons/8px Variant.png' alt="Variable">
+            </span>
             </div>
             <div
             class="sku"
@@ -283,11 +506,12 @@
           >
             SKU: {{ item.product_data?.sku || '-' }}
           </div>
-            <div
+          <div
             class="qty-price"
             *ngIf="!['payout','cashback','discount'].includes(item.product_data?.slug)"
           >
-            Price: {{currencySymbol}}{{ item.product_data.price | number:'1.2-2' }}
+            Price:
+            {{ currencySymbol || '$' }}{{ item.product_data?.price || item.price || 0 | number:'1.2-2' }}
           </div>
  
             <!-- <span *ngFor="let meta of item.meta_data"> -->
@@ -382,97 +606,97 @@
 
       <!-- SUMMARY -->
       <h2 class="payment-summary-title">Payment Summary:</h2>
-<div class="expand-section summary">
-  <div class="row">
-  <span>Gross Total</span>
-  <span>
-  <ng-container *ngIf="getGrossTotal(order) < 0; else grossPositive">
-    -{{ currencySymbol }}{{ (getGrossTotal(order) * -1) | number:'1.2-2' }}
-  </ng-container>
+      <div class="expand-section summary">
+        <div class="row">
+        <span>Gross Total</span>
+        <span>
+        <ng-container *ngIf="getGrossTotal(order) < 0; else grossPositive">
+          -{{ currencySymbol }}{{ (getGrossTotal(order) * -1) | number:'1.2-2' }}
+        </ng-container>
 
-  <ng-template #grossPositive>
-    {{ currencySymbol }}{{ getGrossTotal(order) | number:'1.2-2' }}
-  </ng-template>
-</span>
-</div>
+        <ng-template #grossPositive>
+          {{ currencySymbol }}{{ getGrossTotal(order) | number:'1.2-2' }}
+        </ng-template>
+      </span>
+      </div>
 
-<div class="row coupon">
-  <span>Coupon</span>
-  <span>
-    {{ getCouponTotal(order) > 0 ? '-' : '' }}
-    {{currencySymbol}}{{ getCouponTotal(order) | number:'1.2-2' }}
-  </span>
-</div>
+      <div class="row coupon">
+        <span>Coupon</span>
+        <span>
+          {{ getCouponTotal(order) > 0 ? '-' : '' }}
+          {{currencySymbol}}{{ getCouponTotal(order) | number:'1.2-2' }}
+        </span>
+      </div>
 
-<div class="separator"></div>
+      <div class="separator"></div>
 
-<div class="row net-total">
-  <span>Net Total</span>
-  <span>
-  <ng-container *ngIf="getNetTotal(order) < 0; else netPositive">
-    -{{ currencySymbol }}{{ (getNetTotal(order) * -1) | number:'1.2-2' }}
-  </ng-container>
+      <div class="row net-total">
+        <span>Net Total</span>
+        <span>
+        <ng-container *ngIf="getNetTotal(order) < 0; else netPositive">
+          -{{ currencySymbol }}{{ (getNetTotal(order) * -1) | number:'1.2-2' }}
+        </ng-container>
 
-  <ng-template #netPositive>
-    {{ currencySymbol }}{{ getNetTotal(order) | number:'1.2-2' }}
-  </ng-template>
-</span>
-</div>
+        <ng-template #netPositive>
+          {{ currencySymbol }}{{ getNetTotal(order) | number:'1.2-2' }}
+        </ng-template>
+      </span>
+      </div>
 
-<div class="row tax">
-  <span>Tax</span>
-  <span>{{ currencySymbol }}{{ getOrderTax(order) | number:'1.2-2' }}</span>
-</div>
+      <div class="row tax">
+        <span>Tax</span>
+        <span>{{ currencySymbol }}{{ getOrderTax(order) | number:'1.2-2' }}</span>
+      </div>
 
-<div class="row merchant">
-  <span>Merchant Discount</span>
-  <span>
-    {{ getDiscountLineItem(order) > 0 ? '-' : '' }}
-    {{currencySymbol}}{{ getDiscountLineItem(order) | number:'1.2-2' }}
-  </span>
-</div>
+      <div class="row merchant">
+        <span>Merchant Discount</span>
+        <span>
+          {{ getDiscountLineItem(order) > 0 ? '-' : '' }}
+          {{currencySymbol}}{{ getDiscountLineItem(order) | number:'1.2-2' }}
+        </span>
+      </div>
 
-<div
-  class="row cashback-fee"
-  *ngIf="getCashbackFee(order) > 0"
->
-  <span>Cashback Fee</span>
-  <span>
-    {{ currencySymbol }}{{ getCashbackFee(order) | number:'1.2-2' }}
-  </span>
-</div>
+      <div
+        class="row cashback-fee"
+        *ngIf="getCashbackFee(order) > 0"
+      >
+        <span>Cashback Fee</span>
+        <span>
+          {{ currencySymbol }}{{ getCashbackFee(order) | number:'1.2-2' }}
+        </span>
+      </div>
 
-<div class="row service-charge">
-  <span>Service Charges</span>
-  <span>{{currencySymbol}}{{ getServiceCharge(order) | number:'1.2-2' }}</span>
-</div>
+      <div class="row service-charge">
+        <span>Service Charges</span>
+        <span>{{currencySymbol}}{{ getServiceCharge(order) | number:'1.2-2' }}</span>
+      </div>
 
-  </div>
+        </div>
 
-  <div class="summary-footer">
+        <div class="summary-footer">
 
-  <div class="summary-total">
-    Total:
-<ng-container *ngIf="getFinalTotal(order) < 0; else totalPositive">
-  -{{ currencySymbol }}{{ (getFinalTotal(order) * -1) | number:'1.2-2' }}
-</ng-container>
+        <div class="summary-total">
+          Total:
+        <ng-container *ngIf="getFinalTotal(order) < 0; else totalPositive">
+          -{{ currencySymbol }}{{ (getFinalTotal(order) * -1) | number:'1.2-2' }}
+        </ng-container>
 
-<ng-template #totalPositive>
-  {{ currencySymbol }}{{ getFinalTotal(order) | number:'1.2-2' }}
-</ng-template>
-  </div>
+        <ng-template #totalPositive>
+          {{ currencySymbol }}{{ getFinalTotal(order) | number:'1.2-2' }}
+        </ng-template>
+          </div>
 
-  <ion-icon
-    class="collapse-icon"
-    name="contract-outline"
-    (click)="toggleExpand(order.id); $event.stopPropagation()">
-  </ion-icon>
+          <ion-icon
+            class="collapse-icon"
+            name="contract-outline"
+            (click)="toggleExpand(order.id); $event.stopPropagation()">
+          </ion-icon>
 
-</div>
- 
-      
- 
-    </div>
+        </div>
+  
+        
+  
+      </div>
     </ng-container>
   </div>
   <ion-infinite-scroll

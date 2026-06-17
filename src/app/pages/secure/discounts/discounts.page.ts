@@ -52,6 +52,7 @@ export class DiscountsPage implements OnInit {
       type: '',
       qty: '',
       selectedProductPrice: '',
+      selectedDiscountProductPrice: '',
       discount_product_ids: [] as number[]
     };
     
@@ -126,7 +127,8 @@ markChanged() {
 
   pinaka_discount_auto_apply: 'no',
 
-  selectedProductPrice: ''
+  selectedProductPrice: '',
+  selectedDiscountProductPrice: ''
 });
 
   // reset UI values
@@ -254,15 +256,45 @@ onDiscountCodeChange(value: string) {
 
 
   selectDiscountProduct(product: any) {
-    if (this.selectedDiscountProducts.find(p => p.id === product.id)) return;
 
-    this.selectedDiscountProducts.push(product);
-    this.form.discount_product_ids =
-      this.selectedDiscountProducts.map(p => p.id);
+    // ❌ Prevent selecting same product as main product
+  if (Number(product.id) === Number(this.form.product_id)) {
 
-    this.discountSearch = '';
-    this.discountSuggestions = [];
+    this.showValidationError(
+      'Main Product and Discounted Product cannot be the same'
+    );
+
+    return;
   }
+
+  // prevent duplicates
+  if (
+    this.selectedDiscountProducts.find(
+      p => p.id === product.id
+    )
+  ) return;
+
+  // add selected product
+  this.selectedDiscountProducts.push(product);
+
+  // store IDs
+  this.form.discount_product_ids =
+    this.selectedDiscountProducts.map(
+      p => p.id
+    );
+
+  // ✅ store discounted product price
+    this.form.selectedDiscountProductPrice =
+    String(
+      product.price ||
+      product.regular_price ||
+      0
+    );
+
+  // clear search
+  this.discountSearch = '';
+  this.discountSuggestions = [];
+}
   removeDiscountProduct(id: number) {
     this.selectedDiscountProducts =
       this.selectedDiscountProducts.filter(p => p.id !== id);
@@ -316,20 +348,42 @@ onDiscountCodeChange(value: string) {
       this.filter_type = coupon.type;
       this.editingCoupon = coupon;
       this.formChanged = false;  
-      this.form = {
+     this.form = {
         code: coupon.code,
         discount_type: coupon.discount_type,
         amount: Number(coupon.coupon_amount).toFixed(2),
-        date_starts : coupon.start_date?.substring(0, 10),
-        date_expires: coupon.expiry_date?.substring(0, 10),
-        pinaka_discount_auto_apply: coupon.pinaka_discount_auto_apply,
-        usage_limit: coupon.usage_limit,
-        product_id: coupon.product_id,
-        product_label: coupon.product_label,
-        selectedProductPrice: coupon.selectedProductPrice,
-        type: coupon.type,
-        qty: coupon.qty,
-        discount_product_ids: coupon.discount_product_ids
+
+        date_starts:
+          coupon.start_date?.substring(0, 10),
+
+        date_expires:
+          coupon.expiry_date?.substring(0, 10),
+
+        pinaka_discount_auto_apply:
+          coupon.pinaka_discount_auto_apply,
+
+        usage_limit:
+          coupon.usage_limit,
+
+        product_id:
+          coupon.product_id,
+
+        product_label:
+          coupon.product_label,
+
+        selectedProductPrice:
+          coupon.selectedProductPrice,
+
+        selectedDiscountProductPrice: '',
+
+        type:
+          coupon.type,
+
+        qty:
+          coupon.qty,
+
+        discount_product_ids:
+          coupon.discount_product_ids
       };
       this.displayAmount =
   Number(coupon.coupon_amount || 0).toFixed(2);
@@ -347,16 +401,67 @@ onDiscountCodeChange(value: string) {
         this.selectedProductName = '';
       }
       if (coupon.discount_product_ids?.length) {
+
         try {
-          const res: any = await this.auth.getProductsByIds(
-            coupon.discount_product_ids
+
+          const res: any =
+            await this.auth.getProductsByIds(
+              coupon.discount_product_ids
+            );
+
+          this.selectedDiscountProducts =
+            res?.data || [];
+
+          console.log(
+            'Discount Products:',
+            this.selectedDiscountProducts
           );
-          this.selectedDiscountProducts = res?.data || [];
-          // console.log(this.selectedDiscountProducts);
+
+
+          // Restore Mix n Match discounted product price
+          if (
+            coupon.type === 'mix_match' &&
+            this.selectedDiscountProducts.length
+          ) {
+
+            const firstProduct =
+              this.selectedDiscountProducts[0];
+
+
+            // fetch full product details
+            const productDetails: any =
+              await this.auth.getProductById(
+                firstProduct.id
+              );
+
+
+            this.form.selectedDiscountProductPrice =
+              String(
+                productDetails.price ||
+                productDetails.regular_price ||
+                productDetails.sale_price ||
+                '0.00'
+              );
+
+
+            console.log(
+              'Discount Product Price:',
+              this.form.selectedDiscountProductPrice
+            );
+          }
+
+
         } catch (e) {
-          console.error('Failed to load discounted products', e);
+
+          console.error(
+            'Failed to load discounted products',
+            e
+          );
+
         }
+
       }
+
       this.showForm = true;
     }
     async restoreProduct(query: string) {
@@ -410,6 +515,17 @@ onDiscountCodeChange(value: string) {
           );
           return false;
         }
+      }
+
+      // Mix & Match: Main product and discounted products should not be same
+      if (
+        f.type === 'mix_match' &&
+        f.discount_product_ids?.includes(Number(f.product_id))
+      ) {
+        this.showValidationError(
+          'Main Product and Discounted Product cannot be the same'
+        );
+        return false;
       }
       if (!f.type || !f.type.trim()) {
         this.showValidationError('Please select a discount type');
@@ -474,7 +590,67 @@ onDiscountCodeChange(value: string) {
 
         return false;
       }
+    // Fixed amount validation with product price
+      if (f.discount_type !== 'percent') {
 
+        let productPrice = 0;
+
+
+        // Mix n Match use discounted product price
+        if (f.type === 'mix_match') {
+
+          productPrice =
+            Number(
+              f.selectedDiscountProductPrice || 0
+            );
+
+        } else {
+
+          // Auto and Multipack use main product price
+          productPrice =
+            Number(
+              f.selectedProductPrice || 0
+            );
+
+        }
+
+
+        if (
+          productPrice > 0 &&
+          amount >= productPrice
+        ) {
+
+          this.showValidationError(
+            'Discount amount should be less than product price'
+          );
+
+          return false;
+        }
+
+      }
+          // Usage limit validation (Auto + Multipack)
+    if (
+      f.type === 'auto' ||
+      f.type === 'multipack'
+    ) {
+
+      const usageLimit =
+        Number(f.usage_limit);
+
+
+      if (
+        !Number.isInteger(usageLimit) ||
+        usageLimit < 1
+      ) {
+
+        this.showValidationError(
+          'Usage limit must be greater than or equal to 1'
+        );
+
+        return false;
+      }
+
+    }
       // normalize value
       f.amount = amount.toString();
       if(!f.date_starts)
@@ -563,6 +739,7 @@ onDiscountCodeChange(value: string) {
         type: '',
         qty: '',
         selectedProductPrice: '',
+        selectedDiscountProductPrice: '',
         discount_product_ids : []
       };
     }
@@ -635,6 +812,14 @@ close() {
 
   this.showForm = false;
 }
+closeKeyboard() {
+
+  const active =
+    document.activeElement as HTMLElement;
+
+  active?.blur();
+}
+
 
 onAutoApplyChange(event: any) {
   this.form.pinaka_discount_auto_apply =

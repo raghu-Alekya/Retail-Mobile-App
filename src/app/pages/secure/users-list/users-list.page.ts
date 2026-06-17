@@ -46,27 +46,61 @@ containsEmoji(text: string): boolean {
 }
 
 removeEmojis(value: string): string {
+
   return value.replace(
-    /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu,
+    /([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|\uD83E[\uDD00-\uDFFF])/g,
     ''
   );
 }
 
 onUsernameInput(event: any) {
-  const value = event.target.value || '';
-  this.editedUser.username = this.removeEmojis(value);
+
+  const value =
+    event.target.value || '';
+
+  const cleaned =
+    this.removeEmojis(value);
+
+  this.editedUser.username =
+    cleaned;
+
+  event.target.value =
+    cleaned;
+
   this.checkChanges();
 }
 
 onFirstNameInput(event: any) {
-  const value = event.target.value || '';
-  this.editedUser.first_name = this.removeEmojis(value);
+
+  const value =
+    event.target.value || '';
+
+  const cleaned =
+    this.removeEmojis(value);
+
+  this.editedUser.first_name =
+    cleaned;
+
+  event.target.value =
+    cleaned;
+
   this.checkChanges();
 }
 
 onLastNameInput(event: any) {
-  const value = event.target.value || '';
-  this.editedUser.last_name = this.removeEmojis(value);
+
+  const value =
+    event.target.value || '';
+
+  const cleaned =
+    this.removeEmojis(value);
+
+  this.editedUser.last_name =
+    cleaned;
+
+  event.target.value =
+    cleaned;
+
   this.checkChanges();
 }
 
@@ -188,12 +222,13 @@ async deleteUser(id: number) {
 
     if (
   this.containsEmoji(this.editedUser.username) ||
+  this.containsEmoji(this.editedUser.email) ||
   this.containsEmoji(this.editedUser.first_name) ||
   this.containsEmoji(this.editedUser.last_name)
 ) {
   this.showAlert(
     'Validation Error',
-    'Username, First Name and Last Name cannot contain emojis'
+    'Username, Email, First Name and Last Name cannot contain emojis'
   );
   return;
 }

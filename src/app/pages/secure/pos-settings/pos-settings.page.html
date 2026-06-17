@@ -37,27 +37,36 @@
               <ion-input
                 label="Store Name"
                 placeholder="Enter store name"
-                [(ngModel)]="settings.address.pinaka_pos_name">
+                [(ngModel)]="settings.address.pinaka_pos_name"
+                (ionInput)="onStoreNameInput($event)">
               </ion-input>
             </ion-item>
+
+            <div class="error-text" *ngIf="storeNameError">
+              {{ storeNameError }}
+            </div>
 
             <ion-item>
               <ion-input
                 label="Email"
                 placeholder="Enter email"
                 [(ngModel)]="settings.address.pinaka_pos_email"
-                (ionInput)="validateEmail()"
-                [class.error]="emailError">
+                (ionInput)="onEmailInput($event)">
               </ion-input>
             </ion-item>
-            <div class="error-text" *ngIf="emailError">
-              {{ emailError }}
-            </div>
+            <div class="error-text" *ngIf="emailEmojiError">
+                {{ emailEmojiError }}
+              </div>
+
+              <div class="error-text" *ngIf="emailError">
+                {{ emailError }}
+              </div>
 
             <ion-item>
               <ion-input
                 type="tel"
-                
+                label="Phone"
+                placeholder="Enter phone number"
                 [(ngModel)]="settings.address.pinaka_pos_phone"
                 (ionInput)="onPhoneInput($event)"
                 [class.error]="phoneError">
@@ -66,42 +75,70 @@
             <div class="error-text" *ngIf="phoneError">
               {{ phoneError }}
             </div>
-            <ion-item>
-              <ion-input
-                label="Address line 1"
-                placeholder="Enter address"
-                [(ngModel)]="settings.address.pinaka_pos_business_address">
-              </ion-input>
-            </ion-item>
+
+            
+              <ion-item>
+                <ion-input
+                  label="Address line 1"
+                  placeholder="Enter address"
+                  [(ngModel)]="settings.address.pinaka_pos_business_address"
+                  (ionInput)="onAddressInput($event)">
+                </ion-input>
+              </ion-item>
+
+              <div class="error-text" *ngIf="addressError">
+                {{ addressError }}
+              </div>
+            
 
             <ion-item>
               <ion-input
                 label="City"
                 placeholder="Enter city"
-                [(ngModel)]="settings.address.pinaka_pos_business_city">
+                [(ngModel)]="settings.address.pinaka_pos_business_city"
+                (ionInput)="onCityInput($event)">
               </ion-input>
             </ion-item>
+            <div class="error-text" *ngIf="cityError">
+                {{ cityError }}
+              </div>
 
             <ion-item>
               <ion-input
                 label="State"
                 placeholder="Enter state"
-                [(ngModel)]="settings.address.pinaka_pos_business_state">
+                [(ngModel)]="settings.address.pinaka_pos_business_state"
+                (ionInput)="onStateInput($event)">
               </ion-input>
             </ion-item>
+            <div class="error-text" *ngIf="stateError">
+                {{ stateError }}
+              </div>
 
             <ion-item>
               <ion-input
                 label="Postcode"
                 placeholder="Enter postcode"
+                type="tel"
+                inputmode="numeric"
+                (ionInput)="onPostcodeInput($event)"
                 [(ngModel)]="settings.address.pinaka_pos_business_postcode">
               </ion-input>
             </ion-item>
 
-            <ion-button 
-              expand="block" 
+            <ion-button
+              expand="block"
               class="save-address-btn"
-              (click)="saveAddress()">
+              (click)="saveAddress()"
+              [disabled]="
+                !!storeNameError ||
+                !!emailEmojiError ||
+                !!addressError ||
+                !!cityError ||
+                !!stateError ||
+                !!phoneError ||
+                !!emailError
+              ">
               Save Address
             </ion-button>
           </div>
@@ -193,18 +230,23 @@
             <ion-item>
               <ion-input
                 placeholder="New category"
-                [(ngModel)]="newCategory">
+                [(ngModel)]="newCategory"
+                (ionInput)="onCategoryInput($event)">
               </ion-input>
 
               <ion-button
                 slot="end"
                 size="small"
                 class="primary-btn"
-                [disabled]="isAddingCategory"
+                [disabled]="isAddingCategory || !!categoryError"
                 (click)="addCategory()">
                 {{ isAddingCategory ? 'Adding...' : 'Add' }}
               </ion-button>
             </ion-item>
+
+            <div class="error-text" *ngIf="categoryError">
+              {{ categoryError }}
+            </div>
 
             <ion-item *ngFor="let cat of categories">
               <ion-label>{{ cat.name }}</ion-label>
@@ -237,18 +279,23 @@
             <ion-item>
               <ion-input
                 placeholder="New tag"
-                [(ngModel)]="newTag">
+                [(ngModel)]="newTag"
+                (ionInput)="onTagInput($event)">
               </ion-input>
-              
+
               <ion-button
-              slot="end"
-              size="small"
-              class="primary-btn"
-              [disabled]="isAddingTag"
-              (click)="addTag()">
-              {{ isAddingTag ? 'Adding...' : 'Add' }}
-            </ion-button>
+                slot="end"
+                size="small"
+                class="primary-btn"
+                [disabled]="isAddingTag || !!tagError"
+                (click)="addTag()">
+                {{ isAddingTag ? 'Adding...' : 'Add' }}
+              </ion-button>
             </ion-item>
+
+            <div class="error-text" *ngIf="tagError">
+              {{ tagError }}
+            </div>
 
             <ion-item *ngFor="let tag of tags">
               <ion-label>{{ tag.name }}</ion-label>

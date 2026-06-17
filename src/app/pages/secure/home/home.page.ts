@@ -30,8 +30,8 @@ dailyTotals: number[] = [];
     { key: 'wc-refunded', label: 'Refunded', icon: 'refresh-circle', count: 0, color: "#AB47BC"},
     { key: 'partial-refund', label: 'Partially Refunded', icon: 'refresh-circle', count: 0, color: "#26A69A" },
     { key: 'wc-failed', label: 'Failed', icon: 'alert-circle', count: 0, color: "#FF7043"},
-    { key: 'wc-on-hold', label: 'On Hold', icon: 'pause-circle', count: 0, color: "#29B6F6"},
-    { key: 'wc-processing', label: 'Processing', icon: 'cart', count: 0, color: "#E1AB20" },
+    // { key: 'wc-on-hold', label: 'On Hold', icon: 'pause-circle', count: 0, color: "#29B6F6"},
+    // { key: 'wc-processing', label: 'Processing', icon: 'cart', count: 0, color: "#E1AB20" },
     { key: 'trash', label: 'Trash', icon: 'trash', count: 0, color: "#8D6E63"},
   ];
 

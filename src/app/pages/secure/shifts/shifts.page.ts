@@ -27,6 +27,24 @@ colors = ['yellow', 'red', 'teal', 'orange', 'purple'];
   hasMore = true;
   search = '';         // optional (staff name, etc.)
   status = '';         // open / closed filter
+
+  fromDateApi = '';
+toDateApi = '';
+
+showDateModal = false;
+
+fromDateValue = '';
+toDateValue = '';
+
+selectedDateText = '';
+
+dateFilterTab: 'date' | 'range' = 'date';
+
+calendarMode: 'single' | 'from' | 'to' | null = null;
+
+filterType: 'date' | 'range' | '' = '';
+maxDate = new Date().toISOString().split('T')[0];
+
   isLoading = false;
 
   constructor(
@@ -141,25 +159,28 @@ getAvatarColor(index: number) {
 
  async loadShifts(event?: any, reset = false) {
 
-  if (this.loading || !this.hasMore) {
-    event?.target.complete();
-    return;
-  }
-
   if (reset) {
     this.page = 1;
     this.shifts = [];
+    this.filteredShifts = [];
     this.hasMore = true;
+  }
+
+  if (this.loading || !this.hasMore) {
+    event?.target.complete();
+    return;
   }
 
   this.loading = true;
 
   try {
     const res = await this.authService.getShifts(
-      this.page,
-      '',   // ❌ remove search from API
-      this.status
-    );
+  this.page,
+  '',
+  this.status,
+  this.fromDateApi,
+  this.toDateApi
+);
 
     console.log('Shifts API response:', res);
 
@@ -300,5 +321,119 @@ formatCurrency(value: number): string {
 //   // temporary test
 //   this.showToast(`Opening shift: ${shift.staffName}`);
 // }
+
+async applyDateFilter() {
+
+  // Range validation & auto swap
+  if (
+    this.dateFilterTab === 'range' &&
+    this.fromDateValue &&
+    this.toDateValue &&
+    new Date(this.fromDateValue) > new Date(this.toDateValue)
+  ) {
+    const temp = this.fromDateValue;
+    this.fromDateValue = this.toDateValue;
+    this.toDateValue = temp;
+  }
+
+  // Mandatory From Date
+  if (!this.fromDateValue) {
+    return;
+  }
+
+  // Single Date Filter
+  if (this.dateFilterTab === 'date') {
+
+    this.filterType = 'date';
+
+    this.fromDateApi = this.fromDateValue.split('T')[0];
+    this.toDateApi = this.fromDateApi;
+
+    this.selectedDateText = this.fromDateApi;
+
+  }
+
+  // Date Range Filter
+  else {
+
+    if (!this.toDateValue) {
+      return;
+    }
+
+    this.filterType = 'range';
+
+    this.fromDateApi = this.fromDateValue.split('T')[0];
+    this.toDateApi = this.toDateValue.split('T')[0];
+
+    this.selectedDateText =
+      `${this.fromDateApi} - ${this.toDateApi}`;
+  }
+
+  this.showDateModal = false;
+  this.calendarMode = null;
+
+  await this.loadShifts(undefined, true);
+}
+
+async clearDateFilter() {
+
+  this.fromDateApi = '';
+  this.toDateApi = '';
+
+  this.fromDateValue = '';
+  this.toDateValue = '';
+
+  this.selectedDateText = '';
+
+  this.filterType = '';
+
+  this.page = 1;
+  this.shifts = [];
+  this.filteredShifts = [];
+  this.hasMore = true;
+
+  await this.loadShifts();
+}
+
+switchToDateTab() {
+  this.dateFilterTab = 'date';
+}
+
+switchToRangeTab() {
+  this.dateFilterTab = 'range';
+}
+
+openSingleDate() {
+  this.calendarMode = 'single';
+}
+
+openFromDate() {
+  this.calendarMode = 'from';
+}
+
+openToDate() {
+  this.calendarMode = 'to';
+}
+
+resetDateModal() {
+  this.calendarMode = null;
+  this.showDateModal = false;
+}
+
+onToDateChange() {
+  //this.calendarMode = null;
+  if (
+    this.fromDateValue &&
+    this.toDateValue &&
+    new Date(this.fromDateValue) > new Date(this.toDateValue)
+  ) {
+
+    const temp = this.fromDateValue;
+
+    this.fromDateValue = this.toDateValue;
+
+    this.toDateValue = temp;
+  }
+}
 
 }

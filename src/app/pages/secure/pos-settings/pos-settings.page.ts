@@ -18,7 +18,14 @@ export class PosSettingsPage implements OnInit {
   emailError: string = '';
   phoneError: string = '';
   isAddingCategory = false;
-isAddingTag = false;
+  isAddingTag = false;
+  storeNameError: string = '';
+cityError: string = '';
+stateError: string = '';
+emailEmojiError: string = '';
+addressError: string = '';
+categoryError: string = '';
+tagError: string = '';
 
   settings: any = {
     address: {
@@ -176,6 +183,20 @@ validatePhone() {
 
 
   async saveAddress() {
+
+    if (
+  this.storeNameError ||
+  this.emailEmojiError ||
+  this.addressError ||
+  this.cityError ||
+  this.stateError
+) {
+  await this.presentToast(
+    'Please remove emojis from the fields',
+    'danger'
+  );
+  return;
+}
     this.validateEmail(); // 👈 run validation first
     this.validatePhone();
 
@@ -244,6 +265,11 @@ validatePhone() {
   }
 
   async addCategory() {
+
+    if (this.categoryError) {
+    this.presentToast('Please remove emojis from category name', 'danger');
+    return;
+  }
 
   if (this.isAddingCategory) return;
 
@@ -359,6 +385,11 @@ validatePhone() {
      ===================== */
 
   async addTag() {
+
+    if (this.tagError) {
+    this.presentToast('Please remove emojis from tag name', 'danger');
+    return;
+  }
 
   if (this.isAddingTag) return;
 
@@ -535,6 +566,16 @@ validatePhone() {
   text: 'Update',
   handler: async (data) => {
 
+    const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+
+if (emojiRegex.test(data.name)) {
+  await this.presentToast(
+    'Emojis are not allowed in category name',
+    'danger'
+  );
+  return false; // keep alert open
+}
+
     const newName = data.name.trim();
 
     if (!newName) return false;
@@ -595,6 +636,16 @@ validatePhone() {
   text: 'Update',
   handler: async (data) => {
 
+    const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+
+  if (emojiRegex.test(data.name)) {
+    await this.presentToast(
+      'Emojis are not allowed in tag name',
+      'danger'
+    );
+    return false;
+  }
+
     const newName = data.name.trim();
 
     if (!newName) return false;
@@ -647,5 +698,116 @@ validatePhone() {
       .replace(/-+/g, '-');           // remove duplicate -
   }
 
-  
+  onPostcodeInput(event: any) {
+  let value = event.target.value || '';
+
+  value = value.replace(/\D/g, ''); // numbers only
+  value = value.substring(0, 6);    // max 6 digits
+
+  this.settings.address.pinaka_pos_business_postcode = value;
+}
+
+onStoreNameInput(event: any) {
+  const value = event.target.value || '';
+
+  const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+
+  if (emojiRegex.test(value)) {
+    this.storeNameError = 'Emojis are not allowed';
+  } else {
+    this.storeNameError = '';
+  }
+
+  this.settings.address.pinaka_pos_name = value.replace(emojiRegex, '');
+}
+
+onEmailInput(event: any) {
+  const value = event.target.value || '';
+
+  const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+
+  if (emojiRegex.test(value)) {
+    this.emailEmojiError = 'Emojis are not allowed';
+  } else {
+    this.emailEmojiError = '';
+  }
+
+  this.settings.address.pinaka_pos_email =
+    value.replace(emojiRegex, '');
+
+  this.validateEmail();
+}
+
+onCityInput(event: any) {
+  const value = event.target.value || '';
+
+  const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+
+  if (emojiRegex.test(value)) {
+    this.cityError = 'Emojis are not allowed';
+  } else {
+    this.cityError = '';
+  }
+
+  this.settings.address.pinaka_pos_business_city =
+    value.replace(emojiRegex, '');
+}
+
+onStateInput(event: any) {
+  const value = event.target.value || '';
+
+  const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+
+  if (emojiRegex.test(value)) {
+    this.stateError = 'Emojis are not allowed';
+  } else {
+    this.stateError = '';
+  }
+
+  this.settings.address.pinaka_pos_business_state =
+    value.replace(emojiRegex, '');
+}
+
+onAddressInput(event: any) {
+  const value = event.target.value || '';
+
+  const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+
+  if (emojiRegex.test(value)) {
+    this.addressError = 'Emojis are not allowed';
+  } else {
+    this.addressError = '';
+  }
+
+  this.settings.address.pinaka_pos_business_address =
+    value.replace(emojiRegex, '');
+}
+
+onCategoryInput(event: any) {
+  const value = event.target.value || '';
+
+  const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+
+  if (emojiRegex.test(value)) {
+    this.categoryError = 'Emojis are not allowed';
+  } else {
+    this.categoryError = '';
+  }
+
+  this.newCategory = value.replace(emojiRegex, '');
+}
+
+onTagInput(event: any) {
+  const value = event.target.value || '';
+
+  const emojiRegex = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu;
+
+  if (emojiRegex.test(value)) {
+    this.tagError = 'Emojis are not allowed';
+  } else {
+    this.tagError = '';
+  }
+
+  this.newTag = value.replace(emojiRegex, '');
+}
 }

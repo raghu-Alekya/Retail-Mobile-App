@@ -91,6 +91,16 @@
 >
   EBT
 </span>
+
+<span
+    class="variable-badge"
+    *ngIf="product.type === 'variable'"
+  >
+    <img
+      src='assets/icons/8px Variant.png'
+      alt="Variable"
+    />
+  </span>
 </h3>
 
   <h6 class="price-text">
@@ -152,7 +162,7 @@
     >
       <ion-infinite-scroll-content
         loadingSpinner="crescent"
-        loadingText="Loading more orders..."
+        loadingText="Loading more products..."
       >
       </ion-infinite-scroll-content>
     </ion-infinite-scroll>

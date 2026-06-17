@@ -340,3 +340,25 @@ ion-input {
   margin-top:5px;
   color: #111827;
 }
+
+.type-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.type-row .label {
+  margin-bottom: 0;
+}
+
+.coupon-type-fixed {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  color: #0f766e;
+  font-size: 13px;
+  font-weight: 600;
+}

@@ -102,7 +102,11 @@ async login(email: string, password: string, siteUrl: string) {
     return localStorage.getItem('wc_token');
   }
 
-async getDashboardStats(status: string): Promise<number> {
+async getDashboardStats(
+  status: string,
+  fromDate: string = '',
+  toDate: string = ''
+): Promise<number> {
 
   const token = localStorage.getItem('wc_token');
   this.wpBase = this.apiConfig.getBaseUrl();
@@ -116,14 +120,14 @@ async getDashboardStats(status: string): Promise<number> {
         Accept: 'application/json',
         'Content-Type': 'application/json'
       },
-      params: { status }
+      params: {
+        status,
+        from_date: fromDate,
+        to_date: toDate
+      }
     });
 
-    if (res.data?.total !== undefined) {
-      return Number(res.data.total);
-    }
-
-    return 0;
+    return Number(res.data?.total || 0);
 
   } catch (error) {
     console.error('Dashboard stats error:', error);
@@ -133,7 +137,13 @@ async getDashboardStats(status: string): Promise<number> {
 
 
 
-async getOrders(page: number, search: string = '', status: string = '') {
+async getOrders(
+  page: number,
+  search: string = '',
+  status: string = '',
+  fromDate: string = '',
+  toDate: string = ''
+) {
 
   const token = localStorage.getItem('wc_token');
   this.wpBase = this.apiConfig.getBaseUrl();
@@ -145,12 +155,21 @@ async getOrders(page: number, search: string = '', status: string = '') {
     order: 'desc',
   };
 
-  // ✅ apply status filter
+  // ✅ Status filter
   if (status) {
     params.status = status;
   }
 
-  // ⭐ detect order ID search
+  // ✅ Date filter
+  if (fromDate) {
+  params.after = `${fromDate}T00:00:00`;
+}
+
+if (toDate) {
+  params.before = `${toDate}T23:59:59`;
+}
+
+  // ✅ Search filter
   if (search) {
     if (!isNaN(Number(search))) {
       params.include = search;   // search by order ID
@@ -607,16 +626,24 @@ async deleteUser(id: number) {
 }
 
 
-async getShifts(page: number, search = '', status = '') {
+async getShifts(
+  page: number,
+  search = '',
+  status = '',
+  fromDate = '',
+  toDate = ''
+) {
   const res = await Http.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/shifts/get-all-shifts`,
     headers: this.getAuthHeaders(),
     params: {
       page: String(page),
-      per_page: "10",
+      per_page: '10',
       search,
       status,
+      from_date: fromDate,
+      to_date: toDate
     },
   });
 
@@ -1705,5 +1732,16 @@ async logout_by_id(emp_login_pin: number) {
       console.error('Token validation failed:', error);
       return { valid: false };
     }
+  }
+
+  async getLoyaltyCustomers() {
+
+    const res = await Http.request({
+      method: 'GET',
+      url: `${this.wpBase}/wp-json/pinaka-pos/v1/loyalty/get-all-customers`,
+      headers: this.getAuthHeaders()
+    });
+
+    return res.data;
   }
 }

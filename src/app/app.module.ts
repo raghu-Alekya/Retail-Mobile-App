@@ -13,6 +13,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 // NgCharts
 import { NgChartsModule } from 'ng2-charts';
 import { SwiperModule } from 'swiper/angular';
+
+
 //import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner/ngx';
 
 @NgModule({

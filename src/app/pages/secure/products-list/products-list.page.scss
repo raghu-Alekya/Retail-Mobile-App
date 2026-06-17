@@ -18,7 +18,7 @@
 
 .product-tabs{
  display: flex;
-  gap: 10px;
+  gap: 6px;
   padding: 0 8px 6px;   /* 🔥 remove top padding */
   margin-top: -4px;     /* 🔥 pull it up slightly */
   
@@ -111,6 +111,7 @@
     height: 70px;
     border-radius: 10px;
     object-fit: cover;
+    border: 1px solid #eee;
   }
 
   h3 {
@@ -367,9 +368,27 @@ ion-footer ion-segment-button:nth-child(2) {
 .ebt-badge {
   background: #2e7d32;
   color: #fff;
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 600;
   padding: 2px 6px;
   border-radius: 8px;
   letter-spacing: 0.3px;
+}
+
+.variable-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 20px;
+  height: 20px;
+
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.variable-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }

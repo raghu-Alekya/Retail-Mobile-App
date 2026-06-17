@@ -32,34 +32,33 @@ import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 export class BarcodeService {
 
   async scan(): Promise<string | null> {
-    try {
+  try {
+    const status = await BarcodeScanner.checkPermission({ force: true });
 
-      const status = await BarcodeScanner.checkPermission({ force: true });
-
-      if (!status.granted) {
-        return null;
-      }
-
-      BarcodeScanner.hideBackground();
-
-      const result = await BarcodeScanner.startScan();
-
-console.log('SCAN RESULT:', result);
-
-      BarcodeScanner.showBackground();
-      BarcodeScanner.stopScan();
-
-      if (result.hasContent) {
-        return result.content;
-      }
-
-      return null;
-
-    } catch (error) {
-      console.error('Barcode scan failed', error);
-      BarcodeScanner.showBackground();
-      BarcodeScanner.stopScan();
+    if (!status.granted) {
       return null;
     }
+
+    BarcodeScanner.hideBackground();
+
+    const result = await BarcodeScanner.startScan();
+
+    await BarcodeScanner.showBackground();
+    await BarcodeScanner.stopScan();
+
+    if (result.hasContent) {
+      return result.content;
+    }
+
+    return null;
+
+  } catch (error) {
+    console.error('Barcode scan failed', error);
+
+    await BarcodeScanner.showBackground();
+    await BarcodeScanner.stopScan();
+
+    return null;
   }
+}
 }

@@ -111,27 +111,22 @@
   <!-- TYPE -->
   <div class="field-block">
 
-    <div class="label">Type</div>
+    <div class="label"></div>
 
-    <ion-select
-  class="type-select"
-  interface="popover"
-  [interfaceOptions]="{ cssClass: 'coupon-popover' }"
-  [(ngModel)]="coupon.discount_type">
-      <ion-select-option value="fixed_cart">
-        Cart Discount
-      </ion-select-option>
-      <ion-select-option value="fixed_product">
-        Product Discount
-      </ion-select-option>
-    </ion-select>
+    <div class="field-block type-row">
+  <div class="label">Type</div>
+
+  <div class="coupon-type-fixed">
+    Cart Discount
+  </div>
+</div>
   </div>
 </div>
 <!-- USAGE -->
 <div class="card">
 
   <ion-item lines="none" class="item-row">
-    <ion-label>Individual use</ion-label>
+    <ion-label>Individual Use</ion-label>
 
     <ion-toggle
       slot="end"
@@ -143,7 +138,7 @@
 
   <!-- Usage limit -->
   <div class="field-block">
-    <div class="label">Usage limit</div>
+    <div class="label">Usage Limit</div>
 
     <div *ngIf="!editField.usage_limit"
      class="value editable-text"
@@ -162,7 +157,7 @@
 
   <!-- Usage limit per user -->
   <div class="field-block">
-    <div class="label">Usage limit per user</div>
+    <div class="label">Usage Limit Per User</div>
 
     <div *ngIf="!editField.usage_limit_per_user"
      class="value editable-text"
@@ -181,7 +176,7 @@
   <div class="divider"></div>
 
   <ion-item lines="none" class="item-row">
-    <ion-label>Exclude sale items</ion-label>
+    <ion-label>Exclude Sale Items</ion-label>
 
     <ion-toggle
       slot="end"
@@ -198,7 +193,7 @@
 
   <!-- Minimum -->
   <div class="field-block">
-    <div class="label">Minimum amount</div>
+    <div class="label">Minimum Amount</div>
 
     <div *ngIf="!editField.minimum_amount"
      class="value editable-text"
@@ -226,7 +221,7 @@
 
   <!-- Maximum -->
   <div class="field-block">
-    <div class="label">Maximum amount</div>
+    <div class="label">Maximum Amount</div>
 
     <div *ngIf="!editField.maximum_amount"
      class="value editable-text"
@@ -257,49 +252,23 @@
 <div class="card">
 
   <div class="field-block">
-    <div class="label">Expire date</div>
 
-    <!-- Display -->
-    <div class="value" (click)="openDatePicker()">
-      {{
-        coupon?.date_expires
-          ? (coupon.date_expires | date:'yyyy-MM-dd')
-          : 'Select date'
-      }}
+    <div class="label">
+      Expire Date
     </div>
 
-    <!-- Edit icon -->
-    <ion-icon
-      name="calendar-outline"
-      class="edit-icon"
-      (click)="openDatePicker()">
-    </ion-icon>
+    <div class="date-input-wrapper">
 
-    
+      <input
+        type="date"
+        class="native-date-input"
+        [min]="today"
+        [(ngModel)]="coupon.date_expires" />
+      </div>
 
   </div>
 
 </div>
-
-<!-- DATE POPUP -->
-<ion-modal
-  [isOpen]="isDateModalOpen"
-  backdropDismiss="true"
-  cssClass="date-popup-modal"
-  (didDismiss)="isDateModalOpen = false"
->
-  <ng-template>
-    <div class="calendar-container">
-      <ion-datetime
-        presentation="date"
-        [min]="today"
-        class="custom-calendar"
-        [value]="coupon.date_expires"
-        (ionChange)="setDate($event)">
-      </ion-datetime>
-    </div>
-  </ng-template>
-</ion-modal>
 
 <!-- UPDATE BUTTON (BOTTOM) -->
 <div class="update-wrapper">

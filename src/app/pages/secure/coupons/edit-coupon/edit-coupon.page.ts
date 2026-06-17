@@ -219,6 +219,7 @@ onMaxAmountInput(event: any) {
 
   // Update coupon API
 async updateCoupon() {
+  this.coupon.discount_type = 'fixed_cart';
 
   try {
 

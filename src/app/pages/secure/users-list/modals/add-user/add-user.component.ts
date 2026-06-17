@@ -31,6 +31,7 @@ export class AddUserComponent implements OnInit {
   usernameTouched = false;
 firstNameTouched = false;
 lastNameTouched = false;
+emailTouched = false;
   user: any = {
   username: '',
   email: '',
@@ -146,12 +147,13 @@ async loadCustomRoles() {
 
   if (
   this.containsEmoji(this.user.username) ||
+  this.containsEmoji(this.user.email) ||
   this.containsEmoji(this.user.first_name) ||
   this.containsEmoji(this.user.last_name)
 ) {
   this.showAlert(
     'Validation Error',
-    'Username, First Name and Last Name cannot contain emojis'
+    'Username, Email, First Name and Last Name cannot contain emojis'
   );
   return;
 }

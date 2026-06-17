@@ -48,18 +48,41 @@
 
   <!-- Email -->
   <ion-label position="stacked">Email</ion-label>
-  <ion-item class="form-field">
+  <ion-item
+  class="form-field"
+  [class.invalid]="
+    (user.email && !isValidEmail(user.email)) ||
+    (emailTouched && user.email && containsEmoji(user.email))
+  ">
     <ion-input
-      type="email"
-      [(ngModel)]="user.email"
-      placeholder="Enter email address">
-    </ion-input>
+  type="email"
+  [(ngModel)]="user.email"
+  placeholder="Enter email address"
+  (ionBlur)="emailTouched = true">
+</ion-input>
   </ion-item>
 
   <!-- Error message -->
-  <p class="error-text" *ngIf="user.email && !isValidEmail(user.email)">
-    Please enter a valid email format.
-  </p>
+  <p
+  class="error-text"
+  *ngIf="
+    user.email &&
+    !containsEmoji(user.email) &&
+    !isValidEmail(user.email)
+  "
+>
+  Please enter a valid email format.
+</p>
+<p
+  class="error-text"
+  *ngIf="
+    emailTouched &&
+    user.email &&
+    containsEmoji(user.email)
+  "
+>
+  Email cannot contain emojis
+</p>
 
   <!-- First Name -->
    <ion-label position="stacked">First Name</ion-label>
@@ -194,13 +217,14 @@
   expand="block"
   class="create-user-btn"
   [disabled]="
-    containsEmoji(user.username) ||
-    containsEmoji(user.first_name) ||
-    containsEmoji(user.last_name) ||
-    !isValidEmail(user.email) ||
-    (user.phone && !isValidPhone(user.phone)) ||
-    (user.emp_login_pin && !isValidPin(user.emp_login_pin))
-  "
+  containsEmoji(user.username) ||
+  containsEmoji(user.first_name) ||
+  containsEmoji(user.last_name) ||
+  containsEmoji(user.email) ||
+  (user.email && !isValidEmail(user.email)) ||
+  (user.phone && !isValidPhone(user.phone)) ||
+  (user.emp_login_pin && !isValidPin(user.emp_login_pin))
+"
   (click)="submit()">
   Create User
 </ion-button>

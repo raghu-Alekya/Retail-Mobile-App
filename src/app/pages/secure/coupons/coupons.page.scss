@@ -86,16 +86,19 @@
 
 
 .coupon-card {
-  background: #ffffff !important;   /* 👈 light grey like image */
+  background: #f8f8f8;
+  border-radius: 14px;
+  padding: 16px;
+  margin: 12px 0;
 
-  margin: 10px 0;
-  padding-left: 15px;
-  padding-top: 15px;
-  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
-  border-bottom: 4px solid transparent;   /* 👈 important */
+}
 
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
 }
 
 .coupon-card:nth-child(5n+1) {
@@ -163,23 +166,32 @@ ion-item-option{
 }
 /* ICON */
 .icon-box {
+  width: 68px;
+  height: 68px;
+  min-width: 68px;
+
+  border-radius: 10px;
+  background: #ef6c6c;
+
   display: flex;
   align-items: center;
   justify-content: center;
-
-  width: 55px;
-  height: 55px;
-
-  background: #587291;   /* 👈 background color */
-  border-radius: 8px;   /* 👈 rounded box */
-
-  margin-top: 6px;
 }
 
 .coupon-icon {
-  width: 25px;   /* 🔥 increase */
-  height: 25px;
-  //object-fit: contain
+  width: 32px;
+  height: 32px;
+}
+
+.card-info {
+  flex: 1;
+}
+
+.row-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }
 
 .card-content {
@@ -194,46 +206,47 @@ ion-item-option{
 
 /* CODE */
 
-.code{
-  font-size: 21px;
-  font-weight: 600;;
-  color:#2e3135;
-  margin: 2px 0;        /* 🔥 reduce vertical gap */
-  line-height: 1.0;
+.code {
+  font-size: 18px;
+  font-weight: 700;
+  color: #3d3d3d;
 }
 
 /* DESCRIPTION */
 
 .description {
-  font-size: 16px;
-  color: #6f6f6f;
-  margin-top: 4px;
-  margin: 2px 0;        /* 🔥 reduce vertical gap */
-  line-height: 1.0;
+  font-size: 14px;
+  color: #6e6e6e;
+  line-height: 1.4;
 }
+
+.description strong {
+  color: #6e6e6e;
+}
+.expiry-badge {
+  background: #ebebeb;
+  color: #9a9a9a;
+
+  padding: 6px 10px;
+  border-radius: 8px;
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
 /* AMOUNT */
 
-.amount{
-  font-size:16px;
-  color:#cc7a00;
-  margin-top:8px;
-  margin: 2px 0;        /* 🔥 reduce vertical gap */
-  line-height: 1.0;
+.amount {
+  font-size: 16px;
+  font-weight: 600;
+  color: #d88b18;
 }
-.divider-row {
-  display: flex;
-  align-items: center;
-
-  width: calc(100% + 76px);   /* 🔥 increase based on icon width */
-  margin-left: -76px;         /* 🔥 pull across icon */
-
-  margin-top: 8px;
-  margin-bottom: 0px;
-}
-.divider-line {
-  flex: 1;
+.divider {
   height: 2px;
-  background: #e1e1e1;
+  background: #d9d9d9;
+
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .coupon-id {
@@ -277,13 +290,14 @@ ion-item-option{
 
 /* usage (inside group) */
 .usage {
-  background: #ebebeb;
-    padding: 6px 6px;
-    border-radius: 6px;
-    color: #585858;
-    font-size: 14px;
-    font-weight:600;
-    margin: 0px 6px;
+  background: #bff0c8;
+  color: #2d8f3c;
+
+  padding: 4px 10px;
+  border-radius: 6px;
+
+  font-size: 12px;
+  font-weight: 600;
 }
 
 /* publish button */

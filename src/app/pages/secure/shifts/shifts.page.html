@@ -30,6 +30,62 @@
 <!-- CONTENT (ALL CARDS HERE) -->
 <ion-content class="ion-padding">
 
+  <div class="date-filter-card" (click)="showDateModal = true">
+
+  <div class="date-filter-left">
+
+    <div class="date-icon">
+      <ion-icon name="calendar-outline"></ion-icon>
+    </div>
+
+    <div>
+
+      <ng-container *ngIf="selectedDateText; else defaultFilter">
+
+        <div class="date-selected-title">
+          {{ selectedDateText }}
+        </div>
+
+        <div class="date-applied">
+
+          {{ filterType === 'date'
+              ? 'Date Applied'
+              : 'Date Range Applied' }}
+
+          <span class="success-badge">
+            <ion-icon name="checkmark-outline"></ion-icon>
+          </span>
+
+        </div>
+
+      </ng-container>
+
+      <ng-template #defaultFilter>
+        <div class="date-title">Date Filter</div>
+        <div class="date-value">Select a date or range</div>
+      </ng-template>
+
+    </div>
+
+  </div>
+
+  <div
+    *ngIf="selectedDateText"
+    class="clear-icon"
+    (click)="clearDateFilter(); $event.stopPropagation()">
+
+    <ion-icon name="close-outline"></ion-icon>
+
+  </div>
+
+  <ion-icon
+    *ngIf="!selectedDateText"
+    class="date-arrow"
+    name="chevron-forward-outline">
+  </ion-icon>
+
+</div>
+
   <!-- LOADING STATE -->
   <div *ngIf="loading && filteredShifts.length === 0" class="loader-wrapper">
     <ion-spinner name="crescent"></ion-spinner>
@@ -104,4 +160,146 @@
     loadingText="Loading more shifts...">
   </ion-infinite-scroll-content>
 </ion-infinite-scroll>
+
+<ion-modal
+  [isOpen]="showDateModal"
+  class="date-modal"
+  (didDismiss)="resetDateModal()">
+
+  <ng-template>
+
+    <div class="calendar-popup">
+
+      <div class="calendar-header">
+        <h3>Date Filter</h3>
+
+        <div
+          class="close-icon"
+          (click)="showDateModal = false">
+
+          <ion-icon name="close-outline"></ion-icon>
+
+        </div>
+      </div>
+
+      <div class="date-tabs">
+
+        <div
+          class="date-tab"
+          [class.active]="dateFilterTab === 'date'"
+          (click)="switchToDateTab()">
+
+          Date
+
+        </div>
+
+        <div
+          class="date-tab"
+          [class.active]="dateFilterTab === 'range'"
+          (click)="switchToRangeTab()">
+
+          Date Range
+
+        </div>
+
+      </div>
+
+      <div *ngIf="dateFilterTab === 'date'">
+
+        <div
+          class="single-date-field"
+          (click)="openSingleDate()">
+
+          <div class="date-part">
+
+            <ion-icon name="calendar-outline"></ion-icon>
+
+            <span>
+              {{ fromDateValue
+                  ? (fromDateValue | date:'dd MMM yyyy')
+                  : 'Select Date' }}
+            </span>
+
+          </div>
+
+        </div>
+
+        <ion-datetime
+          *ngIf="calendarMode === 'single'"
+          presentation="date"
+          [max]="maxDate"
+          [(ngModel)]="fromDateValue"
+          (ionChange)="closeCalendar()">
+        </ion-datetime>
+
+      </div>
+
+      <div *ngIf="dateFilterTab === 'range'">
+
+        <div class="range-field">
+
+          <div
+            class="date-part"
+            (click)="openFromDate()">
+
+            <ion-icon name="calendar-outline"></ion-icon>
+
+            <span>
+              {{ fromDateValue
+                  ? (fromDateValue | date:'dd MMM yyyy')
+                  : 'From Date' }}
+            </span>
+
+          </div>
+
+          <span class="separator"></span>
+
+          <div
+            class="date-part"
+            (click)="openToDate()">
+
+            <ion-icon name="calendar-outline"></ion-icon>
+
+            <span>
+              {{ toDateValue
+                  ? (toDateValue | date:'dd MMM yyyy')
+                  : 'To Date' }}
+            </span>
+
+          </div>
+
+        </div>
+
+        <ion-datetime
+          *ngIf="calendarMode === 'from'"
+          presentation="date"
+          [max]="maxDate"
+          [(ngModel)]="fromDateValue"
+          (ionChange)="closeCalendar()">
+        </ion-datetime>
+
+        <ion-datetime
+          *ngIf="calendarMode === 'to'"
+          presentation="date"
+          [max]="maxDate"
+          [(ngModel)]="toDateValue"
+          (ionChange)="onToDateChange()">
+        </ion-datetime>
+
+      </div>
+
+      <ion-button
+        expand="block"
+        class="apply-btn"
+        (click)="applyDateFilter()">
+
+        Apply
+
+      </ion-button>
+
+    </div>
+
+  </ng-template>
+
+</ion-modal>
 </ion-content>

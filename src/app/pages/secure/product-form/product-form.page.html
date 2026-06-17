@@ -232,7 +232,7 @@
   <ion-card class="settings-card">
     <ion-item lines="none">
       <ion-label>
-        Product tags
+        Product Tags
       </ion-label>
 
       <ion-select
@@ -372,77 +372,139 @@
     class="variation-item">
 
     <div class="variation-row">
-      <div class="variation-label">
-        {{ getComboLabel(combo) }}
-      </div>
 
-      <ion-input
-  type="tel"
-  inputmode="numeric"
-  placeholder="0.00"
-  class="variation-price"
-  [value]="formatPrice(getVariationPrice(combo))"
-  (ionInput)="onVariationPriceInput(combo, $event)">
-</ion-input>
-    </div>
+  <div class="variation-label">
+    {{ getComboLabel(combo) }}
+  </div>
+
+  <div class="variation-price-wrapper">
+
+    <span class="variation-currency-symbol">
+      $
+    </span>
+
+    <ion-input
+      type="tel"
+      inputmode="numeric"
+      placeholder="0.00"
+      class="variation-price"
+      [value]="
+        getVariationPrice(combo)
+          ? formatPrice(getVariationPrice(combo))
+          : '0.00'
+      "
+      (ionInput)="onVariationPriceInput(combo, $event)">
+    </ion-input>
+
+  </div>
+
+</div>
 
   </div>
 </ion-card>
   <!-- Pricing -->
-  <ion-card class="settings-card">
+  <!-- Pricing -->
+<ion-card
+  *ngIf="product.type !== 'variable'"
+  class="settings-card">
 
-    <!-- REGULAR PRICE -->
-    <ion-item lines="none" class="editable-item" (click)="enableRegularPriceEdit()">
-  
-  <ion-label position="stacked">
-    Regular price
-  </ion-label>
+  <!-- REGULAR PRICE -->
+  <ion-item
+    lines="none"
+    class="editable-item"
+    (click)="enableRegularPriceEdit()">
 
-  <!-- Display -->
-  <div class="value-text" *ngIf="!editRegularPrice">
-    ${{ product.regular_price ? formatPrice(product.regular_price) : 'Add regular price' }}
+    <ion-label position="stacked">
+      Regular price
+    </ion-label>
+
+    <!-- Display -->
+    <div
+      class="value-text"
+      *ngIf="!editRegularPrice">
+
+      ${{ product.regular_price
+          ? formatPrice(product.regular_price)
+          : '0.00' }}
+
+    </div>
+
+    <!-- Input -->
+    <div
+      *ngIf="editRegularPrice"
+      class="currency-input-wrapper">
+
+      <span class="currency-symbol">$</span>
+
+      <ion-input
+        #regularPriceInput
+        type="tel"
+        inputmode="numeric"
+        class="amount-input"
+        [value]="product.regular_price
+          ? formatPrice(product.regular_price)
+          : '0.00'"
+        (ionInput)="onPriceInput($event, 'regular_price'); markDirty()"
+        (ionBlur)="editRegularPrice = false">
+      </ion-input>
+
+    </div>
+
+  </ion-item>
+
+  <!-- SALE PRICE -->
+  <ion-item
+    lines="none"
+    class="editable-item"
+    (click)="enableSalePriceEdit()">
+
+    <ion-label position="stacked">
+      Sale price
+    </ion-label>
+
+    <!-- Display -->
+    <div
+      class="value-text"
+      *ngIf="!editSalePrice">
+
+      ${{ product.sale_price
+          ? formatPrice(product.sale_price)
+          : '0.00' }}
+
+    </div>
+
+    <!-- Input -->
+    <div
+      *ngIf="editSalePrice"
+      class="currency-input-wrapper">
+
+      <span class="currency-symbol">$</span>
+
+      <ion-input
+        #salePriceInput
+        type="tel"
+        inputmode="numeric"
+        class="amount-input"
+        [value]="product.sale_price
+          ? formatPrice(product.sale_price)
+          : '0.00'"
+        (ionInput)="onPriceInput($event, 'sale_price'); markDirty()"
+        (ionBlur)="editSalePrice = false">
+      </ion-input>
+
+    </div>
+
+  </ion-item>
+
+  <div
+    class="error-text"
+    *ngIf="salePriceError">
+
+    {{ salePriceError }}
+
   </div>
 
-  <!-- Input -->
-  <ion-input
-  *ngIf="editRegularPrice"
-  #regularPriceInput
-  type="number"
-  [value]="formatPrice(product.regular_price)"
-  (ionInput)="onPriceInput($event, 'regular_price'); markDirty()"
-  (ionBlur)="editRegularPrice = false">
-</ion-input>
-
-</ion-item>
-
-    <!-- SALE PRICE -->
-    <ion-item lines="none" class="editable-item" (click)="enableSalePriceEdit()">
-  
-  <ion-label position="stacked">
-    Sale price
-  </ion-label>
-
-  <!-- Display -->
-  <div class="value-text" *ngIf="!editSalePrice">
-    ${{ product.sale_price ? formatPrice(product.sale_price) : 'Add sale price' }}
-  </div>
-
-  <!-- Input -->
-  <ion-input
-  *ngIf="editSalePrice"
-  #salePriceInput
-  type="number"
-  [value]="formatPrice(product.sale_price)"
-  (ionInput)="onPriceInput($event, 'sale_price'); markDirty()"
-  (ionBlur)="editSalePrice = false">
-</ion-input>
-
-</ion-item>
-<div class="error-text" *ngIf="salePriceError">
-  {{ salePriceError }}
-</div>
-
-  </ion-card>
+</ion-card>
 
 
 
@@ -495,7 +557,7 @@
 
 <ion-item lines="none" class="dropdown-item">
   <ion-label>
-    Stock status
+    Stock Status
   </ion-label>
 
   <!-- Badge -->

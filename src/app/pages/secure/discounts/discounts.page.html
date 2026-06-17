@@ -129,20 +129,20 @@
     
     <div *ngIf="c.start_date">
       <span class="label">Start Date:</span>
-      <span class="value">{{ c.start_date | date:'MMM d, yyyy' }}</span>
+      <span class="value">{{ c.start_date | date:'MMM dd, yyyy' }}</span>
     </div>
 
     <div *ngIf="c.expiry_date">
       <span class="label">End Date:</span>
-      <span class="value">{{ c.expiry_date | date:'MMM d, yyyy' }}</span>
+      <span class="value">{{ c.expiry_date | date:'MMM dd, yyyy' }}</span>
     </div>
 
   </div>
 
   <!-- ✅ RIGHT SIDE PUBLISH -->
-  <div class="publish-badge">
+  <!-- <div class="publish-badge">
     Publish
-  </div>
+  </div> -->
 
 </div>
 
@@ -206,6 +206,19 @@
           </ion-select>
 
         </ion-item>
+        <div *ngIf="form.type === 'auto' || form.type === 'mix_match'">
+          <ion-label position="stacked">Title</ion-label>
+          <ion-item>
+  <ion-input
+    [(ngModel)]="form.code"
+    (ngModelChange)="onDiscountCodeChange($event)">
+  </ion-input>
+</ion-item>
+
+<ion-text class="field-error" *ngIf="discountCodeEmojiError === true">
+  Emojis are not allowed.
+</ion-text>
+        </div>
         <ion-label position="stacked">
           {{ form.type === 'mix_match' ? 'Main Product (Trigger)' : 'Product' }}
         </ion-label>
@@ -268,25 +281,50 @@
             [(ngModel)]="form.discount_product_ids">
           </ion-input>
         </ion-item>
-        <ion-label position="stacked">Product Price</ion-label>
-        <ion-item> 
-          <ion-input [value]="form.selectedProductPrice ? ('$' + (form.selectedProductPrice | number:'1.2-2')) : ''" readonly></ion-input>
-        </ion-item>
-        
-        
-        <div *ngIf="form.type === 'auto' || form.type === 'mix_match'">
-          <ion-label position="stacked">Discount Code</ion-label>
-          <ion-item>
-  <ion-input
-    [(ngModel)]="form.code"
-    (ngModelChange)="onDiscountCodeChange($event)">
-  </ion-input>
-</ion-item>
+                <ion-label position="stacked">
 
-<ion-text class="field-error" *ngIf="discountCodeEmojiError === true">
-  Emojis are not allowed.
-</ion-text>
-        </div>
+          {{
+            form.type === 'mix_match'
+              ? 'Discounted Product Price'
+              : 'Product Price'
+          }}              
+
+        </ion-label>
+
+        <ion-item>
+
+          <ion-input
+
+            [value]="
+              form.type === 'mix_match'
+
+                ? (
+                    form.selectedDiscountProductPrice
+                      ? ('$' + (
+                          form.selectedDiscountProductPrice
+                          | number:'1.2-2'
+                        ))
+                      : ''
+                  )
+
+                : (
+                    form.selectedProductPrice
+                      ? ('$' + (
+                          form.selectedProductPrice
+                          | number:'1.2-2'
+                        ))
+                      : ''
+                  )
+            "
+
+            readonly>
+
+          </ion-input>
+
+        </ion-item>
+                
+        
+        
         <!-- <div *ngIf="filter_type === 'auto' || activeFilter === 'auto'">
           <ion-item>
             <ion-label position="stacked">Discount Type</ion-label>
@@ -320,8 +358,8 @@
             
             <ion-select 
             [(ngModel)]="form.discount_type" 
-            (ngModelChange)="markChanged()"
-            [disabled]="!!editingCoupon">
+            placeholder="Select discount type"
+            (ngModelChange)="markChanged()">
               <!-- Auto -->
               <ng-container *ngIf="form.type === 'auto'">
                 <ion-select-option value="percent">Percentage</ion-select-option>
@@ -383,12 +421,35 @@
             </ion-item>
         </div>
         <ion-label position="stacked">Start Date</ion-label>
-        <ion-item>
-          <ion-input type="date" [min]="today" [(ngModel)]="form.date_starts" (ngModelChange)="markChanged()"> </ion-input>
-        </ion-item>
+          <ion-item>
+
+    <div class="date-input-wrapper">
+
+      <input
+        type="date"
+        class="native-date-input"
+        [min]="today"
+        [(ngModel)]="form.date_starts" 
+         (blur)="closeKeyboard()"/>
+
+    </div>
+
+  </ion-item>
+
         <ion-label position="stacked">Expiry Date</ion-label>
         <ion-item>
-          <ion-input type="date" [min]="today" [(ngModel)]="form.date_expires" (ngModelChange)="markChanged()"> </ion-input>
+
+  <div class="date-input-wrapper">
+
+    <input
+      type="date"
+      class="native-date-input"
+      [min]="today"
+      [(ngModel)]="form.date_expires"
+      (ngModelChange)="markChanged()"
+       (blur)="closeKeyboard()" />
+
+  </div>
         </ion-item>
         <div *ngIf="form.type === 'auto'">
           <ion-item lines="none">
@@ -404,7 +465,7 @@
           <div *ngIf="form.type === 'auto' || form.type === 'multipack'">
             <ion-label position="stacked">{{ form.type === 'auto' ? 'Usage Limit' : 'Order Usage' }}</ion-label>
           <ion-item>
-            <ion-input type="number" [(ngModel)]="form.usage_limit" (ngModelChange)="markChanged()"></ion-input>
+            <ion-input type="number" inputmode="numeric" min="1" step="1" [(ngModel)]="form.usage_limit"> </ion-input>
           </ion-item>
         </div>
         <div class="discount-buttons">

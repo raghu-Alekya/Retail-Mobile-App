@@ -126,7 +126,13 @@
 
       <!-- Email -->
      <ion-label position="stacked">Email</ion-label>
-      <div class="form-field">
+      <div
+  class="form-field"
+  [class.invalid]="
+    (emailTouched && editedUser.email && !isValidEmail(editedUser.email)) ||
+    (emailTouched && editedUser.email && containsEmoji(editedUser.email))
+  "
+>
         <ion-input
           placeholder="Enter email address"
           [(ngModel)]="editedUser.email"
@@ -135,10 +141,28 @@
         </ion-input>
       </div>
 
-      <p class="error-text"
-        *ngIf="emailTouched && editedUser.email && !isValidEmail(editedUser.email)">
-        Please enter a valid email format
-      </p>
+      <p
+  class="error-text"
+  *ngIf="
+    emailTouched &&
+    editedUser.email &&
+    !containsEmoji(editedUser.email) &&
+    !isValidEmail(editedUser.email)
+  "
+>
+  Please enter a valid email format
+</p>
+
+<p
+  class="error-text"
+  *ngIf="
+    emailTouched &&
+    editedUser.email &&
+    containsEmoji(editedUser.email)
+  "
+>
+  Email cannot contain emojis
+</p>
 
     <!-- First Name -->
      <ion-label position="stacked">First Name</ion-label>
@@ -271,7 +295,8 @@
   containsEmoji(editedUser.last_name) ||
   !editedUser.email ||
   !editedUser.role ||
-  !isValidEmail(editedUser.email) ||
+  containsEmoji(editedUser.email) ||
+!isValidEmail(editedUser.email) ||
   (editedUser.phone && !isValidPhone(editedUser.phone)) ||
   (editedUser.emp_login_pin && !isValidPin(editedUser.emp_login_pin))
 "

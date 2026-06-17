@@ -16,7 +16,6 @@ addIcons({ pencil });
 export class AddCouponPage {
 
   @ViewChild('datePicker', { static: false }) datePicker!: IonDatetime;
-showDatePicker = false;
   editing: string | null = null;
 
   isDateModalOpen = false;
@@ -34,7 +33,7 @@ showDatePicker = false;
   code: '',
   description: '',
   amount: null,
-  type: null,
+  type: 'fixed_cart',
   individualUse: false,
   usageLimit: null,
   usageLimitPerUser: null,
@@ -101,14 +100,7 @@ startEdit(field: string) {
 toggleCalendar() {
   this.showCalendar = !this.showCalendar;
 }
-openDatePicker() {
-  this.showDatePicker = true;
-}
 
-setDate(event: any) {
-  this.coupon.expireDate = event.detail.value.split('T')[0];
-  this.showDatePicker = false; // close popup immediately
-}
 onDateSelected(event: any) {
   this.coupon.expireDate = event.detail.value;
 
@@ -216,7 +208,7 @@ if (min > 0 && max > 0 && min > max) {
     amount: this.coupon.amount,
 
     // ✅ FIX HERE
-    type: this.coupon.type,
+    type: 'fixed_cart',
 
     individual_use: this.coupon.individualUse,
     usage_limit: this.coupon.usageLimit,
@@ -235,15 +227,14 @@ try {
 
   const response = await this.auth.createCoupon(payload);
 
-  console.log('RESPONSE:', response);
+console.log('RESPONSE:', response);
 
-  if (response?.code === 'duplicate_coupon') {
+if (!response?.success) {
+  alert(response?.message || 'Coupon creation failed');
+  return;
+}
 
-    alert('Coupon code already exists');
-    return;
-  }
-
-  alert('Coupon Created Successfully');
+alert('Coupon Created Successfully');
 
   this.resetForm();
 
@@ -262,7 +253,7 @@ resetForm() {
     code: '',
     description: '',
     amount: null,
-    type: null,
+    type: 'fixed_cart',
     individualUse: false,
     usageLimit: null,
     usageLimitPerUser: null,

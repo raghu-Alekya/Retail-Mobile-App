@@ -4,13 +4,14 @@ import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { AssetsService } from 'src/app/services/assets/assets.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   standalone: true,
   selector: 'app-order-list',
   templateUrl: './orders-list.page.html',
   styleUrls: ['./orders-list.page.scss'],
-  imports: [IonicModule, CommonModule, RouterModule],
+  imports: [IonicModule, CommonModule, RouterModule, FormsModule],
 })
 export class OrderListPage implements OnInit {
 
@@ -24,6 +25,18 @@ export class OrderListPage implements OnInit {
 
   searchTerm: string = '';
   searchTimeout: any;
+
+  showDateModal = false;
+  fromDateApi = '';
+toDateApi = '';
+selectedDateText = '';
+fromDateValue = '';
+toDateValue = '';
+dateFilterTab: 'date' | 'range' = 'date';
+calendarMode: 'single' | 'from' | 'to' | null = null;
+filterType: 'date' | 'range' | '' = '';
+maxDate = new Date().toISOString().split('T')[0];
+
 
   expandedOrderId: number | null = null;
 
@@ -47,7 +60,11 @@ async loadStatusCounts() {
 
   const promises = this.statuses.map(async (s) => {
     try {
-      const count = await this.authService.getDashboardStats(s.key);
+      const count = await this.authService.getDashboardStats(
+        s.key,
+        this.fromDateApi,
+        this.toDateApi
+      );
       return count;
     } catch {
       return 0;
@@ -69,6 +86,7 @@ async loadStatusCounts() {
 
   this.page = 1;
   this.orders = [];
+
   this.hasMore = true;
 
   this.loadOrders();
@@ -123,10 +141,12 @@ statuses = [
         if (this.page === 1 && searchVal && !isNaN(Number(searchVal))) {
           try {
             let exactData = await this.authService.getOrders(
-              1,
-              searchVal,
-              this.selectedStatus !== 'all' ? this.selectedStatus : ''
-            );
+  1,
+  searchVal,
+  this.selectedStatus !== 'all' ? this.selectedStatus : '',
+  this.fromDateApi,
+  this.toDateApi
+);
             
             if (this.searchTerm !== activeSearchTerm || this.selectedStatus !== activeStatus) return;
 
@@ -154,7 +174,13 @@ statuses = [
           let promises = [];
           for (let i = 0; i < 5; i++) {
              promises.push(
-                this.authService.getOrders(this.page + i, '', this.selectedStatus !== 'all' ? this.selectedStatus : '')
+                this.authService.getOrders(
+  this.page + i,
+  '',
+  this.selectedStatus !== 'all' ? this.selectedStatus : '',
+  this.fromDateApi,
+  this.toDateApi
+)
                 .catch(() => [])
              );
           }
@@ -196,10 +222,12 @@ statuses = [
         }
       } else {
         let data = await this.authService.getOrders(
-          this.page,
-          '',
-          this.selectedStatus !== 'all' ? this.selectedStatus : ''
-        );
+  this.page,
+  '',
+  this.selectedStatus !== 'all' ? this.selectedStatus : '',
+  this.fromDateApi,
+  this.toDateApi
+);
 
         // ABORT if the user changed the search term or status while we were fetching
         if (this.searchTerm !== activeSearchTerm || this.selectedStatus !== activeStatus) {
@@ -207,11 +235,15 @@ statuses = [
         }
 
         if (Array.isArray(data) && data.length > 0) {
-          this.orders = this.page === 1
-            ? data
-            : [...this.orders, ...data];
-          this.page++;
-        } else {
+
+  this.orders = this.page === 1
+    ? data
+    : [...this.orders, ...data];
+
+  
+
+  this.page++;
+}else {
           this.hasMore = false;
         }
       }
@@ -248,10 +280,21 @@ statuses = [
      EXPAND ORDER
   ================================= */
   toggleExpand(orderId: number) {
-    this.expandedOrderId =
-      this.expandedOrderId === orderId ? null : orderId;
-  }
 
+  const order = this.orders.find(o => o.id === orderId);
+
+  console.log(
+    order?.line_items?.map((i: any) => ({
+      name: i.name,
+      slug: i.product_data?.slug,
+      subtotal: i.subtotal,
+      total: i.total
+    }))
+  );
+
+  this.expandedOrderId =
+    this.expandedOrderId === orderId ? null : orderId;
+}
   isExpanded(orderId: number): boolean {
     return this.expandedOrderId === orderId;
   }
@@ -502,4 +545,158 @@ visibleStatuses = [
   { value: 'refunded', label: 'Refunded' },
   { value: 'partial-refund', label: 'Partial Refunded' }
 ];
+
+hasEbtTag(item: any): boolean {
+  const ebtMeta = item?.meta_data?.find(
+    (m: any) => m.key === '_is_ebt_eligible'
+  );
+
+  return ebtMeta?.value === '1';
+}
+
+
+async clearDateFilter() {
+
+  this.fromDateValue = '';
+  this.toDateValue = '';
+
+  this.fromDateApi = '';
+  this.toDateApi = '';
+
+  this.selectedDateText = '';
+  this.filterType = '';
+
+  this.page = 1;
+  this.orders = [];
+  this.hasMore = true;
+
+  await this.loadStatusCounts();
+  await this.loadOrders();
+}
+
+async applyDateFilter() {
+
+  // Auto swap if From > To
+  if (
+    this.dateFilterTab === 'range' &&
+    this.fromDateValue &&
+    this.toDateValue &&
+    new Date(this.fromDateValue) > new Date(this.toDateValue)
+  ) {
+    const temp = this.fromDateValue;
+    this.fromDateValue = this.toDateValue;
+    this.toDateValue = temp;
+  }
+
+  if (!this.fromDateValue) {
+    return;
+  }
+
+  // Single Date
+  if (this.dateFilterTab === 'date') {
+
+    this.filterType = 'date';
+
+    this.fromDateApi =
+      this.fromDateValue.split('T')[0];
+
+    this.toDateApi =
+      this.fromDateApi;
+
+    this.selectedDateText =
+      this.fromDateApi;
+  }
+
+  // Date Range
+  else {
+
+    if (!this.toDateValue) {
+      return;
+    }
+
+    this.filterType = 'range';
+
+    this.fromDateApi =
+      this.fromDateValue.split('T')[0];
+
+    this.toDateApi =
+      this.toDateValue.split('T')[0];
+
+    this.selectedDateText =
+      `${this.fromDateApi} - ${this.toDateApi}`;
+  }
+
+  this.showDateModal = false;
+  this.calendarMode = null;
+
+  this.page = 1;
+  this.orders = [];
+  this.hasMore = true;
+
+  await this.loadStatusCounts();
+  await this.loadOrders();
+}
+
+resetDateModal() {
+
+  this.showDateModal = false;
+
+  this.calendarMode = null;
+
+  this.dateFilterTab = 'date';
+}
+
+openSingleDate() {
+  this.calendarMode = 'single';
+}
+
+openFromDate() {
+  this.calendarMode = 'from';
+}
+
+openToDate() {
+  this.calendarMode = 'to';
+}
+
+closeCalendar() {
+  //this.calendarMode = null;
+}
+
+switchToDateTab() {
+
+  this.dateFilterTab = 'date';
+
+  // Clear range values
+  this.fromDateValue = '';
+  this.toDateValue = '';
+
+  this.calendarMode = null;
+}
+
+switchToRangeTab() {
+
+  this.dateFilterTab = 'range';
+
+  // Clear single date value
+  this.fromDateValue = '';
+  this.toDateValue = '';
+
+  this.calendarMode = null;
+}
+
+onToDateChange() {
+
+  if (
+    this.fromDateValue &&
+    this.toDateValue &&
+    new Date(this.fromDateValue) > new Date(this.toDateValue)
+  ) {
+
+    const temp = this.fromDateValue;
+    this.fromDateValue = this.toDateValue;
+    this.toDateValue = temp;
+  }
+
+
+}
 }

@@ -42,59 +42,50 @@
 
 <div
   class="coupon-card"
-  (click)="editCoupon(coupon)"
   *ngFor="let coupon of filteredCoupons"
+  (click)="editCoupon(coupon)"
 >
-  <div class="card-row">
+  <div class="card-top">
 
-    <!-- LEFT ICON -->
     <div class="icon-box">
       <img src="assets/icons/coupons.svg" class="coupon-icon" />
     </div>
 
-    <!-- RIGHT CONTENT -->
-    <div class="card-content">
+    <div class="card-info">
 
-      <div class="code">Code: {{ coupon.code }}</div>
+      <!-- Row 1 -->
+      <div class="row-between">
+        <div class="code">Code: {{ coupon.code }}</div>
 
-      <div class="description" *ngIf="coupon.description">
-        {{ coupon.description }}
-      </div>
-      <!-- pravalika changes -->
-      <div class="amount">
-        Amount: ${{ coupon.amount | number:'1.2-2'}} (
-        {{
-          coupon.discount_type === 'fixed_cart'
-            ? 'Cart Discount'
-            : coupon.discount_type === 'fixed_product'
-            ? 'Product Discount'
-            : coupon.discount_type
-        }}
-        )
-      </div>
-      <!-- end's here -->
-
-      <div class="divider-row">
-        <div class="expiry-text" *ngIf="coupon.date_expires">
-          Expiration: {{ coupon.date_expires | date:'MMM d, yyyy' }}
+        <div class="usage">
+          {{ coupon.usage_count || 0 }}/
+          {{ coupon.usage_limit === 0 ? '∞' : coupon.usage_limit }}
         </div>
-        <div class="divider-line"></div>
-        <div class="coupon-id">#{{ coupon.id }}</div>
       </div>
-      
 
-      <div class="bottom-row">
-        <div class="action-group">
-          <div class="usage">
-            {{ coupon.usage_count || 0 }}/
-            {{ coupon.usage_limit === 0 ? '∞' : coupon.usage_limit }}
-          </div>
-          <div class="status">Publish</div>
+      <!-- Row 2 -->
+      <div class="row-between">
+        <div class="amount">
+          Amount: ${{ coupon.amount | number:'1.2-2' }}
+        </div>
+
+        <div
+          class="expiry-badge"
+          *ngIf="coupon.date_expires"
+        >
+          Expiry:
+          {{ coupon.date_expires | date:'dd MMM yyyy' }}
         </div>
       </div>
 
     </div>
-
   </div>
-</div> 
+
+  <div class="divider"></div>
+
+  <div class="description">
+  <strong>Description :</strong>
+  {{ coupon.description?.trim() ? coupon.description : '--' }}
+</div>
+</div>
 </ion-content>
