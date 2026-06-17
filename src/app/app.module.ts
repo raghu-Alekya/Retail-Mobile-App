@@ -17,6 +17,7 @@ import { SwiperModule } from 'swiper/angular';
 
 //import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner/ngx';
 
+
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
@@ -28,7 +29,9 @@ import { SwiperModule } from 'swiper/angular';
     NgChartsModule,
     SwiperModule
   ],
+
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy, },],
+
   bootstrap: [AppComponent],
 })
 export class AppModule { }

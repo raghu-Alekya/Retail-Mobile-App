@@ -93,7 +93,14 @@
   (ionInput)="markDirty()">
 </ion-input>
       <!-- <ion-icon name="barcode-outline" slot="end"></ion-icon> -->
-      <ion-button size="small" slot="end" (click)="scanSku()">Scan</ion-button>
+      <ion-button
+        size="small"
+        slot="end"
+        [disabled]="isScanning"
+        (click)="scanSku()"
+      >
+        {{ isScanning ? 'Scanning...' : 'Scan' }}
+      </ion-button>
     </ion-item>
   <!-- </ion-card> -->
 
