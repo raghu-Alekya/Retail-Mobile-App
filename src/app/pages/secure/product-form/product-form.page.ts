@@ -6,7 +6,7 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { BarcodeService } from 'src/app/services/barcode-service.service';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+// import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 
 
 
@@ -20,8 +20,8 @@ import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 export class ProductFormPage implements OnInit {
 
   ionViewWillLeave() {
-    BarcodeScanner.showBackground();
-    BarcodeScanner.stopScan();
+    // BarcodeScanner.showBackground();
+    // BarcodeScanner.stopScan();
   }
 
   @ViewChild('titleInput') titleInput!: IonInput;

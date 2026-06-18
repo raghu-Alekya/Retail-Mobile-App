@@ -20,7 +20,7 @@ import { SwiperModule } from 'swiper/angular';
 
 @NgModule({
   declarations: [AppComponent],
-  entryComponents: [],
+  
   imports: [
     BrowserModule,
     IonicModule.forRoot(),

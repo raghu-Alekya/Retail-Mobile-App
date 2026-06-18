@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { CanActivate } from '@angular/router';
+
 import { AlertController } from '@ionic/angular';
 import { AuthService } from '../services/auth/auth.service';
 import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root',
 })
-export class AuthGuard implements CanActivate {
+export class AuthGuard  {
 
   private popupShown = false;
 
