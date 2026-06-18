@@ -14,14 +14,10 @@ import { Router } from '@angular/router';
 
 
 @Component({
-  selector: 'app-add-user-modal',
-   templateUrl: './add-user.component.html',
-  styleUrls: ['./add-user.component.scss'],
-  standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
-
-
- 
+    selector: 'app-add-user-modal',
+    templateUrl: './add-user.component.html',
+    styleUrls: ['./add-user.component.scss'],
+    imports: [IonicModule, CommonModule, FormsModule]
 })
 export class AddUserComponent implements OnInit {
 

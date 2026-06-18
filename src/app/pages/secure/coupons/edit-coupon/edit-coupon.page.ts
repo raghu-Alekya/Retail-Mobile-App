@@ -4,9 +4,10 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { AlertController, NavController } from '@ionic/angular';
 
 @Component({
-  selector: 'app-edit-coupon',
-  templateUrl: './edit-coupon.page.html',
-  styleUrls: ['./edit-coupon.page.scss'],
+    selector: 'app-edit-coupon',
+    templateUrl: './edit-coupon.page.html',
+    styleUrls: ['./edit-coupon.page.scss'],
+    standalone: false
 })
 export class EditCouponPage implements OnInit {
 

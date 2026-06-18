@@ -6,9 +6,10 @@ import { Router } from '@angular/router';
 
 
 @Component({
-  selector: 'app-shifts',
-  templateUrl: './shifts.page.html',
-  styleUrls: ['./shifts.page.scss'],
+    selector: 'app-shifts',
+    templateUrl: './shifts.page.html',
+    styleUrls: ['./shifts.page.scss'],
+    standalone: false
 })
 export class ShiftsPage implements OnInit {
 

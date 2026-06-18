@@ -11,9 +11,10 @@ import { Capacitor } from '@capacitor/core';
 
 
 @Component({
-  selector: 'app-product-form',
-  templateUrl: './product-form.page.html',
-  styleUrls: ['./product-form.page.scss']
+    selector: 'app-product-form',
+    templateUrl: './product-form.page.html',
+    styleUrls: ['./product-form.page.scss'],
+    standalone: false
 })
 
 

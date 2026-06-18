@@ -7,9 +7,10 @@ import { Router } from '@angular/router';
 import { is, tr } from 'date-fns/locale';
 
 @Component({
-  selector: 'app-signin',
-  templateUrl: './signin.page.html',
-  styleUrls: ['./signin.page.scss'],
+    selector: 'app-signin',
+    templateUrl: './signin.page.html',
+    styleUrls: ['./signin.page.scss'],
+    standalone: false
 })
 export class SigninPage implements OnInit {
 

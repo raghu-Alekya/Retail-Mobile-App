@@ -3,9 +3,10 @@ import { IonRouterOutlet, ModalController } from '@ionic/angular';
 import { FilterPage } from './filter/filter.page';
 
 @Component({
-  selector: 'app-payments',
-  templateUrl: './payments.page.html',
-  styleUrls: ['./payments.page.scss'],
+    selector: 'app-payments',
+    templateUrl: './payments.page.html',
+    styleUrls: ['./payments.page.scss'],
+    standalone: false
 })
 export class PaymentsPage implements OnInit {
 

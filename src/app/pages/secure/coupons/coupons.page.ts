@@ -9,11 +9,10 @@ import { Subscription } from 'rxjs';
 
 
 @Component({
-  standalone: true,
-  selector: 'app-coupons',
-  templateUrl: './coupons.page.html',
-  styleUrls: ['./coupons.page.scss'],
-  imports: [IonicModule, CommonModule, FormsModule]
+    selector: 'app-coupons',
+    templateUrl: './coupons.page.html',
+    styleUrls: ['./coupons.page.scss'],
+    imports: [IonicModule, CommonModule, FormsModule]
 })
 export class CouponsPage implements OnInit, OnDestroy {
   private routerSub!: Subscription;

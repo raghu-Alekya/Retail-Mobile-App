@@ -4,9 +4,10 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
-  selector: 'app-order-payments',
-  templateUrl: './order-payments.page.html',
-  styleUrls: ['./order-payments.page.scss'],
+    selector: 'app-order-payments',
+    templateUrl: './order-payments.page.html',
+    styleUrls: ['./order-payments.page.scss'],
+    standalone: false
 })
 export class OrderPaymentsPage implements OnInit {
   payments: any[] = [];
