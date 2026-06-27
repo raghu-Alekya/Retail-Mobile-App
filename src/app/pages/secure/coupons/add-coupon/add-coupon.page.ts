@@ -9,9 +9,10 @@ import { NavController } from '@ionic/angular';
 addIcons({ pencil });
 
 @Component({
-  selector: 'app-add-coupon',
-  templateUrl: './add-coupon.page.html',
-  styleUrls: ['./add-coupon.page.scss'],
+    selector: 'app-add-coupon',
+    templateUrl: './add-coupon.page.html',
+    styleUrls: ['./add-coupon.page.scss'],
+    standalone: false
 })
 export class AddCouponPage {
 

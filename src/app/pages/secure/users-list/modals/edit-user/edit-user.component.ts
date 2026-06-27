@@ -2,8 +2,9 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
 @Component({
-  selector: 'app-edit-user',
-  templateUrl: './edit-user.component.html',
+    selector: 'app-edit-user',
+    templateUrl: './edit-user.component.html',
+    standalone: false
 })
 export class EditUserComponent implements OnInit {
 

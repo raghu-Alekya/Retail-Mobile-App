@@ -7,11 +7,10 @@ import { AssetsService } from 'src/app/services/assets/assets.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  standalone: true,
-  selector: 'app-order-list',
-  templateUrl: './orders-list.page.html',
-  styleUrls: ['./orders-list.page.scss'],
-  imports: [IonicModule, CommonModule, RouterModule, FormsModule],
+    selector: 'app-order-list',
+    templateUrl: './orders-list.page.html',
+    styleUrls: ['./orders-list.page.scss'],
+    imports: [IonicModule, CommonModule, RouterModule, FormsModule]
 })
 export class OrderListPage implements OnInit {
 

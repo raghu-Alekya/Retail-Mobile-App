@@ -9,9 +9,10 @@ import { Capacitor } from '@capacitor/core';
 import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 
 @Component({
-  selector: 'app-product-form',
-  templateUrl: './product-form.page.html',
-  styleUrls: ['./product-form.page.scss']
+    selector: 'app-product-form',
+    templateUrl: './product-form.page.html',
+    styleUrls: ['./product-form.page.scss'],
+    standalone: false
 })
 export class ProductFormPage implements OnInit {
 

@@ -8,9 +8,10 @@ import { LoadingController } from '@ionic/angular';
 import { ToastController } from '@ionic/angular';
 
 @Component({
-  selector: 'app-users-list',
-  templateUrl: './users-list.page.html',
-  styleUrls: ['./users-list.page.scss'],
+    selector: 'app-users-list',
+    templateUrl: './users-list.page.html',
+    styleUrls: ['./users-list.page.scss'],
+    standalone: false
 })
 export class UsersListPage {
 

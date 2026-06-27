@@ -4,9 +4,10 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import axios from 'axios';
 import { ApiConfigService } from 'src/app/services/api-config.service';
 @Component({
-  selector: 'app-discounts',
-  templateUrl: './discounts.page.html',
-  styleUrls: ['./discounts.page.scss'],
+    selector: 'app-discounts',
+    templateUrl: './discounts.page.html',
+    styleUrls: ['./discounts.page.scss'],
+    standalone: false
 })
 export class DiscountsPage implements OnInit {
     today: string = '';

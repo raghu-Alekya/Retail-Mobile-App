@@ -4,9 +4,10 @@ import { BaseChartDirective } from 'ng2-charts';
 import { HelperService } from 'src/app/services/helper/helper.service';
 
 @Component({
-  selector: 'app-charts',
-  templateUrl: './charts.page.html',
-  styleUrls: ['./charts.page.scss'],
+    selector: 'app-charts',
+    templateUrl: './charts.page.html',
+    styleUrls: ['./charts.page.scss'],
+    standalone: false
 })
 export class ChartsPage implements OnInit {
 

@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { LoadingController } from '@ionic/angular';
 @Component({
-  selector: 'app-customers',
-  templateUrl: './customers.page.html',
-  styleUrls: ['./customers.page.scss'],
+    selector: 'app-customers',
+    templateUrl: './customers.page.html',
+    styleUrls: ['./customers.page.scss'],
+    standalone: false
 })
 export class CustomersPage {
 

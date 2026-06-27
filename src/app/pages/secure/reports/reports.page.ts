@@ -6,9 +6,10 @@ import { Chart } from 'chart.js/auto';
 import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
-  selector: 'app-reports',
-  templateUrl: './reports.page.html',
-  styleUrls: ['./reports.page.scss']
+    selector: 'app-reports',
+    templateUrl: './reports.page.html',
+    styleUrls: ['./reports.page.scss'],
+    standalone: false
 })
 export class ReportsPage implements AfterViewInit {
 

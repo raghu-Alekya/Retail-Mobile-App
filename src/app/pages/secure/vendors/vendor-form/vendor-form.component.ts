@@ -5,11 +5,10 @@ import { AlertController, IonicModule, ModalController, ToastController } from '
 import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
-  selector: 'app-vendor-form',
-  standalone: true, // ✅ IMPORTANT
-  imports: [CommonModule, FormsModule, IonicModule], // ✅ REQUIRED
-  templateUrl: './vendor-form.component.html',
-  styleUrls: ['./vendor-form.component.scss']
+    selector: 'app-vendor-form', // ✅ IMPORTANT
+    imports: [CommonModule, FormsModule, IonicModule], // ✅ REQUIRED
+    templateUrl: './vendor-form.component.html',
+    styleUrls: ['./vendor-form.component.scss']
 })
 export class VendorFormComponent implements OnInit {
 

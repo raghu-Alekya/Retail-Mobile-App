@@ -5,9 +5,10 @@ import { AlertController, NavController } from '@ionic/angular';
 import { ToastController } from '@ionic/angular';
 
 @Component({
-  selector: 'app-edit-coupon',
-  templateUrl: './edit-coupon.page.html',
-  styleUrls: ['./edit-coupon.page.scss'],
+    selector: 'app-edit-coupon',
+    templateUrl: './edit-coupon.page.html',
+    styleUrls: ['./edit-coupon.page.scss'],
+    standalone: false
 })
 export class EditCouponPage implements OnInit {
 

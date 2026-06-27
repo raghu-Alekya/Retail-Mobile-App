@@ -8,9 +8,10 @@ import { Validators } from '@angular/forms';
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 
 @Component({
-  selector: 'app-edit',
-  templateUrl: './edit.page.html',
-  styleUrls: ['./edit.page.scss'],
+    selector: 'app-edit',
+    templateUrl: './edit.page.html',
+    styleUrls: ['./edit.page.scss'],
+    standalone: false
 })
 export class EditPage implements OnInit {
 

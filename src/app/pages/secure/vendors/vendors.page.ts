@@ -5,9 +5,10 @@ import { VendorFormComponent } from './vendor-form/vendor-form.component';
 import { NavController } from '@ionic/angular';
 
 @Component({
-  selector: 'app-vendors',
-  templateUrl: './vendors.page.html',
-  styleUrls: ['./vendors.page.scss']
+    selector: 'app-vendors',
+    templateUrl: './vendors.page.html',
+    styleUrls: ['./vendors.page.scss'],
+    standalone: false
 })
 export class VendorsPage implements OnInit {
 

@@ -5,9 +5,10 @@ import { Capacitor } from '@capacitor/core';
 import { LoadingController } from '@ionic/angular';
 
 @Component({
-  selector: 'app-media',
-  templateUrl: './media.page.html',
-  styleUrls: ['./media.page.scss']
+    selector: 'app-media',
+    templateUrl: './media.page.html',
+    styleUrls: ['./media.page.scss'],
+    standalone: false
 })
 export class MediaPage implements OnInit {
 

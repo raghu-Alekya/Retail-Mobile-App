@@ -6,9 +6,10 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner/ngx';
 
 @Component({
-  selector: 'app-products-list',
-  templateUrl: './products-list.page.html',
-  styleUrls: ['./products-list.page.scss']
+    selector: 'app-products-list',
+    templateUrl: './products-list.page.html',
+    styleUrls: ['./products-list.page.scss'],
+    standalone: false
 })
 
 export class ProductsListPage implements OnInit {
