@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { AlertController, NavController } from '@ionic/angular';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-edit-coupon',
@@ -11,7 +12,14 @@ import { AlertController, NavController } from '@ionic/angular';
 export class EditCouponPage implements OnInit {
 
   coupon: any = {};
-
+  displayAmount = '0.00';
+  rawDigits = '';
+  displayMinAmount = '0.00';
+  rawMinDigits = '';
+  displayMaxAmount = '0.00';
+  rawMaxDigits = '';
+  couponCodeEmojiError = false;
+  today = '';
   editField: any = {
     code: false,
     description: false,
@@ -27,11 +35,52 @@ export class EditCouponPage implements OnInit {
     private router: Router,
     private auth: AuthService,
     private alertCtrl: AlertController,
+    private toastCtrl: ToastController,
     private navCtrl: NavController
   ) {}
 
   
 isDateModalOpen = false;
+
+containsEmoji(value: string): boolean {
+
+  if (!value) {
+    return false;
+  }
+
+  const emojiRegex =
+    /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
+
+  return emojiRegex.test(value);
+}
+
+async showError(message: string) {
+  const toast = await this.toastCtrl.create({
+    message,
+    duration: 2500,
+    color: 'danger',
+    position: 'bottom'
+  });
+
+  await toast.present();
+}
+
+onCouponCodeChange(value: string) {
+
+  if (this.containsEmoji(value)) {
+
+    this.coupon.code = value.replace(
+      /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu,
+      ''
+    );
+
+    this.couponCodeEmojiError = true;
+    return;
+  }
+
+  this.couponCodeEmojiError = false;
+  this.coupon.code = value;
+}
 
 openDatePicker() {
   this.isDateModalOpen = true;
@@ -42,7 +91,32 @@ setDate(event: any) {
   this.isDateModalOpen = false;
   
 }
+
+validateDate() {
+
+  console.log(
+    'Selected:',
+    this.coupon.date_expires,
+    'Today:',
+    this.today
+  );
+
+  if (this.coupon.date_expires < this.today) {
+
+    this.showError('Past dates are not allowed');
+
+    this.coupon.date_expires = '';
+  }
+}
   async ngOnInit() {
+
+    const now = new Date();
+
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+
+  this.today = `${yyyy}-${mm}-${dd}`;
 
     const stateCoupon = history.state.coupon;
 
@@ -57,8 +131,35 @@ setDate(event: any) {
 
       // ✅ handle API response correctly
       this.coupon = res.data ? res.data : res;
+      if (this.coupon.date_expires) {
+  this.coupon.date_expires =
+    this.coupon.date_expires.substring(0, 10);
+}
+      console.log('date_expires', this.coupon.date_expires);
+      this.displayAmount =
+        Number(this.coupon.amount || 0).toFixed(2);
 
-      this.coupon.code = this.coupon.original_code || this.coupon.code;
+      this.rawDigits =
+        Math.round(
+          Number(this.coupon.amount || 0) * 100
+        ).toString();
+
+      this.displayMinAmount =
+        Number(this.coupon.minimum_amount || 0).toFixed(2);
+
+      this.rawMinDigits =
+        Math.round(
+          Number(this.coupon.minimum_amount || 0) * 100
+        ).toString();
+
+      this.displayMaxAmount =
+        Number(this.coupon.maximum_amount || 0).toFixed(2);
+
+      this.rawMaxDigits =
+        Math.round(
+          Number(this.coupon.maximum_amount || 0) * 100
+        ).toString();
+      
 
       console.log("Full coupon data:", this.coupon);
 
@@ -67,6 +168,74 @@ setDate(event: any) {
     }
 
   }
+
+  onAmountInput(event: any) {
+
+  const value =
+    event?.detail?.value ||
+    event?.target?.value ||
+    '';
+
+  this.rawDigits =
+    value.replace(/[^\d]/g, '');
+
+  const amount =
+    Number(this.rawDigits || '0') / 100;
+
+  this.displayAmount =
+    amount.toFixed(2);
+
+  this.coupon.amount = amount;
+
+  event.target.value =
+    this.displayAmount;
+}
+
+onMinAmountInput(event: any) {
+
+  const value =
+    event?.detail?.value ||
+    event?.target?.value ||
+    '';
+
+  this.rawMinDigits =
+    value.replace(/[^\d]/g, '');
+
+  const amount =
+    Number(this.rawMinDigits || '0') / 100;
+
+  this.displayMinAmount =
+    amount.toFixed(2);
+
+  this.coupon.minimum_amount =
+    amount.toFixed(2);
+
+  event.target.value =
+    this.displayMinAmount;
+}
+
+onMaxAmountInput(event: any) {
+
+  const value =
+    event?.detail?.value ||
+    event?.target?.value ||
+    '';
+
+  this.rawMaxDigits =
+    value.replace(/[^\d]/g, '');
+
+  const amount =
+    Number(this.rawMaxDigits || '0') / 100;
+
+  this.displayMaxAmount =
+    amount.toFixed(2);
+
+  this.coupon.maximum_amount =
+    amount.toFixed(2);
+
+  event.target.value =
+    this.displayMaxAmount;
+}
 
   toggleEdit(field: string) {
 
@@ -92,13 +261,63 @@ setDate(event: any) {
 
   // Update coupon API
 async updateCoupon() {
+
+  console.log('today:', this.today);
+console.log('date_expires:', this.coupon.date_expires);
+console.log('selected:', new Date(this.coupon.date_expires));
+
+  if (this.coupon.date_expires) {
+
+    const selectedDate = this.coupon.date_expires;
+const todayDate = this.today;
+
+if (selectedDate < todayDate) {
+  alert('Past dates are not allowed');
+  return;
+}
+  }
+
   try {
-    await this.auth.updateCoupon(this.coupon.id, this.coupon);
+
+    const coupons = await this.auth.getCoupons();
+
+    const duplicate = coupons.find((c: any) =>
+      c.code?.toLowerCase().trim() ===
+      this.coupon.code?.toLowerCase().trim() &&
+      c.id !== this.coupon.id
+    );
+
+    if (duplicate) {
+      alert('Coupon code already exists');
+      return;
+    }
+
+    const min =
+      Number(this.coupon.minimum_amount || 0);
+
+    const max =
+      Number(this.coupon.maximum_amount || 0);
+
+    if (min > 0 && max > 0 && min > max) {
+      alert('Minimum amount should be less than maximum amount');
+      return;
+    }
+
+    this.coupon.discount_type = 'fixed_cart';
+    await this.auth.updateCoupon(
+      this.coupon.id,
+      this.coupon
+    );
+
+    alert('Coupon updated successfully');
 
     this.navCtrl.navigateBack('/tabs/coupons');
 
   } catch (error) {
+
     console.error('Update failed:', error);
+
+    alert('Unable to update coupon');
   }
 }
 

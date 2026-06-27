@@ -1,10 +1,15 @@
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController } from '@ionic/angular';
+import { AlertController, LoadingController } from '@ionic/angular';
 import { NavController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { ActionSheetController } from '@ionic/angular';
+
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Capacitor } from '@capacitor/core';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+
 
 
 @Component({
@@ -29,8 +34,9 @@ export class ProfilePage implements OnInit {
 
   isEditing = false;
 
-  previewImage: string | ArrayBuffer | null = null;
+  previewImage: SafeUrl | string | ArrayBuffer | null = null;
   savedImage: string | ArrayBuffer | null = null;
+  selectedNativeImagePath: string | null = null;
 
   constructor(
   private http: HttpClient,
@@ -38,7 +44,9 @@ export class ProfilePage implements OnInit {
   private navCtrl: NavController,
   private alertController: AlertController,
   private authService: AuthService,
-  private actionSheetCtrl: ActionSheetController
+  private loadingController: LoadingController,
+  private actionSheetCtrl: ActionSheetController,
+  private sanitizer: DomSanitizer
 ) {}
 
 ngOnInit() {
@@ -57,22 +65,41 @@ async loadProfile() {
     const res = await this.authService.getProfile();
     this.user = res;
 
-    // const imageRes = await this.authService.getProfileImage();
-    const imageRes = null;
-    // this.savedImage = imageRes?.image || null;
-    this.savedImage = null;
+    const imageRes = await this.authService.getProfileImage();
+    this.savedImage = imageRes?.image || null;
+
   } catch (err) {
     console.error("Profile load error", err);
   }
 }
   // 🔹 Open file manager
-  openFilePicker() {
-    this.isBlurActive = true;
+  async openFilePicker() {
 
-    setTimeout(() => {
-      this.fileInput.nativeElement.click();
-    }, 100);
+  if (Capacitor.isNativePlatform()) {
+
+    const image = await Camera.getPhoto({
+      quality: 90,
+      resultType: CameraResultType.Uri,
+      source: CameraSource.Photos
+    });
+
+    this.selectedNativeImagePath = image.path || null;
+
+    const previewUrl =
+  image.webPath ||
+  (image.path ? Capacitor.convertFileSrc(image.path) : null);
+
+if (previewUrl) {
+  this.previewImage =
+    this.sanitizer.bypassSecurityTrustUrl(previewUrl);
+}
+
+this.isPreviewMode = true;
+    return;
   }
+
+  this.fileInput.nativeElement.click();
+}
 
   selectedFile: File | null = null;
 
@@ -97,23 +124,61 @@ onFileSelected(event: any) {
 }
 
   async saveImage() {
-  const file = this.selectedFile;
-  if (!file) return;
+
+  const loading = await this.loadingController.create({
+    message: 'Uploading image...',
+    spinner: 'crescent',
+    backdropDismiss: false
+  });
+
+  await loading.present();
 
   try {
-    const res = await this.authService.uploadProfileImage(file);
 
-    if (res.status) {
+    let res: any;
+
+    if (this.selectedNativeImagePath) {
+
+      res = await this.authService.uploadProfileImageFromPath(
+        this.selectedNativeImagePath
+      );
+
+    } else {
+
+      const file = this.selectedFile;
+
+      if (!file) {
+        await loading.dismiss();
+        return;
+      }
+
+      res = await this.authService.uploadProfileImage(file);
+    }
+
+    const response = res?.data || res;
+
+    if (response?.status) {
+
       this.isPreviewMode = false;
       this.previewImage = null;
-      this.savedImage = res.image ? res.image + '?t=' + Date.now() : null;
+
+      this.savedImage =
+        response.image
+          ? response.image + '?t=' + Date.now()
+          : null;
 
       this.fileInput.nativeElement.value = '';
+
       this.selectedFile = null;
+      this.selectedNativeImagePath = null;
+
       this.isEditing = false;
       this.isBlurActive = false;
 
-      // ✅ SUCCESS POPUP
+      await this.loadProfile();
+
+      await loading.dismiss();
+
       const alert = await this.alertController.create({
         header: 'Success',
         message: 'Profile image updated successfully!',
@@ -121,10 +186,23 @@ onFileSelected(event: any) {
       });
 
       await alert.present();
+    } else {
+      await loading.dismiss();
     }
 
   } catch (err) {
-    console.error("Upload failed", err);
+
+    await loading.dismiss();
+
+    console.error('Upload failed', err);
+
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message: 'Failed to upload profile image.',
+      buttons: ['OK']
+    });
+
+    await alert.present();
   }
 }
 
@@ -150,14 +228,11 @@ async signOut() {
       {
         text: 'Sign Out',
         handler: async () => {
-          const employeePin = localStorage.getItem('user_data') ? JSON.parse(localStorage.getItem('user_data')!).loggedInWithPin : null;
-          if(employeePin) {
-              await this.authService.logout_by_id(employeePin);
-          }
+
           // Clear everything properly
           localStorage.clear();
           sessionStorage.clear();
-          
+
           // If AuthService stores user
           this.authService.logout?.();  // (if you have logout method)
 
@@ -216,15 +291,17 @@ async confirmDeleteImage() {
 }
 
 async deleteImage() {
+
   try {
-    console.log('DELETE API CALLED'); // for debug
 
     const res = await this.authService.deleteProfileImage();
 
     if (res.status) {
-      // clear UI
+
       this.savedImage = null;
       this.previewImage = null;
+      this.selectedFile = null;
+      this.selectedNativeImagePath = null;
 
       const alert = await this.alertController.create({
         header: 'Success',
@@ -239,20 +316,4 @@ async deleteImage() {
     console.error('Delete failed', err);
   }
 }
-// async getProfileImage() {
-//   const token = this.getToken();
-//   const baseUrl = this.apiConfig.getBaseUrl();
- 
-//   const res = await Http.request({
-//     method: 'GET',
-//     url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/get-image`,
-//     headers: {
-//       Authorization: `Bearer ${token}`
-//     }
-//   });
- 
-//   return typeof res.data === 'string'
-//     ? JSON.parse(res.data)
-//     : res.data;
-// }
 }

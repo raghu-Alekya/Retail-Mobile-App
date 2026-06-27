@@ -15,18 +15,27 @@ addIcons({ pencil });
 })
 export class AddCouponPage {
 
-  @ViewChild('datePicker', { static: false }) datePicker!: IonDatetime;
-showDatePicker = false;
+  
+
 fromFab = false;
   editing: string | null = null;
 
   isDateModalOpen = false;
   isDirty = false;
+  // NEW VARIABLES
+  displayAmount = '0.00';
+  rawDigits = '';
+  displayMinAmount = '0.00';
+  rawMinDigits = '';
+  displayMaxAmount = '0.00';
+  rawMaxDigits = '';
+  couponCodeEmojiError = false;
+  today: string = '';
   coupon: any = {
   code: '',
   description: '',
   amount: null,
-  type: null,
+  type: 'fixed_cart',
   individualUse: false,
   usageLimit: null,
   usageLimitPerUser: null,
@@ -44,10 +53,59 @@ fromFab = false;
     const nav = this.router.getCurrentNavigation();
 
 this.fromFab = nav?.extras?.state?.['fromFab'] || false;
+console.log('FROM FAB:', this.fromFab);
+console.log('STATE:', history.state);
   }
 
+  ngOnInit() {
+  const now = new Date();
+
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+
+  this.today = `${yyyy}-${mm}-${dd}`;
+}
+
+  containsEmoji(value: string): boolean {
+
+  if (!value) {
+    return false;
+  }
+
+  const emojiRegex =
+    /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
+
+  return emojiRegex.test(value);
+}
+
+onCouponCodeChange(value: string) {
+
+  if (this.containsEmoji(value)) {
+
+    this.coupon.code = value.replace(
+      /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu,
+      ''
+    );
+
+    this.couponCodeEmojiError = true;
+    return;
+  }
+
+  this.couponCodeEmojiError = false;
+  this.coupon.code = value;
+
+  this.markDirty();
+}
+
   startEdit(field: string) {
+
   this.editing = field;
+
+  if (field === 'amount') {
+    this.rawDigits = '';
+    this.displayAmount = '0.00';
+  }
 
   setTimeout(() => {
     const inputs = document.querySelectorAll('ion-input input');
@@ -55,28 +113,87 @@ this.fromFab = nav?.extras?.state?.['fromFab'] || false;
     activeInput?.focus();
   }, 100);
 }
-  showCalendar = false;
-
-toggleCalendar() {
-  this.showCalendar = !this.showCalendar;
-}
-openDatePicker() {
-  this.showDatePicker = true;
-}
+  showDatePicker = false;
 
 setDate(event: any) {
-  this.coupon.expireDate = event.detail.value.split('T')[0];
-  this.showDatePicker = false; // close popup immediately
-}
-onDateSelected(event: any) {
-  this.coupon.expireDate = event.detail.value;
+  this.coupon.expireDate =
+    event.detail.value.split('T')[0];
 
-  // close after selecting date
-  this.showCalendar = false;
+  this.showDatePicker = false;
 }
+
   stopEdit() {
     this.editing = null;
   }
+
+  onAmountInput(event: any) {
+
+  const value =
+    event?.detail?.value ||
+    event?.target?.value ||
+    '';
+
+  this.rawDigits = value.replace(/[^\d]/g, '');
+
+  const amount =
+    Number(this.rawDigits || '0') / 100;
+
+  this.displayAmount =
+    amount.toFixed(2);
+
+  this.coupon.amount = amount;
+
+  event.target.value = this.displayAmount;
+}
+  onMinAmountInput(event: any) {
+
+  const value =
+    event?.detail?.value ||
+    event?.target?.value ||
+    '';
+
+  this.rawMinDigits =
+    value.replace(/[^\d]/g, '');
+
+  const amount =
+    Number(this.rawMinDigits || '0') / 100;
+
+  this.displayMinAmount =
+    amount.toFixed(2);
+
+  this.coupon.minAmount =
+    amount.toFixed(2);
+
+  event.target.value =
+    this.displayMinAmount;
+
+  this.markDirty();
+}
+
+  onMaxAmountInput(event: any) {
+
+  const value =
+    event?.detail?.value ||
+    event?.target?.value ||
+    '';
+
+  this.rawMaxDigits =
+    value.replace(/[^\d]/g, '');
+
+  const amount =
+    Number(this.rawMaxDigits || '0') / 100;
+
+  this.displayMaxAmount =
+    amount.toFixed(2);
+
+  this.coupon.maxAmount =
+    amount.toFixed(2);
+
+  event.target.value =
+    this.displayMaxAmount;
+
+  this.markDirty();
+}
 
   goBack() {
 
@@ -95,14 +212,69 @@ onDateSelected(event: any) {
 
 }
 
+validateExpiryDate() {
 
+  if (!this.coupon.expireDate) {
+    return;
+  }
+
+  const selectedDate = new Date(
+    this.coupon.expireDate + 'T00:00:00'
+  );
+
+  const today = new Date();
+
+  today.setHours(0, 0, 0, 0);
+  selectedDate.setHours(0, 0, 0, 0);
+
+  if (selectedDate < today) {
+
+    alert('Past dates are not allowed');
+
+    this.coupon.expireDate = '';
+  }
+}
   
   async saveCoupon() {
+
+    if (this.coupon.expireDate) {
+
+    const selectedDate = new Date(
+      this.coupon.expireDate + 'T00:00:00'
+    );
+
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+
+      alert('Expiry date cannot be in the past');
+
+      return;
+    }
+  }
 
   if (!this.coupon.code || !this.coupon.amount) {
     alert('Code and Amount required');
     return;
   }
+
+  const min =
+  Number(this.coupon.minAmount || 0);
+
+const max =
+  Number(this.coupon.maxAmount || 0);
+
+if (min > 0 && max > 0 && min > max) {
+
+  alert(
+    'Minimum amount should be less than maximum amount'
+  );
+
+  return;
+}
 
   const payload = {
     code: this.coupon.code,
@@ -110,7 +282,7 @@ onDateSelected(event: any) {
     amount: this.coupon.amount,
 
     // ✅ FIX HERE
-    type: this.coupon.type,
+    type: 'fixed_cart',
 
     individual_use: this.coupon.individualUse,
     usage_limit: this.coupon.usageLimit,
@@ -128,34 +300,42 @@ onDateSelected(event: any) {
   try {
     const response = await this.auth.createCoupon(payload);
 
-    if (response.success) {
-      this.coupon.code = response.original_code;
-      alert('Coupon Created Successfully');
-      this.resetForm();
+    console.log('RESPONSE:', response);
+
+  if (response?.code === 'duplicate_coupon') {
+
+    alert('Coupon code already exists');
+    return;
+  }
+
+  alert('Coupon Created Successfully');
+
+  this.resetForm();
+
       if (this.fromFab) {
 
-  this.router.navigate(
-    ['/tabs/home'],
-    { replaceUrl: true }
-  );
+        this.router.navigate(
+          ['/tabs/home'],
+          { replaceUrl: true }
+        );
 
-} else {
+      } else {
 
-  this.navCtrl.navigateBack('/tabs/coupons');
+        this.navCtrl.navigateBack('/tabs/coupons');
 
-}
-    }
+      }
 
   } catch (error) {
     console.error("API ERROR:", error);
   }
 }
 resetForm() {
+  this.couponCodeEmojiError = false;
   this.coupon = {
     code: '',
     description: '',
     amount: null,
-    type: null,
+    type: 'fixed_cart',
     individualUse: false,
     usageLimit: null,
     usageLimitPerUser: null,

@@ -4,13 +4,14 @@ import { IonicModule } from '@ionic/angular';
 import { RouterModule } from '@angular/router';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { AssetsService } from 'src/app/services/assets/assets.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   standalone: true,
   selector: 'app-order-list',
   templateUrl: './orders-list.page.html',
   styleUrls: ['./orders-list.page.scss'],
-  imports: [IonicModule, CommonModule, RouterModule],
+  imports: [IonicModule, CommonModule, RouterModule, FormsModule],
 })
 export class OrderListPage implements OnInit {
 
@@ -25,6 +26,18 @@ export class OrderListPage implements OnInit {
   searchTerm: string = '';
   searchTimeout: any;
 
+  showDateModal = false;
+  fromDateApi = '';
+toDateApi = '';
+selectedDateText = '';
+fromDateValue = '';
+toDateValue = '';
+dateFilterTab: 'date' | 'range' = 'date';
+calendarMode: 'single' | 'from' | 'to' | null = null;
+filterType: 'date' | 'range' | '' = '';
+maxDate = new Date().toISOString().split('T')[0];
+
+
   expandedOrderId: number | null = null;
 
   constructor(
@@ -33,25 +46,78 @@ export class OrderListPage implements OnInit {
   ) { }
 
   async ngOnInit() {
-    await this.loadOrders();
 
-    this.assetsService.assets$.subscribe(assets => {
-      this.currencySymbol = assets?.currency_symbol;
-    });
-  }
+  await this.loadStatusCounts(); // <-- add this
 
+  await this.loadOrders();
+
+  this.assetsService.assets$.subscribe(assets => {
+    this.currencySymbol = assets?.currency_symbol;
+  });
+}
+
+async loadStatusCounts() {
+
+  const promises = this.statuses.map(async (s) => {
+    try {
+      const count = await this.authService.getDashboardStats(
+        s.key,
+        this.fromDateApi,
+        this.toDateApi
+      );
+      return count;
+    } catch {
+      return 0;
+    }
+  });
+
+  const results = await Promise.all(promises);
+
+  this.statuses.forEach((status, index) => {
+    status.count = Number(results[index]) || 0;
+  });
+}
   /* ================================
      LOAD ORDERS
   ================================= */
-  setFilter(type: string) {
-    this.activeFilter = type;
-    this.selectedStatus = type;
-    this.page = 1;
-    this.orders = [];
-    this.hasMore = true;
-    this.loading = false; // release lock to prevent deadlock
-    this.loadOrders();
+  setFilter(status: string) {
+  this.activeFilter = status;
+  this.selectedStatus = status;
+
+  this.page = 1;
+  this.orders = [];
+
+  this.hasMore = true;
+
+  this.loadOrders();
+}
+
+statuses = [
+  { key: 'wc-completed', value: 'completed', count: 0 },
+  { key: 'wc-pending', value: 'pending', count: 0 },
+  { key: 'wc-cancelled', value: 'cancelled', count: 0 },
+  { key: 'wc-refunded', value: 'refunded', count: 0 },
+  { key: 'partial-refund', value: 'partial-refund', count: 0 },
+  { key: 'wc-on-hold', value: 'on-hold', count: 0 },
+  { key: 'wc-processing', value: 'processing', count: 0 }
+];
+
+  getStatusCount(value: string): number {
+
+  if (value === 'all') {
+    return this.statuses.reduce(
+      (total, status) => total + status.count,
+      0
+    );
   }
+
+  const status = this.statuses.find(
+    s => s.value === value
+  );
+
+  return status?.count || 0;
+}
+
   async loadOrders(event?: any) {
 
     if (this.loading || !this.hasMore) {
@@ -75,10 +141,12 @@ export class OrderListPage implements OnInit {
         if (this.page === 1 && searchVal && !isNaN(Number(searchVal))) {
           try {
             let exactData = await this.authService.getOrders(
-              1,
-              searchVal,
-              this.selectedStatus !== 'all' ? this.selectedStatus : ''
-            );
+  1,
+  searchVal,
+  this.selectedStatus !== 'all' ? this.selectedStatus : '',
+  this.fromDateApi,
+  this.toDateApi
+);
             
             if (this.searchTerm !== activeSearchTerm || this.selectedStatus !== activeStatus) return;
 
@@ -106,7 +174,13 @@ export class OrderListPage implements OnInit {
           let promises = [];
           for (let i = 0; i < 5; i++) {
              promises.push(
-                this.authService.getOrders(this.page + i, '', this.selectedStatus !== 'all' ? this.selectedStatus : '')
+                this.authService.getOrders(
+  this.page + i,
+  '',
+  this.selectedStatus !== 'all' ? this.selectedStatus : '',
+  this.fromDateApi,
+  this.toDateApi
+)
                 .catch(() => [])
              );
           }
@@ -148,10 +222,12 @@ export class OrderListPage implements OnInit {
         }
       } else {
         let data = await this.authService.getOrders(
-          this.page,
-          '',
-          this.selectedStatus !== 'all' ? this.selectedStatus : ''
-        );
+  this.page,
+  '',
+  this.selectedStatus !== 'all' ? this.selectedStatus : '',
+  this.fromDateApi,
+  this.toDateApi
+);
 
         // ABORT if the user changed the search term or status while we were fetching
         if (this.searchTerm !== activeSearchTerm || this.selectedStatus !== activeStatus) {
@@ -159,11 +235,15 @@ export class OrderListPage implements OnInit {
         }
 
         if (Array.isArray(data) && data.length > 0) {
-          this.orders = this.page === 1
-            ? data
-            : [...this.orders, ...data];
-          this.page++;
-        } else {
+
+  this.orders = this.page === 1
+    ? data
+    : [...this.orders, ...data];
+
+  
+
+  this.page++;
+}else {
           this.hasMore = false;
         }
       }
@@ -200,10 +280,21 @@ export class OrderListPage implements OnInit {
      EXPAND ORDER
   ================================= */
   toggleExpand(orderId: number) {
-    this.expandedOrderId =
-      this.expandedOrderId === orderId ? null : orderId;
-  }
 
+  const order = this.orders.find(o => o.id === orderId);
+
+  console.log(
+    order?.line_items?.map((i: any) => ({
+      name: i.name,
+      slug: i.product_data?.slug,
+      subtotal: i.subtotal,
+      total: i.total
+    }))
+  );
+
+  this.expandedOrderId =
+    this.expandedOrderId === orderId ? null : orderId;
+}
   isExpanded(orderId: number): boolean {
     return this.expandedOrderId === orderId;
   }
@@ -255,18 +346,18 @@ export class OrderListPage implements OnInit {
   ];
 
   showMoreStatuses = false;
-  selectStatus(status: string) {
-    if (this.loading) return;
-    this.selectedStatus = status;
-    this.activeFilter = status;
-    this.setFilter(status);
-    // reload when filter changes
-    this.page = 1;
-    this.orders = [];
-    this.hasMore = true;
+  // selectStatus(status: string) {
+  //   if (this.loading) return;
+  //   this.selectedStatus = status;
+  //   this.activeFilter = status;
+  //   this.setFilter(status);
+  //   // reload when filter changes
+  //   this.page = 1;
+  //   this.orders = [];
+  //   this.hasMore = true;
 
-    this.loadOrders();
-  }
+  //   this.loadOrders();
+  // }
 
   formatAmount(value: any): string {
     const num = Number(value || 0);
@@ -367,4 +458,245 @@ export class OrderListPage implements OnInit {
 
     return Number(value.toFixed(2));
   }
+
+  getDiscountLineItem(order: any): number {
+  const discountItem = order.line_items?.find(
+    (i: any) => i.product_data?.slug?.toLowerCase() === 'discount'
+  );
+
+  return Math.abs(Number(discountItem?.subtotal || 0));
+}
+
+getTotalItemCount(order: any): number {
+  return (order.line_items || [])
+    .filter((item: any) => item.product_data?.slug !== 'discount')
+    .reduce((sum: number, item: any) => sum + Number(item.quantity || 0), 0);
+}
+
+getCouponTotal(order: any): number {
+  return (order.coupon_lines || [])
+    .reduce((sum: number, c: any) => sum + Number(c.discount || 0), 0);
+}
+
+getServiceCharge(order: any): number {
+  return Number(order.shipping_total || 0);
+}
+
+getCashbackFee(order: any): number {
+  const hasCashback = (order.line_items || []).some(
+    (item: any) => item.product_data?.slug === 'cashback'
+  );
+
+  if (!hasCashback) {
+    return 0;
+  }
+
+  return (order.fee_lines || []).reduce(
+    (sum: number, fee: any) => sum + Number(fee.total || 0),
+    0
+  );
+}
+
+getGrossTotal(order: any): number {
+
+  const items = (order.line_items || [])
+    .filter((item: any) => item.product_data?.slug !== 'discount');
+
+  const total = items.reduce(
+    (sum: number, item: any) => sum + Number(item.subtotal || 0),
+    0
+  );
+
+  console.log('Gross Total =', total);
+
+  return total;
+}
+
+getNetTotal(order: any): number {
+  return this.getGrossTotal(order) - this.getCouponTotal(order);
+}
+
+getFinalTotal(order: any): number {
+  return (
+    this.getNetTotal(order) +
+    this.getOrderTax(order) -
+    this.getDiscountLineItem(order) +
+    this.getCashbackFee(order) +
+    this.getServiceCharge(order)
+  );
+}
+
+getStatusLabel(value: string): string {
+  const status = this.orderStatuses.find(s => s.value === value);
+  return status ? status.label : value;
+}
+
+selectStatus(status: string) {
+  this.activeFilter = status;
+  this.selectedStatus = status;
+  this.showMoreStatuses = false;
+  this.setFilter(status);
+}
+
+visibleStatuses = [
+  { value: 'pending', label: 'Pending' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'refunded', label: 'Refunded' },
+  { value: 'partial-refund', label: 'Partial Refunded' }
+];
+
+hasEbtTag(item: any): boolean {
+  const ebtMeta = item?.meta_data?.find(
+    (m: any) => m.key === '_is_ebt_eligible'
+  );
+
+  return ebtMeta?.value === '1';
+}
+
+
+async clearDateFilter() {
+
+  this.fromDateValue = '';
+  this.toDateValue = '';
+
+  this.fromDateApi = '';
+  this.toDateApi = '';
+
+  this.selectedDateText = '';
+  this.filterType = '';
+
+  this.page = 1;
+  this.orders = [];
+  this.hasMore = true;
+
+  await this.loadStatusCounts();
+  await this.loadOrders();
+}
+
+async applyDateFilter() {
+
+  // Auto swap if From > To
+  if (
+    this.dateFilterTab === 'range' &&
+    this.fromDateValue &&
+    this.toDateValue &&
+    new Date(this.fromDateValue) > new Date(this.toDateValue)
+  ) {
+    const temp = this.fromDateValue;
+    this.fromDateValue = this.toDateValue;
+    this.toDateValue = temp;
+  }
+
+  if (!this.fromDateValue) {
+    return;
+  }
+
+  // Single Date
+  if (this.dateFilterTab === 'date') {
+
+    this.filterType = 'date';
+
+    this.fromDateApi =
+      this.fromDateValue.split('T')[0];
+
+    this.toDateApi =
+      this.fromDateApi;
+
+    this.selectedDateText =
+      this.fromDateApi;
+  }
+
+  // Date Range
+  else {
+
+    if (!this.toDateValue) {
+      return;
+    }
+
+    this.filterType = 'range';
+
+    this.fromDateApi =
+      this.fromDateValue.split('T')[0];
+
+    this.toDateApi =
+      this.toDateValue.split('T')[0];
+
+    this.selectedDateText =
+      `${this.fromDateApi} - ${this.toDateApi}`;
+  }
+
+  this.showDateModal = false;
+  this.calendarMode = null;
+
+  this.page = 1;
+  this.orders = [];
+  this.hasMore = true;
+
+  await this.loadStatusCounts();
+  await this.loadOrders();
+}
+
+resetDateModal() {
+
+  this.showDateModal = false;
+
+  this.calendarMode = null;
+
+  this.dateFilterTab = 'date';
+}
+
+openSingleDate() {
+  this.calendarMode = 'single';
+}
+
+openFromDate() {
+  this.calendarMode = 'from';
+}
+
+openToDate() {
+  this.calendarMode = 'to';
+}
+
+closeCalendar() {
+  //this.calendarMode = null;
+}
+
+switchToDateTab() {
+
+  this.dateFilterTab = 'date';
+
+  // Clear range values
+  this.fromDateValue = '';
+  this.toDateValue = '';
+
+  this.calendarMode = null;
+}
+
+switchToRangeTab() {
+
+  this.dateFilterTab = 'range';
+
+  // Clear single date value
+  this.fromDateValue = '';
+  this.toDateValue = '';
+
+  this.calendarMode = null;
+}
+
+onToDateChange() {
+
+  if (
+    this.fromDateValue &&
+    this.toDateValue &&
+    new Date(this.fromDateValue) > new Date(this.toDateValue)
+  ) {
+
+    const temp = this.fromDateValue;
+    this.fromDateValue = this.toDateValue;
+    this.toDateValue = temp;
+  }
+
+
+}
 }

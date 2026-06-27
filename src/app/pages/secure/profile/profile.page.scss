@@ -493,15 +493,3 @@ ion-avatar img {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
-
-.ios-success-toast::part(container) {
-  border-radius: 14px;
-  padding: 10px;
-  font-weight: 600;
-  font-size: 15px;
-  backdrop-filter: blur(10px);
-}
-
-.ios-success-toast::part(message) {
-  text-align: center;
-}

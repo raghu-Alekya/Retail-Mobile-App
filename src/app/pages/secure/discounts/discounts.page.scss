@@ -108,12 +108,12 @@ ion-chip {
   background: white;
   z-index: 999;
 }
-.scroll-wrapper {
-  max-height: 100%;
-  overflow-y: auto;
-  padding-bottom: 80px;
-  padding-top: 20px;
-}
+// .scroll-wrapper {
+//   max-height: 100%;
+//   overflow-y: auto;
+//   padding-bottom: 80px;
+//   padding-top: 20px;
+// }
 .selected-products {
   display: flex;
   flex-wrap: wrap;
@@ -144,8 +144,11 @@ ion-chip {
 // }
 
 ion-chip {
-  background: #e0e0e0;
+  background: #ffffff;
   color: #333;
+  border-width: 0.8px;
+  border-style: solid;
+  border-color:#dbdbdb;
 }
 
 ion-chip.active {
@@ -171,7 +174,7 @@ ion-chip.active {
 
 /* AUTO (green) */
 .auto-card {
-  border-bottom: 4px solid #7979d0;
+  border-bottom: 4px solid #da627d;
 }
 
 /* MULTIPACK (blue) */
@@ -215,7 +218,7 @@ ion-chip.active {
 
 /* AUTO (green) */
 .icon-box.auto {
-  background: #7979d0;
+  background: #da627d;
 }
 
 /* MULTIPACK (blue) */
@@ -257,15 +260,38 @@ ion-chip.active {
 }
 
 .tag {
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 600;
-  white-space: nowrap;
-  display: flex;
+
+  display: inline-flex;
   align-items: center;
   gap: 6px;
+
+  padding: 6px 10px;
+  border-radius: 8px;
+
+  white-space: nowrap;
 }
 
-/* colored dot */
+/* MULTIPACK */
+.tag.multipack {
+  background: #d9f3f3;
+  color: #359a9c;
+}
+
+/* MIX MATCH */
+.tag.mixmatch {
+  background: #fff3e0;
+  color: #de9b43;
+}
+
+/* AUTO */
+.tag.auto {
+  background: #fde7ec;
+  color: #da627d;
+}
+
+/* Dot */
 .tag::before {
   content: "";
   width: 6px;
@@ -274,28 +300,16 @@ ion-chip.active {
   display: inline-block;
 }
 
-/* MULTIPACK (blue) */
-.tag.multipack {
-  color: #359a9c;
-}
 .tag.multipack::before {
   background: #359a9c;
 }
 
-/* MIX & MATCH (orange) */
-.tag.mixmatch {
-  color: #de9b43;
-}
 .tag.mixmatch::before {
   background: #de9b43;
 }
 
-/* AUTO DISCOUNT (red) */
-.tag.auto {
-  color: #7979d0;
-}
 .tag.auto::before {
-  background: #7979d0;
+  background: #da627d;
 }
 
 /* divider */
@@ -313,20 +327,31 @@ hr {
 }
 
 .dates {
+  display: flex;
+  align-items: center;
+  gap: 15px;   /* space between start & end date */
+  flex-wrap: wrap; /* optional for small screens */
   font-size: 15px;
+}
+
+.dates > div {
+  display: flex;
+  align-items: center;
 }
 
 /* Label (Start Date / End Date) */
 .dates .label {
-  color: #787878;
-  font-weight: 400;
+  color: #505050;
+  font-weight: 500;
+  font-size: 13px;
   margin-right: 4px;
 }
 
 /* Value (actual date) */
 .dates .value {
-  color: #2f2f2f;
+  color: #707070;
   font-weight: 400;
+  font-size: 13px;
 }
 
 .status {
@@ -751,6 +776,19 @@ hr {
   color: #333;
 }
 
+.field-error {
+  display: block;
+  width: 92%;
+  margin: -8px auto 12px;
+  padding-left: 6px;
+
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 500;
+
+  text-align: left;
+}
+
 /////////////////////////////////////////////
 
 /* ===============================
@@ -849,3 +887,98 @@ hr {
   margin-right: 0 !important;
   padding-right: 0 !important;
 }
+
+/* ===============================
+   MODAL HEADER (CREATE / EDIT)
+   =============================== */
+
+.discount-toolbar .custom-back-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+
+  border-radius: 50%;
+  //background: rgba(255,255,255,0.15); //pravalika
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: 10px;
+  margin-right: 4px;
+
+  padding: 0 !important;
+}
+
+.discount-toolbar .custom-back-btn ion-icon {
+  font-size: 20px;
+}
+
+:host-context(.ios) .discount-toolbar ion-buttons[slot="start"] {
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+}
+.currency-input-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.currency-symbol {
+  margin-right: -4px;
+  font-size: 14px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.amount-input {
+  flex: 1;
+}
+.count-badge {
+  margin-left: 6px;
+  min-width: 25px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+  padding:8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.all-badge {
+  background: #beddff;
+  color: #007eff;
+}
+
+.auto-badge {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.mixmatch-badge {
+  background: #e6f7f7;
+  color: #359a9c;
+}
+
+.multipack-badge {
+  background: #FFF3E0;
+  color: #EF6C00;
+}
+.filter-tabs ion-chip.active .count-badge {
+  background: #ffffff;
+  color: #264c73;
+  font-weight: 500;
+}
+.form-content {
+  --overflow: auto;
+}
+
+.scroll-wrapper {
+  padding-bottom: 120px;
+}
+.ion-content::part(scroll) {
+  padding-bottom: 120px;
+}
+/* ends here */

@@ -313,6 +313,19 @@ export class OrderPaymentsPage implements OnInit {
     if (!date) return '—';
     return new Date(date).toLocaleString();
   }
+formatCurrencyString(value: any): string {
 
+  if (!value) {
+    return '$0.00';
+  }
+
+  const str = String(value);
+
+  if (str.startsWith('$-')) {
+    return '-$' + str.replace('$-', '');
+  }
+
+  return str;
+}
   
 }

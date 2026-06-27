@@ -15,51 +15,150 @@
 <ion-content class="ion-padding">
 
   <!-- Username -->
-   <ion-label position="stacked">Username</ion-label>
-  <ion-item class="form-field">
-    <ion-input
-      [(ngModel)]="user.username"
-      name="username"
-      placeholder="Enter username">
-    </ion-input>
-  </ion-item>
+   <!-- Username -->
+<ion-label position="stacked">Username</ion-label>
+
+<ion-item
+  class="form-field"
+  [class.invalid]="
+    usernameTouched &&
+    user.username &&
+    containsEmoji(user.username)
+  "
+>
+  <ion-input
+    [(ngModel)]="user.username"
+    name="username"
+    placeholder="Enter username"
+    (ionInput)="onUsernameInput($event)"
+    (ionBlur)="usernameTouched = true">
+  </ion-input>
+</ion-item>
+
+<p
+  class="error-text"
+  *ngIf="
+    usernameTouched &&
+    user.username &&
+    containsEmoji(user.username)
+  "
+>
+  Username cannot contain emojis
+</p>
 
   <!-- Email -->
   <ion-label position="stacked">Email</ion-label>
-  <ion-item class="form-field">
+  <ion-item
+  class="form-field"
+  [class.invalid]="
+    (user.email && !isValidEmail(user.email)) ||
+    (emailTouched && user.email && containsEmoji(user.email))
+  ">
     <ion-input
-      type="email"
-      [(ngModel)]="user.email"
-      placeholder="Enter email address">
-    </ion-input>
+  type="email"
+  [(ngModel)]="user.email"
+  placeholder="Enter email address"
+  (ionBlur)="emailTouched = true">
+</ion-input>
   </ion-item>
 
   <!-- Error message -->
-  <p class="error-text" *ngIf="user.email && !isValidEmail(user.email)">
-    Please enter a valid email format.
-  </p>
+  <p
+  class="error-text"
+  *ngIf="
+    user.email &&
+    !containsEmoji(user.email) &&
+    !isValidEmail(user.email)
+  "
+>
+  Please enter a valid email format.
+</p>
+<p
+  class="error-text"
+  *ngIf="
+    emailTouched &&
+    user.email &&
+    containsEmoji(user.email)
+  "
+>
+  Email cannot contain emojis
+</p>
 
   <!-- First Name -->
    <ion-label position="stacked">First Name</ion-label>
-  <ion-item class="form-field">
-    
-    <ion-input
-      [(ngModel)]="user.first_name"
-      placeholder="Enter first name">
-    </ion-input>
-  </ion-item>
+
+<ion-item
+  class="form-field"
+  [class.invalid]="
+    firstNameTouched &&
+    user.first_name &&
+    containsEmoji(user.first_name)
+  "
+>
+  <ion-input
+    [(ngModel)]="user.first_name"
+    placeholder="Enter first name"
+    (ionBlur)="firstNameTouched = true">
+  </ion-input>
+</ion-item>
+
+<p
+  class="error-text"
+  *ngIf="
+    firstNameTouched &&
+    user.first_name &&
+    containsEmoji(user.first_name)
+  "
+>
+  First Name cannot contain emojis
+</p>
 
   <!-- Last Name -->
    <ion-label position="stacked">Last Name</ion-label>
+
+<ion-item
+  class="form-field"
+  [class.invalid]="
+    lastNameTouched &&
+    user.last_name &&
+    containsEmoji(user.last_name)
+  "
+>
+  <ion-input
+    [(ngModel)]="user.last_name"
+    placeholder="Enter last name"
+    (ionBlur)="lastNameTouched = true">
+  </ion-input>
+</ion-item>
+
+<p
+  class="error-text"
+  *ngIf="
+    lastNameTouched &&
+    user.last_name &&
+    containsEmoji(user.last_name)
+  "
+>
+  Last Name cannot contain emojis
+</p>
+
+  <!-- Employee Role -->
+   <ion-label position="stacked">Employee Role</ion-label>
   <ion-item class="form-field">
     
-    <ion-input
-      [(ngModel)]="user.last_name"
-      placeholder="Enter last name">
-    </ion-input>
-  </ion-item>
+    <ion-select
+      [(ngModel)]="user.role"
+      placeholder="Select Employee Role"
+      interface="popover">
 
-  
+      <ion-select-option
+        *ngFor="let role of customRoles"
+        [value]="role.key">
+        {{ role.name }}
+      </ion-select-option>
+
+    </ion-select>
+  </ion-item>
 
   <!-- Phone -->
    <ion-label position="stacked">Phone</ion-label>
@@ -113,37 +212,21 @@
   {{ pinError }}
 </p>
 
-<!-- Employee Role -->
-   <ion-label position="stacked">Employee Role</ion-label>
-  <ion-item class="form-field">
-    
-    <ion-select
-      [(ngModel)]="user.role"
-      placeholder="Select Employee Role"
-      interface="popover">
-
-      <ion-select-option
-        *ngFor="let role of customRoles"
-        [value]="role.key">
-        {{ role.name }}
-      </ion-select-option>
-
-    </ion-select>
-  </ion-item>
-
- <ion-button
+  <!-- Create User Button -->
+  <ion-button
   expand="block"
   class="create-user-btn"
   [disabled]="
-    isCreatingUser ||
-    !isValidEmail(user.email) ||
-    (user.phone && !isValidPhone(user.phone)) ||
-    (user.emp_login_pin && !isValidPin(user.emp_login_pin))
-  "
+  containsEmoji(user.username) ||
+  containsEmoji(user.first_name) ||
+  containsEmoji(user.last_name) ||
+  containsEmoji(user.email) ||
+  (user.email && !isValidEmail(user.email)) ||
+  (user.phone && !isValidPhone(user.phone)) ||
+  (user.emp_login_pin && !isValidPin(user.emp_login_pin))
+"
   (click)="submit()">
-
-  {{ isCreatingUser ? 'Creating User...' : 'Create User' }}
-
+  Create User
 </ion-button>
 
 </ion-content>

@@ -12,6 +12,13 @@
   </ion-toolbar>
 </ion-header>
 
+<ng-container *ngIf="!pageReady">
+  <div class="page-loader">
+    <ion-spinner name="crescent"></ion-spinner>
+    <!-- <p>Loading product data...</p> -->
+  </div>
+</ng-container>
+
 <ion-content *ngIf="pageReady" [class.scanner-active]="isScanning">
   <ion-card class="settings-card image-block">
   <!-- Hidden file input -->
@@ -120,14 +127,19 @@
   #titleInput
   [(ngModel)]="product.name"
   placeholder="Product name"
-  (ionBlur)="editTitle = false"
-></ion-input>
+  (ionInput)="onTitleInput($event); markDirty()"
+  (ionBlur)="editTitle = false">
+</ion-input>
+
+<div class="error-text" *ngIf="titleError">
+  {{ titleError }}
+</div>
 
   
 </ion-item>
 
 
-    <!-- DESCRIPTION -->
+     <!-- DESCRIPTION -->
 <ion-item lines="none" class="editable-item">
   <ion-label position="stacked">
     Description
@@ -149,8 +161,9 @@
   auto-grow="true"
   rows="2"
   placeholder="Add description"
-  (ionBlur)="editDescription = false"
-></ion-textarea>
+  (ionInput)="markDirty()"
+  (ionBlur)="editDescription = false">
+</ion-textarea>
 
   
 </ion-item>
@@ -180,11 +193,11 @@
   <ion-label>Tax Class</ion-label>
 
   <ion-select
-    slot="end"
-    [(ngModel)]="selectedTaxClassSlug"
-    [selectedText]="getSelectedTaxLabel()"
-    interface="popover"
-  >
+  slot="end"
+  [(ngModel)]="selectedTaxClassSlug"
+  (ionChange)="markDirty()"
+  [selectedText]="getSelectedTaxLabel()"
+  interface="popover">
     <ion-select-option
       *ngFor="let tax of taxClasses"
       [value]="tax.slug"
@@ -204,10 +217,10 @@
   <ion-label>Category</ion-label>
 
   <ion-select
-    slot="end"
-    [(ngModel)]="product.category_id"
-    interface="popover"
-  >
+  slot="end"
+  [(ngModel)]="product.category_id"
+  (ionChange)="markDirty()"
+  interface="popover">
     <ion-select-option
       *ngFor="let cat of categories"
       [value]="cat.id"
@@ -227,11 +240,11 @@
       </ion-label>
 
       <ion-select
-        slot="end"
-        multiple="true"
-        [(ngModel)]="product.tag_ids"
-        interface="popover"
-      >
+  slot="end"
+  multiple="true"
+  [(ngModel)]="product.tag_ids"
+  (ionChange)="markDirty()"
+  interface="popover">
         <ion-select-option *ngFor="let tag of tags" [value]="tag.id">
           {{ tag.name }}
         </ion-select-option>
@@ -250,11 +263,10 @@
       </ion-label>
 
       <ion-select
-        slot="end"
-        [(ngModel)]="product.type"
-        (ionChange)="onProductTypeChange()"
-        interface="popover"
-      >
+  slot="end"
+  [(ngModel)]="product.type"
+  (ionChange)="markDirty(); onProductTypeChange()"
+  interface="popover">
         <ion-select-option value="simple">Simple Product</ion-select-option>
         <ion-select-option value="variable">Variable Product</ion-select-option>
       </ion-select>
@@ -305,11 +317,10 @@
         <ion-item lines="none">
 
           <ion-checkbox
-            slot="start"
-            [checked]="selectedAttributes[attr.id]?.includes(term.name)"
-            (ionChange)="onAttributeToggle(attr.id, term.name, $event)"
-            >
-          </ion-checkbox>
+  slot="start"
+  [checked]="selectedAttributes[attr.id]?.includes(term.name)"
+  (ionChange)="markDirty(); onAttributeToggle(attr.id, term.name, $event)">
+</ion-checkbox>
 
           <ion-label>
             {{ term.name }}
@@ -365,76 +376,138 @@
     class="variation-item">
 
     <div class="variation-row">
-      <div class="variation-label">
-        {{ getComboLabel(combo) }}
-      </div>
 
-      <ion-input
-        type="number"
-        placeholder="Price"
-        class="variation-price"
-        [ngModel]="getVariationPrice(combo)"
-        (ngModelChange)="setVariationPrice(combo, $event)">
-      </ion-input>
-    </div>
+  <div class="variation-label">
+    {{ getComboLabel(combo) }}
+  </div>
+
+  <div class="variation-price-wrapper">
+
+    <span class="variation-currency-symbol">
+      $
+    </span>
+
+    <ion-input
+      type="tel"
+      inputmode="numeric"
+      placeholder="0.00"
+      class="variation-price"
+      [value]="
+        getVariationPrice(combo)
+          ? formatPrice(getVariationPrice(combo))
+          : '0.00'
+      "
+      (ionInput)="onVariationPriceInput(combo, $event)">
+    </ion-input>
+
+  </div>
+
+</div>
 
   </div>
 </ion-card>
   <!-- Pricing -->
-  <ion-card class="settings-card">
+  <ion-card
+  *ngIf="product.type !== 'variable'"
+  class="settings-card">
 
-    <!-- REGULAR PRICE -->
-    <ion-item lines="none" class="editable-item" (click)="enableRegularPriceEdit()">
-  
-  <ion-label position="stacked">
-    Regular price
-  </ion-label>
+  <!-- REGULAR PRICE -->
+  <ion-item
+    lines="none"
+    class="editable-item"
+    (click)="enableRegularPriceEdit()">
 
-  <!-- Display -->
-  <div class="value-text" *ngIf="!editRegularPrice">
-    {{ product.regular_price ? formatPrice(product.regular_price) : 'Add regular price' }}
+    <ion-label position="stacked">
+      Regular price
+    </ion-label>
+
+    <!-- Display -->
+    <div
+      class="value-text"
+      *ngIf="!editRegularPrice">
+
+      ${{ product.regular_price
+          ? formatPrice(product.regular_price)
+          : '0.00' }}
+
+    </div>
+
+    <!-- Input -->
+    <div
+      *ngIf="editRegularPrice"
+      class="currency-input-wrapper">
+
+      <span class="currency-symbol">$</span>
+
+      <ion-input
+        #regularPriceInput
+        type="tel"
+        inputmode="numeric"
+        class="amount-input"
+        [value]="product.regular_price
+          ? formatPrice(product.regular_price)
+          : '0.00'"
+        (ionInput)="onPriceInput($event, 'regular_price'); markDirty()"
+        (ionBlur)="editRegularPrice = false">
+      </ion-input>
+
+    </div>
+
+  </ion-item>
+
+  <!-- SALE PRICE -->
+  <ion-item
+    lines="none"
+    class="editable-item"
+    (click)="enableSalePriceEdit()">
+
+    <ion-label position="stacked">
+      Sale price
+    </ion-label>
+
+    <!-- Display -->
+    <div
+      class="value-text"
+      *ngIf="!editSalePrice">
+
+      ${{ product.sale_price
+          ? formatPrice(product.sale_price)
+          : '0.00' }}
+
+    </div>
+
+    <!-- Input -->
+    <div
+      *ngIf="editSalePrice"
+      class="currency-input-wrapper">
+
+      <span class="currency-symbol">$</span>
+
+      <ion-input
+        #salePriceInput
+        type="tel"
+        inputmode="numeric"
+        class="amount-input"
+        [value]="product.sale_price
+          ? formatPrice(product.sale_price)
+          : '0.00'"
+        (ionInput)="onPriceInput($event, 'sale_price'); markDirty()"
+        (ionBlur)="editSalePrice = false">
+      </ion-input>
+
+    </div>
+
+  </ion-item>
+
+  <div
+    class="error-text"
+    *ngIf="salePriceError">
+
+    {{ salePriceError }}
+
   </div>
 
-  <!-- Input -->
-  <ion-input
-  *ngIf="editRegularPrice"
-  #regularPriceInput
-  type="text"
-  [value]="formatPrice(product.regular_price)"
-  (ionInput)="onPriceInput($event, 'regular_price')"
-  (ionBlur)="editRegularPrice = false"
-></ion-input>
-
-</ion-item>
-
-    <!-- SALE PRICE -->
-    <ion-item lines="none" class="editable-item" (click)="enableSalePriceEdit()">
-  
-  <ion-label position="stacked">
-    Sale price
-  </ion-label>
-
-  <!-- Display -->
-  <div class="value-text" *ngIf="!editSalePrice">
-    {{ product.sale_price ? formatPrice(product.sale_price) : 'Add sale price' }}
-  </div>
-
-  <!-- Input -->
-  <ion-input
-  *ngIf="editSalePrice"
-  #salePriceInput
-  type="text"
-  [value]="formatPrice(product.sale_price)"
-  (ionInput)="onPriceInput($event, 'sale_price')"
-  (ionBlur)="editSalePrice = false"
-></ion-input>
-
-</ion-item>
-<div class="error-text" *ngIf="salePriceError">
-  {{ salePriceError }}
-</div>
-
-  </ion-card>
+</ion-card>
 
 
 
@@ -529,13 +602,12 @@
 
   <!-- SAVE / PUBLISH BUTTON -->
   <ion-button
-    expand="block"
-    class="save-btn"
-    (click)="publishProduct()"
-    [disabled]="isSubmitting"
-  >
-    {{ isSubmitting ? 'Please wait...' : (isEdit ? 'Save Changes' : 'Publish') }}
-  </ion-button>
+  expand="block"
+  class="save-btn"
+  (click)="publishProduct()"
+  [disabled]="isSubmitting || hasTitleEmoji || !isDirty">
+  {{ isSubmitting ? 'Please wait...' : (isEdit ? 'Save Changes' : 'Publish') }}
+</ion-button>
 
   <!-- DELETE BUTTON (EDIT ONLY) -->
   <ion-button

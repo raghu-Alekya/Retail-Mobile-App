@@ -112,6 +112,7 @@
     height: 70px;
     border-radius: 10px;
     object-fit: cover;
+    border: 1px solid #eee;
   }
 
   h3 {
@@ -255,6 +256,43 @@ ion-footer ion-segment-button:nth-child(2) {
 .loader-wrapper p {
   margin-top: 10px;
   font-size: 14px;
+}
+
+
+.product-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ebt-badge {
+  background: #2e7d32;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 8px;
+  letter-spacing: 0.3px;
+}
+
+.variable-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 20px;
+  height: 20px;
+
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.variable-badge img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  display: block;
 }
 
 /////////////////////////////////////////////

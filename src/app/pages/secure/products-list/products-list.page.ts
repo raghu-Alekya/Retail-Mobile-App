@@ -131,6 +131,12 @@ setStockFilter(value: string){
     return item.id;
   }
 
+  hasEbtTag(product: any): boolean {
+  return product?.tags?.some(
+    (tag: any) => tag.slug === 'ebt-eligible'
+  ) || false;
+}
+
   openProductDetails(productId: number) {
     this.router.navigate(['/products/edit', productId]);
   }

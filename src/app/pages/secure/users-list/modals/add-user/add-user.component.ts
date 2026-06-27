@@ -28,7 +28,10 @@ export class AddUserComponent implements OnInit {
   customRoles: any[] = [];
   userRole = '';
   pinError: string | null = null;
-  isCreatingUser = false;
+  usernameTouched = false;
+firstNameTouched = false;
+lastNameTouched = false;
+emailTouched = false;
   user: any = {
   username: '',
   email: '',
@@ -65,6 +68,8 @@ get isFormDirty(): boolean {
   async ngOnInit() {
   await this.loadCustomRoles();
 }
+
+
 // async loadCustomRoles() {
 //   try {
 //     this.customRoles = await this.authService.getCustomRoles();
@@ -95,13 +100,8 @@ async loadCustomRoles() {
   }
 
   
+  
  async submit() {
-
-  // 🚫 prevent multiple clicks
-  if (this.isCreatingUser) {
-    return;
-  }
-   this.isCreatingUser = true;
 
   console.log('USER OBJECT:', this.user);
 
@@ -144,6 +144,19 @@ async loadCustomRoles() {
     );
     return;
   }
+
+  if (
+  this.containsEmoji(this.user.username) ||
+  this.containsEmoji(this.user.email) ||
+  this.containsEmoji(this.user.first_name) ||
+  this.containsEmoji(this.user.last_name)
+) {
+  this.showAlert(
+    'Validation Error',
+    'Username, Email, First Name and Last Name cannot contain emojis'
+  );
+  return;
+}
 
   try {
     const response = await this.authService.createEmployee({
@@ -190,12 +203,7 @@ async loadCustomRoles() {
       this.showAlert('Error', errorMsg);
     }
   });
-}finally {
-
-    // ✅ reset button
-    this.isCreatingUser = false;
-
-  }
+}
 }
 
   async showAlert(header: string, message: string) {
@@ -233,5 +241,13 @@ async loadCustomRoles() {
   isValidPin(pin: string): boolean {
     return /^[0-9]{6}$/.test(pin);
   }
+
+ 
+
+containsEmoji(text: string): boolean {
+  if (!text) return false;
+
+  return /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu.test(text);
+}
   
 }

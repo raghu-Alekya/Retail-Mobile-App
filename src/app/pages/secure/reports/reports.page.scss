@@ -50,7 +50,7 @@ ion-card {
     --color: #fff;
     --padding-start: 4px;
 
-    min-height: 64px;   /* increase header height */
+    min-height: 80px;   /* increase header height */
   }
 
   ion-title {
@@ -292,6 +292,12 @@ ion-footer {
 
 /* iOS ONLY - Orders Header Fix */
 :host-context(.ios) .products-header ion-toolbar {
+  --background: #264c73;
+  --color: #fff;
+
+  min-height: 90px !important;
+  height: 110px !important;
+
   display: flex;
   align-items: center;
 }

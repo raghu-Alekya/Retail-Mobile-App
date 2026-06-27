@@ -393,16 +393,39 @@ ion-note.stock-badge {
   line-height: 1.4;
 }
 
+/* Price Wrapper */
+.variation-price-wrapper {
+  position: relative;
+  width: 160px;
+}
+
+/* Dollar Symbol */
+.variation-currency-symbol {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  font-size: 15px;
+  color: #555;
+
+  z-index: 10;
+}
+
 /* Price Input Styling */
 .variation-price {
-  width: 110px;
-  --padding-start: 10px;
+  width: 90%;
+
+  --padding-start: 30px;
   --padding-end: 10px;
+
   --background: #f9fafb;
-  border-radius: 10px;
+
   border: 1px solid #e5e7eb;
-  font-size: 14px;
-  text-align: right;
+  border-radius: 12px;
+
+  font-size: 15px;
+  text-align: left;
 }
 // ion-content.scanner-active {
 //   --background: transparent !important;
@@ -448,8 +471,50 @@ ion-note.stock-badge {
   display: block;
 }
 
-/////////////////////////////////////////////
+.page-loader {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 9999;
 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-loader p {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #666;
+}
+
+.currency-input-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 4px;
+}
+
+.currency-symbol {
+  flex-shrink: 0;
+  font-size: 16px;
+  color: #444;
+}
+
+.amount-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.amount-input::part(native) {
+  padding: 0 !important;
+}
+
+/////////////////////////////////////////////
+:host-context(.ios) ion-toolbar.dark-toolbar {
+  --min-height: 64px;
+}
 /* iOS ONLY - Orders Header Fix */
 :host-context(.ios) .dark-toolbar ion-toolbar {
   display: flex;

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
+import { LoadingController } from '@ionic/angular';
 
 @Component({
   selector: 'app-media',
@@ -18,7 +19,7 @@ export class MediaPage implements OnInit {
   loading = false;
   selectedMedia: any = null;
 
-  constructor(private mediaService: AuthService) {}
+  constructor(private mediaService: AuthService, private loadingCtrl: LoadingController) {}
 
   ngOnInit() {
     this.loadMedia();
@@ -100,53 +101,88 @@ export class MediaPage implements OnInit {
   }
 
   async openCamera(type: 'camera' | 'gallery' = 'camera') {
-    try {
-      const image = await Camera.getPhoto({
-        quality: 90,
-        resultType: CameraResultType.Uri,
-        source: type === 'camera' ? CameraSource.Camera : CameraSource.Photos
-      });
+    
 
-      // Prefer native file-path upload on device (more reliable on iOS)
-      if (Capacitor.isNativePlatform() && image.path) {
-        const ext = image.format || 'jpg';
-        await this.mediaService.uploadMediaFromPath(image.path, `upload.${ext}`);
-        this.page = 1;
-        this.mediaList = [];
-        this.hasMore = true;
-        await this.loadMedia();
-        return;
-      }
+  const loading = await this.loadingCtrl.create({
+    message: 'Uploading image...',
+    spinner: 'crescent',
+    backdropDismiss: false
+  });
 
-      if (!image.webPath) return;
+  try {
+    const image = await Camera.getPhoto({
+      quality: 90,
+      resultType: CameraResultType.Uri,
+      source: type === 'camera'
+        ? CameraSource.Camera
+        : CameraSource.Photos
+    });
 
-      // Convert to Blob
-      const response = await fetch(image.webPath);
-      const blob = await response.blob();
+    if (Capacitor.isNativePlatform() && image.path) {
 
-      const file = new File([blob], 'upload.jpg', { type: blob.type || 'image/jpeg' });
+      await loading.present();
 
-      await this.uploadFile(file);
+      const ext = image.format || 'jpg';
 
-    } catch (err) {
-      console.error('Camera error', err);
-    }
-  }
+      await this.mediaService.uploadMediaFromPath(
+        image.path,
+        `upload.${ext}`
+      );
 
-  async uploadFile(file: File) {
-    try {
-      await this.mediaService.uploadMedia(file);
-
-      // Reload media
       this.page = 1;
       this.mediaList = [];
       this.hasMore = true;
+
       await this.loadMedia();
 
-    } catch (error) {
-      console.error('Upload failed', error);
+      await loading.dismiss();
+      return;
     }
+
+    if (!image.webPath) {
+      return;
+    }
+
+    const response = await fetch(image.webPath);
+    const blob = await response.blob();
+
+    const file = new File(
+      [blob],
+      'upload.jpg',
+      { type: blob.type || 'image/jpeg' }
+    );
+
+    await this.uploadFile(file);
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    await loading.dismiss();
   }
+}
+
+  async uploadFile(file: File) {
+
+  const loading = await this.loadingCtrl.create({
+    message: 'Uploading image...',
+    spinner: 'crescent'
+  });
+
+  await loading.present();
+
+  try {
+    await this.mediaService.uploadMedia(file);
+
+    this.page = 1;
+    this.mediaList = [];
+    this.hasMore = true;
+
+    await this.loadMedia();
+
+  } finally {
+    await loading.dismiss();
+  }
+}
 
   async openGallery() {
     await this.openCamera('gallery');

@@ -11,7 +11,7 @@
     <ion-icon name="search-outline"></ion-icon>
     <input
       type="text"
-      placeholder="Search by name"
+      placeholder="Search by mobile.no"
       (input)="onSearch($event)"
     />
   </div>
@@ -23,7 +23,6 @@
   <div *ngIf="loading && customers.length === 0" class="loader-wrapper">
     <ion-spinner name="crescent"></ion-spinner>
   </div>
-
 
   <!-- <div class="list-heading">
     Customers List
@@ -45,18 +44,12 @@
 
         <!-- Email OR Phone -->
         <div class="name">
-          {{
-            ((user.first_name || '') + ' ' + (user.last_name || '')).trim()
-            || user.name
-            || user.email
-            || 'No Name'
-          }}
+          {{ user.contact || '-' }}
         </div>
 
-        <!-- Redeem Points -->
         <div class="login-id">
-        Redeem Points:
-        <strong>{{ user?.meta?.redeem_points ?? 0 }} Pts</strong>
+          Available Points:
+          <strong>{{ user.available ?? 0 }} Pts</strong>
         </div>
 
       </div>

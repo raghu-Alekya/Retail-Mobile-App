@@ -6,6 +6,7 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { BarcodeService } from 'src/app/services/barcode-service.service';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
+import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 
 @Component({
   selector: 'app-product-form',
@@ -13,6 +14,16 @@ import { Capacitor } from '@capacitor/core';
   styleUrls: ['./product-form.page.scss']
 })
 export class ProductFormPage implements OnInit {
+
+  async ionViewWillLeave() {
+    try {
+      await BarcodeScanner.stopScan();
+      BarcodeScanner.showBackground();
+      document.body.classList.remove('scanner-active');
+    } catch (e) {
+      console.error('Scanner cleanup failed', e);
+    }
+  }
 
   @ViewChild('titleInput') titleInput!: IonInput;
   @ViewChild('descInput') descInput!: IonTextarea;
@@ -41,6 +52,9 @@ export class ProductFormPage implements OnInit {
   pageReady = false;
   isSubmitting = false;
   isDeleting = false;
+  titleError = '';
+hasTitleEmoji = false;
+isDirty = false;
   product: any = {
     name: '',
     description: '',
@@ -76,7 +90,13 @@ export class ProductFormPage implements OnInit {
   );
 }
 
+markDirty() {
+  this.isDirty = true;
+}
+
   async ngOnInit() {
+
+    this.pageReady = false;
 
     const nav = this.router.getCurrentNavigation();
 
@@ -88,9 +108,6 @@ this.fromFab = nav?.extras?.state?.['fromFab'] || false;
     this.isEdit = true;
     this.productId = +id;
   }
-
-  // show UI
-  this.pageReady = true;
 
   try {
     // ✅ STEP 1: Load base data first
@@ -112,6 +129,8 @@ this.fromFab = nav?.extras?.state?.['fromFab'] || false;
 
   } catch (error) {
     console.error('Init failed:', error);
+  } finally {
+    this.pageReady = true;
   }
 }
 
@@ -294,6 +313,7 @@ handleSuccessNavigation() {
     if (!this.selectedTaxClassSlug && this.taxClasses.length > 0) {
       this.selectedTaxClassSlug = this.taxClasses[0].slug;
     }
+    this.isDirty = false;
   }
   async loadExistingVariations() {
     try {
@@ -463,6 +483,18 @@ handleSuccessNavigation() {
     }
   }
   async publishProduct() {
+
+    if (this.hasTitleEmoji) {
+  this.isSubmitting = false;
+
+  await this.showAlert(
+    'Validation Error',
+    'Emoji not allowed in product name',
+    'danger'
+  );
+
+  return;
+}
     if (this.isSubmitting) return; // 🚫 block multiple clicks
     this.isSubmitting = true;  
     try {
@@ -1211,6 +1243,7 @@ getCategoryName(id: number): string {
 }
 
 onPriceInput(event: any, field: 'regular_price' | 'sale_price') {
+  this.markDirty();
   let value = event.target.value || '';
 
   // remove all non-numbers
@@ -1244,6 +1277,42 @@ validatePrices() {
     }
   } else {
     this.salePriceError = '';
+  }
+}
+onVariationPriceInput(combo: any[], event: any) {
+  this.markDirty();
+
+  let value = event.target.value || '';
+
+  // keep only digits
+  value = value.replace(/\D/g, '');
+
+  // right-to-left currency format
+  const numberValue = Number(value) / 100;
+
+  const formatted = numberValue.toFixed(2);
+
+  const key = this.buildVariationKey(combo);
+  this.variationPrices[key] = Number(formatted);
+}
+
+onTitleInput(event: any) {
+  const value = event.target.value || '';
+
+  this.product.name = value;
+
+  // Emoji detection
+  const emojiRegex =
+    /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
+
+  this.hasTitleEmoji = emojiRegex.test(value);
+
+  if (!value.trim()) {
+    this.titleError = 'Product name is required';
+  } else if (this.hasTitleEmoji) {
+    this.titleError = 'Emoji not allowed in product name';
+  } else {
+    this.titleError = '';
   }
 }
   // taxClasses = [

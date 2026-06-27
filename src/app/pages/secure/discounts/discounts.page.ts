@@ -1,16 +1,18 @@
 import { Component, OnInit } from '@angular/core';
-import { AlertController, ToastController,NavController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import axios from 'axios';
 import { ApiConfigService } from 'src/app/services/api-config.service';
-import { Router } from '@angular/router';
 @Component({
   selector: 'app-discounts',
   templateUrl: './discounts.page.html',
   styleUrls: ['./discounts.page.scss'],
 })
 export class DiscountsPage implements OnInit {
+    today: string = '';
     filteredDiscounts: any[] = [];
+    displayAmount = '0.00';
+    rawDigits = '';
     activeFilter: string = 'all';
     loading = false;
     showForm = false;
@@ -34,7 +36,10 @@ export class DiscountsPage implements OnInit {
     validationError: string = '';
     searchTerm: string = ''; //////////
     allDiscounts: any[] = []; /////////
-    private popupShown = false;
+    discountEmojiError = false;
+    discountCodeEmojiError = false;
+    isSaving = false;
+  
     form = {
       code: '',
       discount_type: 'percent',
@@ -48,8 +53,20 @@ export class DiscountsPage implements OnInit {
       type: '',
       qty: '',
       selectedProductPrice: '',
+      selectedDiscountProductPrice: '',
       discount_product_ids: [] as number[]
     };
+    
+    getDiscountCount(type: string): number {
+
+    if (type === 'all') {
+      return this.allDiscounts.length;
+    }
+
+    return this.allDiscounts.filter(
+      d => d.type === type
+    ).length;
+  }
 
     
   
@@ -58,13 +75,21 @@ export class DiscountsPage implements OnInit {
       private auth: AuthService,
       private alertCtrl: AlertController,
       private toastCtrl: ToastController,
-      private apiConfig: ApiConfigService,
-      private navCtrl: NavController
+      private apiConfig: ApiConfigService
     ) {}
     wpBases = this.apiConfig.getBaseUrl();
   ngOnInit() {
-    this.loadDiscounts();
-  }
+
+  const now = new Date();
+
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+
+  this.today = `${yyyy}-${mm}-${dd}`;
+
+  this.loadDiscounts();
+}
   formChanged = false;
 
 markChanged() {
@@ -81,29 +106,154 @@ markChanged() {
       this.applySearchAndFilter();
       ////////
     } catch (err) {
-      this.presentToast('Failed to load discounts');
+      this.presentToast('Failed to load discounts', 'danger');
     } finally {
       this.loading = false;
     }
   }
+
+  validateStartDate() {
+
+  if (!this.form.date_starts) {
+    return;
+  }
+
+  const selectedDate = new Date(
+    this.form.date_starts + 'T00:00:00'
+  );
+
+  const today = new Date();
+
+  today.setHours(0, 0, 0, 0);
+  selectedDate.setHours(0, 0, 0, 0);
+
+  if (selectedDate < today) {
+
+    this.presentToast(
+      'Past dates are not allowed',
+      'danger'
+    );
+
+    this.form.date_starts = '';
+  }
+}
+
+validateEndDate() {
+
+  if (!this.form.date_expires) {
+    return;
+  }
+
+  const selectedDate = new Date(
+    this.form.date_expires + 'T00:00:00'
+  );
+
+  const today = new Date();
+
+  today.setHours(0, 0, 0, 0);
+  selectedDate.setHours(0, 0, 0, 0);
+
+  if (selectedDate < today) {
+
+    this.presentToast(
+      'Past dates are not allowed','danger'
+    );
+
+    this.form.date_expires = '';
+    return;
+  }
+
+  // End date cannot be before start date
+  if (
+    this.form.date_starts &&
+    selectedDate <
+      new Date(this.form.date_starts + 'T00:00:00')
+  ) {
+
+    this.presentToast(
+      'End date cannot be before start date', 'danger'
+    );
+
+    this.form.date_expires = '';
+  }
+}
   
   onDiscountTypeChange(event: any) {
-  const value = event.target.value?.trim();
-  this.form.type = value;   // ✅ only update form
+
+  const selectedType =
+    event.detail.value;
+
+  Object.assign(this.form, {
+
+  type: selectedType,
+
+  code: '',
+  discount_type: '',
+
+  amount: '',
+  qty: '',
+
+  product_id: '',
+  discount_product_ids: [],
+
+  usage_limit: '',
+
+  date_starts: '',
+  date_expires: '',
+
+  pinaka_discount_auto_apply: 'no',
+
+  selectedProductPrice: '',
+  selectedDiscountProductPrice: ''
+});
+
+  // reset UI values
+  this.displayAmount = '0.00';
+  this.rawDigits = '';
+
+  // reset searches
+  this.productSearch = '';
+  this.discountSearch = '';
+
+  // reset selected products
+  this.selectedDiscountProducts = [];
+
+  // reset suggestions
+  this.productSuggestions = [];
+  this.discountSuggestions = [];
 }
   onProductSearch(event: any) {
-    const value = event.target.value?.trim();
-    clearTimeout(this.searchTimeout);
-    if (!value) {
-      this.showSuggestions = false;
-      this.productSuggestions = [];
-      return;
-    }
+  let value =
+    event?.detail?.value ??
+    event?.target?.value ??
+    '';
 
-    this.searchTimeout = setTimeout(() => {
-      this.fetchProducts(value);
-    }, 300);
+  // Block emojis
+  if (this.containsEmoji(value)) {
+    value = value.replace(
+      /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu,
+      ''
+    );
+
+    this.productSearch = value;
+    this.emojiError = true;
+    return;
   }
+
+  this.emojiError = false;
+
+  clearTimeout(this.searchTimeout);
+
+  if (!value) {
+    this.showSuggestions = false;
+    this.productSuggestions = [];
+    return;
+  }
+
+  this.searchTimeout = setTimeout(() => {
+    this.fetchProducts(value);
+  }, 300);
+}
 
   async fetchProducts(query: string) {
     try {
@@ -124,44 +274,103 @@ markChanged() {
     this.showSuggestions = false;
   }
   async onDiscountSearch(event: any) {
-    clearTimeout(this.searchTimeout);
 
-    const term =
-      event?.detail?.value ??
-      event?.target?.value ??
-      '';
+  let term =
+    event?.detail?.value ??
+    event?.target?.value ??
+    '';
 
-    this.searchTimeout = setTimeout(async () => {
-      if (!term || term.length < 2) {
-        this.discountSuggestions = [];
-        return;
-      }
+  // Block emojis
+  if (this.containsEmoji(term)) {
+    term = term.replace(
+      /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu,
+      ''
+    );
 
-      try {
-        const res: any = await this.auth.searchProducts(term);
-
-        console.log('SEARCH RESPONSE:', res);
-
-        // Since service already returns res.data
-        this.discountSuggestions = Array.isArray(res) ? res : [];
-
-      } catch (e) {
-        console.error('Discount product search failed', e);
-        this.discountSuggestions = [];
-      }
-    }, 300);
+    this.discountSearch = term;
+    this.discountEmojiError = true;
+    this.discountSuggestions = [];
+    return;
   }
+
+  this.discountEmojiError = false;
+
+  clearTimeout(this.searchTimeout);
+
+  this.searchTimeout = setTimeout(async () => {
+    if (!term || term.length < 2) {
+      this.discountSuggestions = [];
+      return;
+    }
+
+    try {
+      const res: any = await this.auth.searchProducts(term);
+      this.discountSuggestions = Array.isArray(res) ? res : [];
+    } catch (e) {
+      console.error('Discount product search failed', e);
+      this.discountSuggestions = [];
+    }
+  }, 300);
+}
+
+onDiscountCodeChange(value: string) {
+
+  if (this.containsEmoji(value)) {
+    this.form.code = value.replace(
+      /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu,
+      ''
+    );
+
+    this.discountCodeEmojiError = true;
+    return;
+  }
+
+  this.discountCodeEmojiError = false;
+  this.form.code = value;
+  this.markChanged();
+}
+
 
   selectDiscountProduct(product: any) {
-    if (this.selectedDiscountProducts.find(p => p.id === product.id)) return;
 
-    this.selectedDiscountProducts.push(product);
-    this.form.discount_product_ids =
-      this.selectedDiscountProducts.map(p => p.id);
+    // ❌ Prevent selecting same product as main product
+  if (Number(product.id) === Number(this.form.product_id)) {
 
-    this.discountSearch = '';
-    this.discountSuggestions = [];
+    this.showValidationError(
+      'Main Product and Discounted Product cannot be the same'
+    );
+
+    return;
   }
+
+  // prevent duplicates
+  if (
+    this.selectedDiscountProducts.find(
+      p => p.id === product.id
+    )
+  ) return;
+
+  // add selected product
+  this.selectedDiscountProducts.push(product);
+
+  // store IDs
+  this.form.discount_product_ids =
+    this.selectedDiscountProducts.map(
+      p => p.id
+    );
+
+  // ✅ store discounted product price
+    this.form.selectedDiscountProductPrice =
+    String(
+      product.price ||
+      product.regular_price ||
+      0
+    );
+
+  // clear search
+  this.discountSearch = '';
+  this.discountSuggestions = [];
+}
   removeDiscountProduct(id: number) {
     this.selectedDiscountProducts =
       this.selectedDiscountProducts.filter(p => p.id !== id);
@@ -186,7 +395,9 @@ markChanged() {
 
   
     openCreate() {
-      this.checktoken();
+      this.emojiError = false;
+  this.discountEmojiError = false;
+  this.discountCodeEmojiError = false;
       this.resetForm();
       this.showForm = true;
       this.productSearch = '';
@@ -199,86 +410,218 @@ markChanged() {
     }
   
     async openEdit(coupon: any) {
+
+      this.emojiError = false;
+  this.discountEmojiError = false;
+  this.discountCodeEmojiError = false;
+
+  // Add these
+  this.discountSearch = '';
+  this.discountSuggestions = [];
+  this.productSuggestions = [];
       // console.log(coupon);
-      this.checktoken();
+      
       this.filter_type = coupon.type;
       this.editingCoupon = coupon;
       this.formChanged = false;  
-      this.form = {
+     this.form = {
         code: coupon.code,
         discount_type: coupon.discount_type,
-        amount: coupon.coupon_amount,
-        date_starts : coupon.start_date?.substring(0, 10),
-        date_expires: coupon.expiry_date?.substring(0, 10),
-        pinaka_discount_auto_apply: coupon.pinaka_discount_auto_apply,
-        usage_limit: coupon.usage_limit,
-        product_id: coupon.product_id,
-        product_label: coupon.product_label,
-        selectedProductPrice: coupon.selectedProductPrice,
-        type: coupon.type,
-        qty: coupon.qty,
-        discount_product_ids: coupon.discount_product_ids
+        amount: Number(coupon.coupon_amount).toFixed(2),
+
+        date_starts:
+          coupon.start_date?.substring(0, 10),
+
+        date_expires:
+          coupon.expiry_date?.substring(0, 10),
+
+        pinaka_discount_auto_apply:
+          coupon.pinaka_discount_auto_apply,
+
+        usage_limit:
+          coupon.usage_limit,
+
+        product_id:
+          coupon.product_id,
+
+        product_label:
+          coupon.product_label,
+
+        selectedProductPrice:
+          coupon.selectedProductPrice,
+
+        selectedDiscountProductPrice: '',
+
+        type:
+          coupon.type,
+
+        qty:
+          coupon.qty,
+
+        discount_product_ids:
+          coupon.discount_product_ids
       };
+      this.displayAmount =
+  Number(coupon.coupon_amount || 0).toFixed(2);
+    this.rawDigits =
+  Math.round(
+    Number(coupon.coupon_amount || 0) * 100
+  ).toString();
       this.showSuggestions = false;
       this.productSuggestions = [];
 
-      if (coupon.product_label) {
-        this.restoreProduct(coupon.product_label);
-      } else {
-        this.productSearch = '';
-        this.selectedProductName = '';
-      }
+      if (coupon.product_id) {
+
+  await this.restoreProductById(
+    Number(coupon.product_id)
+  );
+
+} else {
+
+  this.productSearch = '';
+  this.selectedProductName = '';
+
+}
       if (coupon.discount_product_ids?.length) {
+
         try {
-          const res: any = await this.auth.getProductsByIds(
-            coupon.discount_product_ids
+
+          const res: any =
+            await this.auth.getProductsByIds(
+              coupon.discount_product_ids
+            );
+
+          this.selectedDiscountProducts =
+            res?.data || [];
+
+          console.log(
+            'Discount Products:',
+            this.selectedDiscountProducts
           );
-          this.selectedDiscountProducts = res?.data || [];
-          // console.log(this.selectedDiscountProducts);
+
+
+          // Restore Mix n Match discounted product price
+          if (
+            coupon.type === 'mix_match' &&
+            this.selectedDiscountProducts.length
+          ) {
+
+            const firstProduct =
+              this.selectedDiscountProducts[0];
+
+
+            // fetch full product details
+            const productDetails: any =
+              await this.auth.getProductById(
+                firstProduct.id
+              );
+
+
+            this.form.selectedDiscountProductPrice =
+              String(
+                productDetails.price ||
+                productDetails.regular_price ||
+                productDetails.sale_price ||
+                '0.00'
+              );
+
+
+            console.log(
+              'Discount Product Price:',
+              this.form.selectedDiscountProductPrice
+            );
+          }
+
+
         } catch (e) {
-          console.error('Failed to load discounted products', e);
+
+          console.error(
+            'Failed to load discounted products',
+            e
+          );
+
         }
+
       }
+
       this.showForm = true;
     }
-    async restoreProduct(query: string) {
-      try {
-        const res = await axios.get(
-        `${this.wpBases}/wp-json/wc/v3/products?search=${query}&per_page=10`,
-        {
-          headers: this.getAuthHeaders()
-        }
-      );
-      
-        if (res.data && res.data.length) {
-          const p = res.data[0];
-          console.log(p);
-          this.selectedProductName = p.name;
-          this.productSearch = p.name;
-        }
-      } catch (e) {
-        console.error('Restore product failed', e);
-      }
-    }
-    async saveCoupon() {
-      this.formSubmitted = true;
+    async restoreProductById(id: number) {
 
-      if (!this.isFormValid()) {
-        return;
-      }
-      let prevfilter = this.activeFilter;
-      if (this.editingCoupon) {
-        await this.auth.updateDiscount(this.editingCoupon.id, this.form);
-      } else {
-        await this.auth.createDiscount(this.form);
-        prevfilter = 'all';
-      }
-      
-      this.showForm = false;
-      this.resetForm();     
-      await this.loadDiscounts();
-      this.setFilter(prevfilter);
+  try {
+
+    const product: any =
+      await this.auth.getProductById(id);
+
+    console.log('PRODUCT RESPONSE', product);
+
+    this.productSearch =
+      product.name ||
+      product.data?.name ||
+      '';
+
+    this.selectedProductName =
+      this.productSearch;
+
+    this.form.selectedProductPrice =
+      product.price ||
+      product.data?.price ||
+      '';
+
+  } catch (e) {
+
+    console.error(
+      'restoreProductById error',
+      e
+    );
+
+  }
+}
+    async saveCoupon() {
+
+  if (this.isSaving) {
+    return;
+  }
+
+  this.formSubmitted = true;
+
+  if (!this.isFormValid()) {
+    return;
+  }
+
+  this.isSaving = true;
+
+  try {
+
+    let prevfilter = this.activeFilter;
+
+    if (this.editingCoupon) {
+      await this.auth.updateDiscount(
+        this.editingCoupon.id,
+        this.form
+      );
+    } else {
+      await this.auth.createDiscount(this.form);
+      prevfilter = 'all';
     }
+
+    this.showForm = false;
+    this.resetForm();
+
+    await this.loadDiscounts();
+    this.setFilter(prevfilter);
+
+  } catch (error) {
+
+    console.error(error);
+    this.presentToast('Failed to save discount', 'danger');
+
+  } finally {
+
+    this.isSaving = false;
+
+  }
+}
     isFormValid(): boolean {
       const f = this.form;
       if (!f.product_id) {
@@ -292,6 +635,17 @@ markChanged() {
           );
           return false;
         }
+      }
+
+      // Mix & Match: Main product and discounted products should not be same
+      if (
+        f.type === 'mix_match' &&
+        f.discount_product_ids?.includes(Number(f.product_id))
+      ) {
+        this.showValidationError(
+          'Main Product and Discounted Product cannot be the same'
+        );
+        return false;
       }
       if (!f.type || !f.type.trim()) {
         this.showValidationError('Please select a discount type');
@@ -309,21 +663,116 @@ markChanged() {
           return false;
         }
       }
-      const amount = Number(f.amount);
+      console.log('Amount value:', f.amount);
+      console.log('Discount type:', f.discount_type);
+
+      const amount = parseFloat(
+        String(f.amount || '').replace(/[^0-9.]/g, '')
+      );
+
+      console.log('Parsed amount:', amount);
+
+      if (isNaN(amount)) {
+
+        this.showValidationError(
+          'Please enter a valid amount'
+        );
+
+        return false;
+      }
+
+      if (amount < 0) {
+
+        this.showValidationError(
+          'Discount amount cannot be negative'
+        );
+
+        return false;
+      }
+
+      if (amount === 0) {
+
+        this.showValidationError(
+          'Discount amount must be greater than 0'
+        );
+
+        return false;
+      }
+
       if (
-        f.amount === '' ||
-        f.amount === null ||
-        f.amount === undefined ||
-        isNaN(amount) ||
-        amount <= 0
+        f.discount_type === 'percent' &&
+        amount > 100
       ) {
-        this.showValidationError('Discount amount must be greater than 0');
+
+        this.showValidationError(
+          'Percentage discount cannot exceed 100%'
+        );
+
         return false;
       }
-      if (f.discount_type === 'percent' && amount > 100) {
-        this.showValidationError('Percentage discount cannot exceed 100%');
+    // Fixed amount validation with product price
+      if (f.discount_type !== 'percent') {
+
+        let productPrice = 0;
+
+
+        // Mix n Match use discounted product price
+        if (f.type === 'mix_match') {
+
+          productPrice =
+            Number(
+              f.selectedDiscountProductPrice || 0
+            );
+
+        } else {
+
+          // Auto and Multipack use main product price
+          productPrice =
+            Number(
+              f.selectedProductPrice || 0
+            );
+
+        }
+
+
+        if (
+          productPrice > 0 &&
+          amount >= productPrice
+        ) {
+
+          this.showValidationError(
+            'Discount amount should be less than product price'
+          );
+
+          return false;
+        }
+
+      }
+          // Usage limit validation (Auto + Multipack)
+    if (
+      f.type === 'auto' ||
+      f.type === 'multipack'
+    ) {
+
+      const usageLimit =
+        Number(f.usage_limit);
+
+
+      if (
+        !Number.isInteger(usageLimit) ||
+        usageLimit < 1
+      ) {
+
+        this.showValidationError(
+          'Usage limit must be greater than or equal to 1'
+        );
+
         return false;
       }
+
+    }
+      // normalize value
+      f.amount = amount.toString();
       if(!f.date_starts)
       {
         this.showValidationError('start date is required');
@@ -383,7 +832,7 @@ markChanged() {
           // reload discounts
           await this.loadDiscounts();
 
-          this.presentToast('Discount deleted successfully');
+          this.presentToast('Discount deleted successfully', 'primary');
         }
       }
     ]
@@ -392,6 +841,9 @@ markChanged() {
   await alert.present();
 }
     resetForm() {
+      this.emojiError = false;
+  this.discountEmojiError = false;
+  this.discountCodeEmojiError = false;
       this.formSubmitted = false;
       this.editingCoupon = null;
       this.form = {
@@ -407,17 +859,23 @@ markChanged() {
         type: '',
         qty: '',
         selectedProductPrice: '',
+        selectedDiscountProductPrice: '',
         discount_product_ids : []
       };
     }
-    async presentToast(message: string) {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 2000,
-      position: 'bottom'
-    });
-    toast.present();
-  }
+    async presentToast(
+  message: string,
+  color: string = 'primary'
+) {
+  const toast = await this.toastCtrl.create({
+    message,
+    duration: 2500,
+    position: 'bottom',
+    color: color
+  });
+
+  await toast.present();
+}
   getAuthHeaders() {
     const token = localStorage.getItem('wc_token');
     return token ? { Authorization: `Bearer ${token}` } : {};
@@ -468,120 +926,78 @@ markChanged() {
 }
 
 close() {
+  this.emojiError = false;
+  this.discountEmojiError = false;
+  this.discountCodeEmojiError = false;
+
+  this.productSearch = '';
+  this.discountSearch = '';
+  this.discountSuggestions = [];
+  this.productSuggestions = [];
+
   this.showForm = false;
 }
+closeKeyboard() {
+
+  const active =
+    document.activeElement as HTMLElement;
+
+  active?.blur();
+}
+
 
 onAutoApplyChange(event: any) {
   this.form.pinaka_discount_auto_apply =
     event.detail.checked ? 'yes' : 'no';
 }
+formatPrice(price: any): string {
+  return '$' + Number(price || 0).toFixed(2);
+}
+onAmountInput(event: any) {
+
+  let value =
+    event?.detail?.value ??
+    event?.target?.value ??
+    '';
+
+  // Prevent negative values
+  if (value.includes('-')) {
+
+    value = value.replace(/-/g, '');
+
+    this.showValidationError(
+      'Discount amount cannot be negative'
+    );
+  }
+
+  // Keep only digits
+  this.rawDigits = value.replace(/\D/g, '');
+
+  const amount =
+    Number(this.rawDigits || '0') / 100;
+
+  this.displayAmount =
+    amount.toFixed(2);
+
+  this.form.amount =
+    amount.toFixed(2);
+
+  this.markChanged();
+}
+
+emojiError = false;
+
+containsEmoji(value: string): boolean {
+
+  if (!value) {
+    return false;
+  }
+
+  const emojiRegex =
+    /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
+
+  return emojiRegex.test(value);
+}
+//ends here
   ///////////////////////////////
-  async checktoken() {
-    
-  const token = localStorage.getItem('user_data') ? JSON.parse(localStorage.getItem('user_data')!).token : null;
-
-    if (!token || token === 'undefined' || token === 'null') {
-      this.showForm = false;
-
-      await this.showLogoutPopup();
-
-      return false;
-    }
-
-    try {
-
-      const res: any = await this.auth.validateuser(token);
-      if (
-        res?.valid === 'false' ||
-        res?.valid === false ||
-        res?.valid === '0' ||
-        res?.valid === 0
-      ) {
-        this.showForm = false;
-
-        await this.showLogoutPopup();
-
-        return false;
-      }
-
-      // TOKEN VALID
-      if (res?.valid) {
-        return true;
-      }
-
-      return true;
-
-    } catch (error: any) {
-
-       this.showForm = false;
-
-      await this.showLogoutPopup();
-
-      return false;
-    } 
-  }
-  async showLogoutPopup() {
-
-    if (this.popupShown) {
-      return;
-    }
-
-    this.popupShown = true;
-
-    let countdown = 5;
-
-    const alert = await this.alertCtrl.create({
-      cssClass: 'custom-logout-alert',
-      backdropDismiss: false,
-
-      message: `
-        <div class="logout-popup">
-
-          <img src="../../assets/session-logout.png" class="logout-img" />
-
-          <div class="logout-title">
-            You've been logged out
-          </div>
-
-          <div class="logout-message">
-            Your account was logged in from another device.
-            For security reasons your session has ended.
-          </div>
-
-          <div class="logout-countdown">
-            Redirecting in <span id="countdown">${countdown}</span>
-          </div>
-
-        </div>
-      `
-    });
-
-    await alert.present();
-
-    const interval = setInterval(async () => {
-
-      countdown--;
-
-      const countdownEl = document.getElementById('countdown');
-
-      if (countdownEl) {
-        countdownEl.innerText = countdown.toString();
-      }
-
-      if (countdown === 0) {
-
-        clearInterval(interval);
-
-        await alert.dismiss();
-
-        localStorage.clear();
-        sessionStorage.clear();
-
-        this.popupShown = false;
-
-        await this.navCtrl.navigateRoot('/signin');
-      }
-
-    }, 1000);
-  }
 }
