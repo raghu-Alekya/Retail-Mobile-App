@@ -3,7 +3,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import axios from 'axios';
 import { AssetsService } from '../assets/assets.service';
 import { ApiConfigService } from '../api-config.service';
-import { Http } from '@capacitor-community/http';
+import { CapacitorHttp } from '@capacitor/core';
+import { Filesystem } from '@capacitor/filesystem';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
@@ -20,6 +21,18 @@ export class AuthService {
     this.base = localStorage.getItem('wp_base_url') || '';
   }
 
+  private base64ToBlob(base64: string, contentType: string): Blob {
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
+
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+
+  const byteArray = new Uint8Array(byteNumbers);
+
+  return new Blob([byteArray], { type: contentType });
+}
 
   /** Load user when app refreshes */
   private loadUserFromStorage() {
@@ -39,7 +52,7 @@ async login(email: string, password: string, siteUrl: string) {
     const baseUrl = this.apiConfig.getBaseUrl();
     const loginUrl = `${baseUrl}/wp-json/pinaka-pos/v1/token/email`;
 
-    const res = await Http.request({
+    const res = await CapacitorHttp.request({
       method: 'POST',
       url: loginUrl,
       headers: {
@@ -112,7 +125,7 @@ async getDashboardStats(
   this.wpBase = this.apiConfig.getBaseUrl();
 
   try {
-    const res = await Http.request({
+    const res = await CapacitorHttp.request({
       method: 'GET',
       url: `${this.wpBase}/wp-json/pinaka-pos/v1/orders/order-counts-for-admin-app`,
       headers: {
@@ -178,7 +191,7 @@ if (toDate) {
     }
   }
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/wc/v3/orders`,
     headers: {
@@ -220,7 +233,7 @@ async getPartialOrders(page: number, search: string = '', status: string = '')
     }
   }
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/orders/get-mobile-partial-orders`,
     headers: {
@@ -256,7 +269,7 @@ async getPartialOrders(page: number, search: string = '', status: string = '')
     params.stock_status = stock;
   }
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/wc/v3/products`,
     headers: {
@@ -280,7 +293,7 @@ async createProduct(product: any) {
   if (product.sale_price !== undefined) {
     product.sale_price = String(product.sale_price);
   }
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/wc/v3/products`,
     headers: {
@@ -310,7 +323,7 @@ async updateProduct(id: number, product: any) {
   product.regular_price = product.regular_price
     ? product.regular_price.toString()
     : '';
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'PUT',
     url: `${this.wpBase}/wp-json/wc/v3/products/${id}`,
     headers: {
@@ -333,7 +346,7 @@ async deleteProduct(id: number) {
 
   const token = localStorage.getItem('wc_token');
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'DELETE',
     url: `${this.wpBase}/wp-json/wc/v3/products/${id}`,
     headers: {
@@ -357,7 +370,7 @@ async getProductById(id: number) {
 
   const token = localStorage.getItem('wc_token');
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/wc/v3/products/${id}`,
     headers: {
@@ -389,64 +402,75 @@ private fileToBase64(file: File): Promise<string> {
 }
 
 async uploadMedia(file: File) {
+  // Convert File -> Base64
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
 
-  const formData = new FormData();
-  // Ensure a filename is always sent (iOS/WKWebView can be picky)
-  formData.append('file', file, file?.name || 'upload.jpg');
+    reader.onload = () => {
+      const result = reader.result as string;
 
-  const res = await fetch(`${this.wpBase}/wp-json/wp/v2/media`, {
-    method: 'POST',
-    headers: {
-      Authorization: this.getAuthHeaders().Authorization
-    },
-    body: formData
+      // Remove "data:image/jpeg;base64,"
+      resolve(result.split(',')[1]);
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
 
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.error('Upload error:', errorText);
+  const response = await CapacitorHttp.request({
+    method: 'POST',
+    url: `${this.wpBase}/wp-json/wp/v2/media`,
+    headers: {
+      Authorization: this.getAuthHeaders().Authorization,
+      'Content-Type': file.type || 'image/jpeg',
+      'Content-Disposition': `attachment; filename="${file.name || 'upload.jpg'}"`
+    },
+    data: base64,
+    dataType: 'file'
+  });
+
+  if (response.status !== 200 && response.status !== 201) {
+    console.error('Upload error:', response.data);
     throw new Error('Upload failed');
   }
 
-  return await res.json();
+  return response.data;
 }
 
 async uploadMediaFromPath(
   filePath: string,
   _fileName: string = 'upload.jpg'
 ) {
-  const res = await Http.uploadFile({
-    url: `${this.wpBase}/wp-json/wp/v2/media`,
-    name: 'file',
-    filePath,
-    headers: {
-      Authorization: this.getAuthHeaders().Authorization
-    }
+  console.log('Uploading path:', filePath);
+
+  const fileData = await Filesystem.readFile({
+    path: filePath
   });
 
-  const status = (res as any)?.status ?? 0;
-  const data = (res as any)?.data;
+  const base64 = fileData.data as string;
 
-  const parsed =
-    typeof data === 'string'
-      ? (() => {
-          try {
-            return JSON.parse(data);
-          } catch {
-            return data;
-          }
-        })()
-      : data;
+  const response = await CapacitorHttp.request({
+    method: 'POST',
+    url: `${this.wpBase}/wp-json/wp/v2/media`,
+    headers: {
+      Authorization: this.getAuthHeaders().Authorization,
+      'Content-Type': 'image/jpeg',
+      'Content-Disposition': 'attachment; filename="upload.jpg"'
+    },
+    data: base64,
+    dataType: 'file'
+  });
 
-  if (status >= 400 || status === 0) {
-    console.error('Upload error:', parsed);
+  console.log('Upload response:', response);
+
+  if (response.status !== 200 && response.status !== 201) {
     throw new Error('Upload failed');
   }
 
-  return parsed;
+  return response.data;
 }
 async updateStoreCurrency(currency: string) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'PUT',
     url: `${this.wpBase}/wp-json/wc/v3/settings/general/woocommerce_currency`,
     headers: {
@@ -462,7 +486,7 @@ async updateStoreCurrency(currency: string) {
 }
 
 async getCategories(page = 1, perPage = 100) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/wc/v3/products/categories`,
     headers: this.getAuthHeaders(),
@@ -477,7 +501,7 @@ async getCategories(page = 1, perPage = 100) {
 
 async getTags() {
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/wc/v3/products/tags`,
     headers: this.getAuthHeaders()
@@ -488,7 +512,7 @@ async getTags() {
 
 async createUser(newUser: any) {
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.base}/wp-json/wp/v2/users`,
     headers: this.getAuthHeaders(),
@@ -512,7 +536,7 @@ async createUser(newUser: any) {
 
     if (search) params.search = search;
 
-    const res = await Http.request({
+    const res = await CapacitorHttp.request({
       method: 'GET',
       url: `${this.wpBase}/wp-json/wp/v2/users`,
       headers: this.getAuthHeaders(),
@@ -536,7 +560,7 @@ async createUser(newUser: any) {
 
     if (search) params.search = search;
 
-    const res = await Http.request({
+    const res = await CapacitorHttp.request({
       method: 'GET',
       url: `${this.wpBase}/wp-json/wp/v2/users`,
       headers: this.getAuthHeaders(),
@@ -559,7 +583,7 @@ async createUser(newUser: any) {
       throw new Error('Username, email and password are required.');
     }
 
-    const res = await Http.request({
+    const res = await CapacitorHttp.request({
       method: 'POST',
       url: `${this.wpBase}/wp-json/pinaka-pos/v1/users/create-user-with-meta`,
       headers: this.getAuthHeaders(),
@@ -587,7 +611,7 @@ async createUser(newUser: any) {
 
 
 // async getCustomRoles() {
-//   const res = await Http.request({
+//   const res = await CapacitorHttp.request({
 //     method: 'GET',
 //     url: `${this.wpBase}/wp-json/pinaka-pos/v1/orders/custom-user-roles`,
 //     headers: this.getAuthHeaders(),
@@ -600,7 +624,7 @@ async createUser(newUser: any) {
 async updateUser(id: number, data: any) {
   console.log('Updating user with data:', data);
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'PUT',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/users/update-user-with-meta/${id}`,
     headers: this.getAuthHeaders(),
@@ -612,7 +636,7 @@ async updateUser(id: number, data: any) {
 
 
 async deleteUser(id: number) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'DELETE',
     url: `${this.base}/users/${id}`,
     headers: this.getAuthHeaders(),
@@ -633,7 +657,7 @@ async getShifts(
   fromDate = '',
   toDate = ''
 ) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/shifts/get-all-shifts`,
     headers: this.getAuthHeaders(),
@@ -657,7 +681,7 @@ async getOrderPayments(
   // status = '',
   paymentMode = ''
 ) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/payments/get-all-paments-for-admin`,
     headers: this.getAuthHeaders(),
@@ -676,7 +700,7 @@ async getOrderPayments(
 
 // List Media
 async getMedia(page = "1", perPage = "20") {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/wp/v2/media`,
     headers: this.getAuthHeaders(),
@@ -692,7 +716,7 @@ async getMedia(page = "1", perPage = "20") {
 
 // Update Media (title / alt)
 async updateMedia(id: number, data: any) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/wp/v2/media/${id}`,
     headers: this.getAuthHeaders(),
@@ -705,7 +729,7 @@ async updateMedia(id: number, data: any) {
 
 // Vendors
 async getVendors(page = 1, perPage = "10") {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/vendor_payments/get-all-vendors-for-admin`,
     headers: this.getAuthHeaders(),
@@ -721,7 +745,7 @@ async getVendors(page = 1, perPage = "10") {
 
 // Product Attributes
 async getAttributes() {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/wc/v3/products/attributes`,
     headers: this.getAuthHeaders(),
@@ -731,7 +755,7 @@ async getAttributes() {
 }
 
 async getTaxClasses() {
-  return await Http.request({
+  return await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/wc/v3/taxes/classes`,
     headers: this.getAuthHeaders()
@@ -739,7 +763,7 @@ async getTaxClasses() {
 }
 
 async getTaxRates() {
-  return await Http.request({
+  return await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/wc/v3/taxes`,
     headers: this.getAuthHeaders()
@@ -747,7 +771,7 @@ async getTaxRates() {
 }
 
 async getAttributeTerms(attributeId: number) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/wc/v3/products/attributes/${attributeId}/terms`,
     headers: this.getAuthHeaders(),
@@ -759,7 +783,7 @@ async getAttributeTerms(attributeId: number) {
 
 // async createVariation(productId: number, data: any) {
 //   console.log()
-//   const res = await Http.request({
+//   const res = await CapacitorHttp.request({
 //     method: 'POST',
 //     url: `${this.wpBase}/wp-json/wc/v3/products/${productId}/variations`,
 //     headers: this.getAuthHeaders(),
@@ -769,7 +793,7 @@ async getAttributeTerms(attributeId: number) {
 //   return res.data;
 // }
 async createVariation(productId: number, data: any) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/wc/v3/products/${productId}/variations`,
     headers: {
@@ -786,7 +810,7 @@ async updateVariation(
   variationId: number,
   data: any
 ) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'PUT',
     url: `${this.wpBase}/wp-json/wc/v3/products/${productId}/variations/${variationId}`,
     headers: {
@@ -799,7 +823,7 @@ async updateVariation(
   return res.data;
 }
 async getProductVariations(productId: number) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/wc/v3/products/${productId}/variations`,
     headers: this.getAuthHeaders(),
@@ -824,7 +848,7 @@ async createWooCommerceCustomer(customerData: any) {
   };
 
   try {
-    const response = await Http.request({
+    const response = await CapacitorHttp.request({
       method: 'POST',
       url,
       headers: this.getAuthHeaders(),
@@ -846,7 +870,7 @@ async getCustomerRoles() {
   const url = `${this.wpBase}/wp-json/wp/v2/users/roles`;
 
   try {
-    const response = await Http.request({
+    const response = await CapacitorHttp.request({
       method: 'GET',
       url,
       headers: this.getAuthHeaders(),
@@ -860,7 +884,7 @@ async getCustomerRoles() {
   }
 }
 async getCustomRoles() {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/roles/custom-user-roles`,
     headers: this.getAuthHeaders()
@@ -884,7 +908,7 @@ async getCustomRoles() {
 }
 
 async deleteMedia(id: number) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'DELETE',
     url: `${this.wpBase}/wp-json/wp/v2/media/${id}?force=true`,
     headers: this.getAuthHeaders()
@@ -895,7 +919,7 @@ async deleteMedia(id: number) {
 
 async createEmployee(data: any) {
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/employee/create-employee`,
     headers: {
@@ -910,7 +934,7 @@ async createEmployee(data: any) {
 
 async updateEmployee(id: number, data: any) {
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/employee/update-employee/${id}`,
     headers: {
@@ -933,7 +957,7 @@ async updateEmployee(id: number, data: any) {
 
 async deleteEmployee(id: number) {
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'DELETE',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/employee/delete-employee/${id}`,
     headers: this.getAuthHeaders()
@@ -942,7 +966,7 @@ async deleteEmployee(id: number) {
   return res.data;
 }
 // async getUserById(id: number) {
-//   const res = await Http.request({
+//   const res = await CapacitorHttp.request({
 //     method: 'GET',
 //     url: `${this.wpBase}/wp-json/wp/v2/users/${id}`,
 //     headers: this.getAuthHeaders()
@@ -954,7 +978,7 @@ async deleteEmployee(id: number) {
 // Daily Sales (WooCommerce)
 async getDailySales(startDate: string, endDate: string) {
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/wc/v3/orders`,
     headers: this.getAuthHeaders(),
@@ -970,7 +994,7 @@ async getDailySales(startDate: string, endDate: string) {
 }
 
 async loadSales(type: 'daily' | 'weekly' | 'monthly') {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/reports-new/sales`,
     headers: this.getAuthHeaders(),
@@ -983,7 +1007,7 @@ async loadSales(type: 'daily' | 'weekly' | 'monthly') {
 // Reports - Employee Sales
 async loadEmployeeSales(date: string) {
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/reports-new/shift-sales`,
     headers: this.getAuthHeaders(),
@@ -1012,7 +1036,7 @@ async getUserById(id: number): Promise<any> {
 
 // Coupons
 // async getCouponById(id: number) {
-//   const res = await Http.request({
+//   const res = await CapacitorHttp.request({
 //     method: 'GET',
 //     url: `${this.wpBase}/wp-json/wc/v3/coupons/${id}`,
 //     headers: this.getAuthHeaders()
@@ -1023,7 +1047,7 @@ async getUserById(id: number): Promise<any> {
 
 async createCoupon(data: any) {
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/coupons/create`,
     headers: {
@@ -1042,7 +1066,7 @@ async createCoupon(data: any) {
 
 
 // async updateCoupon(id: number, data: any) {
-//   const res = await Http.request({
+//   const res = await CapacitorHttp.request({
 //     method: 'PUT',
 //     url: `${this.wpBase}/wp-json/wc/v3/coupons/${id}`,
 //     headers: this.getAuthHeaders(),
@@ -1053,7 +1077,7 @@ async createCoupon(data: any) {
 // }
 
 // async deleteCoupon(id: number) {
-//   const res = await Http.request({
+//   const res = await CapacitorHttp.request({
 //     method: 'DELETE',
 //     url: `${this.wpBase}/wp-json/wc/v3/coupons/${id}`,
 //     headers: this.getAuthHeaders(),
@@ -1066,7 +1090,7 @@ async getCouponById(id: number) {
 
   const token = localStorage.getItem('wc_token');
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/coupons/${id}`,
     headers: {
@@ -1083,7 +1107,7 @@ async updateCoupon(id: number, data: any) {
 
   const token = localStorage.getItem('wc_token');
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'PUT',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/coupons/${id}`,
     headers: {
@@ -1102,7 +1126,7 @@ async deleteCoupon(id: number) {
 
   const token = localStorage.getItem('wc_token');
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'DELETE',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/coupons/${id}`,
     headers: {
@@ -1120,7 +1144,7 @@ async getCoupons(page = 1) {
   const token = localStorage.getItem('wc_token');
   this.wpBase = this.apiConfig.getBaseUrl();
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/coupons`,
     headers: {
@@ -1140,7 +1164,7 @@ async getCoupons(page = 1) {
 
 // Cash Settings
 async getCashSettings() {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/cash-settings`,
     headers: this.getAuthHeaders()
@@ -1150,7 +1174,7 @@ async getCashSettings() {
 }
 
 async saveCashSettings(payload: any) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/cash-settings`,
     headers: this.getAuthHeaders(),
@@ -1161,7 +1185,7 @@ async saveCashSettings(payload: any) {
 }
 
 async saveDenominations(type: string, payload: any) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/denominations/${type}`,
     headers: this.getAuthHeaders(),
@@ -1174,7 +1198,7 @@ async saveDenominations(type: string, payload: any) {
 
 // Forgot Password
 async forgotPassword(email: string) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka/v1/forgot-password`,
     data: { email }
@@ -1186,7 +1210,7 @@ async forgotPassword(email: string) {
 
 // Discounts
 async getDiscounts(page = "1", perPage = "10") {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/get-all-discounts-for-admin`,
     headers: this.getAuthHeaders(),
@@ -1197,7 +1221,7 @@ async getDiscounts(page = "1", perPage = "10") {
 }
 
 async createDiscount(data: any) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/create-discount`,
     headers: {
@@ -1213,7 +1237,7 @@ async createDiscount(data: any) {
 async updateDiscount(id: number, data: any) {
   data.discount_id = id;
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/update-discount/`,
     headers: {
@@ -1227,7 +1251,7 @@ async updateDiscount(id: number, data: any) {
 }
 
 async getProductsByIds(ids: number[], data: any = {}) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/by-ids`,
     headers: {
@@ -1243,7 +1267,7 @@ async getProductsByIds(ids: number[], data: any = {}) {
 
 // Product Search
 async searchProducts(term: string) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/wc/v3/products`,
     headers: this.getAuthHeaders(),
@@ -1256,7 +1280,7 @@ async searchProducts(term: string) {
 
 // Delete Discount
 async deleteDiscount(id: number, type: string, data: any = {}) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/delete-discount`,
     headers: {
@@ -1271,7 +1295,7 @@ async deleteDiscount(id: number, type: string, data: any = {}) {
 
 
 async saveBussinessInfo(payload: any) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/business-info`,
     headers: {
@@ -1285,7 +1309,7 @@ async saveBussinessInfo(payload: any) {
 }
 
 async enableTaxes(payload: any) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-taxes`,
     headers: {
@@ -1299,7 +1323,7 @@ async enableTaxes(payload: any) {
 }
 
 async enableCoupons(payload: any) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-coupons`,
     headers: {
@@ -1313,7 +1337,7 @@ async enableCoupons(payload: any) {
 }
 
 async sequentialCoupons(payload: any) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/sequential-coupons`,
     headers: {
@@ -1328,7 +1352,7 @@ async sequentialCoupons(payload: any) {
 
 async createTag(payload: any) {
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/wc/v3/products/tags`,
     headers: {
@@ -1345,7 +1369,7 @@ async createTag(payload: any) {
 
 async deleteTag(id: number) {
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'DELETE',
     url: `${this.wpBase}/wp-json/wc/v3/products/tags/${id}`,
     headers: this.getAuthHeaders(),
@@ -1361,7 +1385,7 @@ async deleteTag(id: number) {
 
 async updateTag(tagId: number, payload: any) {
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'PUT',
     url: `${this.wpBase}/wp-json/wc/v3/products/tags/${tagId}`,
     headers: {
@@ -1377,7 +1401,7 @@ async updateTag(tagId: number, payload: any) {
 // Categories
 async saveCategory(payload: any) {
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/wc/v3/products/categories`,
     headers: {
@@ -1394,7 +1418,7 @@ async saveCategory(payload: any) {
 
 async updateCategory(categoryId: number, payload: any) {
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'PUT',
     url: `${this.wpBase}/wp-json/wc/v3/products/categories/${categoryId}`,
     headers: {
@@ -1408,7 +1432,7 @@ async updateCategory(categoryId: number, payload: any) {
 }
 
 async deleteCategory(id: number) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'DELETE',
     url: `${this.wpBase}/wp-json/wc/v3/products/categories/${id}`,
     headers: this.getAuthHeaders(),
@@ -1420,7 +1444,7 @@ async deleteCategory(id: number) {
 
 
 // async updateEnableSafes(payload: any) {
-//   const res = await Http.request({
+//   const res = await CapacitorHttp.request({
 //     method: 'POST',
 //     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-safes`,
 //     headers: this.getAuthHeaders(),
@@ -1430,7 +1454,7 @@ async deleteCategory(id: number) {
 //   return res.data;
 // }
 async updateEnableSafes(payload: any) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-safes`,
     headers: {
@@ -1444,7 +1468,7 @@ async updateEnableSafes(payload: any) {
 }
 
 // async updateEnableSafesDrop(payload: any) {
-//   const res = await Http.request({
+//   const res = await CapacitorHttp.request({
 //     method: 'POST',
 //     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-safes-drop`,
 //     headers: this.getAuthHeaders(),
@@ -1454,7 +1478,7 @@ async updateEnableSafes(payload: any) {
 //   return res.data;
 // }
 async updateEnableSafesDrop(payload: any) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-safes-drop`,
     headers: {
@@ -1468,7 +1492,7 @@ async updateEnableSafesDrop(payload: any) {
 }
 
 async updateCashback(payload: any) {
-  return Http.request({
+  return CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-cashback`,
     headers: {
@@ -1481,7 +1505,7 @@ async updateCashback(payload: any) {
 
 
 async updateServiceCharge(payload: any) {
-  return Http.request({
+  return CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-service-charge`,
     headers: {
@@ -1494,7 +1518,7 @@ async updateServiceCharge(payload: any) {
 
 
 async updateLoyaltyPoints(payload: any) {
-  return Http.request({
+  return CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/settings/enable-loyalty-points`,
     headers: {
@@ -1508,7 +1532,7 @@ async updateLoyaltyPoints(payload: any) {
 
 // Vendors
 async createVendor(data: any) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/vendor_payments/create-vendor`,
     headers: {
@@ -1524,7 +1548,7 @@ async createVendor(data: any) {
 }
 
 async updateVendor(id: number, data: any) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/vendor_payments/update-vendor/${id}`,
     headers: {
@@ -1541,7 +1565,7 @@ async updateVendor(id: number, data: any) {
 
 
 async deleteVendor(id: number) {
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'DELETE',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/vendor_payments/delete-vendor/${id}`,
     headers: this.getAuthHeaders()
@@ -1576,7 +1600,7 @@ async getProfile() {
   const token = this.getToken();
   const baseUrl = this.apiConfig.getBaseUrl();
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${baseUrl}/wp-json/pinaka-pos/v1/profile`,
     headers: {
@@ -1591,7 +1615,7 @@ async updateProfile(data: any) {
   const token = this.getToken();
   const baseUrl = this.apiConfig.getBaseUrl();
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${baseUrl}/wp-json/pinaka-pos/v1/profile`,
     headers: {
@@ -1605,63 +1629,49 @@ async updateProfile(data: any) {
 }
 
 async uploadProfileImage(file: File) {
-
   const token = this.getToken();
   const baseUrl = this.apiConfig.getBaseUrl();
 
-  const formData = new FormData();
+  // Convert File -> Base64
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
 
-  formData.append(
-    'profile_image',
-    file,
-    file.name || 'profile.png'
-  );
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remove "data:image/jpeg;base64,"
+      resolve(result.split(',')[1]);
+    };
 
-  const res = await fetch(
-    `${baseUrl}/wp-json/pinaka-pos/v1/profile/upload-image`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-      body: formData
-    }
-  );
-
-  const data = await res.json();
-
-  return data;
-}
-
-async uploadProfileImageFromPath(filePath: string) {
-
-  const token = this.getToken();
-  const baseUrl = this.apiConfig.getBaseUrl();
-
-  const res = await Http.uploadFile({
-    url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/upload-image`,
-    name: 'profile_image',
-    filePath,
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
 
-  const data =
-    typeof res.data === 'string'
-      ? JSON.parse(res.data)
-      : res.data;
+  const response = await CapacitorHttp.request({
+    method: 'POST',
+    url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/upload-image`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': file.type || 'image/jpeg',
+      'Content-Disposition': `attachment; filename="${file.name || 'profile.jpg'}"`
+    },
+    data: base64,
+    dataType: 'file'
+  });
 
-  return {
-    status: res.status,
-    data
-  };
+  console.log('Profile Upload Response:', response);
+
+  if (response.status !== 200 && response.status !== 201) {
+    throw new Error('Profile image upload failed');
+  }
+
+  return response.data;
 }
+
 async getProfileImage() {
   const token = this.getToken();
   const baseUrl = this.apiConfig.getBaseUrl();
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/get-image`,
     headers: {
@@ -1678,7 +1688,7 @@ async deleteProfileImage() {
   const token = this.getToken();
   const baseUrl = this.apiConfig.getBaseUrl();
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'DELETE',
     url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/delete-image`,
     headers: {
@@ -1696,7 +1706,7 @@ async validateToken(token: string): Promise<{ valid: boolean }> {
   this.wpBase = this.apiConfig.getBaseUrl();
 
   try {
-    const res = await Http.request({
+    const res = await CapacitorHttp.request({
       method: 'GET',
       url: `${this.wpBase}/wp-json/pinaka-pos/v1/profile`, // ✅ existing safe endpoint
       headers: {
@@ -1728,7 +1738,7 @@ async logout_by_id(emp_login_pin: number) {
       url = this.apiConfig.getBaseUrl();
     }
 
-    const res = await Http.request({
+    const res = await CapacitorHttp.request({
       method: 'POST',
       url: `${url}/wp-json/pinaka-pos/v1/token/logout-by-id`,
       headers: {
@@ -1746,7 +1756,7 @@ async logout_by_id(emp_login_pin: number) {
     this.wpBase = this.apiConfig.getBaseUrl();
 
     try {
-      const res = await Http.request({
+      const res = await CapacitorHttp.request({
         method: 'GET',
         url: `${this.wpBase}/wp-json/pinaka-pos/v1/profile`,
         headers: {
@@ -1768,7 +1778,7 @@ async logout_by_id(emp_login_pin: number) {
 
   async getLoyaltyCustomers() {
 
-    const res = await Http.request({
+    const res = await CapacitorHttp.request({
       method: 'GET',
       url: `${this.wpBase}/wp-json/pinaka-pos/v1/loyalty/get-all-customers`,
       headers: this.getAuthHeaders()

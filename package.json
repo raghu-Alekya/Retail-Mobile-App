@@ -22,7 +22,6 @@
     "@angular/router": "~20.3.25",
     "@awesome-cordova-plugins/barcode-scanner": "^8.1.0",
     "@capacitor-community/barcode-scanner": "^3.0.3",
-    "@capacitor-community/http": "^1.4.1",
     "@capacitor/android": "^4.6.3",
     "@capacitor/app": "4.1.1",
     "@capacitor/camera": "^4.1.5",
