@@ -17,7 +17,7 @@ import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner/ngx';
 
 @NgModule({
   declarations: [AppComponent],
-  entryComponents: [],
+  //entryComponents: [],
   imports: [
     BrowserModule,
     IonicModule.forRoot(),
