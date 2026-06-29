@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 
-import { AlertController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 import { AuthService } from '../services/auth/auth.service';
 import { Router } from '@angular/router';
+import { LogoutPopupComponent } from '../logout-popup/logout-popup.component';
 @Injectable({
   providedIn: 'root',
 })
@@ -12,7 +13,7 @@ export class AuthGuard  {
 
   constructor(
     private authService: AuthService,
-    private alertController: AlertController,
+    private modalController: ModalController,
     private router: Router
   ) {}
 
@@ -66,33 +67,14 @@ export class AuthGuard  {
 
     let countdown = 5;
 
-    const alert = await this.alertController.create({
-      cssClass: 'custom-logout-alert',
+    const modal = await this.modalController.create({
+      component: LogoutPopupComponent,
+      cssClass: 'logout-modal',
       backdropDismiss: false,
-
-      message: `
-        <div class="logout-popup">
-
-          <img src="../../assets/session-logout.png" class="logout-img" />
-
-          <div class="logout-title">
-            You've been logged out
-          </div>
-
-          <div class="logout-message">
-            Your account was logged in from another device.
-            For security reasons your session has ended.
-          </div>
-
-          <div class="logout-countdown">
-            Redirecting in <span id="countdown">${countdown}</span>
-          </div>
-
-        </div>
-      `
+      showBackdrop: true
     });
 
-    await alert.present();
+    await modal.present();
 
     const interval = setInterval(() => {
 
@@ -108,7 +90,7 @@ export class AuthGuard  {
 
         clearInterval(interval);
 
-        alert.dismiss();
+        modal.dismiss();
 
         localStorage.clear();
         sessionStorage.clear();

@@ -132,53 +132,53 @@ onDateSelected(event: any) {
 }
   onMinAmountInput(event: any) {
 
-  const value =
-    event?.detail?.value ||
-    event?.target?.value ||
-    '';
+    const value =
+      event?.detail?.value ||
+      event?.target?.value ||
+      '';
 
-  this.rawMinDigits =
-    value.replace(/[^\d]/g, '');
+    this.rawMinDigits =
+      value.replace(/[^\d]/g, '');
 
-  const amount =
-    Number(this.rawMinDigits || '0') / 100;
+    const amount =
+      Number(this.rawMinDigits || '0') / 100;
 
-  this.displayMinAmount =
-    amount.toFixed(2);
+    this.displayMinAmount =
+      amount.toFixed(2);
 
-  this.coupon.minAmount =
-    amount.toFixed(2);
+    this.coupon.minAmount =
+      amount.toFixed(2);
 
-  event.target.value =
-    this.displayMinAmount;
+    event.target.value =
+      this.displayMinAmount;
 
-  this.markDirty();
-}
+    this.markDirty();
+  }
 
   onMaxAmountInput(event: any) {
 
-  const value =
-    event?.detail?.value ||
-    event?.target?.value ||
-    '';
+    const value =
+      event?.detail?.value ||
+      event?.target?.value ||
+      '';
 
-  this.rawMaxDigits =
-    value.replace(/[^\d]/g, '');
+    this.rawMaxDigits =
+      value.replace(/[^\d]/g, '');
 
-  const amount =
-    Number(this.rawMaxDigits || '0') / 100;
+    const amount =
+      Number(this.rawMaxDigits || '0') / 100;
 
-  this.displayMaxAmount =
-    amount.toFixed(2);
+    this.displayMaxAmount =
+      amount.toFixed(2);
 
-  this.coupon.maxAmount =
-    amount.toFixed(2);
+    this.coupon.maxAmount =
+      amount.toFixed(2);
 
-  event.target.value =
-    this.displayMaxAmount;
+    event.target.value =
+      this.displayMaxAmount;
 
-  this.markDirty();
-}
+    this.markDirty();
+  }
 
   
   async saveCoupon() {
@@ -191,17 +191,17 @@ onDateSelected(event: any) {
   const min =
   Number(this.coupon.minAmount || 0);
 
-const max =
-  Number(this.coupon.maxAmount || 0);
+  const max =
+    Number(this.coupon.maxAmount || 0);
 
-if (min > 0 && max > 0 && min > max) {
+  if (min > 0 && max > 0 && min > max) {
 
-  alert(
-    'Minimum amount should be less than maximum amount'
-  );
+    alert(
+      'Minimum amount should be less than maximum amount'
+    );
 
-  return;
-}
+    return;
+  }
 
   const payload = {
     code: this.coupon.code,
@@ -224,53 +224,53 @@ if (min > 0 && max > 0 && min > max) {
 
   console.log("SENDING TO API:", payload);
 
-try {
+  try {
 
-  const response = await this.auth.createCoupon(payload);
+    const response = await this.auth.createCoupon(payload);
 
-console.log('RESPONSE:', response);
+    console.log('RESPONSE:', response);
 
-if (!response?.success) {
-  alert(response?.message || 'Coupon creation failed');
-  return;
-}
+    if (!response?.success) {
+      alert(response?.message || 'Coupon creation failed');
+      return;
+    }
 
-alert('Coupon Created Successfully');
+    alert('Coupon Created Successfully');
 
-  this.resetForm();
+      this.resetForm();
 
-  this.navCtrl.navigateBack('/tabs/coupons');
+      this.navCtrl.navigateBack('/tabs/coupons');
 
-} catch (error: any) {
+    } catch (error: any) {
 
-  console.error(error);
+      console.error(error);
 
-  alert('Unable to create coupon');
-}
-}
-resetForm() {
-  this.couponCodeEmojiError = false;
-  this.coupon = {
-    code: '',
-    description: '',
-    amount: null,
-    type: 'fixed_cart',
-    individualUse: false,
-    usageLimit: null,
-    usageLimitPerUser: null,
-    excludeSale: false,
-    minAmount: null,
-    maxAmount: null,
-    expireDate: ''
-  };
+      alert('Unable to create coupon');
+    }
+  }
+  resetForm() {
+    this.couponCodeEmojiError = false;
+    this.coupon = {
+      code: '',
+      description: '',
+      amount: null,
+      type: 'fixed_cart',
+      individualUse: false,
+      usageLimit: null,
+      usageLimitPerUser: null,
+      excludeSale: false,
+      minAmount: null,
+      maxAmount: null,
+      expireDate: ''
+    };
 
-  this.editing = null;
-  this.isDirty = false;
-}
-markDirty() {
-  this.isDirty = true;
-}
-ionViewWillEnter() {
-  this.resetForm();
-}
+    this.editing = null;
+    this.isDirty = false;
+  }
+  markDirty() {
+    this.isDirty = true;
+  }
+  ionViewWillEnter() {
+    this.resetForm();
+  }
 }

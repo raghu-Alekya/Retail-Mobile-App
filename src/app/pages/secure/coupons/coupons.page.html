@@ -55,7 +55,12 @@
 
       <!-- Row 1 -->
       <div class="row-between">
-        <div class="code">Code: {{ coupon.code }}</div>
+        <div class="code">
+  Code:
+  {{ coupon.code?.length > 10
+      ? (coupon.code | slice:0:10) + '...'
+      : coupon.code }}
+</div>
 
         <div class="usage">
           {{ coupon.usage_count || 0 }}/

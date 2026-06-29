@@ -226,6 +226,29 @@ ion-card-title {
   align-items: center;
 }
 
+.home-slides {
+  display: flex;
+  overflow-x: auto;
+  gap: 8px;
+  padding: 0 8px;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+.home-slides::-webkit-scrollbar {
+  display: none;
+}
+
+ion-card-header.chart-header {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
 /* Icon size consistency */
 .slide-card ion-icon {
   font-size: 26px;

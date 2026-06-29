@@ -18,19 +18,17 @@
 
     <div class="form-group">
       <label>Vendor Name</label>
-      <ion-input
-  [(ngModel)]="form.title"
-  (ionInput)="onVendorNameInput($event)"
-  (ionBlur)="vendorNameTouched = true">
-</ion-input>
+      <input
+        type="text"
+        [(ngModel)]="form.title"
+        (input)="onVendorNameInput($event)"
+        (blur)="vendorNameTouched = true"
+        class="custom-input"
+      />
 
-<div
+      <div
   class="error-text"
-  *ngIf="
-    vendorNameTouched &&
-    form.title &&
-    containsEmoji(form.title)
-  ">
+  *ngIf="vendorNameTouched && vendorNameEmojiError">
   Vendor Name cannot contain emojis
 </div>
     </div>
@@ -38,13 +36,14 @@
     <div class="form-group">
       <label>Phone</label>
 
-      <ion-input
+      <input
         type="tel"
         maxlength="10"
         [(ngModel)]="form.phone"
-        (ionInput)="onPhoneInput($event)"
-        [class.error]="phoneError">
-      </ion-input>
+        (input)="onPhoneInput($event)"
+        [class.error]="phoneError"
+        class="custom-input"
+      />
 
       <div class="error-text" *ngIf="phoneError">
         {{ phoneError }}
@@ -54,34 +53,40 @@
     <div class="form-group">
       <label>Email</label>
 
-      <ion-input
+      <input
         type="email"
         [(ngModel)]="form.email"
-        (ionInput)="onEmailInput($event)"
-        [class.error]="emailError">
-      </ion-input>
+        (input)="onEmailInput($event)"
+        [class.error]="emailError"
+        class="custom-input"
+      />
 
-      <div class="error-text" *ngIf="emailError">
-        {{ emailError }}
-      </div>
+      <div
+  class="error-text"
+  *ngIf="emailEmojiError">
+  Email cannot contain emojis
+</div>
+
+<div
+  class="error-text"
+  *ngIf="!emailEmojiError && emailError">
+  {{ emailError }}
+</div>
     </div>
 
     <div class="form-group">
       <label>Address</label>
-      <ion-textarea
-  rows="3"
-  [(ngModel)]="form.address"
-  (ionInput)="onAddressInput($event)"
-  (ionBlur)="addressTouched = true">
-</ion-textarea>
+      <textarea
+        rows="3"
+        [(ngModel)]="form.address"
+        (input)="onAddressInput($event)"
+        (blur)="addressTouched = true"
+        class="custom-textarea">
+      </textarea>
 
 <div
   class="error-text"
-  *ngIf="
-    addressTouched &&
-    form.address &&
-    containsEmoji(form.address)
-  ">
+  *ngIf="addressTouched && addressEmojiError">
   Address cannot contain emojis
 </div>
     </div>
@@ -99,8 +104,9 @@
   [disabled]="
   isSaving ||
   !form.title?.trim() ||
-  containsEmoji(form.title) ||
-  containsEmoji(form.address) ||
+  vendorNameEmojiError ||
+  addressEmojiError ||
+  emailEmojiError ||
   !!phoneError ||
   !!emailError
 "

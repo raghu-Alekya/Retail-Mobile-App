@@ -1,5 +1,7 @@
 ext {
-    minSdkVersion = project.hasProperty('android.minSdkVersion') ? project.property('android.minSdkVersion').toInteger() : 23
+    minSdkVersion = project.hasProperty('android.minSdkVersion')
+    ? project.property('android.minSdkVersion').toInteger()
+    : 24
     compileSdkVersion = project.hasProperty('android.compileSdkVersion') ? project.property('android.compileSdkVersion').toInteger() : 35
     targetSdkVersion = project.hasProperty('android.targetSdkVersion') ? project.property('android.targetSdkVersion').toInteger() : 35
 

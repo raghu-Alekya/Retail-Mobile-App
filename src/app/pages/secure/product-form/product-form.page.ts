@@ -169,25 +169,7 @@ stripHtml(html: string): string {
     this.expandedAttributes[attrId] =
       !this.expandedAttributes[attrId];
   }
-  // onAttributeToggle(attrId: number, term: string, event: any) {
-
-  //   if (!this.selectedAttributes[attrId]) {
-  //     this.selectedAttributes[attrId] = [];
-  //   }
-
-  //   if (event.detail.checked) {
-  //     if (!this.selectedAttributes[attrId].includes(term)) {
-  //       this.selectedAttributes[attrId].push(term);
-  //     }
-  //   } else {
-  //     this.selectedAttributes[attrId] =
-  //       this.selectedAttributes[attrId]
-  //         .filter(t => t !== term);
-  //   }
-
-  //   this.generatedCombinations =
-  //     this.generateCombinations();
-  // }
+  
   onAttributeToggle(attrId: number, term: string, event: any) {
     if (!this.selectedAttributes[attrId]) {
       this.selectedAttributes[attrId] = [];

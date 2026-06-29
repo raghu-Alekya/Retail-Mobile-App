@@ -35,10 +35,8 @@
           <div class="accordion-body" slot="content">
             <ion-item>
               <ion-input
-                label="Store Name"
-                placeholder="Enter store name"
-                [(ngModel)]="settings.address.pinaka_pos_name"
-                (ionInput)="onStoreNameInput($event)">
+                placeholder="Store Name"
+                [(ngModel)]="settings.address.pinaka_pos_name">
               </ion-input>
             </ion-item>
 
@@ -47,11 +45,10 @@
             </div>
 
             <ion-item>
+
               <ion-input
-                label="Email"
-                placeholder="Enter email"
-                [(ngModel)]="settings.address.pinaka_pos_email"
-                (ionInput)="onEmailInput($event)">
+                placeholder="Email"
+                [(ngModel)]="settings.address.pinaka_pos_email">
               </ion-input>
             </ion-item>
             <div class="error-text" *ngIf="emailEmojiError">
@@ -65,11 +62,8 @@
             <ion-item>
               <ion-input
                 type="tel"
-                label="Phone"
-                placeholder="Enter phone number"
-                [(ngModel)]="settings.address.pinaka_pos_phone"
-                (ionInput)="onPhoneInput($event)"
-                [class.error]="phoneError">
+                placeholder="Phone"
+                [(ngModel)]="settings.address.pinaka_pos_phone">
               </ion-input>
             </ion-item>
             <div class="error-text" *ngIf="phoneError">
@@ -79,10 +73,8 @@
             
               <ion-item>
                 <ion-input
-                  label="Address line 1"
-                  placeholder="Enter address"
-                  [(ngModel)]="settings.address.pinaka_pos_business_address"
-                  (ionInput)="onAddressInput($event)">
+                  placeholder="Address line 1"
+                  [(ngModel)]="settings.address.pinaka_pos_business_address">
                 </ion-input>
               </ion-item>
 
@@ -93,10 +85,8 @@
 
             <ion-item>
               <ion-input
-                label="City"
-                placeholder="Enter city"
-                [(ngModel)]="settings.address.pinaka_pos_business_city"
-                (ionInput)="onCityInput($event)">
+                placeholder="City"
+                [(ngModel)]="settings.address.pinaka_pos_business_city">
               </ion-input>
             </ion-item>
             <div class="error-text" *ngIf="cityError">
@@ -105,10 +95,8 @@
 
             <ion-item>
               <ion-input
-                label="State"
-                placeholder="Enter state"
-                [(ngModel)]="settings.address.pinaka_pos_business_state"
-                (ionInput)="onStateInput($event)">
+                placeholder="State"
+                [(ngModel)]="settings.address.pinaka_pos_business_state">
               </ion-input>
             </ion-item>
             <div class="error-text" *ngIf="stateError">
@@ -117,11 +105,7 @@
 
             <ion-item>
               <ion-input
-                label="Postcode"
-                placeholder="Enter postcode"
-                type="tel"
-                inputmode="numeric"
-                (ionInput)="onPostcodeInput($event)"
+                placeholder="Postcode"
                 [(ngModel)]="settings.address.pinaka_pos_business_postcode">
               </ion-input>
             </ion-item>
@@ -149,6 +133,7 @@
       <ion-item lines="none">
         <ion-label>Enable Safe</ion-label>
         <ion-toggle
+        slot="end"
         [(ngModel)]="settings.enable_safes"
         (ionChange)="onToggleChange($event,'enable_safes')">
       </ion-toggle>
@@ -157,6 +142,7 @@
       <ion-item lines="none">
         <ion-label>Enable Safe Drop</ion-label>
         <ion-toggle
+          slot="end"
           [(ngModel)]="settings.enable_safes_drop"
           (ionChange)="onToggleChange($event, 'enable_safes_drop')">
         </ion-toggle>
@@ -165,6 +151,7 @@
       <ion-item lines="none">
         <ion-label>Enable Taxes</ion-label>
         <ion-toggle
+          slot="end"
           [(ngModel)]="settings.enableTaxes"
           (ionChange)="onToggleChange($event, 'enableTaxes')">
         </ion-toggle>
@@ -173,6 +160,7 @@
       <ion-item lines="none">
         <ion-label>Enable Coupons</ion-label>
         <ion-toggle
+          slot="end"
           [(ngModel)]="settings.enableCoupons"
           (ionChange)="onToggleChange($event, 'enableCoupons')">
         </ion-toggle>
@@ -183,6 +171,7 @@
         [disabled]="!settings.enableCoupons">
         <ion-label>Sequential Coupon Discount</ion-label>
         <ion-toggle
+          slot="end"
           [(ngModel)]="settings.sequentialCoupons"
           (ionChange)="onToggleChange($event, 'sequentialCoupons')">
         </ion-toggle>
@@ -333,6 +322,7 @@
       <ion-item lines="none">
         <ion-label>Enable Cash Back</ion-label>
         <ion-toggle
+          slot="end"
           [(ngModel)]="settings.enable_cashback"
           (ionChange)="onToggleChange($event, 'enable_cashback')">
         </ion-toggle>
@@ -341,6 +331,7 @@
       <ion-item lines="none">
         <ion-label>Service Charge</ion-label>
         <ion-toggle
+          slot="end"
           [(ngModel)]="settings.enable_service_charge"
           (ionChange)="onToggleChange($event, 'enable_service_charge')">
         </ion-toggle>
@@ -349,6 +340,7 @@
       <ion-item lines="none">
         <ion-label>Loyalty Points</ion-label>
         <ion-toggle
+          slot="end"
           [(ngModel)]="settings.enable_loyalty_points"
           (ionChange)="onToggleChange($event, 'enable_loyalty_points')">
         </ion-toggle>

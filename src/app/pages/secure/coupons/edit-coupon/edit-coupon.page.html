@@ -29,11 +29,12 @@
       {{ coupon?.code }}
     </div>
 
-    <ion-input
+    <input
   *ngIf="editField.code"
+  class="edit-input"
+  type="text"
   [(ngModel)]="coupon.code"
-  (ngModelChange)="onCouponCodeChange($event)">
-</ion-input>
+  (ngModelChange)="onCouponCodeChange($event)" />
 
 <ion-text
   color="danger"
@@ -56,10 +57,11 @@
       {{ coupon?.description || 'Add description' }}
     </div>
 
-    <ion-input
-      *ngIf="editField.description"
-      [(ngModel)]="coupon.description">
-    </ion-input>
+    <input
+  *ngIf="editField.description"
+  class="edit-input"
+  type="text"
+  [(ngModel)]="coupon.description" />
 
   </div>
 
@@ -96,12 +98,13 @@
 
   <span class="currency-symbol">$</span>
 
-  <ion-input
-    type="tel"
-    inputmode="numeric"
-    [value]="displayAmount"
-    (ionInput)="onAmountInput($event)">
-  </ion-input>
+  <input
+  *ngIf="editField.amount"
+  class="edit-input"
+  type="tel"
+  inputmode="numeric"
+  [value]="displayAmount"
+  (input)="onAmountInput($event)" />
 
 </div>
 </div>
@@ -146,11 +149,11 @@
       {{ coupon?.usage_limit }}
     </div>
 
-    <ion-input
-      type="number"
-      *ngIf="editField.usage_limit"
-      [(ngModel)]="coupon.usage_limit">
-    </ion-input>
+    <input
+  *ngIf="editField.usage_limit"
+  class="edit-input"
+  type="number"
+  [(ngModel)]="coupon.usage_limit" />
   </div>
 
   <div class="divider"></div>
@@ -165,11 +168,11 @@
      {{ coupon?.usage_limit_per_user }}
     </div>
 
-    <ion-input
-      type="number"
-      *ngIf="editField.usage_limit_per_user"
-      [(ngModel)]="coupon.usage_limit_per_user">
-    </ion-input>
+    <input
+  *ngIf="editField.usage_limit_per_user"
+  class="edit-input"
+  type="number"
+  [(ngModel)]="coupon.usage_limit_per_user" />
 
   </div>
 
@@ -207,12 +210,13 @@
 
   <span class="currency-symbol">$</span>
 
-  <ion-input
-    type="tel"
-    inputmode="numeric"
-    [value]="displayMinAmount"
-    (ionInput)="onMinAmountInput($event)">
-  </ion-input>
+  <input
+  *ngIf="editField.minimum_amount"
+  class="edit-input"
+  type="tel"
+  inputmode="numeric"
+  [value]="displayMinAmount"
+  (input)="onMinAmountInput($event)" />
 
 </div>
   </div>
@@ -235,12 +239,13 @@
 
   <span class="currency-symbol">$</span>
 
-  <ion-input
-    type="tel"
-    inputmode="numeric"
-    [value]="displayMaxAmount"
-    (ionInput)="onMaxAmountInput($event)">
-  </ion-input>
+  <input
+  *ngIf="editField.maximum_amount"
+  class="edit-input"
+  type="tel"
+  inputmode="numeric"
+  [value]="displayMaxAmount"
+  (input)="onMaxAmountInput($event)" />
 
 </div>
   </div>

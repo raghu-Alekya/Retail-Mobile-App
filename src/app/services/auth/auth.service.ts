@@ -402,64 +402,72 @@ private fileToBase64(file: File): Promise<string> {
 }
 
 async uploadMedia(file: File) {
+  // Convert File -> Base64
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
 
-  const formData = new FormData();
-  // Ensure a filename is always sent (iOS/WKWebView can be picky)
-  formData.append('file', file, file?.name || 'upload.jpg');
+    reader.onload = () => {
+      const result = reader.result as string;
 
-  const res = await fetch(`${this.wpBase}/wp-json/wp/v2/media`, {
-    method: 'POST',
-    headers: {
-      Authorization: this.getAuthHeaders().Authorization
-    },
-    body: formData
+      // Remove "data:image/jpeg;base64,"
+      resolve(result.split(',')[1]);
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
 
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.error('Upload error:', errorText);
+  const response = await CapacitorHttp.request({
+    method: 'POST',
+    url: `${this.wpBase}/wp-json/wp/v2/media`,
+    headers: {
+      Authorization: this.getAuthHeaders().Authorization,
+      'Content-Type': file.type || 'image/jpeg',
+      'Content-Disposition': `attachment; filename="${file.name || 'upload.jpg'}"`
+    },
+    data: base64,
+    dataType: 'file'
+  });
+
+  if (response.status !== 200 && response.status !== 201) {
+    console.error('Upload error:', response.data);
     throw new Error('Upload failed');
   }
 
-  return await res.json();
+  return response.data;
 }
 
 async uploadMediaFromPath(
   filePath: string,
   _fileName: string = 'upload.jpg'
 ) {
-  const formData = new FormData();
+  console.log('Uploading path:', filePath);
 
   const fileData = await Filesystem.readFile({
     path: filePath
   });
 
-  const blob = this.base64ToBlob(
-    fileData.data as string,
-    'image/jpeg'
-  );
+  const base64 = fileData.data as string;
 
-  formData.append('file', blob, 'upload.jpg');
+  const response = await CapacitorHttp.request({
+    method: 'POST',
+    url: `${this.wpBase}/wp-json/wp/v2/media`,
+    headers: {
+      Authorization: this.getAuthHeaders().Authorization,
+      'Content-Type': 'image/jpeg',
+      'Content-Disposition': 'attachment; filename="upload.jpg"'
+    },
+    data: base64,
+    dataType: 'file'
+  });
 
-  const response = await fetch(
-    `${this.wpBase}/wp-json/wp/v2/media`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: this.getAuthHeaders().Authorization
-      },
-      body: formData
-    }
-  );
+  console.log('Upload response:', response);
 
-  const parsed = await response.json();
-
-  if (!response.ok) {
-    console.error('Upload error:', parsed);
+  if (response.status !== 200 && response.status !== 201) {
     throw new Error('Upload failed');
   }
 
-  return parsed;
+  return response.data;
 }
 async updateStoreCurrency(currency: string) {
   const res = await CapacitorHttp.request({
@@ -1624,21 +1632,39 @@ async uploadProfileImage(file: File) {
   const token = this.getToken();
   const baseUrl = this.apiConfig.getBaseUrl();
 
-  const formData = new FormData();
-  formData.append('profile_image', file);
+  // Convert File -> Base64
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
 
-  const res = await fetch(
-    `${baseUrl}/wp-json/pinaka-pos/v1/profile/upload-image`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-      body: formData
-    }
-  );
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remove "data:image/jpeg;base64,"
+      resolve(result.split(',')[1]);
+    };
 
-  return await res.json();
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+  const response = await CapacitorHttp.request({
+    method: 'POST',
+    url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/upload-image`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': file.type || 'image/jpeg',
+      'Content-Disposition': `attachment; filename="${file.name || 'profile.jpg'}"`
+    },
+    data: base64,
+    dataType: 'file'
+  });
+
+  console.log('Profile Upload Response:', response);
+
+  if (response.status !== 200 && response.status !== 201) {
+    throw new Error('Profile image upload failed');
+  }
+
+  return response.data;
 }
 
 async getProfileImage() {

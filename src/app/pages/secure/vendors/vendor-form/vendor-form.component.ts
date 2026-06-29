@@ -19,6 +19,9 @@ export class VendorFormComponent implements OnInit {
   isSaving = false;
   vendorNameTouched = false;
 addressTouched = false;
+vendorNameEmojiError = false;
+addressEmojiError = false;
+emailEmojiError = false;
 
   form = {
     title: '',
@@ -51,11 +54,17 @@ removeEmojis(value: string): string {
 
 onVendorNameInput(event: any) {
   const value = event.target.value || '';
+
+  this.vendorNameEmojiError = this.containsEmoji(value);
+
   this.form.title = this.removeEmojis(value);
 }
 
 onAddressInput(event: any) {
   const value = event.target.value || '';
+
+  this.addressEmojiError = this.containsEmoji(value);
+
   this.form.address = this.removeEmojis(value);
 }
 
@@ -100,7 +109,12 @@ onAddressInput(event: any) {
 onEmailInput(event: any) {
   let value = event.target.value || '';
 
-  // optional: trim spaces
+  this.emailEmojiError = this.containsEmoji(value);
+
+  // remove emojis
+  value = this.removeEmojis(value);
+
+  // trim spaces
   value = value.trim();
 
   this.form.email = value;

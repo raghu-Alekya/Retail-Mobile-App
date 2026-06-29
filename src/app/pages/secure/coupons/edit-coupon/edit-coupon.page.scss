@@ -362,3 +362,22 @@ ion-input {
   font-size: 13px;
   font-weight: 600;
 }
+
+.edit-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  color: #353535;
+  padding: 4px 0;
+  margin-top: 4px;
+  caret-color: #353535;
+  font-family: inherit;
+}
+
+.edit-input:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}

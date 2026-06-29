@@ -348,14 +348,11 @@
         <span class="order-id">#{{ order.id }}</span>
       </div>
  
-      <ion-button
-        class="status-btn"
-        size="small"
-        shape="round"
-        [color]="getStatusColor(order.status)"
-      >
-        {{ order.status | titlecase }}
-      </ion-button>
+      <ion-badge
+  class="status-badge"
+  [ngClass]="getStatusClass(order.status)">
+  {{ order.status | uppercase }}
+</ion-badge>
     </div>
  
     <!-- Meta -->

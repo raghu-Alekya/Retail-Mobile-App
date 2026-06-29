@@ -313,6 +313,29 @@ statuses = [
     }
   }
 
+  getStatusClass(status: string): string {
+  switch (status?.toLowerCase()) {
+    case 'completed':
+      return 'completed-status';
+
+    case 'pending':
+      return 'pending-status';
+
+    case 'cancelled':
+      return 'cancelled-status';
+
+    case 'partially-refunded':
+    case 'partial-refund':
+      return 'partial-refund-status';
+
+    case 'refunded':
+      return 'refunded-status';
+
+    default:
+      return 'completed-status';
+  }
+}
+
   timeAgo(date: string): string {
     const diff = Math.floor(
       (Date.now() - new Date(date).getTime()) / 1000

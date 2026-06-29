@@ -29,12 +29,13 @@
   </span>
 </div>
 
-  <ion-input
+  <input
   *ngIf="editing === 'code'"
+  class="edit-input"
+  type="text"
   [(ngModel)]="coupon.code"
   placeholder="Enter code"
-  (ngModelChange)="onCouponCodeChange($event)">
-</ion-input>
+  (ngModelChange)="onCouponCodeChange($event)" />
 
 <ion-text
   color="danger"
@@ -54,12 +55,13 @@
     </span>
   </div>
 
-  <ion-input
-    *ngIf="editing === 'description'"
-    [(ngModel)]="coupon.description"
-    placeholder="Enter description"
-    (ionInput)="markDirty()">
-  </ion-input>
+  <input
+  *ngIf="editing === 'description'"
+  class="edit-input"
+  type="text"
+  [(ngModel)]="coupon.description"
+  placeholder="Enter description"
+  (input)="markDirty()" />
 </ion-item>
 
 </ion-card>
@@ -92,12 +94,12 @@
 
   <span class="currency-symbol">$</span>
 
-  <ion-input
-    type="tel"
-    inputmode="numeric"
-    [value]="displayAmount"
-    (ionInput)="onAmountInput($event)">
-  </ion-input>
+  <input
+  class="edit-input"
+  type="tel"
+  inputmode="numeric"
+  [value]="displayAmount"
+  (input)="onAmountInput($event)" />
 
 </div>
 
@@ -136,12 +138,12 @@
     </span>
   </div>
 
-  <ion-input
-    type="number"
-    *ngIf="editing === 'usageLimit'"
-    [(ngModel)]="coupon.usageLimit"
-    (ionInput)="markDirty()">
-  </ion-input>
+  <input
+  *ngIf="editing === 'usageLimit'"
+  class="edit-input"
+  type="number"
+  [(ngModel)]="coupon.usageLimit"
+  (input)="markDirty()" />
 </ion-item>
 
 <!-- Usage Limit Per User -->
@@ -154,12 +156,12 @@
     </span>
   </div>
 
-  <ion-input
-    type="number"
-    *ngIf="editing === 'usageLimitPerUser'"
-    [(ngModel)]="coupon.usageLimitPerUser"
-    (ionInput)="markDirty()">
-  </ion-input>
+  <input
+  *ngIf="editing === 'usageLimitPerUser'"
+  class="edit-input"
+  type="number"
+  [(ngModel)]="coupon.usageLimitPerUser"
+  (input)="markDirty()" />
 </ion-item>
 
 <ion-item lines="none">
@@ -193,12 +195,12 @@
 
   <span class="currency-symbol">$</span>
 
-  <ion-input
-    type="tel"
-    inputmode="numeric"
-    [value]="displayMinAmount"
-    (ionInput)="onMinAmountInput($event)">
-  </ion-input>
+  <input
+  class="edit-input"
+  type="tel"
+  inputmode="numeric"
+  [value]="displayMinAmount"
+  (input)="onMinAmountInput($event)" />
 
 </div>
 </ion-item>
@@ -219,12 +221,12 @@
 
   <span class="currency-symbol">$</span>
 
-  <ion-input
-    type="tel"
-    inputmode="numeric"
-    [value]="displayMaxAmount"
-    (ionInput)="onMaxAmountInput($event)">
-  </ion-input>
+  <input
+  class="edit-input"
+  type="tel"
+  inputmode="numeric"
+  [value]="displayMaxAmount"
+  (input)="onMaxAmountInput($event)" />
 
 </div>
 </ion-item>

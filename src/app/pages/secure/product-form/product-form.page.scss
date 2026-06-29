@@ -98,6 +98,13 @@ ion-content {
   color: #6b7280;
 }
 
+.status-select {
+  justify-content: flex-end;
+  min-width: unset !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+}
+
 /* ================= INPUTS ================= */
 .settings-card ion-input,
 .settings-card ion-textarea {
@@ -381,6 +388,17 @@ ion-note.stock-badge {
   color: #fff;
   font-weight: 600;
   font-size: 16px;
+}
+
+.scan-btn {
+  --background: #264c73;
+  --background-hover: #264c73;
+  --background-activated: #264c73;
+  --background-focused: #264c73;
+
+  --color: #ffffff;
+  --border-radius: 8px;
+  margin-top: 16px;
 }
 
 @keyframes scanMove {

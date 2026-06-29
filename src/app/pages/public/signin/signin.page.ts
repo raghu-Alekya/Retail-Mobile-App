@@ -61,7 +61,7 @@ export class SigninPage implements OnInit {
 
     const loading = await this.loadingController.create({
       cssClass: 'default-loading',
-      message: '<p>Signing in...</p><span>Please be patient.</span>',
+      message: 'Signing in...\nPlease be patient.',
       spinner: 'crescent'
     });
 
