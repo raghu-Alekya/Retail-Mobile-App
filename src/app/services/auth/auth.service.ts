@@ -1632,13 +1632,11 @@ async uploadProfileImage(file: File) {
   const token = this.getToken();
   const baseUrl = this.apiConfig.getBaseUrl();
 
-  // Convert File -> Base64
   const base64 = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
 
     reader.onload = () => {
       const result = reader.result as string;
-      // Remove "data:image/jpeg;base64,"
       resolve(result.split(',')[1]);
     };
 
@@ -1646,25 +1644,24 @@ async uploadProfileImage(file: File) {
     reader.readAsDataURL(file);
   });
 
-  const response = await CapacitorHttp.request({
+  const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/upload-image`,
     headers: {
       Authorization: `Bearer ${token}`,
-      'Content-Type': file.type || 'image/jpeg',
-      'Content-Disposition': `attachment; filename="${file.name || 'profile.jpg'}"`
+      'Content-Type': 'application/json'
     },
-    data: base64,
-    dataType: 'file'
+    data: {
+      image: base64,
+      filename: file.name
+    }
   });
 
-  console.log('Profile Upload Response:', response);
+  console.log(res);
 
-  if (response.status !== 200 && response.status !== 201) {
-    throw new Error('Profile image upload failed');
-  }
-
-  return response.data;
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
 }
 
 async getProfileImage() {

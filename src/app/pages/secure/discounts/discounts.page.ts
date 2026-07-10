@@ -691,7 +691,7 @@ onDiscountCodeChange(value: string) {
     async deleteCoupon(coupon: any) {
   const alert = await this.alertCtrl.create({
     header: 'Delete Discount?',
-    message: `Delete discount <b>${coupon.code}</b>?`,
+    message: `Delete discount ${coupon.code}?`,
     buttons: [
       {
         text: 'Cancel',
@@ -723,8 +723,8 @@ onDiscountCodeChange(value: string) {
 }
     resetForm() {
       this.emojiError = false;
-  this.discountEmojiError = false;
-  this.discountCodeEmojiError = false;
+      this.discountEmojiError = false;
+      this.discountCodeEmojiError = false;
       this.formSubmitted = false;
       this.editingCoupon = null;
       this.form = {

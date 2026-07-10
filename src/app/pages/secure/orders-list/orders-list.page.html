@@ -445,14 +445,11 @@
             </div>
           </div>
  
-          <ion-button
-            class="status"
-            size="small"
-            shape="round"
-            [color]="getStatusColor(order.status)"
-          >
-            {{ order.status | titlecase }}
-          </ion-button>
+          <ion-badge
+            class="status-badge"
+            [ngClass]="getStatusClass(order.status)">
+            {{ order.status | uppercase }}
+          </ion-badge>
         </div>
  
         <div

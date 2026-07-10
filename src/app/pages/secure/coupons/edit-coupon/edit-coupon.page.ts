@@ -285,7 +285,7 @@ async updateCoupon() {
 
   const alert = await this.alertCtrl.create({
     header: 'Delete Coupon?',
-    message: `Are you sure you want to delete <b>${this.coupon.code}</b>?`,
+    message: `Are you sure you want to delete ${this.coupon.code}?`,
     buttons: [
       { text: 'Cancel', role: 'cancel' },
       {
