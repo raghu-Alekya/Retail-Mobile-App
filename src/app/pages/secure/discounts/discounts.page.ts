@@ -358,7 +358,7 @@ markChanged() {
     async deleteCoupon(coupon: any) {
   const alert = await this.alertCtrl.create({
     header: 'Delete Discount?',
-    message: `Delete discount <b>${coupon.code}</b>?`,
+    message: `Delete discount ${coupon.code}?`,
     buttons: [
       {
         text: 'Cancel',

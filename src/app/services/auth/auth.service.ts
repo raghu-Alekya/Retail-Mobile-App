@@ -647,6 +647,7 @@ async getShifts(page: number, search = '', status = '') {
 }
 
 
+
 async getOrderPayments(
   page: number,
   search = '',
@@ -1604,8 +1605,46 @@ async uploadProfileImage(file: File) {
   const token = this.getToken();
   const baseUrl = this.apiConfig.getBaseUrl();
 
+<<<<<<< Updated upstream
   const formData = new FormData();
   formData.append('profile_image', file);
+=======
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve(result.split(',')[1]);
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+  const res = await CapacitorHttp.request({
+    method: 'POST',
+    url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/upload-image`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    data: {
+      image: base64,
+      filename: file.name
+    }
+  });
+
+  console.log(res);
+
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
+}
+
+async getProfileImage() {
+  const token = this.getToken();
+  const baseUrl = this.apiConfig.getBaseUrl();
+>>>>>>> Stashed changes
 
   const res = await CapacitorHttp.request({
     method: 'POST',
@@ -1664,4 +1703,141 @@ async validateToken(token: string): Promise<{ valid: boolean }> {
   }
 }
 
+<<<<<<< Updated upstream
+=======
+async logout_by_id(emp_login_pin: number) {
+
+    const emp_login_pinn = emp_login_pin || 0;
+
+    let url = localStorage.getItem('wp_base_url');
+
+    if (!url) {
+      url = this.apiConfig.getBaseUrl();
+    }
+
+    const res = await CapacitorHttp.request({
+      method: 'POST',
+      url: `${url}/wp-json/pinaka-pos/v1/token/logout-by-id`,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: {
+        emp_login_pin: emp_login_pinn
+      }
+    });
+
+    return res.data;
+  }
+  async validateuser(token: string): Promise<{ valid: boolean }> {
+
+    this.wpBase = this.apiConfig.getBaseUrl();
+
+    try {
+      const res = await CapacitorHttp.request({
+        method: 'GET',
+        url: `${this.wpBase}/wp-json/pinaka-pos/v1/profile`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json'
+        }
+      });
+      if (res?.status === 403 || res?.status === 401) {
+        return { valid: false };
+      }
+      else{
+        return { valid: true };
+      }
+    } catch (error) {
+      console.error('Token validation failed:', error);
+      return { valid: false };
+    }
+  }
+
+  async getLoyaltyCustomers() {
+
+    const res = await CapacitorHttp.request({
+      method: 'GET',
+      url: `${this.wpBase}/wp-json/pinaka-pos/v1/loyalty/get-all-customers`,
+      headers: this.getAuthHeaders()
+    });
+
+    return res.data;
+  }
+  
+ async getPosClosing(
+  startDate: string = '',
+  endDate: string = ''
+) {
+
+  console.log('Sending Dates:', startDate, endDate);
+
+  const token = localStorage.getItem('wc_token');
+  this.wpBase = this.apiConfig.getBaseUrl();
+
+  const res = await CapacitorHttp.request({
+    method: 'GET',
+    url: `${this.wpBase}/wp-json/pinaka-pos/v1/orders/total-orders-count`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    params: {
+      start_date: startDate,
+      end_date: endDate
+    }
+  });
+
+  console.log('Response:', res.data);
+
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
+}
+
+async getDailyShiftSummary(startDate = '', endDate = '') {
+
+  const token = localStorage.getItem('wc_token');
+  this.wpBase = this.apiConfig.getBaseUrl();
+
+  const res = await CapacitorHttp.request({
+    method: 'GET',
+    url: `${this.wpBase}/wp-json/pinaka-pos/v1/shifts/get-daily-shift-summary`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    },
+    params: {
+      start_date: startDate,
+      end_date: endDate
+    }
+  });
+
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
+}
+
+async getShiftDetails(date: string) {
+
+  const token = localStorage.getItem('wc_token');
+  this.wpBase = this.apiConfig.getBaseUrl();
+
+  const res = await CapacitorHttp.request({
+    method: 'GET',
+    url: `${this.wpBase}/wp-json/pinaka-pos/v1/shifts/shifts-by-date`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    },
+    params: {
+      date
+    }
+  });
+
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
+}
+>>>>>>> Stashed changes
 }

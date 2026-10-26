@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { IonicModule,NavController, ToastController } from '@ionic/angular';
-import { CommonModule } from '@angular/common';
+import { NavController, ToastController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { Router } from '@angular/router';
 
@@ -13,21 +12,39 @@ import { Router } from '@angular/router';
 export class ShiftsPage implements OnInit {
 
 filteredShifts: any[] = [];
-
-colors = ['yellow', 'red', 'teal', 'orange', 'purple'];
-
-
-
-
-
-  shifts: any[] = [];
-  page = 1;
-  limit = 10;          // optional, if API supports it
+  shifts: any[] = [];   
   loading = false;
+<<<<<<< Updated upstream
   hasMore = true;
   search = '';         // optional (staff name, etc.)
   status = '';         // open / closed filter
   isLoading = false;
+=======
+  search = '';         // optional (staff name, etc.)      // open / closed filter
+
+  fromDateApi = '';
+toDateApi = '';
+
+showDateModal = false;
+
+fromDateValue = '';
+toDateValue = '';
+
+selectedDateText = '';
+
+dateFilterTab: 'date' | 'range' = 'date';
+
+calendarMode: 'single' | 'from' | 'to' | null = null;
+
+filterType: 'date' | 'range' | '' = '';
+maxDate = new Date().toISOString().split('T')[0];
+
+selectedShift: any = null;
+isDetailsModalOpen = false;
+shiftDetails: any[] = [];
+detailsLoading = false;
+filteredShiftDetails: any[] = [];
+>>>>>>> Stashed changes
 
   constructor(
   private navCtrl: NavController,
@@ -49,6 +66,65 @@ goBack() {
     this.loadShifts();
   }
 
+  async openShiftDetails(shift: any) {
+
+  this.detailsLoading = true;
+
+  try {
+
+    const date = shift.date; // Example: 2026-07-22
+
+    const res = await this.authService.getShiftDetails(date);
+
+    if (res.success) {
+      this.shiftDetails = res.data;
+  this.filteredShiftDetails = [...this.shiftDetails];
+  this.isDetailsModalOpen = true;
+    } else {
+      this.shiftDetails = [];
+  this.filteredShiftDetails = [];
+    }
+
+  } catch (e) {
+    console.error(e);
+  }
+
+  this.detailsLoading = false;
+}
+
+onShiftDetailsSearch(event: any) {
+
+  const value = (event.target.value || '').trim().toLowerCase();
+
+  if (!value) {
+    this.filteredShiftDetails = [...this.shiftDetails];
+    return;
+  }
+
+  this.filteredShiftDetails = this.shiftDetails.filter((shift: any) =>
+    shift.user_name?.toLowerCase().includes(value)
+  );
+
+}
+
+closeShiftDetails() {
+  this.isDetailsModalOpen = false;
+  this.shiftDetails = [];
+  this.filteredShiftDetails = [];
+}
+
+getThemeClass(index: number): string {
+
+  const themes = [
+    'theme-green',
+    'theme-blue',
+    'theme-red',
+    'theme-yellow'
+  ];
+
+  return themes[index % themes.length];
+
+}
   /**
    * Pull to refresh
    */
@@ -56,72 +132,6 @@ goBack() {
     this.loadShifts(event);
   }
 
-  /**
-   * Status badge color
-   */
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'open':
-        return 'success';
-      case 'closed':
-        return 'medium';
-      default:
-        return 'warning';
-    }
-  }
-
-  /**
-   * Over / Short color
-   */
-  getOverShortColor(amount: number): string {
-    if (amount < 0) return 'danger';
-    if (amount > 0) return 'success';
-    return 'medium';
-  }
-
-  /**
-   * Format date safely
-   */
-  formatDate(date: string): string {
-    if (!date) return '—';
-    return new Date(date).toLocaleString();
-  }
-
-  /**
-   * Calculate total safe drop amount
-   */
-  getSafeDropTotal(shift: any): number {
-    if (!shift.safe_drops?.length) return 0;
-    return shift.safe_drops.reduce(
-      (sum: number, d: any) => sum + Number(d.total),
-      0
-    );
-  }
-getBorderColor(index: number) {
-  return this.colors[index % this.colors.length];
-}
-
-getAvatarColor(index: number) {
-  return `${this.colors[index % this.colors.length]}-bg`;
-}
-
-  /**
-   * Calculate total vendor payouts
-   */
-  getVendorTotal(shift: any): number {
-    if (!shift.vendor_payouts?.length) return 0;
-    return shift.vendor_payouts.reduce(
-      (sum: number, v: any) => sum + Number(v.amount),
-      0
-    );
-  }
-
-  /**
-   * TrackBy for performance
-   */
-  trackByShiftId(index: number, shift: any) {
-    return shift.shift_id;
-  }
 
   /**
    * Toast helper
@@ -139,12 +149,16 @@ getAvatarColor(index: number) {
    * Mock data – remove after API integration
    */
 
+<<<<<<< Updated upstream
  async loadShifts(event?: any, reset = false) {
 
   if (this.loading || !this.hasMore) {
     event?.target.complete();
     return;
   }
+=======
+ async loadShifts(event?: any) {
+>>>>>>> Stashed changes
 
   if (reset) {
     this.page = 1;
@@ -155,103 +169,68 @@ getAvatarColor(index: number) {
   this.loading = true;
 
   try {
+<<<<<<< Updated upstream
     const res = await this.authService.getShifts(
       this.page,
       '',   // ❌ remove search from API
       this.status
     );
+=======
+>>>>>>> Stashed changes
 
-    console.log('Shifts API response:', res);
+    const res = await this.authService.getDailyShiftSummary(
+      this.fromDateApi,
+      this.toDateApi
+    );
 
-    if (res?.data?.length) {
+    console.log("Daily Summary:", res);
 
-      const mapped = res.data.map((s: any) => this.mapShift(s));
+    if (res?.success && Array.isArray(res.data)) {
 
-      this.shifts.push(...mapped);
-      if (this.search) {
-        this.filteredShifts = this.shifts.filter(shift =>
-          shift.staffName?.toLowerCase().trim().startsWith(this.search)
-        );
-      } else {
-        this.filteredShifts = [...this.shifts];
-      }
+  this.shifts = res.data;
+  this.filteredShifts = [...this.shifts];
 
-      this.page++;   // ✅ load next page next time
-      this.hasMore = res.pagination?.has_more ?? false;
+} else {
 
-    } else {
-      this.hasMore = false;
-    }
+  this.shifts = [];
+  this.filteredShifts = [];
 
-  } catch (err) {
-    console.error('Shift load failed', err);
+}
+
+  } catch (e) {
+
+    console.error(e);
+
   }
 
   this.loading = false;
   event?.target.complete();
+
 }
 
-  getMockShifts() {
-    
-    return [
-      {
-        shift_id: 25735,
-        user_name: 'swapna boyapati',
-        start_time: '2025-12-26 09:59:12',
-        end_time: '',
-        total_sales: 20,
-        total_sale_amount: 3158.34,
-        safe_drop_total: 8800,
-        safe_drops: [
-          {
-            id: 25761,
-            total: 8800,
-            time: '2025-12-26 10:17:55',
-          },
-        ],
-        vendor_payouts: [
-          {
-            amount: 0.12,
-            vendor_name: 'bubba vendor 1',
-            payment_method: 'Check',
-            time: '2025-12-26 10:17:36',
-          },
-        ],
-        total_vendor_payments: 0.12,
-        shift_status: 'open',
-        over_short: 0,
-      },
-    ];
-  }
+ 
 
-  // onSearch(event: any) {
-  //   this.search = event.target.value?.trim() || '';
-
-  //   // reset pagination + data
-  //   this.loadShifts(undefined, true);
-  // }
   onSearch(event: any) {
-  const value = event.target.value?.toLowerCase().trim() || '';
 
-  this.search = value;
+  const value = (event.target.value || '').toLowerCase();
 
   if (!value) {
+
     this.filteredShifts = [...this.shifts];
     return;
+
   }
 
-  this.filteredShifts = this.shifts.filter(shift =>
-    shift.staffName?.toLowerCase().trim().startsWith(value)
+  this.filteredShifts = this.shifts.filter((item: any) =>
+    item.date?.toLowerCase().includes(value)
   );
+
 }
 
 
-mapShift(apiShift: any) {
 
-  return {
-    staffName: apiShift.user_name,
-    date: apiShift.start_time,
 
+<<<<<<< Updated upstream
     // ✅ use backend values directly
     openingBalance: Number(apiShift.opening_balance || 0),
     closingBalance: Number(apiShift.closing_balance || 0),
@@ -304,4 +283,118 @@ formatCurrency(value: number): string {
 //   this.showToast(`Opening shift: ${shift.staffName}`);
 // }
 
+=======
+
+async applyDateFilter() {
+
+  // Range validation & auto swap
+  if (
+    this.dateFilterTab === 'range' &&
+    this.fromDateValue &&
+    this.toDateValue &&
+    new Date(this.fromDateValue) > new Date(this.toDateValue)
+  ) {
+    const temp = this.fromDateValue;
+    this.fromDateValue = this.toDateValue;
+    this.toDateValue = temp;
+  }
+
+  // Mandatory From Date
+  if (!this.fromDateValue) {
+    return;
+  }
+
+  // Single Date Filter
+  if (this.dateFilterTab === 'date') {
+
+    this.filterType = 'date';
+
+    this.fromDateApi = this.fromDateValue.split('T')[0];
+    this.toDateApi = this.fromDateApi;
+
+    this.selectedDateText = this.fromDateApi;
+
+  }
+
+  // Date Range Filter
+  else {
+
+    if (!this.toDateValue) {
+      return;
+    }
+
+    this.filterType = 'range';
+
+    this.fromDateApi = this.fromDateValue.split('T')[0];
+    this.toDateApi = this.toDateValue.split('T')[0];
+
+    this.selectedDateText =
+      `${this.fromDateApi} - ${this.toDateApi}`;
+  }
+
+  this.showDateModal = false;
+  this.calendarMode = null;
+
+  await this.loadShifts();
+}
+
+async clearDateFilter() {
+
+  this.fromDateApi = '';
+  this.toDateApi = '';
+
+  this.fromDateValue = '';
+  this.toDateValue = '';
+
+  this.selectedDateText = '';
+
+  this.filterType = '';
+  this.shifts = [];
+  this.filteredShifts = [];
+
+  await this.loadShifts();
+}
+
+switchToDateTab() {
+  this.dateFilterTab = 'date';
+}
+
+switchToRangeTab() {
+  this.dateFilterTab = 'range';
+}
+
+openSingleDate() {
+  this.calendarMode = 'single';
+}
+
+openFromDate() {
+  this.calendarMode = 'from';
+}
+
+openToDate() {
+  this.calendarMode = 'to';
+}
+
+resetDateModal() {
+  this.calendarMode = null;
+  this.showDateModal = false;
+}
+
+onToDateChange() {
+  //this.calendarMode = null;
+  if (
+    this.fromDateValue &&
+    this.toDateValue &&
+    new Date(this.fromDateValue) > new Date(this.toDateValue)
+  ) {
+
+    const temp = this.fromDateValue;
+
+    this.fromDateValue = this.toDateValue;
+
+    this.toDateValue = temp;
+  }
+}
+
+>>>>>>> Stashed changes
 }

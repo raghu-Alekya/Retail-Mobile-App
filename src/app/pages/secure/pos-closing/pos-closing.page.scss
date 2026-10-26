@@ -1,0 +1,578 @@
+.orders-header {
+  ion-toolbar {
+    --background: #264c73;
+    --color: #fff;
+  }
+
+  ion-buttons[slot="start"] {
+    margin: 0;
+    padding: 0;
+  }
+
+  ion-button {
+    --color: #fff;
+    --padding-start: 6px;
+    --padding-end: 6px;
+    margin: 0;
+  }
+
+  ion-title {
+    font-size: 20px;
+    font-weight: 700;
+    padding-inline-start: 0;
+  }
+}
+
+.details-toolbar {
+  --background: #294d75;
+  --color: #ffffff;
+  --padding-start: 0;
+}
+
+.details-toolbar ion-buttons {
+  margin-right: 0;
+}
+
+.details-toolbar ion-button {
+  --color: #ffffff;
+  --padding-start: 0;
+  --padding-end: 0;
+  margin-right: -6px; // Adjust as needed
+}
+
+.details-toolbar ion-title {
+  margin-left: -10px; // Adjust between -10px and -20px
+  font-weight: 600;
+  // font-size: 16px;
+  color: #ffffff;
+}
+
+.orders-content {
+  --background: #f6f6f6;
+  --padding: 14px;
+}
+
+.card-container {
+  padding: 16px;
+  color : #ffffff;
+}
+
+.sales-card {
+  margin: 0;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Header */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+
+  .title {
+    font-size: 15px;
+    color: #666;
+    font-weight: 600;
+  }
+
+  .amount {
+    font-size: 18px;
+    color: #0b63ce;
+    font-weight: 700;
+  }
+}
+
+/* Grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.grid-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 8px 10px;
+
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+
+  background: #fff;
+
+  .left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    span {
+      font-size: 13px;
+      color: #555;
+      font-weight: 500;
+    }
+  }
+
+  ion-icon {
+    font-size: 17px;
+  }
+
+  .value {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+  }
+}
+
+/* Payments text */
+.section-title {
+  margin: 14px 0 8px;
+  font-size: 13px;
+  color: #8a8a8a;
+  font-weight: 600;
+}
+
+/* Button */
+.details-btn {
+  margin-top: 14px;
+
+  --background: #284d75;
+  --border-radius: 8px;
+  --box-shadow: none;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Colors */
+.blue {
+  color: #2196f3;
+}
+
+.orange {
+  color: #ff9800;
+}
+
+.red {
+  color: #ff5a5f;
+}
+
+.green {
+  color: #4caf50;
+}
+
+.yellow {
+  color: #ffc107;
+}
+
+/* Container */
+.card-container {
+  padding: 16px;
+}
+
+/* Filter Card */
+.filter-card {
+  margin: 0 0 16px;
+  border-radius: 10px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  border-color: #eeeeee;
+
+  ion-item {
+    --background: #fff;
+    --padding-start: 16px;
+    --inner-padding-end: 16px;
+    --min-height: 64px;
+    --border-radius: 16px;
+  }
+
+  ion-label {
+    margin-left: 1px;
+
+    h2 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #252525;
+    }
+
+    p {
+      margin-top: 2px;
+      font-size: 12px;
+      font-weight: 400;
+      color: #7f7f7f;
+    }
+  }
+}
+
+/* Calendar Box */
+.filter-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: #d2e4ff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  ion-icon {
+    font-size: 28px;
+    color: #1e51ff;
+  }
+}
+
+/* Arrow */
+.arrow-icon {
+  font-size: 28px;
+  color: #111;
+}
+
+.filter-modal {
+  padding: 20px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.date-filter-modal {
+  --width: 90%;
+  --max-width: 360px;
+  --height: auto;
+  --border-radius: 14px;
+}
+
+.filter-modal {
+  padding: 20px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.filter-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 9999;
+}
+
+.filter-popup {
+  width: 92%;
+  max-width: 340px;
+
+  background: #fff;
+  border-radius: 14px;
+
+  padding: 16px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 12px;
+
+  span {
+    font-weight: 600;
+    font-size: 18px;
+  }
+
+  ion-icon {
+    font-size: 22px;
+    color: #ff6b6b;
+  }
+}
+
+.filter-popup {
+  width: 320px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.tab {
+  flex: 1;
+  height: 42px;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  background: #fff;
+  color: #333;
+  font-weight: 600;
+}
+
+.tab.active {
+  background: #294d75;
+  color: #fff;
+  border-color: #294d75;
+}
+
+.date-picker-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
+
+  padding: 12px;
+  margin-bottom: 18px;
+
+  ion-icon {
+    color: #3366ff;
+    font-size: 18px;
+  }
+
+  span {
+    color: #555;
+    font-size: 14px;
+  }
+}
+
+.apply-btn {
+  --background: #294d75;
+  --border-radius: 8px;
+  font-weight: 600;
+}
+
+.date-range {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.range-input {
+  flex: 1;
+  height: 46px;
+  padding: 0 10px;
+
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+
+  background: #fff;
+  font-size: 14px;
+
+  box-sizing: border-box;
+}
+
+.single-date-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 12px;
+
+  border: 1px solid #dcdcdc;
+  border-radius: 10px;
+
+  background: #fff;
+  font-size: 14px;
+  box-sizing: border-box;
+
+  margin-bottom: 18px;
+}
+
+.inline-calendar {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+
+  --background: #fff;
+  --border-radius: 10px;
+}
+
+.clear-icon {
+  font-size: 24px;
+  color: #ff5a5f;
+  cursor: pointer;
+}
+
+.arrow-icon {
+  font-size: 24px;
+  color: #111;
+}
+
+.details-toolbar {
+  --background: #294d75;
+  --color: #ffffff;
+  --padding-start: 0px;
+}
+
+.details-toolbar ion-button {
+  --color: #ffffff;
+}
+
+.details-toolbar ion-title {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.full-screen-modal {
+  --width: 100%;
+  --height: 100%;
+  --border-radius: 0;
+}
+
+.full-screen-modal ion-content {
+  --background: #fff;
+}
+
+.store-name {
+  margin-top: 12px;
+  padding: 10px 16px;
+  font-size: 15px;
+  color: #666;
+  background: #fff;
+}
+
+.table-header{
+    background:#e5e5e5;
+    color:#444;
+    padding:8px 12px;
+    font-size:13px;
+    font-weight:600;
+}
+
+.sales-table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  table-layout:fixed;
+}
+
+.sales-table th {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.sales-table td{
+  padding:8px 10px;
+  font-size:12px;
+  color:#444;
+  border-bottom:1px solid #ececec;
+}
+
+.sales-table thead th{
+  background:#18244b;
+  color:#fff;
+  font-size:12px;
+  font-weight:600;
+  padding:10px;
+}
+
+.sales-table tbody td{
+    border-bottom:1px solid #ededed;
+    color:#444;
+}
+
+.sales-table th:first-child,
+.sales-table td:first-child{
+    width:50%;
+}
+
+.sales-table th:nth-child(2),
+.sales-table td:nth-child(2){
+    width:25%;
+    text-align:right;
+}
+
+.sales-table th:nth-child(3),
+.sales-table td:nth-child(3){
+    width:25%;
+    text-align:right;
+}
+
+.department-row td {
+  background: #edf5fb;
+  font-weight: 700;
+}
+
+.subtotal-row td{
+  background:#dfdfdf;
+  font-weight:700;
+  border-bottom:none;
+}
+
+.subtotal-row td:last-child {
+  text-align: right;
+}
+
+.merchant-card{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:#fff;
+    padding:12px;
+    border-bottom:1px solid #ececec;
+}
+
+.merchant-icon{
+    width:32px;
+    height:32px;
+    border-radius:8px;
+    background:#fff8e7;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#d8a400;
+    border:1px solid #f3d98b;
+    font-size:18px;
+}
+
+.merchant-name{
+    font-size:14px;
+    font-weight:600;
+    color:#222;
+}
+
+.merchant-type{
+    font-size:12px;
+    color:#888;
+}
+
+.table-container{
+  margin: 10px 12px 16px;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+.details-content{
+    --padding-start:0;
+    --padding-end:0;
+    --padding-top:0;
+    --padding-bottom:0;
+}
+
+.details-content {
+  --background: #ffffff !important;
+  background: #ffffff !important;
+}
+
+.details-content::part(scroll) {
+  padding-top: 12px;
+}

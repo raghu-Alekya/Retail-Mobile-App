@@ -39,6 +39,16 @@
     <ion-spinner name="crescent"></ion-spinner>
   </div>
 
+  <!-- EMPTY STATE -->
+  <div
+    *ngIf="!loading && filteredCoupons.length === 0"
+    class="empty-state"
+  >
+    <ion-icon name="pricetag-outline"></ion-icon>
+    <h3>No coupons found</h3>
+    <p>Try changing your search.</p>
+  </div>
+
 
 <div
   class="coupon-card"

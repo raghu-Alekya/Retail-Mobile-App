@@ -62,6 +62,17 @@
 
     </div>
   </div>
+
+  <!-- Empty State -->
+  <div
+    class="no-customers"
+    *ngIf="!loading && customers.length === 0"
+  >
+    <ion-icon name="people-outline"></ion-icon>
+    <h3>No Customers Found</h3>
+    <p>Try changing the search.</p>
+  </div>
+  
   <ion-infinite-scroll
     threshold="100px"
     (ionInfinite)="loadMore($event)"

@@ -15,14 +15,6 @@
     </ion-buttons>
 
   </ion-toolbar>
-  <div class="search-container">
-    <ion-icon name="search-outline" class="search-icon"></ion-icon>
-    <input
-      type="text"
-      placeholder="Search by name"
-      (input)="onSearch($event)"
-    />
-  </div>
 </ion-header>
 
 
@@ -30,40 +22,31 @@
 <!-- CONTENT (ALL CARDS HERE) -->
 <ion-content class="ion-padding">
 
+<<<<<<< Updated upstream
+=======
+  
+
+>>>>>>> Stashed changes
   <!-- LOADING STATE -->
   <div *ngIf="loading && filteredShifts.length === 0" class="loader-wrapper">
     <ion-spinner name="crescent"></ion-spinner>
   </div>
 
   <ion-card
-    *ngFor="let shift of filteredShifts; let i = index"
-    class="shift-card"
-    [ngClass]="getBorderColor(i)">
+  *ngFor="let shift of filteredShifts"
+  class="summary-card">
 
-    <ion-card-content>
+  <ion-card-content>
 
-      <div class="top-row">
-        <div class="user">
+    <!-- Top -->
+    <div class="summary-header">
 
-          <div class="avatar" [ngClass]="getBorderColor(i)">
-            <ion-icon name="person-outline"></ion-icon>
-          </div>
-
-          <div>
-            <h3>{{ shift.staffName }}</h3>
-
-            <p class="muted">
-              Opening Bal:
-              <span class="amount">${{ shift.openingBalance | number:'1.2-2' }}</span>
-            </p>
-
-            <p class="muted">
-              Sale:
-              <span class="amount">${{ shift.sales | number:'1.2-2' }}</span>
-            </p>
-          </div>
+      <div>
+        <div class="summary-title">
+          Total Sales
         </div>
 
+<<<<<<< Updated upstream
         <div class="right">
           <p class="date">• {{ shift.date | date:'MMM d, yyyy' }}</p>
 
@@ -88,24 +71,469 @@
     <span class="label">Start:</span>
     <span class="value">{{ shift.startTime }}</span>
   </span>
+=======
+        <div class="summary-sales">
+          ${{ shift.total_sales | number:'1.2-2' }}
+        </div>
+      </div>
+>>>>>>> Stashed changes
 
-  <span>
-    <span class="label">End:</span>
-    <span class="value">{{ shift.endTime }}</span>
-  </span>
+      <div class="summary-date">
+        • {{ shift.date | date:'dd/MM/yyyy' }}
+      </div>
 
-  <span>
-    <span class="label">Duration:</span>
-    <span class="value">{{ shift.duration }}</span>
-  </span>
+    </div>
+
+    <!-- Orders -->
+    <div class="summary-grid">
+
+      <div class="grid-item">
+        <div class="grid-left">
+          <ion-icon color="success" name="time-outline"></ion-icon>
+          <span>Shifts</span>
+        </div>
+        <strong>{{shift.total_shifts}}</strong>
+      </div>
+
+      <div class="grid-item">
+        <div class="grid-left">
+          <ion-icon color="primary" name="cart-outline"></ion-icon>
+          <span>Orders</span>
+        </div>
+        <strong>{{shift.total_orders}}</strong>
+      </div>
+
+      <div class="grid-item">
+        <div class="grid-left">
+          <ion-icon color="danger" name="ban-outline"></ion-icon>
+          <span>Cancelled</span>
+        </div>
+        <strong>{{shift.cancelled_orders}}</strong>
+      </div>
+
+      <div class="grid-item">
+        <div class="grid-left">
+          <ion-icon color="warning" name="close-circle-outline"></ion-icon>
+          <span>Void Items</span>
+        </div>
+        <strong>{{shift.void_items}}</strong>
+      </div>
+
+    </div>
+
+    <!-- Payments -->
+    <div class="payments-title">
+      Payments
+    </div>
+
+    <div class="summary-grid">
+
+      <div class="grid-item">
+        <div class="grid-left">
+        <ion-icon color="success" name="cash-outline"></ion-icon>
+        <span>Cash</span>
+        </div>
+        <strong>${{ shift.cash | number:'1.2-2' }}</strong>
+      </div>
+
+      <div class="grid-item">
+        <div class="grid-left">
+        <ion-icon color="primary" name="card-outline"></ion-icon>
+        <span>EBT</span>
+        </div>
+        <strong>${{ shift.ebt | number:'1.2-2' }}</strong>
+      </div>
+
+      <div class="grid-item">
+        <div class="grid-left">
+        <ion-icon color="tertiary" name="wallet-outline"></ion-icon>
+        <span>Payout</span>
+        </div>
+        <strong>{{ shift.payouts < 0 ? '-$' : '$' }}{{ (shift.payouts | number:'1.2-2').replace('-', '') }}</strong>
+      </div>
+
+      <div class="grid-item">
+        <div class="grid-left">
+        <ion-icon color="warning" name="card-outline"></ion-icon>
+        <span>Card</span>
+        </div>
+        <strong>${{ shift.card | number:'1.2-2' }}</strong>
+      </div>
+
+      <div class="grid-item refund-item">
+        <div class="grid-left">
+          <ion-icon color="danger" name="refresh-circle-outline"></ion-icon>
+          <span>Refunds</span>
+        </div>
+
+        <strong>${{ shift.refund | number:'1.2-2' }}</strong>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="summary-footer">
+
+  <!-- <div class="footer-item">
+    <small>Opening Balance:</small>
+    <div class="balance">
+      ${{ shift.opening_balance | number:'1.2-2' }}
+    </div>
+  </div>
+
+  <div class="footer-divider"></div>
+
+  <div class="footer-item">
+    <small>Closing Balance:</small>
+    <div class="balance">
+      ${{ shift.closing_balance | number:'1.2-2' }}
+    </div>
+  </div> -->
+
+  <ion-button
+    size="small"
+    (click)="openShiftDetails(shift)">
+    View Details
+  </ion-button>
+
 </div>
 
-    </ion-card-content>
-  </ion-card>
+  </ion-card-content>
+
+</ion-card>
+
 <ion-infinite-scroll threshold="100px" (ionInfinite)="loadShifts($event)">
   <ion-infinite-scroll-content
     loadingSpinner="bubbles"
     loadingText="Loading more shifts...">
   </ion-infinite-scroll-content>
 </ion-infinite-scroll>
+<<<<<<< Updated upstream
 </ion-content>
+=======
+
+<ion-modal
+  [isOpen]="showDateModal"
+  class="date-modal"
+  (didDismiss)="resetDateModal()">
+
+  <ng-template>
+
+    <div class="calendar-popup">
+
+      <div class="calendar-header">
+        <h3>Date Filter</h3>
+
+        <div
+          class="close-icon"
+          (click)="showDateModal = false">
+
+          <ion-icon name="close-outline"></ion-icon>
+
+        </div>
+      </div>
+
+      <div class="date-tabs">
+
+        <div
+          class="date-tab"
+          [class.active]="dateFilterTab === 'date'"
+          (click)="switchToDateTab()">
+
+          Date
+
+        </div>
+
+        <div
+          class="date-tab"
+          [class.active]="dateFilterTab === 'range'"
+          (click)="switchToRangeTab()">
+
+          Date Range
+
+        </div>
+
+      </div>
+
+      <div *ngIf="dateFilterTab === 'date'">
+
+        <div
+          class="single-date-field"
+          (click)="openSingleDate()">
+
+          <div class="date-part">
+
+            <ion-icon name="calendar-outline"></ion-icon>
+
+            <span>
+              {{ fromDateValue
+                  ? (fromDateValue | date:'dd MMM yyyy')
+                  : 'Select Date' }}
+            </span>
+
+          </div>
+
+        </div>
+
+        <ion-datetime
+          *ngIf="calendarMode === 'single'"
+          presentation="date"
+          [max]="maxDate"
+          [(ngModel)]="fromDateValue"
+          (ionChange)="closeCalendar()">
+        </ion-datetime>
+
+      </div>
+
+      <div *ngIf="dateFilterTab === 'range'">
+
+        <div class="range-field">
+
+          <div
+            class="date-part"
+            (click)="openFromDate()">
+
+            <ion-icon name="calendar-outline"></ion-icon>
+
+            <span>
+              {{ fromDateValue
+                  ? (fromDateValue | date:'dd MMM yyyy')
+                  : 'From Date' }}
+            </span>
+
+          </div>
+
+          <span class="separator"></span>
+
+          <div
+            class="date-part"
+            (click)="openToDate()">
+
+            <ion-icon name="calendar-outline"></ion-icon>
+
+            <span>
+              {{ toDateValue
+                  ? (toDateValue | date:'dd MMM yyyy')
+                  : 'To Date' }}
+            </span>
+
+          </div>
+
+        </div>
+
+        <ion-datetime
+          *ngIf="calendarMode === 'from'"
+          presentation="date"
+          [max]="maxDate"
+          [(ngModel)]="fromDateValue"
+          (ionChange)="closeCalendar()">
+        </ion-datetime>
+
+        <ion-datetime
+          *ngIf="calendarMode === 'to'"
+          presentation="date"
+          [max]="maxDate"
+          [(ngModel)]="toDateValue"
+          (ionChange)="onToDateChange()">
+        </ion-datetime>
+
+      </div>
+
+      <ion-button
+        expand="block"
+        class="apply-btn"
+        (click)="applyDateFilter()">
+
+        Apply
+
+      </ion-button>
+
+    </div>
+
+  </ng-template>
+
+</ion-modal>
+</ion-content>
+
+<ion-modal
+  [isOpen]="isDetailsModalOpen"
+  cssClass="shift-details-modal"
+  (didDismiss)="closeShiftDetails()">
+
+  <ng-template>
+
+    <ion-header>
+
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="closeShiftDetails()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title>Shift Details</ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar class="search-toolbar">
+    <div class="details-search">
+      <ion-icon name="search-outline"></ion-icon>
+
+      <input
+        type="text"
+        placeholder="Search by employee"
+        (input)="onShiftDetailsSearch($event)">
+    </div>
+  </ion-toolbar>
+
+</ion-header>
+
+    <ion-content>
+
+      <!-- Loader -->
+      <div *ngIf="detailsLoading" class="loader-wrapper">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+
+      <!-- No Data -->
+      <div *ngIf="!detailsLoading && shiftDetails.length === 0" class="no-data">
+        No shift details found.
+      </div>
+
+      <!-- Shift Cards -->
+      <div
+        *ngFor="let shift of filteredShiftDetails; let i = index"
+        class="details-card"
+        [ngClass]="getThemeClass(i)">
+
+        <div class="top-box">
+        <!-- Employee Header -->
+        <div class="employee-header">
+
+          <div class="employee-left">
+            <div class="avatar">
+              <ion-icon name="person-outline"></ion-icon>
+            </div>
+
+            <div class="employee-info">
+              <div class="employee-name">{{ shift.user_name }}</div>
+              <div class="employee-time">
+                {{shift.start_time | date:'hh:mm a'}} -
+                {{shift.end_time | date:'hh:mm a'}}
+              </div>
+            </div>
+          </div>
+
+          <div class="sale-box">
+            <div class="sale-label">Total Sale</div>
+            <div class="sale-value">${{ shift.total_sale_amount }}</div>
+          </div>
+
+        </div>
+
+        <!-- Payment Breakdown -->
+        <p class="section-title">PAYMENT BREAKDOWN</p>
+
+        <div class="payment-grid">
+
+          <div class="payment cash">
+            <div class="payment-icon">
+              <ion-icon name="cash-outline"></ion-icon>
+            </div>
+            <div class="payment-info">
+              <span>Cash</span>
+              <strong>${{ shift.cash_total | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+
+          <div class="payment payment-card">
+            <div class="payment-icon">
+              <ion-icon name="card-outline"></ion-icon>
+            </div>
+            <div class="payment-info">
+              <span>Card</span>
+              <strong>${{ shift.card_total | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+
+          <div class="payment ebt">
+            <div class="payment-icon">
+              <ion-icon name="card-outline"></ion-icon>
+            </div>
+            <div class="payment-info">
+              <span>EBT</span>
+              <strong>${{ shift.ebt_total | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+
+          <div class="payment payout">
+            <div class="payment-icon">
+              <ion-icon name="wallet-outline"></ion-icon>
+            </div>
+            <div class="payment-info">
+              <span>Payout</span>
+              <strong>{{ shift.payout_total < 0 ? '-$' : '$' }}{{ (shift.payout_total | number:'1.2-2').replace('-', '') }}</strong>
+            </div>
+          </div>
+
+          <div class="payment refund">
+            <div class="payment-icon">
+              <ion-icon name="refresh-outline"></ion-icon>
+            </div>
+            <div class="payment-info">
+              <span>Refund</span>
+              <strong>${{ shift.refund_total | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+
+        </div>
+        </div>
+
+        
+        <!-- Status -->
+        <div class="status-row">
+
+          <div class="status orders">
+            <span>Orders</span>
+            <strong>{{ shift.orders_count }}</strong>
+          </div>
+
+          <div class="status cancel">
+            <span>Cancelled</span>
+            <strong>{{ shift.cancelled_orders }}</strong>
+          </div>
+
+          <div class="status void">
+            <span>Void</span>
+            <strong>{{ shift.void_items_count }}</strong>
+          </div>
+
+        </div>
+        
+
+        <!-- Balance -->
+        
+
+          <div class="balance-box">
+
+            <div class="balance-item">
+              <span>Opening Balance:</span>
+              <strong>${{ shift.opening_balance | number:'1.2-2' }}</strong>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="balance-items">
+              <span>Closing Balance:</span>
+              <strong>${{ shift.closing_balance | number:'1.2-2' }}</strong>
+            </div>
+
+          </div>
+
+      </div>
+
+    </ion-content>
+
+  </ng-template>
+
+</ion-modal>
+>>>>>>> Stashed changes

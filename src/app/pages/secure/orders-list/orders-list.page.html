@@ -64,6 +64,218 @@
       More
     </ion-chip>
   </div>
+<<<<<<< Updated upstream
+=======
+
+  <div>
+    <!-- When date selected -->
+    <ng-container *ngIf="selectedDateText; else defaultFilter">
+
+      <div class="date-selected-title">
+        {{ selectedDateText }}
+      </div>
+
+      <div class="date-applied">
+
+        {{ filterType === 'date'
+            ? 'Date Applied'
+            : 'Date Range Applied' }}
+
+        <span class="success-badge">
+          <ion-icon name="checkmark-outline"></ion-icon>
+        </span>
+
+      </div>
+
+    </ng-container>
+
+    <!-- Default state -->
+    <ng-template #defaultFilter>
+      <div class="date-title">Date Filter</div>
+      <div class="date-value">Select a date or range</div>
+    </ng-template>
+
+  </div>
+</div>
+
+  <!-- Cross icon only when date selected -->
+<div
+  *ngIf="selectedDateText"
+  class="clear-icon"
+  (click)="clearDateFilter(); $event.stopPropagation()">
+
+  <ion-icon name="close-outline"></ion-icon>
+
+</div>
+
+<!-- Chevron only when no date selected -->
+<ion-icon
+  *ngIf="!selectedDateText"
+  class="date-arrow"
+  name="chevron-forward-outline">
+</ion-icon>
+</div>
+
+<ion-modal
+  [isOpen]="showDateModal"
+  class="date-modal"
+  (didDismiss)="resetDateModal()">
+
+  <ng-template>
+
+    <div class="calendar-popup">
+
+      <div class="calendar-header">
+        <h3>Date Filter</h3>
+
+        <div
+          class="close-icon"
+          (click)="showDateModal = false">
+
+          <ion-icon name="close-outline"></ion-icon>
+
+        </div>
+      </div>
+
+      <!-- Tabs -->
+
+      <div class="date-tabs">
+
+        <div
+          class="date-tab"
+          [class.active]="dateFilterTab === 'date'"
+          (click)="switchToDateTab()">
+
+          Date
+
+        </div>
+
+        <div
+          class="date-tab"
+          [class.active]="dateFilterTab === 'range'"
+          (click)="switchToRangeTab()">
+
+          Date Range
+
+        </div>
+
+      </div>
+
+      <!-- DATE TAB -->
+
+      <div *ngIf="dateFilterTab === 'date'">
+
+        <div
+          class="single-date-field"
+          (click)="openSingleDate()">
+
+          <div class="date-part">
+
+            <ion-icon name="calendar-outline"></ion-icon>
+
+            <span>
+              {{ fromDateValue
+                  ? (fromDateValue | date:'dd MMM yyyy')
+                  : 'Select Date' }}
+            </span>
+
+          </div>
+
+        </div>
+
+        <ion-datetime
+          *ngIf="calendarMode === 'single'"
+          presentation="date"
+          [max]="maxDate"
+          [(ngModel)]="fromDateValue"
+          (ionChange)="closeCalendar()">
+        </ion-datetime>
+
+      </div>
+
+      <!-- RANGE TAB -->
+
+      <div *ngIf="dateFilterTab === 'range'">
+
+        <div class="range-field">
+
+          <div
+            class="date-part"
+            (click)="openFromDate()">
+
+            <ion-icon name="calendar-outline"></ion-icon>
+
+            <span>
+              {{ fromDateValue
+                  ? (fromDateValue | date:'dd MMM yyyy')
+                  : 'From Date' }}
+            </span>
+
+          </div>
+
+          <span class="separator"></span>
+
+          <div
+            class="date-part"
+            (click)="openToDate()">
+
+            <ion-icon name="calendar-outline"></ion-icon>
+
+            <span>
+              {{ toDateValue
+                  ? (toDateValue | date:'dd MMM yyyy')
+                  : 'To Date' }}
+            </span>
+
+          </div>
+
+        </div>
+
+        <ion-datetime
+          *ngIf="calendarMode === 'from'"
+          presentation="date"
+          [max]="maxDate"
+          [(ngModel)]="fromDateValue"
+          (ionChange)="closeCalendar()">
+        </ion-datetime>
+
+        <ion-datetime
+          *ngIf="calendarMode === 'to'"
+          presentation="date"
+          [max]="maxDate"
+          [(ngModel)]="toDateValue"
+          (ionChange)="onToDateChange()">
+        </ion-datetime>
+
+      </div>
+
+      <ion-button
+        expand="block"
+        class="apply-btn"
+        (click)="applyDateFilter()">
+
+        Apply
+
+      </ion-button>
+
+    </div>
+
+  </ng-template>
+
+</ion-modal>
+
+<div
+  *ngIf="!loading && orders.length === 0"
+  class="no-orders">
+
+  <ion-icon name="receipt-outline"></ion-icon>
+
+  <h3>No Orders Found</h3>
+
+  <p>Try changing the search, status, or date filter.</p>
+
+</div>
+>>>>>>> Stashed changes
   <!-- <div *ngIf="!orders || orders.length === 0" class="no-orders">
     No Orders Found
   </div> -->
@@ -87,6 +299,7 @@
         <span class="order-id">#{{ order.id }}</span>
       </div>
  
+<<<<<<< Updated upstream
       <ion-button
         class="status-btn"
         size="small"
@@ -95,6 +308,13 @@
       >
         {{ order.status | titlecase }}
       </ion-button>
+=======
+      <ion-badge
+      class="status-badge"
+      [ngClass]="getStatusClass(order.status)">
+      {{ order.status | uppercase }}
+    </ion-badge>
+>>>>>>> Stashed changes
     </div>
  
     <!-- Meta -->
@@ -188,6 +408,7 @@
             </div>
           </div>
  
+<<<<<<< Updated upstream
           <ion-button
             class="status-btn"
             size="small"
@@ -196,6 +417,13 @@
           >
             {{ order.status | titlecase }}
           </ion-button>
+=======
+          <ion-badge
+  class="status-badge"
+  [ngClass]="getStatusClass(order.status)">
+  {{ order.status | uppercase }}
+</ion-badge>
+>>>>>>> Stashed changes
         </div>
  
         <div
@@ -322,6 +550,7 @@
           </div>
         </div>
       </div>
+<<<<<<< Updated upstream
  
       <!-- EXPAND FOOTER -->
  
@@ -335,6 +564,62 @@
           <span *ngIf="!order.shipping_lines?.length">
             &nbsp; | &nbsp; --
           </span>
+=======
+
+      <div class="row merchant">
+        <span>Merchant Discount</span>
+        <span>
+          {{ getDiscountLineItem(order) > 0 ? '-' : '' }}
+          {{currencySymbol}}{{ getDiscountLineItem(order) | number:'1.2-2' }}
+        </span>
+      </div>
+
+      <div class="row coupon">
+        <span>Coupon</span>
+        <span>
+          {{ getCouponTotal(order) > 0 ? '-' : '' }}
+          {{currencySymbol}}{{ getCouponTotal(order) | number:'1.2-2' }}
+        </span>
+      </div>
+
+      <div class="separator"></div>
+
+      <div class="row net-total">
+        <span>Net Total</span>
+        <span>
+        <ng-container *ngIf="getNetTotal(order) < 0; else netPositive">
+          -{{ currencySymbol }}{{ (getNetTotal(order) * -1) | number:'1.2-2' }}
+        </ng-container>
+
+        <ng-template #netPositive>
+          {{ currencySymbol }}{{ getNetTotal(order) | number:'1.2-2' }}
+        </ng-template>
+      </span>
+      </div>
+
+      <div class="row tax">
+        <span>Tax</span>
+        <span>{{ currencySymbol }}{{ getOrderTax(order) | number:'1.2-2' }}</span>
+      </div>
+
+      
+
+      <div
+        class="row cashback-fee"
+        *ngIf="getCashbackFee(order) > 0"
+      >
+        <span>Cashback Fee</span>
+        <span>
+          {{ currencySymbol }}{{ getCashbackFee(order) | number:'1.2-2' }}
+        </span>
+      </div>
+
+      <div class="row service-charge">
+        <span>Service Charges</span>
+        <span>{{currencySymbol}}{{ getServiceCharge(order) | number:'1.2-2' }}</span>
+      </div>
+
+>>>>>>> Stashed changes
         </div>
  
         <!-- Right: actions -->
@@ -352,6 +637,7 @@
     </ng-container>
   </div>
   <ion-infinite-scroll
+   *ngIf="orders.length > 0"
     threshold="100px"
     (ionInfinite)="loadOrders($event)"
   >

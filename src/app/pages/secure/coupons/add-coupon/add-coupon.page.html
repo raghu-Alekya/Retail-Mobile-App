@@ -63,7 +63,9 @@
 
 <ion-item>
   <ion-label>Status</ion-label>
-  <ion-badge color="success">Publish</ion-badge>
+    <div class="status-badge publish">
+      Publish
+    </div>
 </ion-item>
 
 <!-- AMOUNT -->
@@ -113,6 +115,7 @@
 <ion-item>
   <ion-label>Individual use</ion-label>
   <ion-toggle
+    slot="end"
     [(ngModel)]="coupon.individualUse"
     (ionChange)="markDirty()">
   </ion-toggle>
@@ -158,6 +161,7 @@
   <ion-label>Exclude sale items</ion-label>
 
   <ion-toggle
+    slot="end"
     [(ngModel)]="coupon.excludeSale"
     (ionChange)="markDirty()">
   </ion-toggle>

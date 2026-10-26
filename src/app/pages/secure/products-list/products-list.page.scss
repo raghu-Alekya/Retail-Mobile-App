@@ -237,6 +237,35 @@ ion-footer ion-segment-button:nth-child(2) {
 
 ///////page loading state///////
 
+.no-products {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  color: #777;
+
+  min-height: 60vh;
+  padding-top: 140px;   // adjust if you want it lower/higher
+}
+
+.no-products ion-icon {
+  font-size: 60px;
+  color: #ccc;
+  margin-bottom: 12px;
+}
+
+.no-products h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.no-products p {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
 .loader-wrapper {
   display: flex;
   flex-direction: column;

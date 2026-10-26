@@ -72,6 +72,18 @@
     <strong>Newest first</strong>
   </div>
 
+    <div
+      *ngIf="!loading && products.length === 0"
+      class="no-products">
+
+      <ion-icon name="cube-outline"></ion-icon>
+
+      <h3>No Products Found</h3>
+
+      <p>Try changing the search or stock filter.</p>
+
+    </div>
+
   <!-- Product Card -->
   <div
     class="product-card"

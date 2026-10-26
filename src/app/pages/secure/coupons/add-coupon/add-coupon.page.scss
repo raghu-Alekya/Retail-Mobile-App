@@ -16,6 +16,20 @@ ion-back-button {
   --color: #ffffff;
 }
 
+/* STATUS BADGE */
+.status-badge {
+  margin-left: auto;
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.status-badge.publish {
+  background-color: #d4f8d4;
+  color: #1ca51c;
+}
+
 /* SAVE BUTTON */
 .save-btn {
   --color: #ffffff;

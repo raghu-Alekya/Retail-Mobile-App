@@ -58,6 +58,16 @@
     <ion-spinner name="crescent"></ion-spinner>
   </div>
 
+  <!-- EMPTY STATE -->
+  <div
+    *ngIf="!loading && discounts.length === 0"
+    class="empty-state"
+  >
+    <ion-icon name="pricetag-outline"></ion-icon>
+    <h3>No discounts found</h3>
+    <p>Try changing your search or filter.</p>
+  </div>
+
     <ion-card 
     *ngFor="let c of discounts" 
     class="discount-card"

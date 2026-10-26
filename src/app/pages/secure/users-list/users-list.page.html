@@ -71,6 +71,16 @@
 
   </ion-list>
 
+  <!-- Empty State -->
+  <div
+    class="no-employees"
+    *ngIf="!loading && filteredUsers.length === 0 && !editingUserId"
+  >
+    <ion-icon name="people-outline"></ion-icon>
+    <h3>No Employees Found</h3>
+    <p>Try changing the search.</p>
+  </div>
+
 <!-- EDIT EMPLOYEE FULL SCREEN -->
 <div class="edit-overlay" *ngIf="editingUserId">
 

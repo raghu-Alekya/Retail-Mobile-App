@@ -50,17 +50,26 @@ dailyTotals: number[] = [];
 
   items = [
     { title: 'Orders', icon: 'bag-handle', route: '/orders-list', bg_color: '#FFF6F6', color:'#FE6464' },
+<<<<<<< Updated upstream
     { title: 'Products', icon: 'cube', route: '/products-list',bg_color: '#EFEDFE', color:'#635C99'   },
     { title: 'Customers', icon: 'people', route: '/secure/customers',bg_color: '#FFF5E7', color:'#AE8852' },
     { title: 'Employees', icon: 'person-circle', route: '/users',bg_color: '#EEF4FF', color:'#3763A7' },
     { title: 'Reports', icon: 'stats-chart', route: '/reports',bg_color: '#FFFEE7', color:'#B9B434' },
     { title: 'Media', icon: 'images', route: '/media',bg_color: '#FEECEC', color:'#FE6464' },
+=======
+    { title: 'Products', icon: 'cube', route: '/products-list',bg_color: '#fff5e7', color:'#ae8852'   },
+    { title: 'Customers', icon: 'people', route: '/secure/customers',bg_color: '#efedfe', color:'#635c99' },
+    { title: 'Employees', icon: 'person-circle', route: '/users',bg_color: '#fffee7', color:'#b9b434' },
+    { title: 'Reports', icon: 'stats-chart', route: '/reports',bg_color: '#eef4ff', color:'#3763a7' },
+    { title: 'POS Closing', icon: 'cash', route: '/secure/pos-closing', bg_color: '#EAF7ED', color:'#2E7D32' },
+>>>>>>> Stashed changes
     { title: 'Settings', icon: 'settings', route: '/pos-settings',bg_color: '#E6F0F8', color:'#4E718D' },
     { title: 'Shifts', icon: 'time', route: '/shifts',bg_color: '#eef4ff', color:'#3763a7' },
     { title: 'Payments', icon: 'card', route: '/order-payments',bg_color: '#eaf7ed', color:'#61ab72' },
     { title: 'Vendors', icon: 'business', route: '/vendors',bg_color: '#FFF6F6', color:'#D35400' },
     { title: 'Coupons', icon: 'pricetag', route: '/coupons',bg_color: '#f2ffe1', color:'#7bb02f' },
     { title: 'Discounts', icon: 'ticket', route: '/discounts',bg_color: '#fff5e7', color:'#e1ab20' },
+    //{ title: 'Media', icon: 'images', route: '/media',bg_color: '#FEECEC', color:'#FE6464' },
   ];
 
   constructor(

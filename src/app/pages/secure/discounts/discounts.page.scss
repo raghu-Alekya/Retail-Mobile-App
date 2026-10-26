@@ -731,6 +731,34 @@ hr {
 
 ///////page loading state///////
 
+.empty-state {
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #777;
+  text-align: center;
+}
+
+.empty-state ion-icon {
+  font-size: 60px;
+  color: #264c73;
+  margin-bottom: 12px;
+}
+
+.empty-state h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.empty-state p {
+  margin-top: 8px;
+  font-size: 15px;
+  color: #999;
+}
+
 .loader-wrapper {
   display: flex;
   flex-direction: column;
