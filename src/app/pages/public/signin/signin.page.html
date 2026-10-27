@@ -13,15 +13,6 @@
     <p class="subtitle">Login into your Account</p>
 
     <form [formGroup]="signin_form" (ngSubmit)="signIn()">
-      
-      <ion-item lines="none" class="input-item">
-        <ion-label position="stacked">Site URL</ion-label>
-        <ion-input
-          type="url"
-          placeholder="Site URL (e.g., example.com)"
-          formControlName="site_url">
-        </ion-input>
-      </ion-item>
       <ion-item lines="none" class="input-item">
         <ion-label position="stacked">Email Address</ion-label>
         <ion-input
@@ -56,12 +47,12 @@
       <ion-button
         expand="block"
         class="login-btn"
+        [disabled]="loading"
         type="submit">
         Sign In
       </ion-button>
 
     </form>
-
   </div>
 
 </ion-content>

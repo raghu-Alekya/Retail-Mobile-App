@@ -15,49 +15,142 @@
 <ion-content class="ion-padding">
 
   <!-- Username -->
-   <ion-label position="stacked">Username</ion-label>
-  <ion-item class="form-field">
-    <ion-input
-      [(ngModel)]="user.username"
-      name="username"
-      placeholder="Enter username">
-    </ion-input>
-  </ion-item>
+   <!-- Username -->
+<ion-label position="stacked">Username</ion-label>
+
+<ion-item
+  class="form-field"
+  [class.invalid]="
+    usernameTouched &&
+    user.username &&
+    containsEmoji(user.username)
+  "
+>
+  <input
+    type="text"
+    [(ngModel)]="user.username"
+    name="username"
+    placeholder="Enter username"
+    (input)="onUsernameInput($event)"
+    (blur)="usernameTouched = true"
+    class="custom-input"
+  />
+</ion-item>
+
+<p
+  class="error-text"
+  *ngIf="
+    usernameTouched &&
+    user.username &&
+    containsEmoji(user.username)
+  "
+>
+  Username cannot contain emojis
+</p>
 
   <!-- Email -->
   <ion-label position="stacked">Email</ion-label>
-  <ion-item class="form-field">
-    <ion-input
-      type="email"
-      [(ngModel)]="user.email"
-      placeholder="Enter email address">
-    </ion-input>
+  <ion-item
+  class="form-field"
+  [class.invalid]="
+    (user.email && !isValidEmail(user.email)) ||
+    (emailTouched && user.email && containsEmoji(user.email))
+  ">
+    <input
+  type="email"
+  placeholder="Enter email address"
+  [(ngModel)]="user.email"
+  (input)="checkChanges()"
+  (blur)="emailTouched = true"
+  class="custom-input"
+/>
   </ion-item>
 
   <!-- Error message -->
-  <p class="error-text" *ngIf="user.email && !isValidEmail(user.email)">
-    Please enter a valid email format.
-  </p>
+  <p
+  class="error-text"
+  *ngIf="
+    user.email &&
+    !containsEmoji(user.email) &&
+    !isValidEmail(user.email)
+  "
+>
+  Please enter a valid email format.
+</p>
+<p
+  class="error-text"
+  *ngIf="
+    emailTouched &&
+    user.email &&
+    containsEmoji(user.email)
+  "
+>
+  Email cannot contain emojis
+</p>
 
   <!-- First Name -->
    <ion-label position="stacked">First Name</ion-label>
-  <ion-item class="form-field">
-    
-    <ion-input
-      [(ngModel)]="user.first_name"
-      placeholder="Enter first name">
-    </ion-input>
-  </ion-item>
+
+<ion-item
+  class="form-field"
+  [class.invalid]="
+    firstNameTouched &&
+    user.first_name &&
+    containsEmoji(user.first_name)
+  "
+>
+  <input
+    type="text"
+    [(ngModel)]="user.first_name"
+    placeholder="Enter first name"
+    (input)="onFirstNameInput($event)"
+    (blur)="firstNameTouched = true"
+    class="custom-input"
+  />
+</ion-item>
+
+<p
+  class="error-text"
+  *ngIf="
+    firstNameTouched &&
+    user.first_name &&
+    containsEmoji(user.first_name)
+  "
+>
+  First Name cannot contain emojis
+</p>
 
   <!-- Last Name -->
    <ion-label position="stacked">Last Name</ion-label>
-  <ion-item class="form-field">
-    
-    <ion-input
-      [(ngModel)]="user.last_name"
-      placeholder="Enter last name">
-    </ion-input>
-  </ion-item>
+
+<ion-item
+  class="form-field"
+  [class.invalid]="
+    lastNameTouched &&
+    user.last_name &&
+    containsEmoji(user.last_name)
+  "
+>
+  <input
+    type="text"
+    [(ngModel)]="user.last_name"
+    placeholder="Enter last name"
+    (input)="onLastNameInput($event)"
+    (blur)="lastNameTouched = true"
+    class="custom-input"
+  />
+</ion-item>
+
+<p
+  class="error-text"
+  *ngIf="
+    lastNameTouched &&
+    user.last_name &&
+    containsEmoji(user.last_name)
+  "
+>
+  Last Name cannot contain emojis
+</p>
 
   <!-- Employee Role -->
    <ion-label position="stacked">Employee Role</ion-label>
@@ -79,19 +172,20 @@
 
   <!-- Phone -->
    <ion-label position="stacked">Phone</ion-label>
-  <ion-item class="form-field"
-  [class.invalid]="phoneTouched && user.phone && !isValidPhone(user.phone)">
-    
-    <ion-input
-      type="tel"
-      inputmode="numeric"
-      maxlength="10"
-      [(ngModel)]="user.phone"
-      (ionInput)="limitPhoneLength($event)"
-      (ionBlur)="phoneTouched = true"
-      placeholder="Enter phone number">
-    </ion-input>
-  </ion-item>
+  <ion-item
+  class="form-field"
+  [class.invalid]="phoneTouched && user.phone && !isValidPhone(user.phone)"
+>
+  <input
+    type="tel"
+    maxlength="10"
+    [(ngModel)]="user.phone"
+    (input)="limitPhoneLength($event)"
+    (blur)="phoneTouched = true"
+    placeholder="Enter phone number"
+    class="custom-input"
+  />
+</ion-item>
  
   <p class="error-text" *ngIf="phoneTouched && user.phone && !isValidPhone(user.phone)">
     Please enter a valid 10-digit phone number
@@ -100,23 +194,22 @@
    <!-- Login PIN -->
 <ion-label position="stacked">Login PIN</ion-label>
 
-<ion-item 
+<ion-item
   class="form-field"
   [class.invalid]="
-    (pinTouched && user.emp_login_pin && !isValidPin(user.emp_login_pin)) 
+    (pinTouched && user.emp_login_pin && !isValidPin(user.emp_login_pin))
     || pinError
-  ">
-  
- <ion-input
-  type="tel"
-  inputmode="numeric"
-  maxlength="6"
-  [(ngModel)]="user.emp_login_pin"
-  (ionInput)="limitPinLength($event)"
-  (ionBlur)="pinTouched = true"
-  placeholder="Enter 6-digit PIN">
-</ion-input>
-
+  "
+>
+  <input
+    type="tel"
+    maxlength="6"
+    [(ngModel)]="user.emp_login_pin"
+    (input)="limitPinLength($event)"
+    (blur)="pinTouched = true"
+    placeholder="Enter 6-digit PIN"
+    class="custom-input"
+  />
 </ion-item>
 
 <!-- Format error -->
@@ -134,10 +227,14 @@
   expand="block"
   class="create-user-btn"
   [disabled]="
-    !isValidEmail(user.email) ||
-    (user.phone && !isValidPhone(user.phone)) ||
-    (user.emp_login_pin && !isValidPin(user.emp_login_pin))
-  "
+  containsEmoji(user.username) ||
+  containsEmoji(user.first_name) ||
+  containsEmoji(user.last_name) ||
+  containsEmoji(user.email) ||
+  (user.email && !isValidEmail(user.email)) ||
+  (user.phone && !isValidPhone(user.phone)) ||
+  (user.emp_login_pin && !isValidPin(user.emp_login_pin))
+"
   (click)="submit()">
   Create User
 </ion-button>

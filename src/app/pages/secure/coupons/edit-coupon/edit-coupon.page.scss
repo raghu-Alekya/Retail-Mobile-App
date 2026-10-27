@@ -82,8 +82,15 @@ ion-modal::part(content) {
 .field-block {
   position: relative;
   padding: 6px 0;
+  
 }
+.type-select {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
 
+  --padding-start: 0;
+  --inner-padding-start: 0;
+}
 .label {
   font-size: 15px;
   color: #353535;
@@ -239,6 +246,14 @@ ion-input {
   border-radius: 16px;
 }
 
+.field-error {
+  display: block;
+  color: var(--ion-color-danger);
+  font-size: 12px;
+  margin-top: 4px;
+  margin-left: 16px;
+}
+
 /////////////////////////////////////////////
 
 /* iOS ONLY - Orders Header Fix */
@@ -312,4 +327,57 @@ ion-input {
 /* iOS ONLY - Add bottom padding to header */
 :host-context(.ios) .custom-header ion-toolbar {
   --padding-bottom: 10px;   /* 👈 adjust (10–16px based on your UI) */
+}
+.currency-input-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.currency-symbol {
+  font-size: 14px;
+  font-weight: 400;
+  margin-right: 0px;
+  margin-top:5px;
+  color: #111827;
+}
+
+.type-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.type-row .label {
+  margin-bottom: 0;
+}
+
+.coupon-type-fixed {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  color: #0f766e;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.edit-input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  color: #353535;
+  padding: 4px 0;
+  margin-top: 4px;
+  caret-color: #353535;
+  font-family: inherit;
+}
+
+.edit-input:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
 }

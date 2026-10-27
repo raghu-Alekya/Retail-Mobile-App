@@ -179,7 +179,8 @@ const routes: Routes = [
   
   {
     path: 'profile',
-     loadChildren: () =>import('./pages/secure/profile/profile.module').then(m => m.ProfilePageModule)
+     loadChildren: () =>import('./pages/secure/profile/profile.module').then(m => m.ProfilePageModule),
+     canActivate: [AuthGuard]
   },
 
   // {
@@ -192,12 +193,14 @@ const routes: Routes = [
   {
     path: 'add-coupon',
     loadChildren: () => import('./pages/secure/coupons/add-coupon/add-coupon.module')
-      .then(m => m.AddCouponPageModule)
+      .then(m => m.AddCouponPageModule),
+      canActivate: [AuthGuard]
   },
   {
     path: 'edit-coupon',
     loadChildren: () => import('./pages/secure/coupons/edit-coupon/edit-coupon.module')
-      .then(m => m.EditCouponPageModule)
+      .then(m => m.EditCouponPageModule),
+      canActivate: [AuthGuard]
   },
   
   {
@@ -218,7 +221,8 @@ const routes: Routes = [
   path: 'secure',
   loadChildren: () =>
     import('./pages/secure/secure.module')
-      .then(m => m.SecureModule)
+      .then(m => m.SecureModule),
+      canActivate: [AuthGuard]
 }
  
 ];

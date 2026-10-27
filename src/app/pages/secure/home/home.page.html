@@ -7,8 +7,23 @@
             </ion-button> -->
         </div>
         <div class="ion-padding dashboard-header">
-            <ion-card class="mt-3 py-2" class="bg-white">
-                <ion-label class="home-slides mb-3 ion-margin-top">Order Status</ion-label>
+            <ion-card class="mt-3 py-2 bg-white">
+                <div class="order-status-header">
+                    <ion-label class="order-status-title">Order Status</ion-label>
+                    <ion-select
+                        class="store-select"
+                        aria-label="Select store"
+                        interface="popover"
+                        placeholder="No stores available"
+                        [disabled]="!stores.length"
+                        [ngModel]="selectedStoreId"
+                        (ionChange)="onStoreChange($event.detail.value)">
+                        <ion-select-option *ngFor="let store of stores" [value]="store.id">
+                            {{ store.storeName || store.storeCode }}
+                        </ion-select-option>
+                    </ion-select>
+                </div>
+                <p class="status-count-error" role="status" *ngIf="statusCountsError">{{ statusCountsError }}</p>
                 <ion-slides [options]="slideOpts" class="home-slides mb-3">
                     <ion-slide *ngFor="let status of statuses" class="p-0">
                         <ion-card class="slide-card ion-text-center">
@@ -16,7 +31,7 @@
                                 <ion-icon [name]="status.icon" size="large" [style.color]="status.color">
                                 </ion-icon>
 
-                                <h3>{{ status.count }}</h3>
+                                <h3>{{ statusCountsLoading ? '…' : status.count }}</h3>
                                 <p>{{ status.label }}</p>
 
                             </ion-card-content>

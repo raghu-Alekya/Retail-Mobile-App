@@ -1,0 +1,10 @@
+{
+  "/pch-api": {
+    "target": "http://localhost:3003",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/pch-api": "/api/v1"
+    }
+  }
+}

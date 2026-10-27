@@ -4,9 +4,10 @@ import { ToastController } from '@ionic/angular';
 import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
-  selector: 'app-pos-settings',
-  templateUrl: './pos-settings.page.html',
-  styleUrls: ['./pos-settings.page.scss'],
+    selector: 'app-pos-settings',
+    templateUrl: './pos-settings.page.html',
+    styleUrls: ['./pos-settings.page.scss'],
+    standalone: false
 })
 export class PosSettingsPage implements OnInit {
 

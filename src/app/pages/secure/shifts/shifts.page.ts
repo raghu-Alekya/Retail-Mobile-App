@@ -5,21 +5,16 @@ import { Router } from '@angular/router';
 
 
 @Component({
-  selector: 'app-shifts',
-  templateUrl: './shifts.page.html',
-  styleUrls: ['./shifts.page.scss'],
+    selector: 'app-shifts',
+    templateUrl: './shifts.page.html',
+    styleUrls: ['./shifts.page.scss'],
+    standalone: false
 })
 export class ShiftsPage implements OnInit {
 
 filteredShifts: any[] = [];
   shifts: any[] = [];   
   loading = false;
-<<<<<<< Updated upstream
-  hasMore = true;
-  search = '';         // optional (staff name, etc.)
-  status = '';         // open / closed filter
-  isLoading = false;
-=======
   search = '';         // optional (staff name, etc.)      // open / closed filter
 
   fromDateApi = '';
@@ -44,7 +39,6 @@ isDetailsModalOpen = false;
 shiftDetails: any[] = [];
 detailsLoading = false;
 filteredShiftDetails: any[] = [];
->>>>>>> Stashed changes
 
   constructor(
   private navCtrl: NavController,
@@ -149,34 +143,11 @@ getThemeClass(index: number): string {
    * Mock data – remove after API integration
    */
 
-<<<<<<< Updated upstream
- async loadShifts(event?: any, reset = false) {
-
-  if (this.loading || !this.hasMore) {
-    event?.target.complete();
-    return;
-  }
-=======
  async loadShifts(event?: any) {
->>>>>>> Stashed changes
-
-  if (reset) {
-    this.page = 1;
-    this.shifts = [];
-    this.hasMore = true;
-  }
 
   this.loading = true;
 
   try {
-<<<<<<< Updated upstream
-    const res = await this.authService.getShifts(
-      this.page,
-      '',   // ❌ remove search from API
-      this.status
-    );
-=======
->>>>>>> Stashed changes
 
     const res = await this.authService.getDailyShiftSummary(
       this.fromDateApi,
@@ -230,60 +201,6 @@ getThemeClass(index: number): string {
 
 
 
-<<<<<<< Updated upstream
-    // ✅ use backend values directly
-    openingBalance: Number(apiShift.opening_balance || 0),
-    closingBalance: Number(apiShift.closing_balance || 0),
-
-    sales: Number(apiShift.total_sale_amount || 0),
-    overShort: Number(apiShift.over_short || 0),
-
-    startTime: apiShift.start_time?.split(' ')[1] || '—',
-    endTime: apiShift.end_time
-      ? apiShift.end_time.split(' ')[1]
-      : '—',
-
-    duration: this.getDuration(
-      apiShift.start_time,
-      apiShift.end_time
-    ),
-  };
-}
-getDuration(start: string, end: string): string {
-  if (!start || !end) return '-';
-
-  const startDate = new Date(start);
-  const endDate = new Date(end);
-
-  const diffMs = endDate.getTime() - startDate.getTime();
-
-  if (diffMs <= 0) return '-';
-
-  const totalSeconds = Math.floor(diffMs / 1000);
-
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  const pad = (n: number) => n.toString().padStart(2, '0');
-
-  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
-}
-
-formatCurrency(value: number): string {
-  if (value < 0) {
-    return `-$${Math.abs(value)}`;
-  }
-  return `$${value}`;
-}
-// openShift(shift: any) {
-//   console.log('Shift clicked:', shift);
-
-//   // temporary test
-//   this.showToast(`Opening shift: ${shift.staffName}`);
-// }
-
-=======
 
 async applyDateFilter() {
 
@@ -396,5 +313,4 @@ onToDateChange() {
   }
 }
 
->>>>>>> Stashed changes
 }

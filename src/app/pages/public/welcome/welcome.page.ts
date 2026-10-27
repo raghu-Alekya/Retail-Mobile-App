@@ -7,10 +7,11 @@ import SwiperCore, { Pagination, SwiperOptions } from 'swiper';
 SwiperCore.use([Pagination]);
 
 @Component({
-  selector: 'app-welcome',
-  templateUrl: './welcome.page.html',
-  styleUrls: ['./welcome.page.scss'],
-  encapsulation: ViewEncapsulation.None,
+    selector: 'app-welcome',
+    templateUrl: './welcome.page.html',
+    styleUrls: ['./welcome.page.scss'],
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class WelcomePage {
 

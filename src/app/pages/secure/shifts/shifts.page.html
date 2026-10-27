@@ -22,11 +22,8 @@
 <!-- CONTENT (ALL CARDS HERE) -->
 <ion-content class="ion-padding">
 
-<<<<<<< Updated upstream
-=======
   
 
->>>>>>> Stashed changes
   <!-- LOADING STATE -->
   <div *ngIf="loading && filteredShifts.length === 0" class="loader-wrapper">
     <ion-spinner name="crescent"></ion-spinner>
@@ -46,37 +43,10 @@
           Total Sales
         </div>
 
-<<<<<<< Updated upstream
-        <div class="right">
-          <p class="date">• {{ shift.date | date:'MMM d, yyyy' }}</p>
-
-          <p class="muted">
-            Closing Bal:
-            <span class="amount">${{ shift.closingBalance | number:'1.2-2' }}</span>
-          </p>
-
-          <p class="muted">
-            Over/Short:
-            <span class="amount">
-    {{ shift.overShort | number:'1.2-2' }}
-  </span>
-          </p>
-        </div>
-      </div>
-
-      
-
-      <div class="bottom-row">
-  <span>
-    <span class="label">Start:</span>
-    <span class="value">{{ shift.startTime }}</span>
-  </span>
-=======
         <div class="summary-sales">
           ${{ shift.total_sales | number:'1.2-2' }}
         </div>
       </div>
->>>>>>> Stashed changes
 
       <div class="summary-date">
         • {{ shift.date | date:'dd/MM/yyyy' }}
@@ -208,9 +178,6 @@
     loadingText="Loading more shifts...">
   </ion-infinite-scroll-content>
 </ion-infinite-scroll>
-<<<<<<< Updated upstream
-</ion-content>
-=======
 
 <ion-modal
   [isOpen]="showDateModal"
@@ -536,4 +503,3 @@
   </ng-template>
 
 </ion-modal>
->>>>>>> Stashed changes

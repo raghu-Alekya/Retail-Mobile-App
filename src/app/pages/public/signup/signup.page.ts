@@ -6,9 +6,10 @@ import { ToastService } from 'src/app/services/toast/toast.service';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-signup',
-  templateUrl: './signup.page.html',
-  styleUrls: ['./signup.page.scss'],
+    selector: 'app-signup',
+    templateUrl: './signup.page.html',
+    styleUrls: ['./signup.page.scss'],
+    standalone: false
 })
 export class SignupPage implements OnInit {
 

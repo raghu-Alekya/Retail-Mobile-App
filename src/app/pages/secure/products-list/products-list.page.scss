@@ -1,6 +1,6 @@
 .products-header {
   background: #264c73;
-  padding-bottom: 12px;   /* reduced from 12px */
+  --padding-bottom: 12px;   /* reduced from 12px */
 
   ion-toolbar {
     --background: #264c73;
@@ -18,7 +18,7 @@
 
 .product-tabs{
  display: flex;
-  gap: 10px;
+  gap: 6px;
   padding: 0 8px 6px;   /* 🔥 remove top padding */
   margin-top: -4px;     /* 🔥 pull it up slightly */
   
@@ -48,33 +48,32 @@
   border-radius: 8px;
   display: flex;
   align-items: center;
-  padding: 2px 12px;
+  padding: 8px 18px;
   gap: 10px;
- 
-  input {
-    flex: 1;
+
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.search-wrapper ion-icon {
+  color: #3b3b3b;
+  font-size: 25px;
+  opacity: 0.75;
+}
+
+.search-wrapper input {
+  flex: 1;
   border: none;
   background: transparent;
   color: #3b3b3b;
-  font-size: 18px;          /* bigger text */
-  font-weight: 400;         /* normal (not bold) */
+  font-size: 18px;
+  font-weight: 400;
   outline: none;
-  letter-spacing: 0px;
-  }
-
-  ion-icon {
-    color: #3b3b3b;
-    font-size: 25px;          /* slightly bigger */
-    opacity: 0.75; 
-  }
 }
 
-/* Placeholder */
 .search-wrapper input::placeholder {
   color: #3b3b3b;
-  opacity: 0.55;            /* lighter than text */
-  font-weight: 400;
-  font-size: 17px; 
+  opacity: 0.55;
+  font-size: 17px;
 }
 
 .products-content {
@@ -82,7 +81,7 @@
   padding-left: 10px;
   padding-right: 10px;
   padding-bottom: 10px;
-  background: #f6f6f6;
+  --background: #f6f6f6;
 }
 
 .sort-row {
@@ -111,6 +110,7 @@
     height: 70px;
     border-radius: 10px;
     object-fit: cover;
+    border: 1px solid #eee;
   }
 
   h3 {
@@ -384,3 +384,40 @@ ion-footer ion-segment-button:nth-child(2) {
   margin-left: 12px;
   margin-right: 12px;
 }
+
+
+.product-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ebt-badge {
+  background: #2e7d32;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 8px;
+  letter-spacing: 0.3px;
+}
+
+.variable-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 20px;
+  height: 20px;
+
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.variable-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+

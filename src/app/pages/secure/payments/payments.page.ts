@@ -3,9 +3,10 @@ import { IonRouterOutlet, ModalController } from '@ionic/angular';
 import { FilterPage } from './filter/filter.page';
 
 @Component({
-  selector: 'app-payments',
-  templateUrl: './payments.page.html',
-  styleUrls: ['./payments.page.scss'],
+    selector: 'app-payments',
+    templateUrl: './payments.page.html',
+    styleUrls: ['./payments.page.scss'],
+    standalone: false
 })
 export class PaymentsPage implements OnInit {
 
@@ -29,10 +30,8 @@ export class PaymentsPage implements OnInit {
 
     // Open filter modal
     const modal = await this.modalController.create({
-      component: FilterPage,
-      swipeToClose: true,
-      presentingElement: this.routerOutlet.nativeEl
-    });
+  component: FilterPage
+});
 
     await modal.present();
 

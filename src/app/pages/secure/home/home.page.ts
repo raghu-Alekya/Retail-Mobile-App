@@ -6,12 +6,42 @@ import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.page.html',
-  styleUrls: ['./home.page.scss'],
-  
+    selector: 'app-home',
+    templateUrl: './home.page.html',
+    styleUrls: ['./home.page.scss'],
+    standalone: false
 })
 export class HomePage implements OnInit {
+  stores: { id: string; storeName?: string; storeCode?: string }[] = [];
+  selectedStoreId = '';
+  statusCountsError = '';
+  statusCountsLoading = false;
+  private statusRequestId = 0;
+
+  private loadStores() {
+    try {
+      const savedStores = JSON.parse(localStorage.getItem('merchant_stores') || '[]');
+      this.stores = Array.isArray(savedStores) ? savedStores.filter(store => !!store?.id) : [];
+      const savedStore = JSON.parse(localStorage.getItem('selected_store') || 'null');
+      const selectedStore = this.stores.find(store => store.id === savedStore?.id) || this.stores[0];
+      this.selectedStoreId = selectedStore?.id || '';
+      if (selectedStore) localStorage.setItem('selected_store', JSON.stringify(selectedStore));
+      else localStorage.removeItem('selected_store');
+    } catch {
+      this.stores = [];
+      this.selectedStoreId = '';
+      localStorage.removeItem('selected_store');
+    }
+  }
+
+  async onStoreChange(storeId: string) {
+    const store = this.stores.find(item => item.id === storeId);
+    if (!store) return;
+    this.selectedStoreId = store.id;
+    localStorage.setItem('selected_store', JSON.stringify(store));
+    await this.loadDashboardStats();
+  }
+
   isChartLoading: boolean = false;
   chartType: string = 'sales'; // default
   content_loaded: boolean = false;
@@ -28,12 +58,8 @@ dailyTotals: number[] = [];
     { key: 'wc-pending', label: 'Pending', icon: 'time', count: 0, color: "#386EDA"},
     { key: 'wc-cancelled', label: 'Cancelled', icon: 'close-circle', count: 0, color: "#EF5350"},
     { key: 'wc-refunded', label: 'Refunded', icon: 'refresh-circle', count: 0, color: "#AB47BC"},
-    { key: 'partial-refund', label: 'Partially Refunded', icon: 'refresh-circle', count: 0, color: "#26A69A" },
-    { key: 'wc-failed', label: 'Failed', icon: 'alert-circle', count: 0, color: "#FF7043"},
-    { key: 'wc-on-hold', label: 'On Hold', icon: 'pause-circle', count: 0, color: "#29B6F6"},
-    { key: 'wc-processing', label: 'Processing', icon: 'cart', count: 0, color: "#E1AB20" },
-    { key: 'trash', label: 'Trash', icon: 'trash', count: 0, color: "#8D6E63"},
-  ];
+    { key: 'partial-refund', label: 'Partially Refunded', icon: 'refresh-circle', count: 0, color: "#26A69A" },    // { key: 'wc-on-hold', label: 'On Hold', icon: 'pause-circle', count: 0, color: "#29B6F6"},
+    // { key: 'wc-processing', label: 'Processing', icon: 'cart', count: 0, color: "#E1AB20" },  ];
 
   statusIcons: any = {
     processing: 'cart',
@@ -50,24 +76,16 @@ dailyTotals: number[] = [];
 
   items = [
     { title: 'Orders', icon: 'bag-handle', route: '/orders-list', bg_color: '#FFF6F6', color:'#FE6464' },
-<<<<<<< Updated upstream
-    { title: 'Products', icon: 'cube', route: '/products-list',bg_color: '#EFEDFE', color:'#635C99'   },
-    { title: 'Customers', icon: 'people', route: '/secure/customers',bg_color: '#FFF5E7', color:'#AE8852' },
-    { title: 'Employees', icon: 'person-circle', route: '/users',bg_color: '#EEF4FF', color:'#3763A7' },
-    { title: 'Reports', icon: 'stats-chart', route: '/reports',bg_color: '#FFFEE7', color:'#B9B434' },
-    { title: 'Media', icon: 'images', route: '/media',bg_color: '#FEECEC', color:'#FE6464' },
-=======
     { title: 'Products', icon: 'cube', route: '/products-list',bg_color: '#fff5e7', color:'#ae8852'   },
     { title: 'Customers', icon: 'people', route: '/secure/customers',bg_color: '#efedfe', color:'#635c99' },
     { title: 'Employees', icon: 'person-circle', route: '/users',bg_color: '#fffee7', color:'#b9b434' },
     { title: 'Reports', icon: 'stats-chart', route: '/reports',bg_color: '#eef4ff', color:'#3763a7' },
     { title: 'POS Closing', icon: 'cash', route: '/secure/pos-closing', bg_color: '#EAF7ED', color:'#2E7D32' },
->>>>>>> Stashed changes
     { title: 'Settings', icon: 'settings', route: '/pos-settings',bg_color: '#E6F0F8', color:'#4E718D' },
-    { title: 'Shifts', icon: 'time', route: '/shifts',bg_color: '#eef4ff', color:'#3763a7' },
+    { title: 'Shifts', icon: 'time', route: '/shifts',bg_color: '#fff4fa', color:'#7f3667' },
     { title: 'Payments', icon: 'card', route: '/order-payments',bg_color: '#eaf7ed', color:'#61ab72' },
     { title: 'Vendors', icon: 'business', route: '/vendors',bg_color: '#FFF6F6', color:'#D35400' },
-    { title: 'Coupons', icon: 'pricetag', route: '/coupons',bg_color: '#f2ffe1', color:'#7bb02f' },
+    { title: 'Coupons', icon: 'pricetag', route: '/coupons',bg_color: '#eef4ff', color:'#3763a7' },
     { title: 'Discounts', icon: 'ticket', route: '/discounts',bg_color: '#fff5e7', color:'#e1ab20' },
     //{ title: 'Media', icon: 'images', route: '/media',bg_color: '#FEECEC', color:'#FE6464' },
   ];
@@ -79,6 +97,7 @@ dailyTotals: number[] = [];
   ) {}
 
   ngOnInit() {
+    this.loadStores();
     this.assetsService.assets$.subscribe(assets => {
       this.currencySymbol = assets?.currency_symbol;
     });
@@ -87,41 +106,32 @@ dailyTotals: number[] = [];
 
   // 🔥 ADD THIS (KEY FIX)
  async ionViewDidEnter() {
+  this.loadStores();
   await this.loadDashboardStats();
   await this.loadDailyChart(); 
 }
 
 
   async loadDashboardStats() {
-
-  const promises = this.statuses.map(async (s) => {
-    try {
-      const count = await this.authService.getDashboardStats(s.key);
-      return { status: 'fulfilled', value: count };
-    } catch (error) {
-      return { status: 'rejected', reason: error };
-    }
-  });
-
-  const responses = await Promise.all(promises);
-
-  responses.forEach((result: any, index: number) => {
-
-    if (result.status === 'fulfilled') {
-      
-      this.statuses[index].count = Number(result.value) || 0;
-    } else {
-      console.error(
-        `Dashboard stat failed: ${this.statuses[index].key}`,
-        result.reason
-      );
-
-      this.statuses[index].count = 0;
-    }
-
-  });
-}
-
+    const requestId = ++this.statusRequestId;
+    const storeId = this.selectedStoreId;
+    this.statusCountsError = '';
+    this.statuses.forEach(status => status.count = 0);
+    if (!storeId) { this.statusCountsLoading = false; return; }
+    this.statusCountsLoading = true;
+    const responses = await Promise.all(this.statuses.map(async status => {
+      try {
+        return { count: await this.authService.getPchOrderCount(status.key, storeId), failed: false };
+      } catch {
+        return { count: 0, failed: true };
+      }
+    }));
+    // Ignore requests from an earlier selection when the user switches stores quickly.
+    if (requestId !== this.statusRequestId) return;
+    responses.forEach((result, index) => this.statuses[index].count = result.count);
+    this.statusCountsLoading = false;
+    if (responses.some(result => result.failed)) this.statusCountsError = 'Some order counts could not be loaded. Please try again.';
+  }
 
 renderChart() {
 
@@ -178,6 +188,7 @@ onChartTypeChange() {
   this.loadDailyChart();
 }
 async loadDailyChart() {
+  if (this.authService.isMerchantSession()) { this.isChartLoading = false; return; }
 
   this.isChartLoading = true;   // 🔥 show emoji
 

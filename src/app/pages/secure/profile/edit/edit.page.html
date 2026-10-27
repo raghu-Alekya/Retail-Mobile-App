@@ -20,6 +20,11 @@
           <ion-input formControlName="first_name"></ion-input>
         </ion-item>
       </div>
+      <p class="error-text" *ngIf="editForm.get('first_name')?.touched">
+  <span *ngIf="editForm.get('first_name')?.errors?.['emojiNotAllowed']">
+    Emojis are not allowed
+  </span>
+</p>
 
       <!-- Last Name -->
       <div class="form-group">
@@ -28,6 +33,12 @@
           <ion-input formControlName="last_name"></ion-input>
         </ion-item>
       </div>
+
+      <p class="error-text" *ngIf="editForm.get('last_name')?.touched">
+  <span *ngIf="editForm.get('last_name')?.errors?.['emojiNotAllowed']">
+    Emojis are not allowed
+  </span>
+</p>
 
       <!-- Username -->
       <div class="form-group">
