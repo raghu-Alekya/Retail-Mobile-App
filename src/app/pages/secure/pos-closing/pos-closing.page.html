@@ -1,0 +1,382 @@
+<ion-header class="orders-header">
+  <ion-toolbar>
+
+  <ion-buttons slot="start">
+    <ion-button fill="clear" (click)="goHome()">
+      <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+    </ion-button>
+  </ion-buttons>
+
+  <ion-title>POS Closing</ion-title>
+
+</ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="orders-content">
+  
+  <div class="card-container">
+
+    <!-- Date Filter Card -->
+    <ion-card class="filter-card" (click)="openDateFilter()">
+      <ion-item lines="none">
+        <div slot="start" class="filter-icon">
+          <ion-icon name="calendar-outline"></ion-icon>
+        </div>
+
+        <ion-label>
+          <h2>Date Filter</h2>
+          <p>{{ selectedDateText || 'Select a date or range' }}</p>
+        </ion-label>
+
+        <div slot="end">
+
+          @if (isCustomFilterApplied) {
+
+            <ion-icon
+              name="close-outline"
+              class="clear-icon"
+              (click)="clearFilter($event)">
+            </ion-icon>
+
+          } @else {
+
+            <ion-icon
+              name="chevron-forward-outline"
+              class="arrow-icon">
+            </ion-icon>
+
+          }
+
+        </div>
+      </ion-item>
+    </ion-card>
+  <ion-card class="sales-card">
+
+    <!-- Header -->
+    <div class="card-header">
+      <div class="title">Total Sales</div>
+      <div class="amount">
+        $ {{ posClosingData.total_orders_amount | number:'1.2-2' }}
+      </div>
+    </div>
+
+    <!-- Orders -->
+    <div class="card-grid">
+
+      <div class="grid-item">
+        <div class="left">
+          <ion-icon name="cart-outline" class="blue"></ion-icon>
+          <span>Orders</span>
+        </div>
+        <span class="value">
+          {{ posClosingData.total_orders }}
+        </span>
+      </div>
+
+      <div class="grid-item">
+        <div class="left">
+          <ion-icon name="wallet-outline" class="orange"></ion-icon>
+          <span>Payouts</span>
+        </div>
+        <span class="value">
+          {{ posClosingData.payouts < 0 ? '-' : '' }}${{ absPayouts | number:'1.2-2' }}
+        </span>
+      </div>
+
+      <div class="grid-item">
+        <div class="left">
+          <ion-icon name="close-circle-outline" class="red"></ion-icon>
+          <span>Cancelled</span>
+        </div>
+        <span class="value">
+          {{ posClosingData.cancelled_orders }}
+        </span>
+      </div>
+
+      <div class="grid-item">
+        <div class="left">
+          <ion-icon name="remove-circle-outline" class="yellow"></ion-icon>
+          <span>Void Items</span>
+        </div>
+        <span class="value">
+          {{ posClosingData.void_items }}
+        </span>
+      </div>
+
+    </div>
+
+    <!-- Payment Label -->
+    <div class="section-title">
+      Payments
+    </div>
+
+    <!-- Payments -->
+    <div class="card-grid">
+
+      <div class="grid-item">
+        <div class="left">
+          <ion-icon name="cash-outline" class="green"></ion-icon>
+          <span>Cash</span>
+        </div>
+        <span class="value">
+          ${{ posClosingData.cash | number:'1.2-2' }}
+        </span>
+      </div>
+
+      <div class="grid-item">
+        <div class="left">
+          <ion-icon name="card-outline" class="blue"></ion-icon>
+          <span>EBT</span>
+        </div>
+        <span class="value">
+          ${{ posClosingData.ebt | number:'1.2-2' }}
+        </span>
+      </div>
+
+      <div class="grid-item">
+        <div class="left">
+          <ion-icon name="refresh-outline" class="orange"></ion-icon>
+          <span>Refunds</span>
+        </div>
+        <span class="value">
+          ${{ posClosingData.refunded_orders_amount | number:'1.2-2' }}
+        </span>
+      </div>
+
+      <div class="grid-item">
+        <div class="left">
+          <ion-icon name="card-outline" class="red"></ion-icon>
+          <span>Card</span>
+        </div>
+        <span class="value">
+          ${{ posClosingData.card | number:'1.2-2' }}
+        </span>
+      </div>
+
+    </div>
+
+    <!-- Button -->
+    <ion-button
+      expand="block"
+      class="details-btn"
+      (click)="isDetailsModalOpen = true">
+
+      View Details
+
+    </ion-button>
+
+  </ion-card>
+  </div>
+
+</ion-content>
+
+@if (isFilterModalOpen) {
+
+<div
+  class="filter-backdrop"
+  (click)="closeFilterModal()">
+
+  <div class="filter-popup" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <span>Date Filter</span>
+
+      <ion-icon
+        name="close-outline"
+        (click)="closeFilterModal()">
+      </ion-icon>
+    </div>
+
+    <!-- Tabs -->
+    <div class="filter-tabs">
+
+      <button
+        type="button"
+        class="tab"
+        [class.active]="filterType === 'date'"
+        (click)="filterType='date'; showCalendar=false; showFromCalendar=false; showToCalendar=false">
+        Date
+      </button>
+
+      <button
+        type="button"
+        class="tab"
+        [class.active]="filterType === 'range'"
+        (click)="filterType='range'; showCalendar=false; showFromCalendar=false; showToCalendar=false">
+        Date Range
+      </button>
+
+    </div>
+
+    <!-- DATE FILTER -->
+
+    @if (filterType === 'date') {
+
+  <!-- Date Field -->
+  <div class="date-picker-box" (click)="showCalendar = true">
+    <ion-icon name="calendar-outline"></ion-icon>
+
+    <span>
+      {{ selectedDate || 'Select Date' }}
+    </span>
+  </div>
+
+  <!-- Calendar -->
+  @if (showCalendar) {
+
+    <ion-datetime
+      presentation="date"
+      [value]="selectedDate"
+      (ionChange)="onDateSelected($event)"
+      class="inline-calendar">
+    </ion-datetime>
+
+  }
+
+}
+
+    <!-- DATE RANGE FILTER -->
+
+    @if (filterType === 'range') {
+
+  <!-- From Date -->
+
+  <div class="date-picker-box" (click)="showFromCalendar = true">
+    <ion-icon name="calendar-outline"></ion-icon>
+
+    <span>
+      {{ fromDate || 'From Date' }}
+    </span>
+  </div>
+
+  @if (showFromCalendar) {
+
+    <ion-datetime
+      presentation="date"
+      [value]="fromDate"
+      (ionChange)="onFromDateSelected($event)"
+      class="inline-calendar">
+    </ion-datetime>
+
+  }
+
+  <!-- To Date -->
+
+  <div class="date-picker-box" (click)="showToCalendar = true">
+    <ion-icon name="calendar-outline"></ion-icon>
+
+    <span>
+      {{ toDate || 'To Date' }}
+    </span>
+  </div>
+
+  @if (showToCalendar) {
+
+    <ion-datetime
+      presentation="date"
+      [value]="toDate"
+      (ionChange)="onToDateSelected($event)"
+      class="inline-calendar">
+    </ion-datetime>
+
+  }
+
+}
+
+    <ion-button
+      expand="block"
+      class="apply-btn"
+      (click)="applyFilter()">
+      APPLY
+    </ion-button>
+
+  </div>
+
+</div>
+
+}
+
+<ion-modal
+  [isOpen]="isDetailsModalOpen"
+  cssClass="full-screen-modal"
+  (didDismiss)="isDetailsModalOpen = false">
+
+  <ion-header>
+  <ion-toolbar class="details-toolbar">
+
+    <ion-buttons slot="start">
+      <ion-button (click)="isDetailsModalOpen = false">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title>POS Closing Sales</ion-title>
+
+  </ion-toolbar>
+</ion-header>
+
+  <ion-content class="details-content">
+
+    <!-- <div class="store-name">
+      R and G Mini Mart
+    </div> -->
+
+    <div class="merchant-card">
+      <div class="merchant-icon">
+        <ion-icon name="storefront-outline"></ion-icon>
+      </div>
+
+      <div class="merchant-info">
+        <div class="merchant-name">
+          {{ merchantName }}
+        </div>
+        <!-- <div class="merchant-type">Merchadise Sales</div> -->
+      </div>
+    </div>
+
+    <!-- <div class="table-header">
+      Merchant Retail
+    </div> -->
+
+    <div class="table-container">
+  <table class="sales-table">
+
+    <thead>
+      <tr>
+        <th>Categories</th>
+        <th>Net</th>
+        <th>Sales(%)</th>
+      </tr>
+    </thead>
+
+    <tbody>
+
+      @for (section of salesDetails; track $index) {
+
+        @for (item of section.items; track item.name) {
+
+          <tr>
+            <td>{{ item.name }}</td>
+            <td>${{ item.net | number:'1.2-2' }}</td>
+            <td>{{ item.percent }}</td>
+          </tr>
+
+        }
+
+        <tr class="subtotal-row">
+          <td>Sub-total</td>
+          <td>${{ section.subtotal | number:'1.2-2' }}</td>
+          <td>{{ section.subtotalPercentage | number:'1.2-2' }}%</td>
+        </tr>
+
+      }
+
+    </tbody>
+
+  </table>
+</div>
+
+  </ion-content>
+
+</ion-modal>

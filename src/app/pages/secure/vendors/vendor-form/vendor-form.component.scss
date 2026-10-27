@@ -108,6 +108,30 @@ ion-button::part(native) {
   display: block;
 }
 
+.custom-input,
+.custom-textarea {
+  width: 100%;
+  background: #d8dde3;
+  border: none;
+  outline: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 15px;
+  color: #333;
+  caret-color: #333;
+  box-sizing: border-box;
+}
+
+.custom-textarea {
+  resize: none;
+  min-height: 80px;
+}
+
+.custom-input.error,
+.custom-textarea.error {
+  border: 1px solid #ef5350;
+}
+
 /* ================= iOS FIX FOR VENDOR HEADER ================= */
 
 :host-context(.ios) .vendor-header ion-toolbar {

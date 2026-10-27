@@ -5,10 +5,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { Router } from '@angular/router';
 
+
 @Component({
-  selector: 'app-signin',
-  templateUrl: './signin.page.html',
-  styleUrls: ['./signin.page.scss'],
+    selector: 'app-signin',
+    templateUrl: './signin.page.html',
+    styleUrls: ['./signin.page.scss'],
+    standalone: false
 })
 export class SigninPage implements OnInit {
 
@@ -31,17 +33,14 @@ export class SigninPage implements OnInit {
     // Setup form
     this.signin_form = this.formBuilder.group({
       email: ['', Validators.compose([Validators.email, Validators.required])],
-      password: ['', Validators.compose([Validators.minLength(6), Validators.required])],
-      site_url: ['', Validators.compose([Validators.required])]
+      password: ['', Validators.compose([Validators.minLength(6), Validators.required])]
     });
-    // DEBUG: Prefill inputs
-    // this.signin_form.get('email').setValue('vijay.nadipineni@alekyatechsolutions.com');
-    // this.signin_form.get('password').setValue('Retail@1234$');
-    // this.signin_form.get('site_url').setValue('merchantretail.alektasolutions.com');
+
   }
 
   // Sign in
   async signIn() {
+    if (this.loading) return;
     this.submit_attempt = true;
 
     if (this.signin_form.invalid) {
@@ -55,36 +54,29 @@ export class SigninPage implements OnInit {
       return;
     }
 
+    this.loading = true;
     const loading = await this.loadingController.create({
       cssClass: 'default-loading',
-      message: '<p>Signing in...</p><span>Please be patient.</span>',
+      message: 'Signing in...\nPlease be patient.',
       spinner: 'crescent'
     });
 
     await loading.present();
 
     try {
-      // 🔥 IMPORTANT: await login
-      const res = await this.authService.login(
+      await this.authService.loginMerchant(
         this.signin_form.value.email,
-        this.signin_form.value.password,
-        this.signin_form.value.site_url
+        this.signin_form.value.password
       );
 
-      // Optional safety check
-      const token = localStorage.getItem('wc_token');
-
-      if (!token) {
-        throw new Error('Token not stored');
-      }
-      console.log(token);
-      // ✅ Navigate ONLY after token exists
       await this.router.navigateByUrl('tabs/home', { replaceUrl: true });
 
-    } catch (error) {
+    } catch (error: any) {
       this.toastService.presentToast(
         'Login Failed',
-        'Invalid email or password',
+        error?.message?.includes('fetch')
+          ? 'Cannot reach PCH. Check that the backend is running on port 3003.'
+          : error?.message || 'Unable to sign in. Please try again.',
         'top',
         'danger',
         2000
@@ -98,6 +90,4 @@ export class SigninPage implements OnInit {
   togglePassword() {
     this.showPassword = !this.showPassword;
   }
-
-
 }

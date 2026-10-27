@@ -4,9 +4,10 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
-  selector: 'app-order-payments',
-  templateUrl: './order-payments.page.html',
-  styleUrls: ['./order-payments.page.scss'],
+    selector: 'app-order-payments',
+    templateUrl: './order-payments.page.html',
+    styleUrls: ['./order-payments.page.scss'],
+    standalone: false
 })
 export class OrderPaymentsPage implements OnInit {
   payments: any[] = [];
@@ -313,6 +314,19 @@ export class OrderPaymentsPage implements OnInit {
     if (!date) return '—';
     return new Date(date).toLocaleString();
   }
+formatCurrencyString(value: any): string {
 
+  if (!value) {
+    return '$0.00';
+  }
+
+  const str = String(value);
+
+  if (str.startsWith('$-')) {
+    return '-$' + str.replace('$-', '');
+  }
+
+  return str;
+}
   
 }

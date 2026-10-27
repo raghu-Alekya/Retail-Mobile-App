@@ -232,6 +232,35 @@ ion-content {
 
 ///////page loading state///////
 
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  text-align: center;
+  color: #777;
+}
+
+.empty-state ion-icon {
+  font-size: 64px;
+  color: #c7c7c7;
+  margin-bottom: 12px;
+}
+
+.empty-state h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #444;
+}
+
+.empty-state p {
+  margin-top: 8px;
+  font-size: 15px;
+  color: #8a8a8a;
+}
+
 .loader-wrapper {
   display: flex;
   flex-direction: column;

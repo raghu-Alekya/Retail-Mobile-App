@@ -11,7 +11,7 @@
     <ion-icon name="search-outline"></ion-icon>
     <input
       type="text"
-      placeholder="Search by name"
+      placeholder="Search by mobile.no"
       (input)="onSearch($event)"
     />
   </div>
@@ -44,24 +44,29 @@
 
         <!-- Email OR Phone -->
         <div class="name">
-          {{
-            ((user.first_name || '') + ' ' + (user.last_name || '')).trim()
-            || user.name
-            || user.email
-            || 'No Name'
-          }}
+          {{ user.contact || '-' }}
         </div>
 
-        <!-- Redeem Points -->
         <div class="login-id">
-        Redeem Points:
-        <strong>{{ user?.meta?.redeem_points ?? 0 }} Pts</strong>
+          Available Points:
+          <strong>{{ user.available ?? 0 }} Pts</strong>
         </div>
 
       </div>
 
     </div>
   </div>
+
+  <!-- Empty State -->
+  <div
+    class="no-customers"
+    *ngIf="!loading && customers.length === 0"
+  >
+    <ion-icon name="people-outline"></ion-icon>
+    <h3>No Customers Found</h3>
+    <p>Try changing the search.</p>
+  </div>
+  
   <ion-infinite-scroll
     threshold="100px"
     (ionInfinite)="loadMore($event)"

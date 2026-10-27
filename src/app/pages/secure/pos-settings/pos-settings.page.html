@@ -35,73 +35,94 @@
           <div class="accordion-body" slot="content">
             <ion-item>
               <ion-input
-                label="Store Name"
-                placeholder="Enter store name"
+                placeholder="Store Name"
                 [(ngModel)]="settings.address.pinaka_pos_name">
               </ion-input>
             </ion-item>
 
+            <div class="error-text" *ngIf="storeNameError">
+              {{ storeNameError }}
+            </div>
+
             <ion-item>
+
               <ion-input
-                label="Email"
-                placeholder="Enter email"
-                [(ngModel)]="settings.address.pinaka_pos_email"
-                (ionInput)="validateEmail()"
-                [class.error]="emailError">
+                placeholder="Email"
+                [(ngModel)]="settings.address.pinaka_pos_email">
               </ion-input>
             </ion-item>
-            <div class="error-text" *ngIf="emailError">
-              {{ emailError }}
-            </div>
+            <div class="error-text" *ngIf="emailEmojiError">
+                {{ emailEmojiError }}
+              </div>
+
+              <div class="error-text" *ngIf="emailError">
+                {{ emailError }}
+              </div>
 
             <ion-item>
               <ion-input
                 type="tel"
-                
-                [(ngModel)]="settings.address.pinaka_pos_phone"
-                (ionInput)="onPhoneInput($event)"
-                [class.error]="phoneError">
+                placeholder="Phone"
+                [(ngModel)]="settings.address.pinaka_pos_phone">
               </ion-input>
             </ion-item>
             <div class="error-text" *ngIf="phoneError">
               {{ phoneError }}
             </div>
-            <ion-item>
-              <ion-input
-                label="Address line 1"
-                placeholder="Enter address"
-                [(ngModel)]="settings.address.pinaka_pos_business_address">
-              </ion-input>
-            </ion-item>
+
+            
+              <ion-item>
+                <ion-input
+                  placeholder="Address line 1"
+                  [(ngModel)]="settings.address.pinaka_pos_business_address">
+                </ion-input>
+              </ion-item>
+
+              <div class="error-text" *ngIf="addressError">
+                {{ addressError }}
+              </div>
+            
 
             <ion-item>
               <ion-input
-                label="City"
-                placeholder="Enter city"
+                placeholder="City"
                 [(ngModel)]="settings.address.pinaka_pos_business_city">
               </ion-input>
             </ion-item>
+            <div class="error-text" *ngIf="cityError">
+                {{ cityError }}
+              </div>
 
             <ion-item>
               <ion-input
-                label="State"
-                placeholder="Enter state"
+                placeholder="State"
                 [(ngModel)]="settings.address.pinaka_pos_business_state">
               </ion-input>
             </ion-item>
+            <div class="error-text" *ngIf="stateError">
+                {{ stateError }}
+              </div>
 
             <ion-item>
               <ion-input
-                label="Postcode"
-                placeholder="Enter postcode"
+                placeholder="Postcode"
                 [(ngModel)]="settings.address.pinaka_pos_business_postcode">
               </ion-input>
             </ion-item>
 
-            <ion-button 
-              expand="block" 
+            <ion-button
+              expand="block"
               class="save-address-btn"
-              (click)="saveAddress()">
+              (click)="saveAddress()"
+              [disabled]="
+                !!storeNameError ||
+                !!emailEmojiError ||
+                !!addressError ||
+                !!cityError ||
+                !!stateError ||
+                !!phoneError ||
+                !!emailError
+              ">
               Save Address
             </ion-button>
           </div>
@@ -112,6 +133,7 @@
       <ion-item lines="none">
         <ion-label>Enable Safe</ion-label>
         <ion-toggle
+        slot="end"
         [(ngModel)]="settings.enable_safes"
         (ionChange)="onToggleChange($event,'enable_safes')">
       </ion-toggle>
@@ -120,6 +142,7 @@
       <ion-item lines="none">
         <ion-label>Enable Safe Drop</ion-label>
         <ion-toggle
+          slot="end"
           [(ngModel)]="settings.enable_safes_drop"
           (ionChange)="onToggleChange($event, 'enable_safes_drop')">
         </ion-toggle>
@@ -128,6 +151,7 @@
       <ion-item lines="none">
         <ion-label>Enable Taxes</ion-label>
         <ion-toggle
+          slot="end"
           [(ngModel)]="settings.enableTaxes"
           (ionChange)="onToggleChange($event, 'enableTaxes')">
         </ion-toggle>
@@ -136,6 +160,7 @@
       <ion-item lines="none">
         <ion-label>Enable Coupons</ion-label>
         <ion-toggle
+          slot="end"
           [(ngModel)]="settings.enableCoupons"
           (ionChange)="onToggleChange($event, 'enableCoupons')">
         </ion-toggle>
@@ -146,6 +171,7 @@
         [disabled]="!settings.enableCoupons">
         <ion-label>Sequential Coupon Discount</ion-label>
         <ion-toggle
+          slot="end"
           [(ngModel)]="settings.sequentialCoupons"
           (ionChange)="onToggleChange($event, 'sequentialCoupons')">
         </ion-toggle>
@@ -193,18 +219,23 @@
             <ion-item>
               <ion-input
                 placeholder="New category"
-                [(ngModel)]="newCategory">
+                [(ngModel)]="newCategory"
+                (ionInput)="onCategoryInput($event)">
               </ion-input>
 
               <ion-button
                 slot="end"
                 size="small"
                 class="primary-btn"
-                [disabled]="isAddingCategory"
+                [disabled]="isAddingCategory || !!categoryError"
                 (click)="addCategory()">
                 {{ isAddingCategory ? 'Adding...' : 'Add' }}
               </ion-button>
             </ion-item>
+
+            <div class="error-text" *ngIf="categoryError">
+              {{ categoryError }}
+            </div>
 
             <ion-item *ngFor="let cat of categories">
               <ion-label>{{ cat.name }}</ion-label>
@@ -237,18 +268,23 @@
             <ion-item>
               <ion-input
                 placeholder="New tag"
-                [(ngModel)]="newTag">
+                [(ngModel)]="newTag"
+                (ionInput)="onTagInput($event)">
               </ion-input>
-              
+
               <ion-button
-              slot="end"
-              size="small"
-              class="primary-btn"
-              [disabled]="isAddingTag"
-              (click)="addTag()">
-              {{ isAddingTag ? 'Adding...' : 'Add' }}
-            </ion-button>
+                slot="end"
+                size="small"
+                class="primary-btn"
+                [disabled]="isAddingTag || !!tagError"
+                (click)="addTag()">
+                {{ isAddingTag ? 'Adding...' : 'Add' }}
+              </ion-button>
             </ion-item>
+
+            <div class="error-text" *ngIf="tagError">
+              {{ tagError }}
+            </div>
 
             <ion-item *ngFor="let tag of tags">
               <ion-label>{{ tag.name }}</ion-label>
@@ -286,6 +322,7 @@
       <ion-item lines="none">
         <ion-label>Enable Cash Back</ion-label>
         <ion-toggle
+          slot="end"
           [(ngModel)]="settings.enable_cashback"
           (ionChange)="onToggleChange($event, 'enable_cashback')">
         </ion-toggle>
@@ -294,6 +331,7 @@
       <ion-item lines="none">
         <ion-label>Service Charge</ion-label>
         <ion-toggle
+          slot="end"
           [(ngModel)]="settings.enable_service_charge"
           (ionChange)="onToggleChange($event, 'enable_service_charge')">
         </ion-toggle>
@@ -302,6 +340,7 @@
       <ion-item lines="none">
         <ion-label>Loyalty Points</ion-label>
         <ion-toggle
+          slot="end"
           [(ngModel)]="settings.enable_loyalty_points"
           (ionChange)="onToggleChange($event, 'enable_loyalty_points')">
         </ion-toggle>

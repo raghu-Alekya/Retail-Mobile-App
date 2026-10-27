@@ -3,8 +3,9 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import axios from 'axios';
 import { AssetsService } from '../assets/assets.service';
 import { ApiConfigService } from '../api-config.service';
-import { CapacitorHttp } from '@capacitor/core';
-import { Directory, Filesystem } from '@capacitor/filesystem';
+import { Capacitor, CapacitorHttp } from '@capacitor/core';
+import { environment } from '../../../environments/environment';
+import { Filesystem } from '@capacitor/filesystem';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
@@ -21,6 +22,18 @@ export class AuthService {
     this.base = localStorage.getItem('wp_base_url') || '';
   }
 
+  private base64ToBlob(base64: string, contentType: string): Blob {
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
+
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+
+  const byteArray = new Uint8Array(byteNumbers);
+
+  return new Blob([byteArray], { type: contentType });
+}
 
   /** Load user when app refreshes */
   private loadUserFromStorage() {
@@ -31,7 +44,47 @@ export class AuthService {
   }
 
 
-async login(email: string, password: string, siteUrl: string) {
+private get merchantApiUrl(): string {
+    return !Capacitor.isNativePlatform() && !environment.production
+      ? window.location.origin + '/pch-api'
+      : environment.pchApiBaseUrl.replace(/\/+$/, '');
+  }
+
+  isMerchantSession(): boolean {
+    return localStorage.getItem('auth_provider') === 'pch-merchant';
+  }
+
+  async loginMerchant(email: string, password: string) {
+    const res = await CapacitorHttp.request({
+      method: 'POST', url: this.merchantApiUrl + '/pos/auth/merchant-login',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      data: { email: email.trim(), password }
+    });
+    const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+    const token = data?.accessToken || data?.merchantToken;
+    if (res.status < 200 || res.status >= 300 || data?.success !== true || !token || !data?.merchant?.id) {
+      throw new Error(data?.message || 'Merchant login failed. Please check your credentials.');
+    }
+    const user = { ...data.merchant, token, name: data.merchant.businessDisplayName,
+      display_name: data.merchant.businessDisplayName };
+    const stores = Array.isArray(data.stores) ? data.stores : [];
+    localStorage.setItem('wc_token', token);
+    localStorage.setItem('user_data', JSON.stringify(user));
+    localStorage.setItem('auth_provider', 'pch-merchant');
+    localStorage.setItem('merchant_data', JSON.stringify(data.merchant));
+    localStorage.setItem('merchant_stores', JSON.stringify(stores));
+    localStorage.setItem('merchant_token_expires_at', String(Date.now() + Number(data.expiresIn || 0) * 1000));
+    localStorage.removeItem('selected_store');
+    if (stores.length) localStorage.setItem('selected_store', JSON.stringify(stores[0]));
+    this.apiConfig.clear();
+    this.base = '';
+    this.wpBase = '';
+    this.assetsService.clearAssets();
+    this.currentUserSubject.next(user);
+    return data;
+  }
+
+  async login(email: string, password: string, siteUrl: string) {
 
   try {
 
@@ -78,6 +131,7 @@ async login(email: string, password: string, siteUrl: string) {
 
 
   logout() {
+    ['auth_provider', 'merchant_data', 'merchant_stores', 'merchant_token_expires_at', 'selected_store'].forEach(key => localStorage.removeItem(key));
     localStorage.removeItem('wc_token');
     localStorage.removeItem('user_data');
     this.apiConfig.clear();
@@ -103,7 +157,30 @@ async login(email: string, password: string, siteUrl: string) {
     return localStorage.getItem('wc_token');
   }
 
-async getDashboardStats(status: string): Promise<number> {
+async getPchOrderCount(status: string, storeId: string): Promise<number> {
+    if (!storeId) throw new Error('Select a store to load order counts.');
+    const baseUrl = !Capacitor.isNativePlatform() && !environment.production
+      ? window.location.origin + '/pch-orders-api'
+      : environment.pchOrdersApiBaseUrl.replace(/\/+$/, '');
+    const res = await CapacitorHttp.request({
+      method: 'GET',
+      url: baseUrl + '/orders/total-orders',
+      headers: { Accept: 'application/json', 'x-store-id': storeId },
+      params: { status: status.replace(/^wc-/, ''), page: '1', per_page: '1' }
+    });
+    const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+    const count = Number(data?.order_total_count);
+    if (res.status < 200 || res.status >= 300 || data?.order_total_count == null || !Number.isFinite(count) || count < 0) {
+      throw new Error(data?.message || 'Unable to load order count.');
+    }
+    return count;
+  }
+
+async getDashboardStats(
+  status: string,
+  fromDate: string = '',
+  toDate: string = ''
+): Promise<number> {
 
   const token = localStorage.getItem('wc_token');
   this.wpBase = this.apiConfig.getBaseUrl();
@@ -117,14 +194,14 @@ async getDashboardStats(status: string): Promise<number> {
         Accept: 'application/json',
         'Content-Type': 'application/json'
       },
-      params: { status }
+      params: {
+        status,
+        from_date: fromDate,
+        to_date: toDate
+      }
     });
 
-    if (res.data?.total !== undefined) {
-      return Number(res.data.total);
-    }
-
-    return 0;
+    return Number(res.data?.total || 0);
 
   } catch (error) {
     console.error('Dashboard stats error:', error);
@@ -134,7 +211,13 @@ async getDashboardStats(status: string): Promise<number> {
 
 
 
-async getOrders(page: number, search: string = '', status: string = '') {
+async getOrders(
+  page: number,
+  search: string = '',
+  status: string = '',
+  fromDate: string = '',
+  toDate: string = ''
+) {
 
   const token = localStorage.getItem('wc_token');
   this.wpBase = this.apiConfig.getBaseUrl();
@@ -146,12 +229,21 @@ async getOrders(page: number, search: string = '', status: string = '') {
     order: 'desc',
   };
 
-  // ✅ apply status filter
+  // ✅ Status filter
   if (status) {
     params.status = status;
   }
 
-  // ⭐ detect order ID search
+  // ✅ Date filter
+  if (fromDate) {
+  params.after = `${fromDate}T00:00:00`;
+}
+
+if (toDate) {
+  params.before = `${toDate}T23:59:59`;
+}
+
+  // ✅ Search filter
   if (search) {
     if (!isNaN(Number(search))) {
       params.include = search;   // search by order ID
@@ -371,84 +463,73 @@ private fileToBase64(file: File): Promise<string> {
 }
 
 async uploadMedia(file: File) {
+  // Convert File -> Base64
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
 
-  const formData = new FormData();
-  // Ensure a filename is always sent (iOS/WKWebView can be picky)
-  formData.append('file', file, file?.name || 'upload.jpg');
+    reader.onload = () => {
+      const result = reader.result as string;
 
-  const res = await fetch(`${this.wpBase}/wp-json/wp/v2/media`, {
-    method: 'POST',
-    headers: {
-      Authorization: this.getAuthHeaders().Authorization
-    },
-    body: formData
+      // Remove "data:image/jpeg;base64,"
+      resolve(result.split(',')[1]);
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
 
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.error('Upload error:', errorText);
+  const response = await CapacitorHttp.request({
+    method: 'POST',
+    url: `${this.wpBase}/wp-json/wp/v2/media`,
+    headers: {
+      Authorization: this.getAuthHeaders().Authorization,
+      'Content-Type': file.type || 'image/jpeg',
+      'Content-Disposition': `attachment; filename="${file.name || 'upload.jpg'}"`
+    },
+    data: base64,
+    dataType: 'file'
+  });
+
+  if (response.status !== 200 && response.status !== 201) {
+    console.error('Upload error:', response.data);
     throw new Error('Upload failed');
   }
 
-  return await res.json();
+  return response.data;
 }
 
 async uploadMediaFromPath(
   filePath: string,
   _fileName: string = 'upload.jpg'
 ) {
-  try {
-    // For Capacitor 6, we need to read the file as blob first
-    const fileEntry = await Filesystem.readFile({
-      path: filePath,
-      directory: Directory.Data, // Adjust this based on where your file is
-    });
+  console.log('Uploading path:', filePath);
 
-    // Convert base64 to blob
-    const blob = this.base64ToBlob(fileEntry.data as string, 'image/jpeg');
-    
-    // Create FormData
-    const formData = new FormData();
-    formData.append('file', blob, _fileName);
+  const fileData = await Filesystem.readFile({
+    path: filePath
+  });
 
-    const response = await CapacitorHttp.request({
-      url: `${this.wpBase}/wp-json/wp/v2/media`,
-      method: 'POST',
-      headers: {
-        'Authorization': this.getAuthHeaders().Authorization,
-        'Content-Type': 'multipart/form-data',
-      },
-      data: formData,
-    });
+  const base64 = fileData.data as string;
 
-    if (response.status >= 400 || response.status === 0) {
-      console.error('Upload error:', response.data);
-      throw new Error('Upload failed');
-    }
+  const response = await CapacitorHttp.request({
+    method: 'POST',
+    url: `${this.wpBase}/wp-json/wp/v2/media`,
+    headers: {
+      Authorization: this.getAuthHeaders().Authorization,
+      'Content-Type': 'image/jpeg',
+      'Content-Disposition': 'attachment; filename="upload.jpg"'
+    },
+    data: base64,
+    dataType: 'file'
+  });
 
-    return response.data;
-  } catch (error) {
-    console.error('Upload error:', error);
-    throw error;
+  console.log('Upload response:', response);
+
+  if (response.status !== 200 && response.status !== 201) {
+    throw new Error('Upload failed');
   }
-}
 
-// Helper method to convert base64 to blob
-private base64ToBlob(base64: string, contentType: string = ''): Blob {
-  // Remove base64 prefix if present (e.g., "data:image/jpeg;base64,")
-  const base64Data = base64.includes(',') ? base64.split(',')[1] : base64;
-  
-  const byteCharacters = atob(base64Data);
-  const byteArrays = [];
-  
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteArrays.push(byteCharacters.charCodeAt(i));
-  }
-  
-  const byteArray = new Uint8Array(byteArrays);
-  return new Blob([byteArray], { type: contentType });
+  return response.data;
 }
-
 async updateStoreCurrency(currency: string) {
   const res = await CapacitorHttp.request({
     method: 'PUT',
@@ -630,21 +711,30 @@ async deleteUser(id: number) {
 }
 
 
-async getShifts(page: number, search = '', status = '') {
+async getShifts(
+  page: number,
+  search = '',
+  status = '',
+  fromDate = '',
+  toDate = ''
+) {
   const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/shifts/get-all-shifts`,
     headers: this.getAuthHeaders(),
     params: {
       page: String(page),
-      per_page: "10",
+      per_page: '10',
       search,
       status,
+      from_date: fromDate,
+      to_date: toDate
     },
   });
 
   return res.data;
 }
+
 
 
 async getOrderPayments(
@@ -1604,12 +1694,45 @@ async uploadProfileImage(file: File) {
   const token = this.getToken();
   const baseUrl = this.apiConfig.getBaseUrl();
 
-  const formData = new FormData();
-  formData.append('profile_image', file);
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve(result.split(',')[1]);
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 
   const res = await CapacitorHttp.request({
     method: 'POST',
-    url: `${baseUrl}/wp-json/pinaka-pos/v1/profile`,
+    url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/upload-image`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    data: {
+      image: base64,
+      filename: file.name
+    }
+  });
+
+  console.log(res);
+
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
+}
+
+async getProfileImage() {
+  const token = this.getToken();
+  const baseUrl = this.apiConfig.getBaseUrl();
+
+  const res = await CapacitorHttp.request({
+    method: 'GET',
+    url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/get-image`,
     headers: {
       Authorization: `Bearer ${token}`
     }
@@ -1624,7 +1747,7 @@ async deleteProfileImage() {
   const token = this.getToken();
   const baseUrl = this.apiConfig.getBaseUrl();
 
-  const res = await Http.request({
+  const res = await CapacitorHttp.request({
     method: 'DELETE',
     url: `${baseUrl}/wp-json/pinaka-pos/v1/profile/delete-image`,
     headers: {
@@ -1642,7 +1765,7 @@ async validateToken(token: string): Promise<{ valid: boolean }> {
   this.wpBase = this.apiConfig.getBaseUrl();
 
   try {
-    const res = await Http.request({
+    const res = await CapacitorHttp.request({
       method: 'GET',
       url: `${this.wpBase}/wp-json/pinaka-pos/v1/profile`, // ✅ existing safe endpoint
       headers: {
@@ -1664,4 +1787,143 @@ async validateToken(token: string): Promise<{ valid: boolean }> {
   }
 }
 
+async logout_by_id(emp_login_pin: number) {
+
+    const emp_login_pinn = emp_login_pin || 0;
+
+    let url = localStorage.getItem('wp_base_url');
+
+    if (!url) {
+      url = this.apiConfig.getBaseUrl();
+    }
+
+    const res = await CapacitorHttp.request({
+      method: 'POST',
+      url: `${url}/wp-json/pinaka-pos/v1/token/logout-by-id`,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: {
+        emp_login_pin: emp_login_pinn
+      }
+    });
+
+    return res.data;
+  }
+  async validateuser(token: string): Promise<{ valid: boolean }> {
+    if (this.isMerchantSession()) {
+      // PCH endpoints enforce authentication; never validate a PCH token through WordPress.
+      return { valid: token === this.getToken() && Date.now() < Number(localStorage.getItem('merchant_token_expires_at')) };
+    }
+
+
+    this.wpBase = this.apiConfig.getBaseUrl();
+
+    try {
+      const res = await CapacitorHttp.request({
+        method: 'GET',
+        url: `${this.wpBase}/wp-json/pinaka-pos/v1/profile`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json'
+        }
+      });
+      if (res?.status === 403 || res?.status === 401) {
+        return { valid: false };
+      }
+      else{
+        return { valid: true };
+      }
+    } catch (error) {
+      console.error('Token validation failed:', error);
+      return { valid: false };
+    }
+  }
+
+  async getLoyaltyCustomers() {
+
+    const res = await CapacitorHttp.request({
+      method: 'GET',
+      url: `${this.wpBase}/wp-json/pinaka-pos/v1/loyalty/get-all-customers`,
+      headers: this.getAuthHeaders()
+    });
+
+    return res.data;
+  }
+  
+ async getPosClosing(
+  startDate: string = '',
+  endDate: string = ''
+) {
+
+  console.log('Sending Dates:', startDate, endDate);
+
+  const token = localStorage.getItem('wc_token');
+  this.wpBase = this.apiConfig.getBaseUrl();
+
+  const res = await CapacitorHttp.request({
+    method: 'GET',
+    url: `${this.wpBase}/wp-json/pinaka-pos/v1/orders/total-orders-count`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+      'Content-Type': 'application/json'
+    },
+    params: {
+      start_date: startDate,
+      end_date: endDate
+    }
+  });
+
+  console.log('Response:', res.data);
+
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
+}
+
+async getDailyShiftSummary(startDate = '', endDate = '') {
+
+  const token = localStorage.getItem('wc_token');
+  this.wpBase = this.apiConfig.getBaseUrl();
+
+  const res = await CapacitorHttp.request({
+    method: 'GET',
+    url: `${this.wpBase}/wp-json/pinaka-pos/v1/shifts/get-daily-shift-summary`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    },
+    params: {
+      start_date: startDate,
+      end_date: endDate
+    }
+  });
+
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
+}
+
+async getShiftDetails(date: string) {
+
+  const token = localStorage.getItem('wc_token');
+  this.wpBase = this.apiConfig.getBaseUrl();
+
+  const res = await CapacitorHttp.request({
+    method: 'GET',
+    url: `${this.wpBase}/wp-json/pinaka-pos/v1/shifts/shifts-by-date`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    },
+    params: {
+      date
+    }
+  });
+
+  return typeof res.data === 'string'
+    ? JSON.parse(res.data)
+    : res.data;
+}
 }

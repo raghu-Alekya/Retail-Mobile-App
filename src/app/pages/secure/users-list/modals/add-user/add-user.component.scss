@@ -163,6 +163,27 @@ ion-select::part(icon) {
   padding-left: 6px;   /* 👈 left spacing inside */
 }
 
+.custom-input,
+.custom-select {
+  width: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+  color: #1f2937;
+  caret-color: #000;
+  font-family: inherit;
+}
+
+.custom-input::placeholder {
+  color: #6b7280;
+}
+
+.custom-select {
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
 /////////////////////////////////////////////
 
 /* ================= iOS HEADER FINAL FIX ================= */

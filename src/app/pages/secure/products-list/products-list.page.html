@@ -20,57 +20,68 @@
   </ion-toolbar>
  
   <div class="search-wrapper">
-  <ion-icon name="search-outline"></ion-icon>
+    <ion-icon name="search-outline"></ion-icon>
 
-  <ion-input
-    placeholder="Search products..."
-    [(ngModel)]="searchTerm"
-    (ionChange)="onSearchChange()"
-  ></ion-input>
-
-  
-</div>
+    <input
+      type="text"
+      placeholder="Search products..."
+      [(ngModel)]="searchTerm"
+      (input)="onSearchChange()"
+    />
+  </div>
 </ion-header>
 
 
 <ion-content class="products-content ion-padding">
 
     <!-- LOADING -->
-<div *ngIf="loading && products.length === 0" class="loader-wrapper">
-  <ion-spinner name="crescent"></ion-spinner>
-</div>
-<div class="product-tabs" *ngIf="!(loading && products.length === 0)">
-  <ion-chip
-    class="tab"
-    [class.active]="stockFilter === 'all'"
-    (click)="setStockFilter('all')"
-  >
-    All
-  </ion-chip>
+    <div *ngIf="loading && products.length === 0" class="loader-wrapper">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+    <div class="product-tabs" *ngIf="!(loading && products.length === 0)">
+      <ion-chip
+        class="tab"
+        [class.active]="stockFilter === 'all'"
+        (click)="setStockFilter('all')"
+      >
+        All
+      </ion-chip>
 
-  <ion-chip
-    class="tab"
-    [class.active]="stockFilter === 'instock'"
-    (click)="setStockFilter('instock')"
-  >
-    Instock
-  </ion-chip>
+      <ion-chip
+        class="tab"
+        [class.active]="stockFilter === 'instock'"
+        (click)="setStockFilter('instock')"
+      >
+        Instock
+      </ion-chip>
 
-  <ion-chip
-    class="tab"
-    [class.active]="stockFilter === 'outofstock'"
-    (click)="setStockFilter('outofstock')"
-  >
-    Out of stock
-  </ion-chip>
+      <ion-chip
+        class="tab"
+        [class.active]="stockFilter === 'outofstock'"
+        (click)="setStockFilter('outofstock')"
+      >
+        Out of stock
+      </ion-chip>
 
-</div>
-  <!-- Sort -->
-  <div class="sort-row" *ngIf="!(loading && products.length === 0)">
-    <ion-icon name="swap-vertical-outline"></ion-icon>
-    <span>Sort by:</span>
-    <strong>Newest first</strong>
-  </div>
+    </div>
+    <!-- Sort -->
+    <div class="sort-row" *ngIf="!(loading && products.length === 0)">
+      <ion-icon name="swap-vertical-outline"></ion-icon>
+      <span>Sort by:</span>
+      <strong>Newest first</strong>
+    </div>
+
+    <div
+      *ngIf="!loading && products.length === 0"
+      class="no-products">
+
+      <ion-icon name="cube-outline"></ion-icon>
+
+      <h3>No Products Found</h3>
+
+      <p>Try changing the search or stock filter.</p>
+
+    </div>
 
   <!-- Product Card -->
   <div
@@ -80,25 +91,42 @@
 
     <div class="product-top">
       <img
-        [src]="product.images?.[0]?.src || 'assets/img/placeholder.png'"
+        [src]="product.images?.[0]?.src || 'assets/img/Custom image.png'"
       />
 
       <div class="product-info">
-        <h3 class="product-name">{{ product.name }}</h3>
+        <h3 class="product-name">{{ product.name }}
+        <span
+          class="ebt-badge"
+          *ngIf="hasEbtTag(product)"
+        >
+          EBT
+        </span>
 
-  <h6 class="price-text">
-    <span class="price-label">Regular Price:</span>
-    <span class="price-value">
-      {{ (product?.regular_price || product?.price || 0) | currency }}
-    </span>
-  </h6>
+        <span
+            class="variable-badge"
+            *ngIf="product.type === 'variable'"
+          >
+            <img
+              src='assets/icons/8px Variant.png'
+              alt="Variable"
+            />
+        </span>
+        </h3>
 
-  <h6 class="price-text">
-    <span class="price-label">Sale Price:</span>
-    <span class="price-value">
-      {{ (product?.sale_price || 0) | currency }}
-    </span>
-  </h6>
+        <h6 class="price-text">
+          <span class="price-label">Regular Price:</span>
+          <span class="price-value">
+            {{ (product?.regular_price || product?.price || 0) | currency }}
+          </span>
+        </h6>
+
+        <h6 class="price-text">
+          <span class="price-label">Sale Price:</span>
+          <span class="price-value">
+            {{ (product?.sale_price || 0) | currency }}
+          </span>
+        </h6>
 
         <!-- <span
           class="stock"
@@ -124,7 +152,7 @@
     </div>
 
     <div class="product-bottom">
-      <span>#{{ product.id }}</span>
+      <span></span>
 
       <div class="badges">
         <span class="type">{{ product.type }}</span>
@@ -145,7 +173,7 @@
     >
       <ion-infinite-scroll-content
         loadingSpinner="crescent"
-        loadingText="Loading more orders..."
+        loadingText="Loading more products..."
       >
       </ion-infinite-scroll-content>
     </ion-infinite-scroll>

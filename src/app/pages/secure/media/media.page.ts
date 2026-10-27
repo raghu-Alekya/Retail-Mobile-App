@@ -4,9 +4,10 @@ import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
 
 @Component({
-  selector: 'app-media',
-  templateUrl: './media.page.html',
-  styleUrls: ['./media.page.scss']
+    selector: 'app-media',
+    templateUrl: './media.page.html',
+    styleUrls: ['./media.page.scss'],
+    standalone: false
 })
 export class MediaPage implements OnInit {
 

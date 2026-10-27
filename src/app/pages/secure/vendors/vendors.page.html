@@ -31,6 +31,16 @@
     <ion-spinner name="crescent"></ion-spinner>
   </div>
 
+  <!-- EMPTY STATE -->
+  <div
+    *ngIf="!loading && filteredVendors.length === 0"
+    class="empty-state"
+  >
+    <ion-icon name="storefront-outline"></ion-icon>
+    <h3>No vendors found</h3>
+    <p>Try changing your search.</p>
+  </div>
+
   <div class="card-container">
 
     <div

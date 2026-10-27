@@ -351,7 +351,58 @@ ion-label[position="stacked"] {
   display: block;
 }
 
+ion-input,
+.form-field ion-select {
+  --highlight-height: 0;
+}
+
+.form-field ion-input::part(native) {
+  caret-color: black !important;
+}
+
+.form-field ion-select::part(icon) {
+  color: #000 !important;
+}
+
+.custom-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 12px;
+  color: #333;
+  caret-color: #333;
+}
 ///////page loading state///////
+
+.no-employees {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+
+  padding: 120px 20px 20px;   /* Move it lower like Orders */
+  text-align: center;
+  color: #777;
+}
+
+.no-employees ion-icon {
+  font-size: 64px;
+  color: #d3d3d3;
+  margin-bottom: 12px;
+}
+
+.no-employees h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.no-employees p {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #888;
+}
 
 .loader-wrapper {
   display: flex;

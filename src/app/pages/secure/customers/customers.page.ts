@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { LoadingController } from '@ionic/angular';
 @Component({
-  selector: 'app-customers',
-  templateUrl: './customers.page.html',
-  styleUrls: ['./customers.page.scss'],
+    selector: 'app-customers',
+    templateUrl: './customers.page.html',
+    styleUrls: ['./customers.page.scss'],
+    standalone: false
 })
 export class CustomersPage {
 
@@ -20,10 +21,10 @@ export class CustomersPage {
   constructor(private authService: AuthService, 
     private loadingCtrl: LoadingController) {}
 
-  // ✅ Better for Ionic pages
-  async ionViewDidEnter() {
-  this.loadCustomers(true);
-}
+    // ✅ Better for Ionic pages
+    async ionViewDidEnter() {
+      this.loadCustomers(true);
+    }
 
   async loadCustomers(reset = false) {
     if (this.loading) return;
@@ -40,11 +41,25 @@ export class CustomersPage {
       const currentPage = Number(this.page) || 1;
       const perPageNum = Number(this.perPage) || 20;
 
-      const response = await this.authService.getCustomers(
-        String(currentPage),
-        String(perPageNum),
-        this.searchTerm
-      );
+      const response = await this.authService.getLoyaltyCustomers();
+
+      const data = response?.data || [];
+
+      const filtered = data.filter((customer: any) => {
+        const mobile = String(
+          customer.mobile_no ||
+          customer.contact ||
+          customer.phone ||
+          ''
+        ).toLowerCase();
+
+        const term = this.searchTerm.toLowerCase();
+
+        return mobile.includes(term);
+      });
+
+      this.customers = filtered;
+      this.hasMore = false; // API returns all records
 
       if (Array.isArray(response) && response.length > 0) {
         const filtered = (response || []).filter((user: any) => {

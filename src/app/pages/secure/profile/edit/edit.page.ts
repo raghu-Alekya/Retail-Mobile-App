@@ -4,13 +4,23 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { ToastController } from '@ionic/angular';
 import { NavController } from '@ionic/angular';
 import { Validators } from '@angular/forms';
+import { AbstractControl, ValidationErrors } from '@angular/forms';
 
 @Component({
-  selector: 'app-edit',
-  templateUrl: './edit.page.html',
-  styleUrls: ['./edit.page.scss'],
+    selector: 'app-edit',
+    templateUrl: './edit.page.html',
+    styleUrls: ['./edit.page.scss'],
+    standalone: false
 })
 export class EditPage implements OnInit {
+
+  noEmojiValidator(control: AbstractControl): ValidationErrors | null {
+  const emojiRegex = /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
+
+  return emojiRegex.test(control.value || '')
+    ? { emojiNotAllowed: true }
+    : null;
+}
 
   editForm!: FormGroup;
   wpUrl = 'https://merchantretail.alektasolutions.com';
@@ -24,8 +34,8 @@ export class EditPage implements OnInit {
 
   ngOnInit() {
     this.editForm = this.fb.group({
-  first_name: [''],
-  last_name: [''],
+  first_name: ['', [this.noEmojiValidator]],
+  last_name: ['', [this.noEmojiValidator]],
   username: [{ value: '', disabled: true }],
   email: [''],
   gender: [''],

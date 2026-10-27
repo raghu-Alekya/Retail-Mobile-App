@@ -17,8 +17,6 @@ import { VendorFormComponent } from './vendor-form/vendor-form.component';
     VendorsPageRoutingModule
   ],
   declarations: [VendorsPage],
-  entryComponents: [
-    VendorFormComponent   // 🔴 REQUIRED in Angular 7
-  ]
+
 })
 export class VendorsPageModule {}

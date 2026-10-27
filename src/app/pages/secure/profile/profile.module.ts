@@ -5,16 +5,10 @@ import { IonicModule } from '@ionic/angular';
 import { ProfilePageRoutingModule } from './profile-routing.module';
 import { ProfilePage } from './profile.page';
 
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
-@NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule,
-    ProfilePageRoutingModule,
-    HttpClientModule
-  ],
-  declarations: [ProfilePage]
-})
+@NgModule({ declarations: [ProfilePage], imports: [CommonModule,
+        FormsModule,
+        IonicModule,
+        ProfilePageRoutingModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
 export class ProfilePageModule {}
