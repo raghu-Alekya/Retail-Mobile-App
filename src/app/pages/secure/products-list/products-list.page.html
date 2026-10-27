@@ -1,7 +1,7 @@
 <ion-header class="products-header">
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home" text=""></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
 
     <ion-title>Products</ion-title>
@@ -33,6 +33,10 @@
 
 
 <ion-content class="products-content ion-padding">
+    <div *ngIf="loadError" class="ion-text-center ion-padding" role="alert">
+      <p>{{ loadError }}</p>
+      <ion-button size="small" (click)="loadProducts(undefined, true)">Retry</ion-button>
+    </div>
 
     <!-- LOADING -->
     <div *ngIf="loading && products.length === 0" class="loader-wrapper">
@@ -72,7 +76,7 @@
     </div>
 
     <div
-      *ngIf="!loading && products.length === 0"
+      *ngIf="!loading && !loadError && products.length === 0"
       class="no-products">
 
       <ion-icon name="cube-outline"></ion-icon>
@@ -91,7 +95,9 @@
 
     <div class="product-top">
       <img
-        [src]="product.images?.[0]?.src || 'assets/img/Custom image.png'"
+        [src]="getProductImage(product)"
+        [alt]="product.name || 'Product'"
+        (error)="onProductImageError($event)"
       />
 
       <div class="product-info">
@@ -168,6 +174,7 @@
   </div>
 
   <ion-infinite-scroll
+      [disabled]="loading || !hasMore"
       threshold="100px"
       (ionInfinite)="loadProducts($event)"
     >

@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-coupons',
+    standalone: true,
     templateUrl: './coupons.page.html',
     styleUrls: ['./coupons.page.scss'],
     imports: [IonicModule, CommonModule, FormsModule]
@@ -20,6 +21,9 @@ searchTerm: string = '';
 coupons: any[] = [];
 filteredCoupons: any[] = [];
   loading = false;
+  loadError = '';
+  private couponRequestId = 0;
+  private loadingContext = '';
   showForm = false;
   editingCoupon: any = null;
 
@@ -43,6 +47,7 @@ filteredCoupons: any[] = [];
 ) {}
 
   ngOnInit() {
+    void this.loadCoupons();
     this.routerSub = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
@@ -70,26 +75,29 @@ ionViewDidEnter() {
   this.loadCoupons();
 }
 async loadCoupons() {
-  this.loading = true;
-
+  let merchantId = '';
+  let storeId = '';
   try {
-    const response = await this.auth.getCoupons();
-
-    // 🔥 FIXED
-    const data = response?.data ? response.data : response;
-
-    this.coupons = data || [];
-    this.filteredCoupons = [...this.coupons];
-
-    console.log("Updated coupons:", this.coupons);
-    this.cdr.detectChanges();
-
-  } catch (error) {
-    console.error('Error loading coupons:', error);
-    this.coupons = [];
-    this.filteredCoupons = [];
+    merchantId = JSON.parse(localStorage.getItem('merchant_data') || 'null')?.id || '';
+    storeId = JSON.parse(localStorage.getItem('selected_store') || 'null')?.id || '';
+  } catch {}
+  const context = merchantId + ':' + storeId;
+  if (this.loading && this.loadingContext === context) return;
+  const requestId = ++this.couponRequestId;
+  this.loadingContext = context;
+  this.loading = true;
+  this.loadError = '';
+  this.coupons = [];
+  this.filteredCoupons = [];
+  try {
+    const coupons = await this.auth.getPchCoupons(merchantId, storeId);
+    if (requestId !== this.couponRequestId) return;
+    this.coupons = coupons;
+    this.filterCoupons();
+  } catch (error: any) {
+    if (requestId === this.couponRequestId) this.loadError = error?.message || 'Unable to load coupons. Please try again.';
   } finally {
-    this.loading = false;
+    if (requestId === this.couponRequestId) this.loading = false;
   }
 }
 ionViewWillEnter() {

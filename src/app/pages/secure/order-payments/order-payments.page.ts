@@ -1,332 +1,123 @@
-import { Component, OnInit } from '@angular/core';
-import { IonicModule, ToastController } from '@ionic/angular';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
-    selector: 'app-order-payments',
-    templateUrl: './order-payments.page.html',
-    styleUrls: ['./order-payments.page.scss'],
-    standalone: false
+  selector: 'app-order-payments', templateUrl: './order-payments.page.html',
+  styleUrls: ['./order-payments.page.scss'], standalone: false
 })
-export class OrderPaymentsPage implements OnInit {
+export class OrderPaymentsPage implements OnInit, OnDestroy {
   payments: any[] = [];
   groupedPayments: any[] = [];
   page = 1;
-  pageSize?: number;
   loading = false;
   hasMore = true;
   search = '';
-  // status = '';
-  searchTimeout: any;
   paymentMode = '';
-  constructor(
-    private toastCtrl: ToastController,     
-    private authService: AuthService,
-  ) { }
+  loadError = '';
+  searchTimeout: ReturnType<typeof setTimeout>;
+  private requestId = 0;
+  private storeId = '';
+  private recordsPromise: Promise<any[]> | null = null;
 
-  ngOnInit() {
-    this.loadPayments();
+  constructor(private authService: AuthService) {}
+  ngOnInit() { void this.loadPayments(undefined, true); }
+  ionViewWillEnter() {
+    if (!this.loading) { this.recordsPromise = null; void this.loadPayments(undefined, true); }
   }
+  ngOnDestroy() { clearTimeout(this.searchTimeout); this.requestId++; }
 
-  
-  /**
-   * Pull to refresh
-   */
   refresh(event: any) {
-    this.loadPayments(event);
+    this.recordsPromise = null;
+    return this.loadPayments(event, true);
   }
   onPaymentFilter(event: any) {
-
-    const mode = event.detail.value || '';
-
-    this.paymentMode = mode;
-
-    // reset pagination
-    this.page = 1;
-    this.payments = [];
-    this.groupedPayments = [];
-    this.hasMore = true;
-
-    this.loadPayments();
+    this.paymentMode = event.detail.value || '';
+    void this.loadPayments(undefined, true);
   }
-  // groupPayments(list: any[] = this.payments) {
+  onSearch(event: any) {
+    const value = String(event.target.value || '').trim();
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.search = value;
+      void this.loadPayments(undefined, true);
+    }, 400);
+  }
 
-  //   const grouped: any = {};
+  private paymentMethod(payment: any): string {
+    const value = String(payment.payment_method || payment.payment_method_title || '').toLowerCase().replace(/^pos[-_]/, '');
+    if (value.startsWith('ebt')) return 'ebt';
+    if (value === 'credit' || value === 'debit' || value.includes('card')) return 'card';
+    return value;
+  }
 
-  //   list.forEach((p: any) => {
-
-  //     const orderId = p?.meta?.order_id;
-
-  //     if (!grouped[orderId]) {
-  //       grouped[orderId] = {
-  //         order_id: orderId,
-  //         order_total: p.order_total,
-  //         created_at: p.created_at,
-  //         accepted_by: p.accepted_by,
-  //         payment_method: p.payment_method,
-  //         transactions: []
-  //       };
-  //     }
-
-  //     grouped[orderId].transactions.push({
-  //       transaction_id: p.transaction_id,
-  //       pay_mode: p.pay_mode,
-  //       tender_amount: p.tender_amount
-  //     });
-
-  //   });
-
-  //   this.groupedPayments = [...Object.values(grouped)];
-  // }
-  groupPayments(list: any[] = this.payments) {
-
-    const grouped: any = {};
-
-    // Seed map with existing groups to avoid duplicate cards across pages
-    this.groupedPayments.forEach((g: any) => {
-      grouped[g.order_id] = {
-        ...g,
-        // shallow copy transactions so we can safely push
-        transactions: [...(g.transactions || [])],
+  groupPayments(list: any[] = this.payments): any[] {
+    const grouped: Record<string, any> = {};
+    list.forEach(payment => {
+      const key = String(payment.order_id || payment.client_order_id || payment.id);
+      if (!grouped[key]) grouped[key] = {
+        order_id: key,
+        order_number: payment.order_number || '—',
+        order_total: payment.order_total,
+        created_at: payment.payment_at,
+        accepted_by: payment.accepted_by,
+        currency: payment.currency || 'USD',
+        transactions: []
       };
-    });
-
-    // Add / merge new payments
-    list.forEach((p: any) => {
-
-      const orderId = p?.meta?.order_id ?? p?.order_id ?? p?.orderId;
-      if (orderId == null || orderId === '') return;
-
-      // If searching, keep only matching order ids in the grouped view
-      const searchVal = this.search?.toString().trim().toLowerCase();
-      if (searchVal) {
-        const orderStr = String(orderId).toLowerCase();
-        if (!orderStr.includes(searchVal)) {
-          return;
-        }
-      }
-
-      if (!grouped[orderId]) {
-        grouped[orderId] = {
-          order_id: orderId,
-          order_total: p.order_total,
-          created_at: p.created_at,
-          accepted_by: p.accepted_by,
-          payment_method: p.payment_method,
-          transactions: []
-        };
-      }
-
-      // avoid duplicate transactions (same transaction_id)
-      const exists = grouped[orderId].transactions
-        .some((t: any) => t.transaction_id === p.transaction_id);
-
-      if (!exists) {
-        grouped[orderId].transactions.push({
-          transaction_id: p.transaction_id,
-          pay_mode: p.pay_mode,
-          tender_amount: p.tender_amount
+      const group = grouped[key];
+      if (!group.transactions.some((item: any) => item.id === payment.id)) {
+        group.transactions.push({
+          id: payment.id,
+          transaction_id: payment.local_id ?? '—',
+          pay_mode: payment.payment_method_title || payment.payment_method || '—',
+          tender_amount: payment.amount,
+          currency: payment.currency || 'USD'
         });
       }
-
+      if (Date.parse(payment.payment_at || '') > Date.parse(group.created_at || '')) group.created_at = payment.payment_at;
     });
-
-    // keep stable ordering (newest first) if created_at exists
-    this.groupedPayments = Object.values(grouped).sort((a: any, b: any) => {
-      const ta = a?.created_at ? new Date(a.created_at).getTime() : 0;
-      const tb = b?.created_at ? new Date(b.created_at).getTime() : 0;
-      return tb - ta;
-    });
+    return Object.values(grouped).sort((a: any, b: any) => (Date.parse(b.created_at || '') || 0) - (Date.parse(a.created_at || '') || 0));
   }
-  trackByOrder(index: number, item: any) {
-    return item?.order_id ?? index;
-  }
-    /**
-   * Status badge color
-   */
-  // getStatusColor(status: string): string {
-  //   switch (status) {
-  //     case 'open':
-  //       return 'success';
-  //     case 'closed':
-  //       return 'medium';
-  //     default:
-  //       return 'warning';
-  //   }
-  // }
 
-  async loadPayments(event?: any, reset = false, force = false) {
-
-    // prevent duplicate calls
-    if (this.loading) {
-      event?.target.complete();
-      return;
-    }
-
-    if (reset) {
-      this.page = 1;
-      this.payments = [];
-      this.hasMore = true;
-    }
-
-    if (!this.hasMore && !force) {
-      event?.target.complete();
-      return;
-    }
-
+  async loadPayments(event?: any, reset = false) {
+    if (!reset && (this.loading || !this.hasMore)) { event?.target?.complete(); return; }
+    const requestId = ++this.requestId;
+    if (reset) { this.page = 1; this.payments = []; this.groupedPayments = []; this.hasMore = true; }
     this.loading = true;
-
+    this.loadError = '';
     try {
-      const res = await this.authService.getOrderPayments(
-        this.page,
-        this.search,
-        // this.status,
-        this.paymentMode
-      );
-
-      console.log('Order payments API:', res);
-
-      // ✅ CORRECT DATA EXTRACTION
-      const items = Array.isArray(res?.data) ? res.data : [];
-
-      if (items.length > 0) {
-        if (this.page === 1) {
-          this.payments = items;
-        } else {
-          this.payments.push(...items);
-        }
-
-        this.groupPayments(items); // group only new items
-
-        this.page++;
-        // Prefer backend pagination flag; otherwise infer based on page size.
-        if (this.pageSize == null) this.pageSize = items.length;
-        const apiHasMore = res?.pagination?.has_more;
-        this.hasMore =
-          typeof apiHasMore === 'boolean'
-            ? apiHasMore
-            : (this.pageSize ? items.length >= this.pageSize : false);
-      } else {
-        this.hasMore = false;
+      let storeId = '';
+      try { storeId = JSON.parse(localStorage.getItem('selected_store') || 'null')?.id || ''; } catch {}
+      if (!this.recordsPromise || storeId !== this.storeId) {
+        this.storeId = storeId;
+        this.recordsPromise = this.authService.getPchPaymentRecords(storeId);
       }
-
-    } catch (err) {
-      console.error('Payment load failed', err);
-    }
-
-    this.loading = false;
-    event?.target.complete();
-  }
-
-  // onSearch(event: any) {
-  //   const value = event.target.value?.trim() || '';
-  //   this.search = value;
-  //   this.loadPayments(undefined, true);
-  // }
-  // onSearch(event: any) {
-
-  //   const value = event.target.value?.toLowerCase().trim() || '';
-
-  //   this.search = value;
-
-  //   if (!value) {
-  //     this.groupPayments();
-  //     return;
-  //   }
-
-  //   const filtered = this.payments.filter((p: any) => {
-
-  //     const orderId = String(p?.meta?.order_id || '').toLowerCase();
-  //     const transactionId = String(p?.transaction_id || '').toLowerCase();
-  //     const paymentMethod = String(p?.payment_method || '').toLowerCase();
-
-  //     return (
-  //       orderId.includes(value) ||
-  //       transactionId.includes(value) ||
-  //       paymentMethod.includes(value)
-  //     );
-  //   });
-
-  //   this.groupPayments(filtered);
-  // }
-  // onSearch(event: any) {
-
-  //   clearTimeout(this.searchTimeout);
-
-  //   this.searchTimeout = setTimeout(() => {
-
-  //     const value = event.target.value?.trim() || '';
-
-  //     this.search = value;
-
-  //     // reset pagination
-  //     this.page = 1;
-  //     this.payments = [];
-  //     this.groupedPayments = [];
-  //     this.hasMore = true;
-
-  //     this.loadPayments();
-
-  //   }, 2000);
-
-  // }
-  onSearch(event: any) {
-
-    clearTimeout(this.searchTimeout);
-
-    this.searchTimeout = setTimeout(() => {
-
-      const value = event.target.value?.trim() || '';
-
-      this.search = value;
-
-      this.page = 1;
-      this.hasMore = true;
-      this.pageSize = undefined;
-
-      this.payments = [];
-      this.groupedPayments = [];
-
-      // Search results are typically paginated; load all pages so the
-      // card shows all transactions for the matching order id.
-      void this.loadAllSearchResults();
-
-    }, 500); // faster debounce
-  }
-
-  private async loadAllSearchResults() {
-    // First page
-    await this.loadPayments(undefined, false, true);
-
-    // Then keep going while API reports more data.
-    // We rely on hasMore (computed from backend pagination or pageSize).
-    let guard = 0;
-    while (this.search && this.hasMore && guard < 50) {
-      guard++;
-      await this.loadPayments(undefined, false, true);
+      const records = await this.recordsPromise;
+      if (requestId !== this.requestId) return;
+      const search = this.search.toLowerCase().replace(/^#/, '');
+      const filtered = records.filter(payment => {
+        const isVoid = payment.is_void === true || payment.entry_type === 'void' || String(payment.status || '').toLowerCase() === 'void';
+        if (this.paymentMode === 'void' ? !isVoid : this.paymentMode && this.paymentMethod(payment) !== this.paymentMode) return false;
+        return !search || [payment.order_number, payment.client_order_id, payment.order_id].some(value => String(value || '').toLowerCase().includes(search));
+      });
+      const groups = this.groupPayments(filtered);
+      this.payments = filtered;
+      this.groupedPayments = groups.slice(0, this.page * 10);
+      this.hasMore = this.page * 10 < groups.length;
+      this.page++;
+    } catch (error: any) {
+      if (requestId === this.requestId) {
+        this.recordsPromise = null;
+        this.loadError = error?.message || 'Unable to load payments. Please try again.';
+      }
+    } finally {
+      if (requestId === this.requestId) this.loading = false;
+      event?.target?.complete();
     }
   }
-  /**
-   * Format date safely
-   */
-  formatDate(date: string): string {
-    if (!date) return '—';
-    return new Date(date).toLocaleString();
+
+  trackByOrder(index: number, item: any) { return item.order_id ?? index; }
+  formatCurrencyString(value: any, currency = 'USD'): string {
+    const amount = Number(value || 0);
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: /^[A-Z]{3}$/.test(currency) ? currency : 'USD' }).format(Number.isFinite(amount) ? amount : 0);
   }
-formatCurrencyString(value: any): string {
-
-  if (!value) {
-    return '$0.00';
-  }
-
-  const str = String(value);
-
-  if (str.startsWith('$-')) {
-    return '-$' + str.replace('$-', '');
-  }
-
-  return str;
-}
-  
 }

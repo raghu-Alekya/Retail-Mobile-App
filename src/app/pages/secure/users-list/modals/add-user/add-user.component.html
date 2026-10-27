@@ -31,7 +31,7 @@
     [(ngModel)]="user.username"
     name="username"
     placeholder="Enter username"
-    (input)="onUsernameInput($event)"
+    (input)="onEmployeeTextInput('username', $event)"
     (blur)="usernameTouched = true"
     class="custom-input"
   />
@@ -60,7 +60,7 @@
   type="email"
   placeholder="Enter email address"
   [(ngModel)]="user.email"
-  (input)="checkChanges()"
+
   (blur)="emailTouched = true"
   class="custom-input"
 />
@@ -103,7 +103,7 @@
     type="text"
     [(ngModel)]="user.first_name"
     placeholder="Enter first name"
-    (input)="onFirstNameInput($event)"
+    (input)="onEmployeeTextInput('first_name', $event)"
     (blur)="firstNameTouched = true"
     class="custom-input"
   />
@@ -135,7 +135,7 @@
     type="text"
     [(ngModel)]="user.last_name"
     placeholder="Enter last name"
-    (input)="onLastNameInput($event)"
+    (input)="onEmployeeTextInput('last_name', $event)"
     (blur)="lastNameTouched = true"
     class="custom-input"
   />

@@ -25,6 +25,10 @@
   </div>
 </ion-header>
 <ion-content class="employees-content">
+  <div *ngIf="loadError" class="ion-text-center ion-padding" role="alert">
+    <p>{{ loadError }}</p>
+    <ion-button size="small" (click)="loadUsers()">Retry</ion-button>
+  </div>
 
   <!-- LOADING -->
 <div *ngIf="loading && filteredUsers.length === 0" class="loader-wrapper">
@@ -43,7 +47,7 @@
            [ngClass]="'card-color-' + (i % 5)">
 
         <div class="role-label">
-          • {{ getRoleLabel(user.roles) }}
+          • {{ user.roleName || getRoleLabel(user.roles) }}
         </div>
 
         <div class="card-content">
@@ -54,7 +58,7 @@
 
           <div class="details">
             <div class="name">
-              {{ user.first_name }}
+              {{ user.first_name }} {{ user.last_name }}
             </div>
             <div class="login-id">
 
@@ -74,7 +78,7 @@
   <!-- Empty State -->
   <div
     class="no-employees"
-    *ngIf="!loading && filteredUsers.length === 0 && !editingUserId"
+    *ngIf="!loading && !loadError && filteredUsers.length === 0 && !editingUserId"
   >
     <ion-icon name="people-outline"></ion-icon>
     <h3>No Employees Found</h3>

@@ -16,6 +16,10 @@ export class VendorsPage implements OnInit {
   perPage = 10;
   hasMore = true;
   loading = false;
+  loadError = '';
+  private vendorRequestId = 0;
+  private vendorMerchantId = '';
+  private vendorSearch = '';
 
   vendors: any[] = [];
   filteredVendors: any[] = [];
@@ -44,49 +48,41 @@ goBack() {
 
   /* ---------------- LOAD VENDORS ---------------- */
 
+  ionViewWillEnter() { void this.loadVendors(); }
+
   async loadVendors(event?: any) {
-    if (this.loading || !this.hasMore) return;
-
+    let merchantId = '';
+    try { merchantId = JSON.parse(localStorage.getItem('merchant_data') || 'null')?.id || ''; } catch {}
+    if (this.loading && merchantId === this.vendorMerchantId) { event?.target?.complete(); return; }
+    const requestId = ++this.vendorRequestId;
+    this.vendorMerchantId = merchantId;
     this.loading = true;
-
+    this.loadError = '';
+    this.vendors = [];
+    this.filteredVendors = [];
     try {
-      const res = await this.authService.getVendors(this.page, String(this.perPage));
-
-      // 🔥 NORMALIZE DATA FOR UI (CRITICAL FIX)
-      const mapped = res.data.map((v: any) => ({
-        id: v.id,
-        title: v.title,
-        meta: v.meta,
-        vendor_name: v.title,
-        amount: v.amount || v.total_amount || v.totalAmount || 0,
-        payment_method: v.payment_method || v.paymentMethod || '',
-        type: (v.type || v.payoutType || 'purchase').toLowerCase(),
-        note: v.note || v.remarks || 'Paid in full purchase'
-      }));
-
-      this.vendors = [...this.vendors, ...mapped];
-      this.filteredVendors = [...this.vendors];
-
-      this.hasMore = mapped.length === this.perPage;
-      this.page++;
-
-    } catch (err) {
-      console.error('Failed to load vendors', err);
+      const vendors = await this.authService.getPchVendors(merchantId);
+      if (requestId !== this.vendorRequestId) return;
+      this.vendors = vendors;
+      this.filterVendors();
       this.hasMore = false;
+    } catch (error: any) {
+      if (requestId === this.vendorRequestId) this.loadError = error?.message || 'Unable to load vendors. Please try again.';
+    } finally {
+      if (requestId === this.vendorRequestId) this.loading = false;
+      event?.target?.complete();
     }
-
-    this.loading = false;
-    if (event) event.target.complete();
   }
 
-  /* ---------------- SEARCH ---------------- */
-
   search(event: any) {
-    const val = event.target.value?.toLowerCase() || '';
+    this.vendorSearch = String(event.target.value || '').trim().toLowerCase();
+    this.filterVendors();
+  }
 
-    this.filteredVendors = this.vendors.filter(v =>
-      v.vendor_name.toLowerCase().includes(val)
-    );
+  private filterVendors() {
+    this.filteredVendors = this.vendors.filter(vendor => !this.vendorSearch ||
+      [vendor.vendor_name, vendor.vendor_code, vendor.contact_person, vendor.phone, vendor.email]
+        .some(value => String(value || '').toLowerCase().includes(this.vendorSearch)));
   }
 
   /* ---------------- AVATAR COLOR ---------------- */

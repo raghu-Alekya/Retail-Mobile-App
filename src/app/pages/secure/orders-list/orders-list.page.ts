@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-order-list',
+    standalone: true,
     templateUrl: './orders-list.page.html',
     styleUrls: ['./orders-list.page.scss'],
     imports: [IonicModule, CommonModule, RouterModule, FormsModule]
@@ -15,6 +16,12 @@ import { FormsModule } from '@angular/forms';
 export class OrderListPage implements OnInit {
 
   orders: any[] = [];
+  storeId = '';
+  totalOrders = 0;
+  loadError = '';
+  private requestId = 0;
+  private countRequestId = 0;
+  private entryLoad: Promise<void> | null = null;
   page = 1;
   loading = false;
   hasMore = true;
@@ -34,7 +41,21 @@ toDateValue = '';
 dateFilterTab: 'date' | 'range' = 'date';
 calendarMode: 'single' | 'from' | 'to' | null = null;
 filterType: 'date' | 'range' | '' = '';
-maxDate = new Date().toISOString().split('T')[0];
+maxDate = this.localDateKey(new Date());
+dateError = '';
+
+private localDateKey(date: Date): string {
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+}
+
+onDateSelected(field: 'from' | 'to', value: string | string[] | null | undefined) {
+  const selected = Array.isArray(value) ? value[0] : value;
+  if (!selected) return;
+  if (field === 'from') this.fromDateValue = selected.slice(0, 10);
+  else this.toDateValue = selected.slice(0, 10);
+  this.dateError = '';
+  this.calendarMode = null;
+}
 
 
   expandedOrderId: number | null = null;
@@ -44,38 +65,43 @@ maxDate = new Date().toISOString().split('T')[0];
     private assetsService: AssetsService
   ) { }
 
-  async ngOnInit() {
+  ngOnInit() {
+    void this.ionViewWillEnter();
+    this.assetsService.assets$.subscribe(assets => {
+      if (assets?.currency_symbol) this.currencySymbol = assets.currency_symbol;
+    });
+  }
 
-  await this.loadStatusCounts(); // <-- add this
+  async ionViewWillEnter() {
+    let storeId = '';
+    try { storeId = JSON.parse(localStorage.getItem('selected_store') || 'null')?.id || ''; } catch {}
+    if (storeId === this.storeId && this.entryLoad) return this.entryLoad;
+    if (storeId === this.storeId && this.orders.length) return;
+    this.storeId = storeId;
+    this.page = 1;
+    this.orders = [];
+    this.hasMore = true;
+    const pending = Promise.all([this.loadStatusCounts(), this.loadOrders()]).then(() => {});
+    this.entryLoad = pending;
+    try { await pending; } finally { if (this.entryLoad === pending) this.entryLoad = null; }
+  }
 
-  await this.loadOrders();
-
-  this.assetsService.assets$.subscribe(assets => {
-    this.currencySymbol = assets?.currency_symbol;
-  });
-}
-
-async loadStatusCounts() {
-
-  const promises = this.statuses.map(async (s) => {
+  async loadStatusCounts() {
+    const requestId = ++this.countRequestId;
+    const storeId = this.storeId;
+    this.totalOrders = 0;
+    this.statuses.forEach(status => status.count = 0);
+    if (!storeId) return;
     try {
-      const count = await this.authService.getDashboardStats(
-        s.key,
-        this.fromDateApi,
-        this.toDateApi
-      );
-      return count;
-    } catch {
-      return 0;
-    }
-  });
-
-  const results = await Promise.all(promises);
-
-  this.statuses.forEach((status, index) => {
-    status.count = Number(results[index]) || 0;
-  });
-}
+      const [counts, all] = await Promise.all([
+        this.authService.getPchOrderStatusCounts(storeId),
+        this.authService.getPchOrdersPage(1, storeId, '', 1)
+      ]);
+      if (requestId !== this.countRequestId || storeId !== this.storeId) return;
+      this.totalOrders = all.total;
+      this.statuses.forEach(status => status.count = counts[status.value.replace(/-/g, '_')] ?? 0);
+    } catch { /* The list still shows its own loading error if the request fails. */ }
+  }
   /* ================================
      LOAD ORDERS
   ================================= */
@@ -103,12 +129,7 @@ statuses = [
 
   getStatusCount(value: string): number {
 
-  if (value === 'all') {
-    return this.statuses.reduce(
-      (total, status) => total + status.count,
-      0
-    );
-  }
+  if (value === 'all') return this.totalOrders;
 
   const status = this.statuses.find(
     s => s.value === value
@@ -118,141 +139,71 @@ statuses = [
 }
 
   async loadOrders(event?: any) {
-
-    if (this.loading || !this.hasMore) {
-      event?.target?.complete();
-      return;
-    }
-
+    if (event && (this.loading || !this.hasMore)) { event.target?.complete(); return; }
+    const requestId = ++this.requestId;
+    const storeId = this.storeId;
+    const search = this.searchTerm.replace('#', '').trim().toLowerCase();
+    const status = this.selectedStatus;
+    const from = this.fromDateApi;
+    const to = this.toDateApi;
+    let page = this.page;
+    const matches: any[] = [];
     this.loading = true;
-
+    this.loadError = '';
     try {
-      let allData: any[] = [];
-
-      let activeSearchTerm = this.searchTerm;
-      let activeStatus = this.selectedStatus;
-
-      if (this.searchTerm) {
-        let searchVal = this.searchTerm.replace('#', '').trim();
-        
-        // 1. EXACT MATCH CHECK
-        // If they typed a number, ask the API for the exact order ID first.
-        if (this.page === 1 && searchVal && !isNaN(Number(searchVal))) {
-          try {
-            let exactData = await this.authService.getOrders(
-  1,
-  searchVal,
-  this.selectedStatus !== 'all' ? this.selectedStatus : '',
-  this.fromDateApi,
-  this.toDateApi
-);
-            
-            if (this.searchTerm !== activeSearchTerm || this.selectedStatus !== activeStatus) return;
-
-            if (Array.isArray(exactData) && exactData.length > 0) {
-              let exactMatch = exactData.find(o => o.id?.toString() === searchVal);
-              if (exactMatch) {
-                // If we found the EXACT order, exclude the rest and show ONLY this one
-                this.orders = [exactMatch];
-                this.hasMore = false;
-                this.loading = false;
-                event?.target?.complete();
-                return;
-              }
-            }
-          } catch (e) {
-            console.error('Exact search error:', e);
-          }
-        }
-
-        // 2. PARTIAL MATCH BATCH SEARCH (Fallback)
-        let keepFetching = true;
-        let loopCount = 0;
-        
-        while (keepFetching) {
-          let promises = [];
-          for (let i = 0; i < 5; i++) {
-             promises.push(
-                this.authService.getOrders(
-  this.page + i,
-  '',
-  this.selectedStatus !== 'all' ? this.selectedStatus : '',
-  this.fromDateApi,
-  this.toDateApi
-)
-                .catch(() => [])
-             );
-          }
-          let results = await Promise.all(promises);
-          
-          // ABORT if the user changed the search term or status while we were fetching
-          if (this.searchTerm !== activeSearchTerm || this.selectedStatus !== activeStatus) {
-             return;
-          }
-          
-          let foundDataInBatch = false;
-          let newMatches: any[] = [];
-          
-          for (let pageData of results) {
-            if (Array.isArray(pageData) && pageData.length > 0) {
-              foundDataInBatch = true;
-              let matches = pageData.filter(order =>
-                order.id?.toString().includes(searchVal)
-              );
-              newMatches = [...newMatches, ...matches];
-            }
-          }
-          
-          if (newMatches.length > 0) {
-             this.orders = this.orders.length === 0
-               ? newMatches
-               : [...this.orders, ...newMatches];
-          }
-          
-          this.page += 5;
-          loopCount++;
-          
-          if (!foundDataInBatch || this.orders.length >= 10 || loopCount >= 10) {
-             keepFetching = false;
-             if (!foundDataInBatch) {
-               this.hasMore = false;
-             }
-          }
-        }
-      } else {
-        let data = await this.authService.getOrders(
-  this.page,
-  '',
-  this.selectedStatus !== 'all' ? this.selectedStatus : '',
-  this.fromDateApi,
-  this.toDateApi
-);
-
-        // ABORT if the user changed the search term or status while we were fetching
-        if (this.searchTerm !== activeSearchTerm || this.selectedStatus !== activeStatus) {
-           return;
-        }
-
-        if (Array.isArray(data) && data.length > 0) {
-
-  this.orders = this.page === 1
-    ? data
-    : [...this.orders, ...data];
-
-  
-
-  this.page++;
-}else {
-          this.hasMore = false;
-        }
+      if (!storeId) throw new Error('Select a store on the dashboard first.');
+      if (from || to) {
+        const allOrders = await this.authService.getPchDailyOrders(storeId);
+        if (requestId !== this.requestId) return;
+        const datedOrders = allOrders.filter(order => {
+          const day = String(order.date_created || '').slice(0, 10);
+          return !!day && (!from || day >= from) && (!to || day <= to);
+        });
+        this.totalOrders = datedOrders.length;
+        this.statuses.forEach(bucket => {
+          bucket.count = datedOrders.filter(order => this.normalizedOrderStatus(order.status) === bucket.value).length;
+        });
+        const filtered = datedOrders.filter(order => {
+          if (status !== 'all' && this.normalizedOrderStatus(order.status) !== status) return false;
+          return !search || String(order.id).includes(search) || String(order.woo_order_id || '').includes(search);
+        });
+        const rows = filtered.slice((page - 1) * 10, page * 10).map(order => ({
+          ...order,
+          date_created: String(order.date_created || '').replace(' ', 'T'),
+          status: this.normalizedOrderStatus(order.status)
+        }));
+        this.orders = page === 1 ? rows : [...this.orders, ...rows];
+        this.page = page + 1;
+        this.hasMore = page * 10 < filtered.length;
+        const currency = rows.find(order => order.currency_symbol)?.currency_symbol;
+        if (currency) this.currencySymbol = currency;
+        return;
       }
-
-    } catch (err) {
-      console.error('Order load error:', err);
+      let hasMore = true;
+      do {
+        const data = await this.authService.getPchOrdersPage(page, storeId, status);
+        if (requestId !== this.requestId) return;
+        if (status === 'all' && !search && !from && !to) this.totalOrders = data.total;
+        data.orders.forEach(order => {
+          const day = String(order.date_created || '').slice(0, 10);
+          if (search && !String(order.id).toLowerCase().includes(search) && !String(order.woo_order_id || '').toLowerCase().includes(search)) return;
+          if ((from && day < from) || (to && day > to)) return;
+          matches.push(order);
+        });
+        const responseCurrency = data.orders.find(order => order.currency_symbol)?.currency_symbol;
+        if (responseCurrency) this.currencySymbol = responseCurrency;
+        hasMore = data.orders.length > 0 && page * 10 < data.total;
+        page++;
+      } while ((search || from || to) && matches.length < 10 && hasMore);
+      this.orders = this.page === 1 ? matches : [...this.orders, ...matches];
+      this.page = page;
+      this.hasMore = hasMore;
+    } catch (error: any) {
+      if (requestId === this.requestId) this.loadError = error?.message || 'Unable to load orders. Please try again.';
+    } finally {
+      if (requestId === this.requestId) this.loading = false;
+      event?.target?.complete();
     }
-
-    this.loading = false;
-    event?.target?.complete();
   }
 
   /* ================================
@@ -313,8 +264,17 @@ statuses = [
     }
   }
 
+  private normalizedOrderStatus(status: string): string {
+    const key = String(status || '').toLowerCase().replace(/^wc-/, '').replace(/[ _]+/g, '-');
+    return key === 'processing' ? 'pending' : key === 'partially-refunded' ? 'partial-refund' : key;
+  }
+
+  getDisplayStatus(status: string): string {
+    return status?.toLowerCase() === 'processing' ? 'pending' : status;
+  }
+
   getStatusClass(status: string): string {
-  switch (status?.toLowerCase()) {
+  switch (this.getDisplayStatus(status)?.toLowerCase()) {
     case 'completed':
       return 'completed-status';
 
@@ -595,6 +555,12 @@ async clearDateFilter() {
 }
 
 async applyDateFilter() {
+  this.countRequestId++;
+  this.dateError = '';
+  if (!this.fromDateValue || (this.dateFilterTab === 'range' && !this.toDateValue)) {
+    this.dateError = this.dateFilterTab === 'range' ? 'Select both From and To dates.' : 'Select a date.';
+    return;
+  }
 
   // Auto swap if From > To
   if (
@@ -653,7 +619,6 @@ async applyDateFilter() {
   this.orders = [];
   this.hasMore = true;
 
-  await this.loadStatusCounts();
   await this.loadOrders();
 }
 
@@ -663,18 +628,21 @@ resetDateModal() {
 
   this.calendarMode = null;
 
-  this.dateFilterTab = 'date';
+  this.dateFilterTab = this.filterType === 'range' ? 'range' : 'date';
 }
 
 openSingleDate() {
+  if (!this.fromDateValue) this.fromDateValue = this.maxDate;
   this.calendarMode = 'single';
 }
 
 openFromDate() {
+  if (!this.fromDateValue) this.fromDateValue = this.maxDate;
   this.calendarMode = 'from';
 }
 
 openToDate() {
+  if (!this.toDateValue) this.toDateValue = this.fromDateValue || this.maxDate;
   this.calendarMode = 'to';
 }
 
@@ -683,6 +651,7 @@ closeCalendar() {
 }
 
 switchToDateTab() {
+  if (this.dateFilterTab === 'date') return;
 
   this.dateFilterTab = 'date';
 
@@ -694,6 +663,7 @@ switchToDateTab() {
 }
 
 switchToRangeTab() {
+  if (this.dateFilterTab === 'range') return;
 
   this.dateFilterTab = 'range';
 

@@ -39,10 +39,12 @@ export class HomePage implements OnInit {
     if (!store) return;
     this.selectedStoreId = store.id;
     localStorage.setItem('selected_store', JSON.stringify(store));
-    await this.loadDashboardStats();
+    await Promise.all([this.loadDashboardStats(), this.loadDailyChart()]);
   }
 
   isChartLoading: boolean = false;
+  chartError = '';
+  private chartRequestId = 0;
   chartType: string = 'sales'; // default
   content_loaded: boolean = false;
   reports: any[] = [];
@@ -55,11 +57,13 @@ dailyTotals: number[] = [];
   statuses = [
   
     { key: 'wc-completed', label: 'Completed', icon: 'checkmark-circle', count: 0, color: "#66BB6A"},
-    { key: 'wc-pending', label: 'Pending', icon: 'time', count: 0, color: "#386EDA"},
     { key: 'wc-cancelled', label: 'Cancelled', icon: 'close-circle', count: 0, color: "#EF5350"},
     { key: 'wc-refunded', label: 'Refunded', icon: 'refresh-circle', count: 0, color: "#AB47BC"},
-    { key: 'partial-refund', label: 'Partially Refunded', icon: 'refresh-circle', count: 0, color: "#26A69A" },    // { key: 'wc-on-hold', label: 'On Hold', icon: 'pause-circle', count: 0, color: "#29B6F6"},
-    // { key: 'wc-processing', label: 'Processing', icon: 'cart', count: 0, color: "#E1AB20" },  ];
+    { key: 'partial-refund', label: 'Partially Refunded', icon: 'refresh-circle', count: 0, color: "#26A69A" },
+    { key: 'wc-pending', label: 'Pending', icon: 'time', count: 0, color: "#386EDA"},
+    // { key: 'wc-on-hold', label: 'On Hold', icon: 'pause-circle', count: 0, color: "#29B6F6"},
+    // { key: 'wc-processing', label: 'Processing', icon: 'cart', count: 0, color: "#E1AB20" },
+  ];
 
   statusIcons: any = {
     processing: 'cart',
@@ -119,18 +123,18 @@ dailyTotals: number[] = [];
     this.statuses.forEach(status => status.count = 0);
     if (!storeId) { this.statusCountsLoading = false; return; }
     this.statusCountsLoading = true;
-    const responses = await Promise.all(this.statuses.map(async status => {
-      try {
-        return { count: await this.authService.getPchOrderCount(status.key, storeId), failed: false };
-      } catch {
-        return { count: 0, failed: true };
-      }
-    }));
-    // Ignore requests from an earlier selection when the user switches stores quickly.
-    if (requestId !== this.statusRequestId) return;
-    responses.forEach((result, index) => this.statuses[index].count = result.count);
-    this.statusCountsLoading = false;
-    if (responses.some(result => result.failed)) this.statusCountsError = 'Some order counts could not be loaded. Please try again.';
+    try {
+      const counts = await this.authService.getPchOrderStatusCounts(storeId);
+      if (requestId !== this.statusRequestId) return;
+      this.statuses.forEach(status => {
+        const key = status.key.replace(/^wc-/, '').replace(/-/g, '_');
+        status.count = counts[key] ?? 0;
+      });
+    } catch {
+      if (requestId === this.statusRequestId) this.statusCountsError = 'Order counts could not be loaded. Please try again.';
+    } finally {
+      if (requestId === this.statusRequestId) this.statusCountsLoading = false;
+    }
   }
 
 renderChart() {
@@ -150,7 +154,7 @@ renderChart() {
     data: {
       labels: this.dailyLabels,
       datasets: [{
-        label: isSales ? 'Net Sales (Last 7 Days)' : 'Orders (Last 7 Days)',
+        label: isSales ? 'Sales (Last 7 Days)' : 'Orders (Last 7 Days)',
         data: this.dailyTotals,
         fill: true,
         tension: 0.4,
@@ -167,7 +171,19 @@ renderChart() {
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          ticks: {
+            callback: (value) => {
+              const amount = Number(value);
+              return isSales && Math.abs(amount) >= 1000
+                ? (amount / 1000).toLocaleString('en-US', { maximumFractionDigits: 1 }) + 'k'
+                : value;
+            }
+          }
+        }
+      }
     }
   });
 }
@@ -188,62 +204,41 @@ onChartTypeChange() {
   this.loadDailyChart();
 }
 async loadDailyChart() {
-  if (this.authService.isMerchantSession()) { this.isChartLoading = false; return; }
-
-  this.isChartLoading = true;   // 🔥 show emoji
-
+  const requestId = ++this.chartRequestId;
+  const storeId = this.selectedStoreId;
+  this.chartError = '';
+  this.dailyLabels = [];
+  this.dailyTotals = [];
+  if (this.salesChart) { this.salesChart.destroy(); this.salesChart = null; }
+  if (!storeId) { this.isChartLoading = false; return; }
+  this.isChartLoading = true;
+  const dayKey = (date: Date) => [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
   const end = new Date();
-  const start = new Date();
-  start.setDate(end.getDate() - 6);
-
+  const keys: string[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(end.getFullYear(), end.getMonth(), end.getDate() - i);
+    keys.push(dayKey(date));
+  }
   try {
-
-    const orders = await this.authService.getDailySales(
-      start.toISOString().split('T')[0],
-      end.toISOString().split('T')[0]
-    );
-
-    const map: any = {};
-
-    orders.forEach((order: any) => {
-      const day = order.date_created.split('T')[0];
-
-      if (this.chartType === 'sales') {
-        const net =
-          parseFloat(order.total) -
-          parseFloat(order.total_refunded || 0);
-
-        map[day] = (map[day] || 0) + net;
-      } else {
-        map[day] = (map[day] || 0) + 1;
-      }
+    const orders = await this.authService.getPchDailyOrders(storeId);
+    if (requestId !== this.chartRequestId) return;
+    const totals: Record<string, number> = {};
+    orders.forEach(order => {
+      // Preserve the calendar date supplied by the store, whether separated by T or space.
+      const day = String(order.date_created || '').slice(0, 10);
+      if (!keys.includes(day)) return;
+      const amount = Number(order.total || 0);
+      totals[day] = (totals[day] || 0) + (this.chartType === 'orders' ? 1 : Number.isFinite(amount) ? amount : 0);
     });
-
-    const labels: string[] = [];
-    const totals: number[] = [];
-
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(end.getDate() - i);
-      const key = d.toISOString().split('T')[0];
-
-      labels.push(this.formatDateLabel(key));
-      totals.push(map[key] || 0);
-    }
-
-    this.dailyLabels = labels;
-    this.dailyTotals = totals;
-
-  } catch (error) {
-    console.error('Chart load error:', error);
+    this.dailyLabels = keys.map(key => this.formatDateLabel(key + 'T12:00:00'));
+    this.dailyTotals = keys.map(key => Math.round((totals[key] || 0) * 100) / 100);
+  } catch {
+    if (requestId === this.chartRequestId) this.chartError = 'Daily sales could not be loaded. Please try again.';
   } finally {
-
-    this.isChartLoading = false;  // 🔥 hide emoji
-
-    setTimeout(() => {
-      this.renderChart();        // render AFTER canvas appears
-    }, 50);
-
+    if (requestId === this.chartRequestId) {
+      this.isChartLoading = false;
+      setTimeout(() => { if (requestId === this.chartRequestId && !this.chartError) this.renderChart(); }, 50);
+    }
   }
 }
 // async loadDailyChart() {
