@@ -20,6 +20,10 @@ export class ProductsListPage implements OnInit {
   stock = ''; 
   loading = false;
   hasMore = true;
+  loadError = '';
+  private requestId = 0;
+  private catalogContext = '';
+  private catalogPromise: Promise<any[]> | null = null;
 
   constructor(
     private authService: AuthService,
@@ -33,6 +37,7 @@ export class ProductsListPage implements OnInit {
     // Listen for query params if you're passing refresh flag
     this.route.queryParams.subscribe(params => {
       if (params['refresh'] === 'true') {
+        this.catalogPromise = null;
         this.loadProducts(undefined, true);
       }
     });
@@ -45,55 +50,51 @@ setStockFilter(value: string){
 }
   // This runs every time the page is about to enter
   ionViewWillEnter() {
+  if (!this.loading) this.catalogPromise = null;
   this.loadProducts(undefined, true);
 }
 
   async loadProducts(event?: any, reset = false) {
-    if (reset) {
-      this.page = 1;
-      this.products = [];
-      this.hasMore = true;
-      
-      // Reset infinite scroll
-      if (event) {
-        event.target.disabled = false;
-      }
-    }
-
-    if (this.loading || (!reset && !this.hasMore)) {
-      event?.target.complete();
-      return;
-    }
-
+    if (!reset && (this.loading || !this.hasMore)) { event?.target?.complete(); return; }
+    const requestId = ++this.requestId;
+    if (reset) { this.page = 1; this.products = []; this.hasMore = true; }
     this.loading = true;
-
+    this.loadError = '';
     try {
-      const data = await this.authService.getProducts(
-        this.page,
-        this.search,
-        this.stock
-      );
-
-      if (Array.isArray(data) && data.length > 0) {
-        this.products = reset ? data : [...this.products, ...data];
-        this.page++;
-        this.hasMore = data.length === 10; // Assuming 10 per page
-      } else {
-        this.hasMore = false;
+      let merchantId = '';
+      let storeId = '';
+      try {
+        merchantId = JSON.parse(localStorage.getItem('merchant_data') || 'null')?.id || '';
+        storeId = JSON.parse(localStorage.getItem('selected_store') || 'null')?.id || '';
+      } catch {}
+      const context = merchantId + ':' + storeId;
+      if (!this.catalogPromise || this.catalogContext !== context) {
+        this.catalogContext = context;
+        this.catalogPromise = this.authService.getPchMerchantProducts(merchantId, storeId);
       }
-    } catch (e) {
-      console.error(e);
-    }
-
-    this.loading = false;
-    
-    if (event) {
-      event.target.complete();
-      
-      // Disable infinite scroll if no more data
-      if (!this.hasMore) {
-        event.target.disabled = true;
+      const catalog = await this.catalogPromise;
+      if (requestId !== this.requestId) return;
+      const search = this.search.trim().toLowerCase();
+      const filtered = catalog.filter(product => {
+        if (this.stock && product.stock_status !== this.stock) return false;
+        return !search || [product.name, product.sku, product.id].some(value => String(value || '').toLowerCase().includes(search));
+      }).sort((a, b) => {
+        const first = Date.parse(a.date_created || '') || 0;
+        const second = Date.parse(b.date_created || '') || 0;
+        return second - first;
+      });
+      const data = filtered.slice((this.page - 1) * 10, this.page * 10);
+      this.products = this.page === 1 ? data : [...this.products, ...data];
+      this.hasMore = this.page * 10 < filtered.length;
+      this.page++;
+    } catch (error: any) {
+      if (requestId === this.requestId) {
+        this.catalogPromise = null;
+        this.loadError = error?.message || 'Unable to load products. Please try again.';
       }
+    } finally {
+      if (requestId === this.requestId) this.loading = false;
+      event?.target?.complete();
     }
   }
 
@@ -103,6 +104,7 @@ setStockFilter(value: string){
 
   // Add pull-to-refresh
   async handleRefresh(event: any) {
+    this.catalogPromise = null;
     await this.loadProducts(event, true);
     event.target.complete();
   }
@@ -129,6 +131,17 @@ setStockFilter(value: string){
 
   trackById(_: number, item: any) {
     return item.id;
+  }
+
+  getProductImage(product: any): string {
+    const image = product.images?.find((item: any) => typeof item?.src === 'string' && item.src.trim());
+    return image?.src.trim() || 'assets/img/Custom image.png';
+  }
+
+  onProductImageError(event: Event) {
+    const image = event.target as HTMLImageElement;
+    const fallback = 'assets/img/Custom image.png';
+    if (image.getAttribute('src') !== fallback) image.setAttribute('src', fallback);
   }
 
   hasEbtTag(product: any): boolean {

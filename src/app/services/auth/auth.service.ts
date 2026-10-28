@@ -37,12 +37,21 @@ export class AuthService {
 
   /** Load user when app refreshes */
   private loadUserFromStorage() {
-    const user = localStorage.getItem('user_data');
-    if (user) {
-      this.currentUserSubject.next(JSON.parse(user));
+    try {
+      const user = JSON.parse(localStorage.getItem('user_data') || 'null');
+      if (user && typeof user === 'object') this.currentUserSubject.next(user);
+    } catch {
+      localStorage.removeItem('user_data');
+      localStorage.removeItem('wc_token');
     }
   }
 
+  hasUsableSession(): boolean {
+    const token = this.getToken();
+    const user = this.getCurrentUser();
+    if (!token || token === 'undefined' || token === 'null' || user?.token !== token) return false;
+    return !this.isMerchantSession() || Date.now() < Number(localStorage.getItem('merchant_token_expires_at'));
+  }
 
 private get merchantApiUrl(): string {
     return !Capacitor.isNativePlatform() && !environment.production
@@ -157,23 +166,47 @@ private get merchantApiUrl(): string {
     return localStorage.getItem('wc_token');
   }
 
-async getPchOrderCount(status: string, storeId: string): Promise<number> {
+async getPchOrderStatusCounts(storeId: string): Promise<Record<string, number>> {
     if (!storeId) throw new Error('Select a store to load order counts.');
     const baseUrl = !Capacitor.isNativePlatform() && !environment.production
       ? window.location.origin + '/pch-orders-api'
       : environment.pchOrdersApiBaseUrl.replace(/\/+$/, '');
     const res = await CapacitorHttp.request({
       method: 'GET',
-      url: baseUrl + '/orders/total-orders',
-      headers: { Accept: 'application/json', 'x-store-id': storeId },
-      params: { status: status.replace(/^wc-/, ''), page: '1', per_page: '1' }
+      url: baseUrl + '/orders/status-counts',
+      headers: { Accept: 'application/json', 'x-store-id': storeId }
     });
-    const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
-    const count = Number(data?.order_total_count);
-    if (res.status < 200 || res.status >= 300 || data?.order_total_count == null || !Number.isFinite(count) || count < 0) {
-      throw new Error(data?.message || 'Unable to load order count.');
+    // Older PCH deployments route status-counts to orders/:id until upgraded.
+    if (res.status === 404) {
+      const entries = await Promise.all(['completed', 'pending', 'cancelled', 'refunded', 'partial_refund'].map(async key => {
+        const fallback = await CapacitorHttp.request({
+          method: 'GET',
+          url: baseUrl + '/orders/total-orders',
+          headers: { Accept: 'application/json', 'x-store-id': storeId },
+          params: { status: key === 'partial_refund' ? 'partial-refund' : key, page: '1', per_page: '1' }
+        });
+        const body = typeof fallback.data === 'string' ? JSON.parse(fallback.data) : fallback.data;
+        const count = Number(body?.order_total_count);
+        if (fallback.status < 200 || fallback.status >= 300 || body?.order_total_count == null || !Number.isFinite(count) || count < 0) {
+          throw new Error(body?.message || 'Unable to load order counts.');
+        }
+        return [key, count] as [string, number];
+      }));
+      const fallbackCounts: Record<string, number> = {};
+      entries.forEach(([key, count]) => fallbackCounts[key] = count);
+      return fallbackCounts;
     }
-    return count;
+    const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+    if (res.status < 200 || res.status >= 300 || data?.success !== true || !data?.status_counts || typeof data.status_counts !== 'object' || Array.isArray(data.status_counts)) {
+      throw new Error(data?.message || 'Unable to load order counts.');
+    }
+    const counts: Record<string, number> = {};
+    for (const key of ['completed', 'pending', 'cancelled', 'refunded', 'partial_refund']) {
+      const count = Number(data.status_counts[key] ?? 0);
+      if (!Number.isFinite(count) || count < 0) throw new Error('Invalid order count response.');
+      counts[key] = count;
+    }
+    return counts;
   }
 
 async getDashboardStats(
@@ -210,6 +243,30 @@ async getDashboardStats(
 }
 
 
+
+async getPchOrdersPage(page: number, storeId: string, status = '', perPage = 10): Promise<{ orders: any[]; total: number }> {
+  if (!storeId) throw new Error('Select a store on the dashboard first.');
+  const baseUrl = !Capacitor.isNativePlatform() && !environment.production
+    ? window.location.origin + '/pch-orders-api'
+    : environment.pchOrdersApiBaseUrl.replace(/\/+$/, '');
+  const params: Record<string, string> = { page: String(page), per_page: String(perPage) };
+  // The summary counts processing orders in the Pending bucket.
+  if (status && status !== 'all') params.status = status === 'pending' ? 'pending,processing' : status;
+  const res = await CapacitorHttp.request({
+    method: 'GET', url: baseUrl + '/orders/total-orders',
+    headers: { ...this.getAuthHeaders(), Accept: 'application/json', 'x-store-id': storeId }, params
+  });
+  const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  const total = Number(data?.order_total_count);
+  if (res.status < 200 || res.status >= 300 || !Array.isArray(data?.orders_data) || data?.order_total_count == null || !Number.isFinite(total) || total < 0) {
+    throw new Error(data?.message || 'Unable to load orders.');
+  }
+  return { total, orders: data.orders_data.map(order => ({
+    ...order,
+    date_created: typeof order.date_created === 'string' ? order.date_created.replace(' ', 'T') : order.date_created,
+    status: String(order.status || '').toLowerCase().replace(/[ _]+/g, '-').replace('partially-refunded', 'partial-refund')
+  })) };
+}
 
 async getOrders(
   page: number,
@@ -1037,6 +1094,34 @@ async deleteEmployee(id: number) {
 //   return res.data;
 // }
 
+// Fetch every page so the dashboard does not chart only the first 100 orders.
+async getPchDailyOrders(storeId: string): Promise<any[]> {
+  if (!storeId) throw new Error('Select a store to load daily sales.');
+  const token = this.getToken();
+  if (!token) throw new Error('Please sign in to load daily sales.');
+  const baseUrl = !Capacitor.isNativePlatform() && !environment.production
+    ? window.location.origin + '/pch-orders-api'
+    : environment.pchOrdersApiBaseUrl.replace(/\/+$/, '');
+  const orders: any[] = [];
+  let page = 1;
+  while (true) {
+    const res = await CapacitorHttp.request({
+      method: 'GET', url: baseUrl + '/orders/total-orders',
+      headers: { Accept: 'application/json', Authorization: 'Bearer ' + token, 'x-store-id': storeId },
+      params: { page: String(page), per_page: '100' }
+    });
+    const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+    const total = Number(data?.order_total_count);
+    if (res.status < 200 || res.status >= 300 || !Array.isArray(data?.orders_data) || data?.order_total_count == null || !Number.isFinite(total) || total < 0) {
+      throw new Error(data?.message || 'Unable to load daily sales.');
+    }
+    orders.push(...data.orders_data);
+    if (orders.length >= total) return orders;
+    if (!data.orders_data.length) throw new Error('Incomplete orders response. Please try again.');
+    page++;
+  }
+}
+
 // Daily Sales (WooCommerce)
 async getDailySales(startDate: string, endDate: string) {
 
@@ -1201,6 +1286,123 @@ async deleteCoupon(id: number) {
     ? JSON.parse(res.data)
     : res.data;
 }
+async getPchVendors(merchantId: string): Promise<any[]> {
+  const token = this.getToken();
+  if (!merchantId || !token) throw new Error('Please sign in to load vendors.');
+  const res = await CapacitorHttp.request({
+    method: 'GET', url: this.merchantApiUrl + '/merchants/' + encodeURIComponent(merchantId) + '/vendors',
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' }
+  });
+  const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  if (res.status < 200 || res.status >= 300 || data?.success !== true || !Array.isArray(data?.vendors)) {
+    throw new Error(data?.message || 'Unable to load vendors.');
+  }
+  return data.vendors.map(vendor => ({ ...vendor, title: vendor.vendor_name }));
+}
+
+async getPchEmployees(merchantId: string, storeId: string): Promise<any[]> {
+  const token = this.getToken();
+  if (!merchantId || !storeId || !token) throw new Error('Sign in and select a store on the dashboard first.');
+  const res = await CapacitorHttp.request({
+    method: 'GET',
+    url: this.merchantApiUrl + '/merchants/' + encodeURIComponent(merchantId) + '/stores/' + encodeURIComponent(storeId) + '/employees',
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' }
+  });
+  const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  if (res.status < 200 || res.status >= 300 || data?.success !== true || !Array.isArray(data?.employees)) {
+    throw new Error(data?.message || 'Unable to load employees.');
+  }
+  return data.employees.map(employee => ({
+    ...employee,
+    id: employee.employeeId,
+    first_name: employee.firstName || '',
+    last_name: employee.lastName || '',
+    roles: employee.roleId ? [employee.roleId] : [],
+    meta: { user_phone: employee.phone || '', emp_login_pin: employee.loginPin || '' }
+  }));
+}
+
+async getPchPaymentRecords(storeId: string): Promise<any[]> {
+  const token = this.getToken();
+  if (!storeId || !token) throw new Error('Sign in and select a store on the dashboard first.');
+  const res = await CapacitorHttp.request({
+    method: 'GET', url: this.merchantApiUrl + '/stores/' + encodeURIComponent(storeId) + '/pos/payment-records',
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' }
+  });
+  const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  if (res.status < 200 || res.status >= 300 || data?.success !== true || !Array.isArray(data?.payments)) {
+    throw new Error(data?.message || 'Unable to load payments.');
+  }
+  return data.payments;
+}
+
+async getPchMerchantProducts(merchantId: string, storeId: string): Promise<any[]> {
+  const token = this.getToken();
+  if (!token || !merchantId || !storeId) throw new Error('Sign in and select a store on the dashboard first.');
+  const res = await CapacitorHttp.request({
+    method: 'GET', url: this.merchantApiUrl + '/pos/auth/merchant/catalog/products',
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/json', 'x-merchant-id': merchantId, 'x-store-id': storeId }
+  });
+  const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  if (res.status < 200 || res.status >= 300 || data?.success !== true || !Array.isArray(data?.products)) {
+    throw new Error(data?.message || 'Unable to load products.');
+  }
+  return data.products.map(product => {
+    const payload = product.payload || {};
+    return {
+      ...payload, ...product,
+      id: product.wordpressId ?? payload.id ?? product.id,
+      price: product.price ?? payload.price ?? '0',
+      images: payload.images?.length ? payload.images : product.image ? [{ src: product.image }] : [],
+      tags: product.tags?.length ? product.tags : payload.tags || [],
+      stock_status: product.stock_status ?? payload.stock_status ?? '',
+      regular_price: product.regular_price ?? payload.regular_price ?? product.price ?? '0',
+      sale_price: product.sale_price ?? payload.sale_price ?? '',
+      type: product.type ?? payload.type ?? 'simple',
+      status: product.status ?? payload.status ?? '',
+      date_created: product.date_created ?? payload.date_created ?? '',
+      sku: product.sku ?? payload.sku ?? ''
+    };
+  });
+}
+
+async getPchCoupons(merchantId: string, storeId: string): Promise<any[]> {
+  if (!merchantId || !storeId) throw new Error('Sign in and select a store on the dashboard first.');
+  const token = this.getToken();
+  if (!token) throw new Error('Please sign in to load coupons.');
+  const baseUrl = this.merchantApiUrl;
+  const coupons: any[] = [];
+  let page = 1;
+  while (true) {
+    const res = await CapacitorHttp.request({
+      method: 'GET', url: baseUrl + '/coupons',
+      headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' },
+      params: { merchantId, storeId, page: String(page), per_page: '20' }
+    });
+    const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+    const total = Number(data?.total);
+    if (res.status < 200 || res.status >= 300 || data?.success !== true || !Array.isArray(data?.coupons) || data?.total == null || !Number.isFinite(total) || total < 0) {
+      throw new Error(data?.message || 'Unable to load coupons.');
+    }
+    coupons.push(...data.coupons.map(coupon => ({
+      ...coupon.woocommercePayload,
+      ...coupon,
+      discount_type: coupon.discountType ?? coupon.woocommercePayload?.discount_type,
+      date_expires: coupon.dateExpires ?? coupon.woocommercePayload?.date_expires,
+      usage_count: coupon.usageCount ?? coupon.woocommercePayload?.usage_count ?? 0,
+      usage_limit: coupon.usageLimit ?? coupon.woocommercePayload?.usage_limit ?? 0,
+      individual_use: coupon.individualUse ?? coupon.woocommercePayload?.individual_use ?? false,
+      product_ids: coupon.productIds ?? [],
+      excluded_product_ids: coupon.excludedProductIds ?? [],
+      minimum_amount: coupon.minimumAmount,
+      maximum_amount: coupon.maximumAmount
+    })));
+    if (coupons.length >= total) return coupons;
+    if (!data.coupons.length) throw new Error('Incomplete coupon response. Please try again.');
+    page++;
+  }
+}
+
 async getCoupons(page = 1) {
 
   const token = localStorage.getItem('wc_token');

@@ -13,9 +13,9 @@ export class PublicGuard  {
   ) {}
 
   canActivate(): boolean | UrlTree {
-    const token = localStorage.getItem('wc_token');
+    const validSession = this.authService.hasUsableSession();
 
-    if (token) {
+    if (validSession) {
       return this.router.createUrlTree(['/tabs/home']);
     }
 

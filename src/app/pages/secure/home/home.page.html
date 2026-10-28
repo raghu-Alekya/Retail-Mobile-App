@@ -73,8 +73,9 @@
                         <p>Loading analytics...</p>
                     </div>
 
+                    <p class="status-count-error" role="status" *ngIf="chartError">{{ chartError }}</p>
                     <!-- Chart -->
-                    <canvas id="dailySalesChart" *ngIf="!isChartLoading">
+                    <canvas id="dailySalesChart" *ngIf="!isChartLoading && !chartError">
                     </canvas>
 
                 </ion-card-content>

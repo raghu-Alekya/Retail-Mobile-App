@@ -15,6 +15,7 @@ import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-add-user-modal',
+    standalone: true,
     templateUrl: './add-user.component.html',
     styleUrls: ['./add-user.component.scss'],
     imports: [IonicModule, CommonModule, FormsModule]
@@ -60,6 +61,13 @@ get isFormDirty(): boolean {
   private zone: NgZone   
     
   ) {}
+
+  onEmployeeTextInput(field: 'username' | 'first_name' | 'last_name', event: Event) {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '');
+    this.user[field] = value;
+    input.value = value;
+  }
 
   async ngOnInit() {
   await this.loadCustomRoles();

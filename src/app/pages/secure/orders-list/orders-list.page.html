@@ -3,7 +3,7 @@
  
     <!-- Back -->
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home" text=""></ion-back-button>
+      <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
  
     <!-- Title -->
@@ -38,6 +38,11 @@
 </ion-header>
  
 <ion-content class="orders-content ion-padding">
+  <div *ngIf="loadError" class="ion-text-center ion-padding" role="alert">
+    <p>{{ loadError }}</p>
+    <ion-button size="small" (click)="loadOrders()">Retry</ion-button>
+  </div>
+
  
   <!-- LOADING STATE -->
   <div *ngIf="loading && orders.length === 0" class="loader-wrapper">
@@ -249,8 +254,8 @@
           *ngIf="calendarMode === 'single'"
           presentation="date"
           [max]="maxDate"
-          [(ngModel)]="fromDateValue"
-          (ionChange)="closeCalendar()">
+          [value]="fromDateValue"
+          (ionChange)="onDateSelected('from', $any($event).detail.value)">
         </ion-datetime>
 
       </div>
@@ -297,20 +302,21 @@
           *ngIf="calendarMode === 'from'"
           presentation="date"
           [max]="maxDate"
-          [(ngModel)]="fromDateValue"
-          (ionChange)="closeCalendar()">
+          [value]="fromDateValue"
+          (ionChange)="onDateSelected('from', $any($event).detail.value)">
         </ion-datetime>
 
         <ion-datetime
           *ngIf="calendarMode === 'to'"
           presentation="date"
           [max]="maxDate"
-          [(ngModel)]="toDateValue"
-          (ionChange)="onToDateChange()">
+          [value]="toDateValue"
+          (ionChange)="onDateSelected('to', $any($event).detail.value)">
         </ion-datetime>
 
       </div>
 
+      <p *ngIf="dateError" class="ion-text-center ion-text-wrap" role="alert">{{ dateError }}</p>
       <ion-button
         expand="block"
         class="apply-btn"
@@ -327,7 +333,7 @@
 </ion-modal>
 
 <div
-  *ngIf="!loading && orders.length === 0"
+  *ngIf="!loading && !loadError && orders.length === 0"
   class="no-orders">
 
   <ion-icon name="receipt-outline"></ion-icon>
@@ -357,13 +363,13 @@
           {{ order.billing?.first_name }}
           {{ order.billing?.last_name }}
         </h3>
-        <span class="order-id">#{{ order.id }}</span>
+        <span class="order-id">#{{ order.woo_order_id ?? order.id }}</span>
       </div>
  
       <ion-badge
       class="status-badge"
       [ngClass]="getStatusClass(order.status)">
-      {{ order.status | uppercase }}
+      {{ getDisplayStatus(order.status) | uppercase }}
     </ion-badge>
     </div>
  
@@ -450,7 +456,7 @@
       <div class="expand-section">
         <div class="expand-header">
           <div class="expand-header-left">
-            <h4>#{{ order.id }}</h4>
+            <h4>#{{ order.woo_order_id ?? order.id }}</h4>
             <div class="expand-meta">
               {{ order.date_created | date:'dd MMM yyyy, hh:mm a' }} ·
               {{ getTotalItemCount(order) }} items
@@ -460,7 +466,7 @@
           <ion-badge
   class="status-badge"
   [ngClass]="getStatusClass(order.status)">
-  {{ order.status | uppercase }}
+  {{ getDisplayStatus(order.status) | uppercase }}
 </ion-badge>
         </div>
  
@@ -568,12 +574,14 @@
               {{currencySymbol}}0.00
             </ng-container>
  
+            <ng-template #normalAmount>
             <ng-container *ngIf="+item.subtotal < 0; else positiveAmount">
               -{{ currencySymbol }}{{ (item.subtotal * -1) | number:'1.2-2' }}
             </ng-container>
 
             <ng-template #positiveAmount>
               {{ currencySymbol }}{{ item.subtotal | number:'1.2-2' }}
+            </ng-template>
             </ng-template>
  
           </div>
@@ -709,6 +717,7 @@
   </div>
   <ion-infinite-scroll
    *ngIf="orders.length > 0"
+    [disabled]="!hasMore || loading"
     threshold="100px"
     (ionInfinite)="loadOrders($event)"
   >

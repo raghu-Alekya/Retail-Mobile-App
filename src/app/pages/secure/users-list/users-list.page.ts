@@ -25,6 +25,10 @@ export class UsersListPage {
   customRoles: any[] = [];
   isUsernameLocked = false;
   loading = false;
+  loadError = '';
+  private employeeRequestId = 0;
+  private employeeContext = '';
+  private employeeSearch = '';
   popupShown = false;
   private searchTimeout: any;
   usernameTouched = false;
@@ -117,7 +121,7 @@ async ngOnInit() {
     }
 
     await this.loadUsers();
-    this.customRoles = await this.authService.getCustomRoles();
+    if (!this.authService.isMerchantSession()) this.customRoles = await this.authService.getCustomRoles();
 
   } catch (error) {
     console.error(error);
@@ -303,23 +307,23 @@ async deleteUser(id: number) {
 
   // ✅ Debounced Search
   onSearch(event: any) {
-    const value = event?.target?.value?.toLowerCase() || '';
-
+    const value = String(event?.target?.value || '').trim().toLowerCase();
     clearTimeout(this.searchTimeout);
-
     this.searchTimeout = setTimeout(() => {
-      if (!value) {
-        this.filteredUsers = [...this.users];
-        return;
-      }
-
-      this.filteredUsers = this.users.filter(user =>
-        user?.first_name?.toLowerCase().startsWith(value) ||
-        user?.email?.toLowerCase().startsWith(value) ||
-        user?.id?.toString().startsWith(value)
-      );
+      this.employeeSearch = value;
+      this.filterEmployees();
     }, 300);
   }
+
+  private filterEmployees() {
+    const search = this.employeeSearch;
+    this.filteredUsers = this.users.filter(user => !search ||
+      [user.first_name, user.last_name, [user.first_name, user.last_name].join(' '), user.email, user.employeeCode, user.username]
+        .some(value => String(value || '').toLowerCase().includes(search)));
+  }
+
+  ionViewWillEnter() { void this.loadUsers(); }
+
   async loadUserForEdit(id: number) {
     try {
       const user = await this.authService.getUserById(id);
@@ -333,29 +337,34 @@ async deleteUser(id: number) {
   }
 
   async loadUsers() {
-  if (this.loading) return;
-
-  this.loading = true;
-
-  try {
-
-    const usersArray = await this.authService.getUsers("1", "50", '');
-
-    this.users = usersArray.filter((user: any) =>
-      Array.isArray(user?.roles) && !user.roles.includes('customer')
-    );
-
-    // newest first
-    this.users.sort((a: any, b: any) => b.id - a.id);
-
-    this.filteredUsers = [...this.users];
-
-  } catch (error) {
-    console.error('Error loading users', error);
-  } finally {
-    this.loading = false;
+    let merchantId = '';
+    let storeId = '';
+    try {
+      merchantId = JSON.parse(localStorage.getItem('merchant_data') || 'null')?.id || '';
+      storeId = JSON.parse(localStorage.getItem('selected_store') || 'null')?.id || '';
+    } catch {}
+    const context = merchantId + ':' + storeId;
+    if (this.loading && this.employeeContext === context) return;
+    const requestId = ++this.employeeRequestId;
+    this.employeeContext = context;
+    this.loading = true;
+    this.loadError = '';
+    this.users = [];
+    this.filteredUsers = [];
+    try {
+      const users = await this.authService.getPchEmployees(merchantId, storeId);
+      if (requestId !== this.employeeRequestId) return;
+      this.users = users;
+      this.filterEmployees();
+      const roles = new Map<string, string>();
+      users.forEach(user => { if (user.roleId && user.roleName) roles.set(user.roleId, user.roleName); });
+      this.customRoles = Array.from(roles, ([key, name]) => ({ key, name }));
+    } catch (error: any) {
+      if (requestId === this.employeeRequestId) this.loadError = error?.message || 'Unable to load employees. Please try again.';
+    } finally {
+      if (requestId === this.employeeRequestId) this.loading = false;
+    }
   }
-}
 
   getRoleLabel(roles: string[]) {
     if (!Array.isArray(roles) || roles.length === 0) return '';

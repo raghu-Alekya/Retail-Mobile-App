@@ -17,7 +17,8 @@ export class AssetsService {
   private loadAssetsFromStorage() {
     const cached = localStorage.getItem('app_assets');
     if (cached) {
-      this.assetsSubject.next(JSON.parse(cached));
+      try { this.assetsSubject.next(JSON.parse(cached)); }
+      catch { localStorage.removeItem('app_assets'); }
     }
   }
 

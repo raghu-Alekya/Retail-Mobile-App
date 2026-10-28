@@ -1,12 +1,17 @@
 {
-	"appId": "com.pinaka.wcadmin",
-	"appName": "Pinaka WC",
-	"webDir": "www",
-	"bundledWebRuntime": false,
-	"ios": { "scheme": "Pinaka WC" },
-	"plugins": {
-		"Keyboard": {
-		"resize": "ionic"
-		}
-	}
+  "appId": "com.pinaka.wcadmin",
+  "appName": "Pinaka WC",
+  "webDir": "www",
+  "ios": {
+    "scheme": "Pinaka WC"
+  },
+  "plugins": {
+    "Keyboard": {
+      "resize": "ionic"
+    },
+    "SplashScreen": {
+      "launchAutoHide": true,
+      "launchShowDuration": 1500
+    }
+  }
 }
