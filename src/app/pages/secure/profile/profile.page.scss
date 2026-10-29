@@ -2,140 +2,100 @@
 .profile-content {
   --background: #f4f6f9;
 }
-
+ 
 /* Header */
-ion-toolbar {
-  --background: #264c73;
-  --color: #ffffff; 
-  min-height: 80px;    // 🔥 increase height
-  padding-top: 10px;    // optional extra spacing
-
-}
-
-ion-title {
-    padding-left: 0;
-    margin-left: -6px;
-    font-weight: 700;
-  font-size: 20px;
-  }
 ion-header {
   background: #264c73;
-   // 🔥 very important
 }
-
+ 
 ion-toolbar {
   --background: #264c73;
   --color: #ffffff;
   min-height: 75px;
-  
   display: flex;
   align-items: center;
 }
-
-
-
+ 
+ion-title {
+  padding-left: 0;
+  margin-left: -6px;
+  font-weight: 700;
+  font-size: 20px;
+}
+ 
 /* ANDROID ONLY */
 :host-context(.md) ion-buttons {
   margin-left: 8px;
 }
-
-/* iOS FIX (NO GAP) */
+ 
+:host-context(.md) ion-title {
+  margin-left: -6px;
+}
+ 
+/* iOS FIX */
 :host-context(.ios) ion-buttons[slot="start"] {
   margin-left: 0 !important;
   padding-left: 0 !important;
   min-width: auto !important;
   width: auto !important;
 }
-
+ 
 :host-context(.ios) ion-button {
   margin: 0 !important;
   padding: 0 !important;
   min-width: 0 !important;
-
   --padding-start: 0 !important;
   --padding-end: 0 !important;
 }
-
-/* ANDROID ONLY */
-:host-context(.md) ion-title {
-  margin-left: -6px;
-}
-
-/* iOS FIX */
+ 
 :host-context(.ios) ion-title {
   margin-left: 2px !important;
   padding-left: 0 !important;
-
   position: static !important;
   transform: none !important;
   text-align: left !important;
 }
-
+ 
 :host-context(.ios) ion-toolbar {
   --padding-start: 0 !important;
   --padding-end: 0 !important;
-  --padding-bottom: 10px; 
+  --padding-bottom: 10px;
 }
-
-
-/* Top Section */
-.profile-top {
-  text-align: center;
-  padding-top: 40px;
-  padding-bottom: 20px;
-}
-
-/* Avatar */
-.profile-top ion-avatar {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 15px auto;
-  border: 4px solid #dbe4f1;
-}
-
-.profile-top ion-avatar img {
-  border-radius: 50%;
-}
-// .avatar-wrapper {
-//   position: relative;
-//   display: inline-block;
-//   cursor: pointer;
-// }
-
-ion-avatar {
-  width: 120px;
-  height: 120px;
-  margin: auto;
-}
-
-.avatar-edit-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 120px;
-  height: 120px;
-  background: rgba(0, 0, 0, 0.4);
+ 
+/* iOS ONLY - Profile Back Button Circle */
+:host-context(.ios) ion-header ion-back-button::part(native) {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 26px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0 !important;
 }
-
-.blur-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backdrop-filter: blur(6px);
-  z-index: 5;
+ 
+:host-context(.ios) ion-header ion-back-button::part(icon) {
+  position: static !important;
+  transform: none !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  font-size: 20px;
 }
-
-.save-btn {
-  margin-top: 15px;
+ 
+:host-context(.ios) ion-header ion-back-button {
+  --icon-margin-start: 0;
+  --icon-margin-end: 0;
+  margin-left: 14px;
+  margin-right: 8px;
 }
+ 
+/* Top Section */
+.profile-top {
+  text-align: center;
+  padding-top: 30px;
+  padding-bottom: 20px;
+}
+ 
 /* Name */
 .profile-top h2 {
   font-size: 22px;
@@ -143,27 +103,31 @@ ion-avatar {
   color: #313131;
   margin: 5px 0;
 }
-
+ 
 /* Role / Email */
 .profile-top p {
-  font-size: 18px;
-  font-weight:400;
-  color: #000000;
+  font-size: 16px;
+  font-weight: 400;
+  color: #666666;
+  margin: 4px 0 0 0;
 }
-
+ 
 /* Menu List */
 .menu-list {
   margin-top: 20px;
+  background: transparent;
 }
-
+ 
 .menu-list ion-item {
   --background: #ffffff;
-  margin: 10px 20px;
-  border-radius: 16px;
-  --min-height: 60px;
+  margin: 8px 20px;
+  --min-height: 70px;
+  border-radius: 12px;
   box-shadow: none;
+  --inner-border-width: 0;
+  --border-width: 0;
 }
-
+ 
 /* Circular Icons */
 .menu-list ion-icon[slot="start"] {
   background: #3d5a80;
@@ -172,324 +136,31 @@ ion-avatar {
   border-radius: 50%;
   font-size: 20px;
 }
+ 
 .menu-list ion-label {
   font-family: 'Poppins', sans-serif;
-  font-size: 19px;
-  font-weight: 600;      // 🔥 softer (not bold)
+  font-size: 17px;
+  font-weight: 600;
   color: #3f3e3e;
-  letter-spacing: 0.3px; // smooth look
+  letter-spacing: 0.3px;
 }
+ 
 /* Arrow Icon */
 .menu-list ion-icon[slot="end"] {
   color: #3f3e3e;
   font-size: 24px;
 }
-.menu-list ion-item {
-  --background: #f4f6f9;
-  margin: 8px 20px;
-  --min-height: 70px;
-  border-radius: 12px;
-  box-shadow: none;
-
-  /* 🔥 ADD THESE LINES */
-  --inner-border-width: 0;
-  --border-width: 0;
-}
+ 
 /* Sign Out Button */
 .logout-section {
-
-  margin: 30px 30px;   // 🔥 pushes it down
-   --background: #264c73;
-  border-radius: 100px !important;
-  font-size:18px;
-  height: 50px;
-  font-weight: 600px;
-  text-transform: none !important;
-
+  margin: 30px 20px;
 }
-
+ 
 .logout-btn {
   --background: #264c73;
   --border-radius: 14px;
-  font-size:18px;
+  font-size: 18px;
   height: 50px;
-  font-weight: 600px;
+  font-weight: 600;
   text-transform: none !important;
-}
-.blur-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backdrop-filter: blur(6px);
-  z-index: 5;
-}
-
-// .avatar-wrapper {
-//   position: relative;
-//   display: inline-block;
-//   cursor: pointer;
-//   transition: 0.3s ease;
-// }
-
-// .avatar-wrapper.highlight ion-avatar {
-//   border: 3px solid #3b82f6;
-//   box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
-//   transform: scale(1.05);
-// }
-
-.save-btn-small {
-  margin-top: 10px;
-}
-.blur-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backdrop-filter: blur(6px);
-  background: rgba(255,255,255,0.1);
-  z-index: 10;
-}
-
-// .avatar-wrapper {
-//   position: relative;
-//   z-index: 20;  // 🔥 Must be above blur
-// }
-
-.save-btn-small {
-  margin-top: 12px;
-  --background: #264c73;   // same as header
-  --background-hover: #264c73;
-  --border-radius: 8px;
-  font-weight: 500;
-  width: 120px;
-  display: block;
-  margin: 12px auto 0 auto;
-}
-
-.save-btn-wrapper {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-
-:host-context(.ios) .save-btn-small {
-  margin-left: auto !important;
-  margin-right: auto !important;
-  display: block;
-}
-// .avatar-wrapper {
-//   position: relative;
-//   width: 130px;
-//   height: 130px;
-//   margin: 20px auto;
-// }
-
-ion-avatar {
-  width: 130px;
-  height: 130px;
-}
-
-ion-avatar img {
-  object-fit: cover;
-}
-
-/* Pencil Icon */
-.edit-icon {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  background: #ffffff;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  z-index: 10;
-}
-
-.edit-icon ion-icon {
-  font-size: 18px;
-  color: #000;
-}
-/* Avatar Wrapper */
-.avatar-wrapper {
-  position: relative;
-  width: 130px;
-  height: 130px;
-  margin: 20px auto;
-  cursor: pointer;
-}
-
-/* Avatar */
-.avatar-wrapper ion-avatar {
-  width: 100%;
-  height: 100%;
-}
-
-/* Image */
-.avatar-wrapper ion-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
-/* Pencil Icon */
-.edit-icon {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 38px;
-  height: 38px;
-  background: #264c73; /* match header color */
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 3px solid #ffffff;
-  z-index: 25;
-}
-
-.edit-icon ion-icon {
-  color: #ffffff;
-  font-size: 18px;
-}
-
-/* Edit Overlay */
-.avatar-edit-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 20;
-  color: white;
-  font-size: 28px;
-}
-
-/* iOS ONLY - Profile Back Button Circle */
-:host-context(.ios) ion-header ion-back-button::part(native) {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: rgba(255, 255, 255, 0.15);
-
-  padding: 0 !important;
-}
-
-/* Fix icon alignment */
-:host-context(.ios) ion-header ion-back-button::part(icon) {
-  position: static !important;
-  transform: none !important;
-  margin: 0 auto !important;
-  padding: 0 !important;
-  font-size: 20px;
-}
-
-/* Remove iOS default offset */
-:host-context(.ios) ion-header ion-back-button {
-  --icon-margin-start: 0;
-  --icon-margin-end: 0;
-  margin-left: 14px;   /* 👈 adjust (4–10px) */
-  margin-right: 8px;  /* 👈 keeps balance */
-}
-
-/* ===== CUSTOM POPUP ===== */
-
-/* BACKDROP */
-.custom-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.4);
-  z-index: 99;
-}
-
-/* POPUP */
-.custom-popup {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: #f4f6f9;
-  border-radius: 20px 20px 0 0;
-  padding: 16px 0;
-  z-index: 100;
-  animation: slideUp 0.3s ease;
-}
-
-/* HEADER */
-.popup-header {
-  text-align: center;
-  font-weight: 600;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-/* ITEM */
-.popup-item {
-  display: flex;
-  align-items: center;
-  background: #e9f0fb;
-  margin: 10px 16px;
-  padding: 12px;
-  border-radius: 14px;
-}
-
-/* ICON */
-.popup-icon {
-  background: #264c73;
-  color: #fff;
-  border-radius: 50%;
-  padding: 10px;
-  margin-right: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* DELETE ICON */
-.popup-icon.delete-bg {
-  background: #264c73;
-}
-
-/* TEXT */
-.popup-text {
-  font-weight: 600;
-  font-size: 16px;
-}
-
-/* CANCEL */
-.popup-cancel {
-  text-align: center;
-  margin: 30px 32px;
-  padding: 12px;
-  border-radius: 14px;
-
-  background: transparent;      /* remove background */
-  border: 2px solid #dc3545;    /* add red border */
-  color: #dc3545;               /* red text */
-
-  font-weight: 600;
-  font-size: 16px;
-}
-
-/* ANIMATION */
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
 }

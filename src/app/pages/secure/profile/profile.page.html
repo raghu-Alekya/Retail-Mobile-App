@@ -1,153 +1,53 @@
 <ion-header>
   <ion-toolbar>
-
+ 
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/home" text=""></ion-back-button>
     </ion-buttons>
-
+ 
     <ion-title>Profile</ion-title>
-
+ 
   </ion-toolbar>
 </ion-header>
-
+ 
 <ion-content fullscreen="true" class="profile-content">
-
+ 
   <div class="page-container">
-
+ 
     <!-- TOP SECTION -->
     <div>
-
+ 
       <div class="profile-top">
-
-  <!-- Blur Overlay --> 
-  <div class="blur-overlay" *ngIf="isEditing"></div>
-
-  <!-- Avatar Wrapper -->
-  <div class="avatar-wrapper" (click)="openImageOptions()">
-  <ion-avatar>
-    <img [src]="previewImage || savedImage || 'assets/card-media.png'" />
-  </ion-avatar>
-
-  <!-- Pencil Icon (Always Visible) -->
-  <div class="edit-icon">
-    <ion-icon name="pencil-outline"></ion-icon>
-  </div>
-
-  <div class="avatar-edit-overlay" *ngIf="isEditing">
-      <ion-icon name="camera-outline"></ion-icon>
-    </div>
-  </div>
-
-  <h2>{{ user?.first_name }} {{ user?.lastname }}</h2>
-  <p>{{ user?.role | titlecase }}</p>
-
-  <!-- Save Button -->
- <!-- <ion-button
-  size="small"
-  fill="solid"
-  *ngIf="isPreviewMode"
-  (click)="saveImage()"
-  class="save-btn-small">
-  Save
-</ion-button> -->
-
-<div class="save-btn-wrapper" *ngIf="isPreviewMode">
-  <ion-button
-    size="small"
-    fill="solid"
-    (click)="saveImage()"
-    class="save-btn-small">
-    Save
-  </ion-button>
-</div>
-
-
-</div>
-
-      <!-- Hidden File Input -->
-      <input
-        type="file"
-        #fileInput
-        hidden
-        accept="image/*"
-        (change)="onFileSelected($event)"
-      />
-
-
+        <h2>{{ user?.first_name }} {{ user?.last_name || user?.lastName || user?.lastname }}</h2>
+        <p *ngIf="user?.email">{{ user?.email }}</p>
+      </div>
+ 
       <ion-list class="menu-list">
-
+ 
         <ion-item button detail="false" routerLink="/tabs/editprofile">
           <ion-icon name="person-outline" slot="start"></ion-icon>
           <ion-label>Edit Profile</ion-label>
           <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
         </ion-item>
-
-        <ion-item button detail="false">
-          <ion-icon name="notifications-outline" slot="start"></ion-icon>
-          <ion-label>Notification</ion-label>
-          <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
-        </ion-item>
-
-        <!-- <ion-item button routerLink="/tabs/address">
-        <ion-icon name="person-outline" slot="start"></ion-icon>
-        <ion-label>Address</ion-label>
-        <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
-      </ion-item> -->
-
-        <ion-item button detail="false">
+ 
+        <ion-item button detail="false" routerLink="/tabs/devices">
           <ion-icon name="phone-portrait-outline" slot="start"></ion-icon>
           <ion-label>Devices</ion-label>
           <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
         </ion-item>
-
-        <ion-item button detail="false" routerLink="/tabs/change-password">
-          <ion-icon name="person-outline" slot="start"></ion-icon>
-          <ion-label>Change Password</ion-label>
-          <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
-        </ion-item>
-
+ 
       </ion-list>
-
+ 
     </div>
-
+ 
     <!-- SIGN OUT AT BOTTOM -->
     <div class="logout-section">
       <ion-button expand="block" class="logout-btn" (click)="signOut()">
         Sign Out
       </ion-button>
-     
     </div>
-
+ 
   </div>
-
-  <!-- BACKDROP -->
-<div class="custom-backdrop" *ngIf="showImagePopup" (click)="closePopup()"></div>
-
-<!-- BOTTOM POPUP -->
-<div class="custom-popup" *ngIf="showImagePopup">
-
-
-  <!-- Choose -->
-  <div class="popup-item" (click)="openFilePicker(); closePopup()">
-    <div class="popup-icon">
-      <ion-icon name="image-outline"></ion-icon>
-    </div>
-    <div class="popup-text">Choose from Gallery</div>
-  </div>
-
-  <!-- Delete -->
-  <div class="popup-item delete" *ngIf="savedImage" (click)="confirmDeleteImage()">
-    <div class="popup-icon delete-bg">
-      <ion-icon name="trash-outline"></ion-icon>
-    </div>
-    <div class="popup-text">Delete Image</div>
-  </div>
-
-  <!-- Cancel -->
-  <div class="popup-cancel" (click)="closePopup()">
-    Cancel
-  </div>
-
-</div>
-
+ 
 </ion-content>
+ 

@@ -172,27 +172,9 @@
         </ion-toggle>
       </ion-item>
 
-      <ion-item lines="none">
-        <ion-label>Enable Coupons</ion-label>
-        <ion-toggle
-          slot="end"
-          [disabled]="isLoadingCashSettings || savingToggles.enableCoupons"
-          [(ngModel)]="settings.enableCoupons"
-          (ionChange)="onToggleChange($event, 'enableCoupons')">
-        </ion-toggle>
-      </ion-item>
+      
 
-      <ion-item
-        lines="none"
-        [disabled]="!settings.enableCoupons || isLoadingCashSettings || savingToggles.enableCoupons">
-        <ion-label>Sequential Coupon Discount</ion-label>
-        <ion-toggle
-          slot="end"
-          [disabled]="isLoadingCashSettings || savingToggles.sequentialCoupons"
-          [(ngModel)]="settings.sequentialCoupons"
-          (ionChange)="onToggleChange($event, 'sequentialCoupons')">
-        </ion-toggle>
-      </ion-item>
+      
 
       <form [formGroup]="form">
         <ion-item>
@@ -357,25 +339,9 @@
         </ion-toggle>
       </ion-item>
 
-      <ion-item lines="none">
-        <ion-label>Service Charge</ion-label>
-        <ion-toggle
-          slot="end"
-          [disabled]="isLoadingCashSettings || savingToggles.enable_service_charge"
-          [(ngModel)]="settings.enable_service_charge"
-          (ionChange)="onToggleChange($event, 'enable_service_charge')">
-        </ion-toggle>
-      </ion-item>
+      
 
-      <ion-item lines="none">
-        <ion-label>Loyalty Points</ion-label>
-        <ion-toggle
-          slot="end"
-          [disabled]="isLoadingCashSettings || savingToggles.enable_loyalty_points"
-          [(ngModel)]="settings.enable_loyalty_points"
-          (ionChange)="onToggleChange($event, 'enable_loyalty_points')">
-        </ion-toggle>
-      </ion-item>
+      
     </div>
 
   </div>

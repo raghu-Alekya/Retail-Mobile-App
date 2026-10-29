@@ -15,6 +15,23 @@ import { FormsModule } from '@angular/forms';
 })
 export class OrderListPage implements OnInit {
 
+  readonly fallbackProductImage = 'assets/img/Custom image.png';
+
+  getOrderItemImage(item: any): string {
+    const candidates = [item?.image, ...(Array.isArray(item?.images) ? item.images : []),
+      item?.product_data?.image, ...(Array.isArray(item?.product_data?.images) ? item.product_data.images : [])];
+    for (const image of candidates) {
+      const src = typeof image === 'string' ? image : image?.src;
+      if (typeof src === 'string' && src.trim()) return src.trim();
+    }
+    return this.fallbackProductImage;
+  }
+
+  onOrderImageError(event: Event) {
+    const image = event.target as HTMLImageElement;
+    if (image.getAttribute('src') !== this.fallbackProductImage) image.src = this.fallbackProductImage;
+  }
+
   orders: any[] = [];
   storeId = '';
   totalOrders = 0;
@@ -441,13 +458,18 @@ statuses = [
     return Number(value.toFixed(2));
   }
 
-  getDiscountLineItem(order: any): number {
-  const merchantCoupon = (order.coupon_lines || []).find(
-    (coupon: any) => coupon.code?.startsWith('merchant_discount_')
-  );
+  private matchingOrderFees(order: any, name: string): any[] {
+    return (order.fee_lines || []).filter((fee: any) =>
+      String(fee.name || '').trim().toLowerCase().replace(/[ _-]+/g, '_') === name);
+  }
 
-  return Math.abs(Number(merchantCoupon?.discount || 0));
-}
+  getDiscountLineItem(order: any): number {
+    const fees = this.matchingOrderFees(order, 'merchant_discount');
+    if (fees.length) return fees.reduce((sum: number, fee: any) => sum + Math.abs(Number(fee.total) || 0), 0);
+    return (order.coupon_lines || [])
+      .filter((coupon: any) => coupon.code?.startsWith('merchant_discount_'))
+      .reduce((sum: number, coupon: any) => sum + Math.abs(Number(coupon.discount) || 0), 0);
+  }
 
 getTotalItemCount(order: any): number {
   return (order.line_items || [])
@@ -466,18 +488,8 @@ getServiceCharge(order: any): number {
 }
 
 getCashbackFee(order: any): number {
-  const hasCashback = (order.line_items || []).some(
-    (item: any) => item.product_data?.slug === 'cashback'
-  );
-
-  if (!hasCashback) {
-    return 0;
-  }
-
-  return (order.fee_lines || []).reduce(
-    (sum: number, fee: any) => sum + Number(fee.total || 0),
-    0
-  );
+  return this.matchingOrderFees(order, 'cashback_fee')
+    .reduce((sum: number, fee: any) => sum + (Number(fee.total) || 0), 0);
 }
 
 getGrossTotal(order: any): number {

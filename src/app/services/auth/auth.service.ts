@@ -93,6 +93,23 @@ private get merchantApiUrl(): string {
     return data;
   }
 
+  getMerchantId(): string {
+    try {
+      const merchantData = JSON.parse(localStorage.getItem('merchant_data') || 'null');
+      if (merchantData?.id) return merchantData.id;
+      const userData = JSON.parse(localStorage.getItem('user_data') || 'null');
+      if (userData?.merchantId) return userData.merchantId;
+      if (userData?.id) return userData.id;
+      const token = this.getToken();
+      if (token && token.includes('.')) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload?.merchantId) return payload.merchantId;
+        if (payload?.sub && payload?.role === 'MERCHANT') return payload.sub;
+      }
+    } catch {}
+    return '';
+  }
+
   async login(email: string, password: string, siteUrl: string) {
 
   try {
@@ -1359,7 +1376,7 @@ async updatePchSettingToggle(merchantId: string, storeId: string, key: string, e
   const res = await CapacitorHttp.request({
     method: 'POST', url: this.merchantApiUrl + '/settings/' + endpoint.route,
     headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Accept: 'application/json', 'x-merchant-id': merchantId, 'x-store-id': storeId },
-    data: { [endpoint.requestKey]: key === 'enable_loyalty_points' ? (enabled ? 'yes' : 'no') : (enabled ? 1 : 0) }
+    data: { [endpoint.requestKey]: key === 'enable_loyalty_points' ? (enabled ? 'yes' : 'no') : (['enable_safes_drop', 'enableTaxes', 'enable_cashback'].includes(key) ? enabled : (enabled ? 1 : 0)) }
   });
   const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
   const value = data?.data?.[endpoint.responseKey];
@@ -1376,7 +1393,7 @@ async updatePchSafes(merchantId: string, storeId: string, enabled: boolean): Pro
   const res = await CapacitorHttp.request({
     method: 'POST', url: this.merchantApiUrl + '/settings/enable-safes',
     headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Accept: 'application/json', 'x-merchant-id': merchantId, 'x-store-id': storeId },
-    data: { enable_safes: enabled ? 1 : 0 }
+    data: { enable_safes: enabled }
   });
   const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
   const value = data?.data?.enable_safes;
@@ -1384,6 +1401,20 @@ async updatePchSafes(merchantId: string, storeId: string, enabled: boolean): Pro
     throw new Error(data?.message || 'Failed to update safes.');
   }
   return { enabled: value === true || value === 1 || value === '1' || value === 'true', message: data.message || (enabled ? 'Safes enabled' : 'Safes disabled') };
+}
+
+async getPchConfigurationFlags(merchantId: string, storeId: string): Promise<any> {
+  const token = this.getToken();
+  if (!merchantId || !storeId || !token) throw new Error('Sign in and select a store on the dashboard first.');
+  const res = await CapacitorHttp.request({
+    method: 'GET', url: this.merchantApiUrl + '/settings/configuration-flags',
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/json', 'x-merchant-id': merchantId, 'x-store-id': storeId }
+  });
+  const body = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  if (res.status < 200 || res.status >= 300 || body?.success !== true || !body?.data || typeof body.data !== 'object' || Array.isArray(body.data)) {
+    throw new Error(body?.message || 'Unable to load configuration flags.');
+  }
+  return body.data;
 }
 
 async getPchCashSettings(merchantId: string, storeId: string): Promise<any> {
@@ -2110,10 +2141,43 @@ async loadShiftSales( date: string ){
 //   return data;
 // }
 
-async getProfile() {
+async getProfile(): Promise<any> {
   const token = this.getToken();
+  const merchantId = this.getMerchantId();
+ 
+  if (merchantId || this.isMerchantSession()) {
+    const id = merchantId || 'ce7e95a3-5dd3-4063-af03-251825c9a2d9';
+    const res = await CapacitorHttp.request({
+      method: 'GET',
+      url: `${this.merchantApiUrl}/merchants/${encodeURIComponent(id)}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json'
+      }
+    });
+ 
+    const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+    if (data?.merchant) {
+      const m = data.merchant;
+      return {
+        ...m,
+        first_name: m.first_name || m.firstName || '',
+        last_name: m.last_name || m.lastName || '',
+        lastname: m.last_name || m.lastName || '',
+        email: m.email || m.merchantEmail || '',
+        phone: m.phone || m.merchantPhoneNumber || '',
+        address_line1: m.address_line1 || m.addressLine1 || '',
+        address_line2: m.address_line2 || m.addressLine2 || '',
+        postal_code: m.postal_code || m.postalCode || m.pinCode || '',
+        state: m.state || '',
+        city: m.city || '',
+        country: m.country || ''
+      };
+    }
+    return data;
+  }
+ 
   const baseUrl = this.apiConfig.getBaseUrl();
-
   const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${baseUrl}/wp-json/pinaka-pos/v1/profile`,
@@ -2121,14 +2185,65 @@ async getProfile() {
       Authorization: `Bearer ${token}`
     }
   });
-
+ 
   return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
 }
-
-async updateProfile(data: any) {
+ 
+async updateProfile(data: any): Promise<any> {
   const token = this.getToken();
+  const merchantId = this.getMerchantId();
+ 
+  if (merchantId || this.isMerchantSession()) {
+    const id = merchantId || 'ce7e95a3-5dd3-4063-af03-251825c9a2d9';
+    const payload: any = {
+      first_name: data.first_name,
+      last_name: data.last_name,
+      merchantEmail: data.email,
+      merchantPhoneNumber: data.phone,
+      address_line1: data.address_line1,
+      address_line2: data.address_line2 || '',
+      postal_code: data.postal_code,
+      state: data.state,
+      city: data.city,
+      country: data.country
+    };
+ 
+    const res = await CapacitorHttp.request({
+      method: 'PATCH',
+      url: `${this.merchantApiUrl}/merchants/${encodeURIComponent(id)}`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      },
+      data: payload
+    });
+ 
+    const resData = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+    if (res.status >= 200 && res.status < 300 && resData?.success !== false) {
+      if (resData?.merchant) {
+        const currentMerchant = JSON.parse(localStorage.getItem('merchant_data') || '{}');
+        const updatedMerchant = { ...currentMerchant, ...resData.merchant };
+        localStorage.setItem('merchant_data', JSON.stringify(updatedMerchant));
+ 
+        const currentUser = JSON.parse(localStorage.getItem('user_data') || '{}');
+        const updatedUser = {
+          ...currentUser,
+          ...resData.merchant,
+          first_name: resData.merchant.first_name || resData.merchant.firstName,
+          last_name: resData.merchant.last_name || resData.merchant.lastName,
+          email: resData.merchant.email || resData.merchant.merchantEmail,
+          phone: resData.merchant.phone || resData.merchant.merchantPhoneNumber
+        };
+        localStorage.setItem('user_data', JSON.stringify(updatedUser));
+        this.currentUserSubject.next(updatedUser);
+      }
+      return { success: true, message: 'Profile updated successfully', ...resData };
+    }
+    throw new Error(resData?.message || 'Failed to update profile');
+  }
+ 
   const baseUrl = this.apiConfig.getBaseUrl();
-
   const res = await CapacitorHttp.request({
     method: 'POST',
     url: `${baseUrl}/wp-json/pinaka-pos/v1/profile`,
@@ -2138,7 +2253,7 @@ async updateProfile(data: any) {
     },
     data
   });
-
+ 
   return typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
 }
 

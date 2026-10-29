@@ -42,6 +42,14 @@ const routes: Routes = [
       },
 
       {
+        path: 'devices',
+        loadChildren: () =>
+          import('../pages/secure/profile/devices/devices/devices.module').then(
+            m => m.DevicesPageModule
+          )
+      },
+
+      {
         path: '',
         redirectTo: 'home',
         pathMatch: 'full'
