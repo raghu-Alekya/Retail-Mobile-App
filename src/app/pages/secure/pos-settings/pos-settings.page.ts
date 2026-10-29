@@ -231,14 +231,18 @@ validatePhone() {
     this.settings.currency_symbol = '';
     this.currencies = {};
     try {
-      const data = await this.authService.getPchCashSettings(merchantId, storeId);
+      const [flags, currencyData] = await Promise.all([
+        this.authService.getPchConfigurationFlags(merchantId, storeId),
+        this.authService.getPchCashSettings(merchantId, storeId).catch(() => null)
+      ]);
+      const data = currencyData || {};
       if (requestId !== this.cashSettingsRequestId) return;
       const toBool = (value: any) => value === true || value === 1 || value === '1' || value === 'true';
       Object.assign(this.settings, {
-        enable_safes: toBool(data.enable_safes), enable_safes_drop: toBool(data.enable_safes_drop),
-        enableTaxes: toBool(data.tax_enabled), enableCoupons: toBool(data.coupons_enabled),
+        enable_safes: toBool(flags.enable_safes), enable_safes_drop: toBool(flags.enable_safes_drop),
+        enableTaxes: toBool(flags.tax_enabled), enableCoupons: toBool(data.coupons_enabled),
         sequentialCoupons: toBool(data.calc_sequential_coupons),
-        enable_cashback: toBool(data.pinaka_pos_cashback_settings?.enabled),
+        enable_cashback: toBool(flags.cashback_enabled),
         enable_service_charge: toBool(data.pinaka_pos_service_charge_settings?.enabled),
         enable_loyalty_points: toBool(data.pinaka_pos_enable_loyalty_points),
         currency: data.selected_currency || '', currency_symbol: data.currency_symbol || ''
@@ -685,7 +689,7 @@ validatePhone() {
 
   async onToggleChange(event: any, key: string) {
 
-    if (this.isLoadingSettings || this.isLoadingCashSettings) return;
+    if (this.isLoadingCashSettings) return;
 
     if (key === 'enable_safes' && this.authService.isMerchantSession()) {
       await this.savePchSafes(event);

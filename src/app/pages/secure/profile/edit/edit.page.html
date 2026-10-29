@@ -1,112 +1,253 @@
 <ion-header>
   <ion-toolbar class="header-toolbar">
     <ion-buttons slot="start">
-      <ion-back-button defaultHref="/profile" text=""></ion-back-button>
+      <ion-back-button defaultHref="/tabs/profile" text=""></ion-back-button>
     </ion-buttons>
     <ion-title>Edit Profile</ion-title>
   </ion-toolbar>
 </ion-header>
-
+ 
 <ion-content class="edit-content">
-
+ 
+  <!-- Invisible backdrop to close dropdown when tapping outside -->
+  <div class="dropdown-backdrop" *ngIf="activeDropdown" (click)="closeDropdown()"></div>
+ 
   <form [formGroup]="editForm">
-
+ 
     <div class="form-container">
-
+ 
       <!-- First Name -->
       <div class="form-group">
         <label>First Name:</label>
         <ion-item lines="none" class="input-box">
-          <ion-input formControlName="first_name"></ion-input>
+          <ion-input formControlName="first_name" placeholder="Enter first name"></ion-input>
         </ion-item>
       </div>
-      <p class="error-text" *ngIf="editForm.get('first_name')?.touched">
-  <span *ngIf="editForm.get('first_name')?.errors?.['emojiNotAllowed']">
-    Emojis are not allowed
-  </span>
-</p>
-
+      <p class="error-text" *ngIf="editForm.get('first_name')?.touched && editForm.get('first_name')?.invalid">
+        <span *ngIf="editForm.get('first_name')?.errors?.['required']">
+          First name is required
+        </span>
+        <span *ngIf="editForm.get('first_name')?.errors?.['emojiNotAllowed']">
+          Emojis are not allowed
+        </span>
+      </p>
+ 
       <!-- Last Name -->
       <div class="form-group">
         <label>Last Name:</label>
         <ion-item lines="none" class="input-box">
-          <ion-input formControlName="last_name"></ion-input>
+          <ion-input formControlName="last_name" placeholder="Enter last name"></ion-input>
         </ion-item>
       </div>
-
-      <p class="error-text" *ngIf="editForm.get('last_name')?.touched">
-  <span *ngIf="editForm.get('last_name')?.errors?.['emojiNotAllowed']">
-    Emojis are not allowed
-  </span>
-</p>
-
-      <!-- Username -->
+      <p class="error-text" *ngIf="editForm.get('last_name')?.touched && editForm.get('last_name')?.invalid">
+        <span *ngIf="editForm.get('last_name')?.errors?.['required']">
+          Last name is required
+        </span>
+        <span *ngIf="editForm.get('last_name')?.errors?.['emojiNotAllowed']">
+          Emojis are not allowed
+        </span>
+      </p>
+ 
+      <!-- Email (Read-only) -->
       <div class="form-group">
-        <label>User Name:</label>
-        <ion-item lines="none" class="input-box">
-          <ion-input formControlName="username" [disabled]="true"></ion-input>
+        <label>Email Address:</label>
+        <ion-item lines="none" class="input-box disabled-box">
+          <ion-input type="email" formControlName="email" [readonly]="true"></ion-input>
         </ion-item>
       </div>
-
-      <!-- Gender -->
-      <div class="form-group">
-        <label>Gender:</label>
-        <ion-item lines="none" class="input-box">
-          <ion-select formControlName="gender">
-            <ion-select-option value="male">Male</ion-select-option>
-            <ion-select-option value="female">Female</ion-select-option>
-          </ion-select>
-        </ion-item>
-      </div>
-
+ 
       <!-- Phone -->
       <div class="form-group">
         <label>Phone Number:</label>
         <ion-item lines="none" class="input-box">
-          <ion-input 
-            type="tel" 
+          <ion-input
+            type="tel"
             formControlName="phone"
-            maxlength="10">
+            maxlength="10"
+            placeholder="Enter 10-digit phone number">
           </ion-input>
         </ion-item>
       </div>
-
-      <p class="error-text" *ngIf="editForm.get('phone')?.touched">
-
+      <p class="error-text" *ngIf="editForm.get('phone')?.touched && editForm.get('phone')?.invalid">
         <span *ngIf="editForm.get('phone')?.errors?.['required']">
           Phone number is required
         </span>
-
         <span *ngIf="editForm.get('phone')?.errors?.['pattern']">
           Only numbers are allowed
         </span>
-
         <span *ngIf="editForm.get('phone')?.errors?.['minlength'] || editForm.get('phone')?.errors?.['maxlength']">
           Phone number must be exactly 10 digits
         </span>
-
       </p>
-
-      <!-- Email -->
+ 
+      <!-- Address Line 1 -->
       <div class="form-group">
-        <label>Email Address:</label>
+        <label>Address Line 1:</label>
         <ion-item lines="none" class="input-box">
-          <ion-input type="email" formControlName="email"></ion-input>
+          <ion-input formControlName="address_line1" placeholder="Enter address line 1"></ion-input>
         </ion-item>
       </div>
-
+      <p class="error-text" *ngIf="editForm.get('address_line1')?.touched && editForm.get('address_line1')?.invalid">
+        <span *ngIf="editForm.get('address_line1')?.errors?.['required']">
+          Address line 1 is required
+        </span>
+      </p>
+ 
+      <!-- Address Line 2 -->
+      <div class="form-group">
+        <label>Address Line 2:</label>
+        <ion-item lines="none" class="input-box">
+          <ion-input formControlName="address_line2" placeholder="Enter address line 2 (optional)"></ion-input>
+        </ion-item>
+      </div>
+ 
+      <!-- Country -->
+      <div class="form-group dropdown-container" [class.dropdown-active]="activeDropdown === 'country'">
+        <label>Country:</label>
+        <ion-item lines="none" class="input-box select-box" (click)="toggleDropdown('country')">
+          <ion-input formControlName="country" placeholder="Select Country" [readonly]="true"></ion-input>
+          <ion-icon [name]="activeDropdown === 'country' ? 'chevron-up-outline' : 'chevron-down-outline'" slot="end" class="select-chevron"></ion-icon>
+        </ion-item>
+ 
+        <!-- Dropdown panel -->
+        <div class="dropdown-panel" *ngIf="activeDropdown === 'country'">
+          <div class="dropdown-search">
+            <ion-icon name="search-outline"></ion-icon>
+            <input
+              type="text"
+              placeholder="Search country..."
+              [(ngModel)]="searchQuery"
+              [ngModelOptions]="{standalone: true}"
+              (input)="filterItems()"
+              (click)="$event.stopPropagation()" />
+          </div>
+          <div class="dropdown-list">
+            <div
+              class="dropdown-item"
+              *ngFor="let item of filteredItems"
+              [class.active]="editForm.get('country')?.value === item"
+              (click)="selectItem(item); $event.stopPropagation()">
+              {{ item }}
+            </div>
+            <div class="dropdown-empty" *ngIf="filteredItems.length === 0">
+              No results found
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="error-text" *ngIf="editForm.get('country')?.touched && editForm.get('country')?.invalid">
+        <span *ngIf="editForm.get('country')?.errors?.['required']">
+          Country is required
+        </span>
+      </p>
+ 
+      <!-- State -->
+      <div class="form-group dropdown-container" [class.dropdown-active]="activeDropdown === 'state'">
+        <label>State:</label>
+        <ion-item lines="none" class="input-box select-box" (click)="toggleDropdown('state')">
+          <ion-input formControlName="state" placeholder="Select State" [readonly]="true"></ion-input>
+          <ion-icon [name]="activeDropdown === 'state' ? 'chevron-up-outline' : 'chevron-down-outline'" slot="end" class="select-chevron"></ion-icon>
+        </ion-item>
+ 
+        <!-- Dropdown panel -->
+        <div class="dropdown-panel" *ngIf="activeDropdown === 'state'">
+          <div class="dropdown-search">
+            <ion-icon name="search-outline"></ion-icon>
+            <input
+              type="text"
+              placeholder="Search state..."
+              [(ngModel)]="searchQuery"
+              [ngModelOptions]="{standalone: true}"
+              (input)="filterItems()"
+              (click)="$event.stopPropagation()" />
+          </div>
+          <div class="dropdown-list">
+            <div
+              class="dropdown-item"
+              *ngFor="let item of filteredItems"
+              [class.active]="editForm.get('state')?.value === item"
+              (click)="selectItem(item); $event.stopPropagation()">
+              {{ item }}
+            </div>
+            <div class="dropdown-empty" *ngIf="filteredItems.length === 0">
+              No results found
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="error-text" *ngIf="editForm.get('state')?.touched && editForm.get('state')?.invalid">
+        <span *ngIf="editForm.get('state')?.errors?.['required']">
+          State is required
+        </span>
+      </p>
+ 
+      <!-- City -->
+      <div class="form-group dropdown-container" [class.dropdown-active]="activeDropdown === 'city'">
+        <label>City:</label>
+        <ion-item lines="none" class="input-box select-box" (click)="toggleDropdown('city')">
+          <ion-input formControlName="city" placeholder="Select City" [readonly]="true"></ion-input>
+          <ion-icon [name]="activeDropdown === 'city' ? 'chevron-up-outline' : 'chevron-down-outline'" slot="end" class="select-chevron"></ion-icon>
+        </ion-item>
+ 
+        <!-- Dropdown panel -->
+        <div class="dropdown-panel" *ngIf="activeDropdown === 'city'">
+          <div class="dropdown-search">
+            <ion-icon name="search-outline"></ion-icon>
+            <input
+              type="text"
+              placeholder="Search city..."
+              [(ngModel)]="searchQuery"
+              [ngModelOptions]="{standalone: true}"
+              (input)="filterItems()"
+              (click)="$event.stopPropagation()" />
+          </div>
+          <div class="dropdown-list">
+            <div
+              class="dropdown-item"
+              *ngFor="let item of filteredItems"
+              [class.active]="editForm.get('city')?.value === item"
+              (click)="selectItem(item); $event.stopPropagation()">
+              {{ item }}
+            </div>
+            <div class="dropdown-empty" *ngIf="filteredItems.length === 0">
+              No results found
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="error-text" *ngIf="editForm.get('city')?.touched && editForm.get('city')?.invalid">
+        <span *ngIf="editForm.get('city')?.errors?.['required']">
+          City is required
+        </span>
+      </p>
+ 
+      <!-- Postal Code -->
+      <div class="form-group">
+        <label>Postal Code:</label>
+        <ion-item lines="none" class="input-box">
+          <ion-input formControlName="postal_code" placeholder="Enter postal code"></ion-input>
+        </ion-item>
+      </div>
+      <p class="error-text" *ngIf="editForm.get('postal_code')?.touched && editForm.get('postal_code')?.invalid">
+        <span *ngIf="editForm.get('postal_code')?.errors?.['required']">
+          Postal code is required
+        </span>
+      </p>
+ 
     </div>
-
+ 
     <div class="btn-container">
-      <ion-button 
-        expand="block" 
-        class="save-btn" 
-        [disabled]="editForm.invalid"
+      <ion-button
+        expand="block"
+        class="save-btn"
+        [disabled]="editForm.invalid || !hasChanges()"
         (click)="saveProfile()">
         Save Changes
       </ion-button>
     </div>
-
+ 
   </form>
-
+ 
 </ion-content>
+ 
+ 

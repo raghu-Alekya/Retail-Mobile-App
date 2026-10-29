@@ -57,6 +57,7 @@ toggle() {
       url.includes('/tabs/charts') ||
       url.includes('/tabs/payments') ||
       url.includes('/tabs/coupons') ||
+      url.includes('/tabs/devices') ||
       url.startsWith('/tabs/address') ||
       url.startsWith('/tabs/change-password');
 

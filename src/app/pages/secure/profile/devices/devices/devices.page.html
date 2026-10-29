@@ -1,0 +1,92 @@
+<ion-header class="dark-toolbar">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/profile" text=""></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Devices</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="openAddDevice()">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Search Bar -->
+  <div class="search-wrapper">
+    <ion-icon name="search-outline"></ion-icon>
+    <input
+      type="text"
+      placeholder="Search by device name"
+      [value]="searchQuery"
+      (input)="onSearch($event)"
+    />
+  </div>
+</ion-header>
+
+<ion-content class="devices-content">
+  <!-- Loading Spinner -->
+  <div *ngIf="loading && filteredDevices.length === 0" class="loader-wrapper">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+
+  <!-- Device Cards List -->
+  <ion-list *ngIf="filteredDevices.length > 0">
+    <ion-item
+      lines="none"
+      *ngFor="let device of filteredDevices; let i = index"
+    >
+      <div class="device-card" [ngClass]="'card-color-' + (i % 5)">
+
+        <!-- Status Pill Badge -->
+        <div
+          class="status-badge"
+          [ngClass]="device.status?.toUpperCase() === 'ACTIVE' ? 'status-active' : 'status-inactive'"
+        >
+          <span class="status-dot"></span>
+          <span class="status-text">{{ device.status?.toUpperCase() === 'ACTIVE' ? 'Active' : 'Inactive' }}</span>
+        </div>
+
+        <div class="card-content">
+          <!-- Left Section: Device Avatar -->
+          <div class="avatar" [ngClass]="'avatar-' + (i % 5)">
+            <svg class="device-icon" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </div>
+
+          <!-- Center Section: Device Name & Type -->
+          <div class="details">
+            <div class="name">
+              {{ device.device_name }}
+            </div>
+            <div class="device-type">
+              <span class="type-label">Type: </span>
+              <span class="type-value">{{ device.device_type }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </ion-item>
+  </ion-list>
+
+  <!-- Empty State -->
+  <div
+    class="no-devices"
+    *ngIf="!loading && filteredDevices.length === 0"
+  >
+    <div class="empty-icon-wrap">
+      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+        <line x1="8" y1="21" x2="16" y2="21"></line>
+        <line x1="12" y1="17" x2="12" y2="21"></line>
+      </svg>
+    </div>
+    <h3>No Devices Found</h3>
+    <p>Try changing the search.</p>
+  </div>
+</ion-content>
