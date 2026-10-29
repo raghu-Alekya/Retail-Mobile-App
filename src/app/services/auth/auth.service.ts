@@ -166,6 +166,15 @@ private get merchantApiUrl(): string {
     return localStorage.getItem('wc_token');
   }
 
+  getSelectedStoreId(): string {
+    try {
+      const store = JSON.parse(localStorage.getItem('selected_store') || 'null');
+      return store?.id || store?.storeId || '';
+    } catch {
+      return '';
+    }
+  }
+
 async getPchOrderStatusCounts(storeId: string): Promise<Record<string, number>> {
     if (!storeId) throw new Error('Select a store to load order counts.');
     const baseUrl = !Capacitor.isNativePlatform() && !environment.production
@@ -1140,6 +1149,54 @@ async getDailySales(startDate: string, endDate: string) {
   return res.data;
 }
 
+async getPchEmployeeSales(date: string, merchantId: string, storeId: string): Promise<any> {
+  const token = this.getToken();
+  if (!merchantId || !storeId || !token) throw new Error('Sign in and select a store on the dashboard first.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('Select a valid report date.');
+  const baseUrl = !Capacitor.isNativePlatform() && !environment.production
+    ? window.location.origin + '/pch-api'
+    : environment.pchReportsApiBaseUrl.replace(/\/+$/, '');
+  const res = await CapacitorHttp.request({
+    method: 'GET', url: baseUrl + '/reports-new/shift-sales',
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/json', 'x-merchant-id': merchantId, 'x-store-id': storeId },
+    params: { date }
+  });
+  const body = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  const data = Array.isArray(body?.shifts) ? body : body?.data;
+  if (res.status < 200 || res.status >= 300 || body?.success === false || !Array.isArray(data?.shifts) || data?.total_sales == null || data?.total_orders == null) {
+    throw new Error(body?.message || 'Unable to load employee sales.');
+  }
+  const shifts = data.shifts.map(shift => ({ shift_name: String(shift.shift_name || 'Unknown employee'), orders: Number(shift.orders), sales: Number(shift.sales) }));
+  if (!Number.isFinite(Number(data.total_sales)) || !Number.isFinite(Number(data.total_orders)) || shifts.some(shift => !Number.isFinite(shift.sales) || !Number.isFinite(shift.orders))) {
+    throw new Error('Invalid employee sales response.');
+  }
+  return { date: data.date || date, total_sales: Number(data.total_sales), total_orders: Number(data.total_orders), shifts };
+}
+
+async getPchSalesReport(type: 'daily' | 'weekly' | 'monthly', merchantId: string, storeId: string): Promise<any> {
+  const token = this.getToken();
+  if (!merchantId || !storeId || !token) throw new Error('Sign in and select a store on the dashboard first.');
+  if (!['daily', 'weekly', 'monthly'].includes(type)) throw new Error('Invalid sales report period.');
+  const baseUrl = !Capacitor.isNativePlatform() && !environment.production
+    ? window.location.origin + '/pch-api'
+    : environment.pchReportsApiBaseUrl.replace(/\/+$/, '');
+  const res = await CapacitorHttp.request({
+    method: 'GET', url: baseUrl + '/reports-new/sales',
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/json', 'x-merchant-id': merchantId, 'x-store-id': storeId },
+    params: { type }
+  });
+  const body = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  const data = body?.chart ? body : body?.data;
+  if (res.status < 200 || res.status >= 300 || body?.success === false || !Array.isArray(data?.chart) || data?.total_sales == null || data?.total_orders == null) {
+    throw new Error(body?.message || 'Unable to load sales report.');
+  }
+  const chart = data.chart.map(item => ({ label: String(item.label || ''), sales: Number(item.sales), orders: Number(item.orders) }));
+  if (!Number.isFinite(Number(data.total_sales)) || !Number.isFinite(Number(data.total_orders)) || chart.some(item => !Number.isFinite(item.sales) || !Number.isFinite(item.orders))) {
+    throw new Error('Invalid sales report response.');
+  }
+  return { total_sales: Number(data.total_sales), total_orders: Number(data.total_orders), chart };
+}
+
 async loadSales(type: 'daily' | 'weekly' | 'monthly') {
   const res = await CapacitorHttp.request({
     method: 'GET',
@@ -1286,6 +1343,116 @@ async deleteCoupon(id: number) {
     ? JSON.parse(res.data)
     : res.data;
 }
+async updatePchSettingToggle(merchantId: string, storeId: string, key: string, enabled: boolean): Promise<{ enabled: boolean; message: string }> {
+  const endpoints: Record<string, { route: string; requestKey: string; responseKey: string }> = {
+    enable_safes_drop: { route: 'enable-safes-drop', requestKey: 'enable_safes_drop', responseKey: 'enable_safes_drop' },
+    enableTaxes: { route: 'enable-taxes', requestKey: 'enable_taxes', responseKey: 'enable_taxes' },
+    enableCoupons: { route: 'enable-coupons', requestKey: 'enable_coupons', responseKey: 'enable_coupons' },
+    sequentialCoupons: { route: 'sequential-coupons', requestKey: 'coupon_sequential', responseKey: 'sequential_coupons' },
+    enable_cashback: { route: 'enable-cashback', requestKey: 'enable_cashback', responseKey: 'enable_cashback' },
+    enable_service_charge: { route: 'enable-service-charge', requestKey: 'enable_service_charge', responseKey: 'enable_service_charge' },
+    enable_loyalty_points: { route: 'enable-loyalty-points', requestKey: 'enable_loyalty_points', responseKey: 'enable_loyalty_points' }
+  };
+  const endpoint = endpoints[key];
+  const token = this.getToken();
+  if (!endpoint || !merchantId || !storeId || !token) throw new Error('Sign in and select a store before updating settings.');
+  const res = await CapacitorHttp.request({
+    method: 'POST', url: this.merchantApiUrl + '/settings/' + endpoint.route,
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Accept: 'application/json', 'x-merchant-id': merchantId, 'x-store-id': storeId },
+    data: { [endpoint.requestKey]: key === 'enable_loyalty_points' ? (enabled ? 'yes' : 'no') : (enabled ? 1 : 0) }
+  });
+  const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  const value = data?.data?.[endpoint.responseKey];
+  const validValues = key === 'enable_loyalty_points' ? ['yes', 'no', true, false, 1, 0, '1', '0', 'true', 'false'] : [true, false, 1, 0, '1', '0', 'true', 'false'];
+  if (res.status < 200 || res.status >= 300 || data?.success !== true || !validValues.includes(value)) {
+    throw new Error(data?.message || 'Failed to update setting.');
+  }
+  return { enabled: value === true || value === 1 || value === '1' || value === 'true' || value === 'yes', message: data.message || (enabled ? 'Enabled' : 'Disabled') };
+}
+
+async updatePchSafes(merchantId: string, storeId: string, enabled: boolean): Promise<{ enabled: boolean; message: string }> {
+  const token = this.getToken();
+  if (!merchantId || !storeId || !token) throw new Error('Sign in and select a store first.');
+  const res = await CapacitorHttp.request({
+    method: 'POST', url: this.merchantApiUrl + '/settings/enable-safes',
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Accept: 'application/json', 'x-merchant-id': merchantId, 'x-store-id': storeId },
+    data: { enable_safes: enabled ? 1 : 0 }
+  });
+  const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  const value = data?.data?.enable_safes;
+  if (res.status < 200 || res.status >= 300 || data?.success !== true || ![true, false, 1, 0, '1', '0', 'true', 'false'].includes(value)) {
+    throw new Error(data?.message || 'Failed to update safes.');
+  }
+  return { enabled: value === true || value === 1 || value === '1' || value === 'true', message: data.message || (enabled ? 'Safes enabled' : 'Safes disabled') };
+}
+
+async getPchCashSettings(merchantId: string, storeId: string): Promise<any> {
+  const token = this.getToken();
+  if (!merchantId || !storeId || !token) throw new Error('Sign in and select a store on the dashboard first.');
+  const res = await CapacitorHttp.request({
+    method: 'GET', url: this.merchantApiUrl + '/settings/cash-settings',
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/json', 'x-merchant-id': merchantId, 'x-store-id': storeId }
+  });
+  const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  if (res.status < 200 || res.status >= 300 || data?.success !== true || !data?.data || typeof data.data !== 'object' || Array.isArray(data.data)) {
+    throw new Error(data?.message || 'Unable to load shop settings.');
+  }
+  return data.data;
+}
+
+async getPchStoreTaxonomies(storeId: string): Promise<{ categories: any[]; tags: any[] }> {
+  const token = this.getToken();
+  if (!storeId || !token) throw new Error('Sign in and select a store on the dashboard first.');
+  const res = await CapacitorHttp.request({
+    method: 'GET', url: this.merchantApiUrl + '/stores/' + encodeURIComponent(storeId) + '/catalog/taxonomies',
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' }
+  });
+  const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  if (res.status < 200 || res.status >= 300 || data?.success !== true || !Array.isArray(data?.categories) || !Array.isArray(data?.tags)) {
+    throw new Error(data?.message || 'Unable to load product categories and tags.');
+  }
+  return { categories: data.categories, tags: data.tags };
+}
+
+async getPchStoreDetails(storeId: string): Promise<any> {
+  if (!storeId) throw new Error('Select a store on the dashboard first.');
+  const res = await CapacitorHttp.request({
+    method: 'GET', url: this.merchantApiUrl + '/stores/' + encodeURIComponent(storeId),
+    headers: { ...this.getAuthHeaders(), Accept: 'application/json' }
+  });
+  const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  if (res.status < 200 || res.status >= 300 || data?.success !== true || !data?.store?.id) {
+    throw new Error(data?.message || 'Unable to load shop address.');
+  }
+  return this.mapPchShopDetails(data.store);
+}
+
+private mapPchShopDetails(store: any): any {
+  return {
+    id: store.id, storeName: store.storeName, storeEmail: store.storeEmail, phone: store.phone,
+    addressLine1: store.addressLine1, addressLine2: store.addressLine2,
+    city: store.city, state: store.state, postalCode: store.postalCode, country: store.country,
+    currency: store.currency, timezone: store.timezone
+  };
+}
+
+async updatePchStoreAddress(storeId: string, payload: {
+  name: string; store_email: string; phone: string; address_line1: string; address_line2: string;
+  city: string; state: string; postal_code: string; country: string; currency?: string; timezone?: string;
+}): Promise<{ store: any; message: string }> {
+  if (!storeId) throw new Error('Select a store on the dashboard first.');
+  const res = await CapacitorHttp.request({
+    method: 'PUT', url: this.merchantApiUrl + '/stores/' + encodeURIComponent(storeId),
+    headers: { ...this.getAuthHeaders(), 'Content-Type': 'application/json', Accept: 'application/json' },
+    data: payload
+  });
+  const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  if (res.status < 200 || res.status >= 300 || data?.success !== true || !data?.store?.id) {
+    throw new Error(data?.message || 'Failed to update shop address.');
+  }
+  return { store: this.mapPchShopDetails(data.store), message: data.message || 'Shop address updated successfully' };
+}
+
 async getPchVendors(merchantId: string): Promise<any[]> {
   const token = this.getToken();
   if (!merchantId || !token) throw new Error('Please sign in to load vendors.');
@@ -1320,6 +1487,41 @@ async getPchEmployees(merchantId: string, storeId: string): Promise<any[]> {
     roles: employee.roleId ? [employee.roleId] : [],
     meta: { user_phone: employee.phone || '', emp_login_pin: employee.loginPin || '' }
   }));
+}
+
+async getShiftDetailsByDate(date: string, storeId: string): Promise<any[]> {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error('Select a valid shift date.');
+  const token = this.getToken();
+  if (!token || !storeId) throw new Error('Sign in and select a store on the dashboard first.');
+  const res = await CapacitorHttp.request({
+    method: 'GET',
+    url: this.merchantApiUrl + '/pos/shifts/shifts-by-date',
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' },
+    params: { date, store_id: storeId }
+  });
+  const body = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  if (res.status < 200 || res.status >= 300 || body?.success !== true || !Array.isArray(body?.data)) {
+    throw new Error(body?.message || 'Unable to load shift details.');
+  }
+  return body.data.map((row: any) => ({ ...row,
+    start_time: row.start_time ? String(row.start_time).replace(' ', 'T') : '',
+    end_time: row.end_time ? String(row.end_time).replace(' ', 'T') : ''
+  }));
+}
+
+async getPchDailyShiftSummary(storeId: string): Promise<any[]> {
+  const token = this.getToken();
+  if (!storeId || !token) throw new Error('Sign in and select a store on the dashboard first.');
+  const res = await CapacitorHttp.request({
+    method: 'GET', url: this.merchantApiUrl + '/pos/shifts/get-daily-shift-summary',
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/json' },
+    params: { store_id: storeId }
+  });
+  const body = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  if (res.status < 200 || res.status >= 300 || body?.success !== true || !Array.isArray(body?.data)) {
+    throw new Error(body?.message || 'Unable to load shifts.');
+  }
+  return body.data;
 }
 
 async getPchPaymentRecords(storeId: string): Promise<any[]> {
@@ -1473,14 +1675,37 @@ async forgotPassword(email: string) {
 
 
 // Discounts
-async getDiscounts(page = "1", perPage = "10") {
+async getDiscounts(page = "1", perPage = "10", storeId?: string) {
+  const token = this.getToken();
+  const currentStoreId = storeId || this.getSelectedStoreId();
+ 
+  if (this.isMerchantSession() || currentStoreId) {
+    if (!currentStoreId || !token) {
+      return { data: { success: true, discounts: [] } };
+    }
+    const res = await CapacitorHttp.request({
+      method: 'GET',
+      url: `${this.merchantApiUrl}/stores/${encodeURIComponent(currentStoreId)}/merchant/discounts`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json'
+      },
+      params: { page: String(page), per_page: String(perPage) }
+    });
+    return res;
+  }
+ 
+  if (!this.wpBase || !token) {
+    return { data: { data: {} } };
+  }
+ 
   const res = await CapacitorHttp.request({
     method: 'GET',
     url: `${this.wpBase}/wp-json/pinaka-pos/v1/custom-discount/get-all-discounts-for-admin`,
     headers: this.getAuthHeaders(),
     params: { page, per_page: perPage }
   });
-
+ 
   return res;
 }
 
@@ -1615,6 +1840,7 @@ async sequentialCoupons(payload: any) {
 }
 
 async createTag(payload: any) {
+  if (this.isMerchantSession()) return this.changePchCatalogTerm('POST', payload, undefined, 'tags');
 
   const res = await CapacitorHttp.request({
     method: 'POST',
@@ -1632,6 +1858,7 @@ async createTag(payload: any) {
 }
 
 async deleteTag(id: number) {
+  if (this.isMerchantSession()) return this.changePchCatalogTerm('DELETE', undefined, id, 'tags');
 
   const res = await CapacitorHttp.request({
     method: 'DELETE',
@@ -1648,6 +1875,7 @@ async deleteTag(id: number) {
 }
 
 async updateTag(tagId: number, payload: any) {
+  if (this.isMerchantSession()) return this.changePchCatalogTerm('PUT', payload, tagId, 'tags');
 
   const res = await CapacitorHttp.request({
     method: 'PUT',
@@ -1663,7 +1891,27 @@ async updateTag(tagId: number, payload: any) {
 }
 
 // Categories
+private async changePchCatalogTerm(method: 'POST' | 'PUT' | 'DELETE', payload?: any, termId?: number, taxonomy: 'categories' | 'tags' = 'categories'): Promise<any> {
+  let storeId = '';
+  try { storeId = JSON.parse(localStorage.getItem('selected_store') || 'null')?.id || ''; } catch {}
+  const token = this.getToken();
+  if (!storeId || !token) throw new Error('Sign in and select a store first.');
+  if (method !== 'POST' && (!Number.isInteger(termId) || Number(termId) <= 0)) throw new Error('Invalid catalog term ID.');
+  const res = await CapacitorHttp.request({
+    method,
+    url: this.merchantApiUrl + '/stores/' + encodeURIComponent(storeId) + '/catalog/' + taxonomy + (method === 'POST' ? '' : '/' + termId),
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json', Accept: 'application/json' },
+    ...(method === 'DELETE' ? {} : { data: payload })
+  });
+  const body = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  if (res.status < 200 || res.status >= 300 || body?.success !== true || (method !== 'DELETE' && (body?.data?.id == null || typeof body?.data?.name !== 'string'))) {
+    throw new Error(body?.message || 'Catalog operation failed.');
+  }
+  return { ...(body.data || {}), pchSyncWarning: body.synced === false ? body.message || 'Saved; catalog sync is pending.' : '' };
+}
+
 async saveCategory(payload: any) {
+  if (this.isMerchantSession()) return this.changePchCatalogTerm('POST', payload);
 
   const res = await CapacitorHttp.request({
     method: 'POST',
@@ -1681,6 +1929,7 @@ async saveCategory(payload: any) {
 }
 
 async updateCategory(categoryId: number, payload: any) {
+  if (this.isMerchantSession()) return this.changePchCatalogTerm('PUT', payload, categoryId);
 
   const res = await CapacitorHttp.request({
     method: 'PUT',
@@ -1696,6 +1945,7 @@ async updateCategory(categoryId: number, payload: any) {
 }
 
 async deleteCategory(id: number) {
+  if (this.isMerchantSession()) return this.changePchCatalogTerm('DELETE', undefined, id);
   const res = await CapacitorHttp.request({
     method: 'DELETE',
     url: `${this.wpBase}/wp-json/wc/v3/products/categories/${id}`,
@@ -2053,35 +2303,22 @@ async logout_by_id(emp_login_pin: number) {
     return res.data;
   }
   
- async getPosClosing(
-  startDate: string = '',
-  endDate: string = ''
-) {
-
-  console.log('Sending Dates:', startDate, endDate);
-
-  const token = localStorage.getItem('wc_token');
-  this.wpBase = this.apiConfig.getBaseUrl();
-
+ async getPosClosing(startDate = '', endDate = '', storeId = '') {
+  const token = this.getToken();
+  if (!token || !storeId) throw new Error('Sign in and select a store on the dashboard first.');
+  const baseUrl = !Capacitor.isNativePlatform() && !environment.production
+    ? window.location.origin + '/pch-orders-api'
+    : environment.pchOrdersApiBaseUrl.replace(/\/+$/, '');
   const res = await CapacitorHttp.request({
-    method: 'GET',
-    url: `${this.wpBase}/wp-json/pinaka-pos/v1/orders/total-orders-count`,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/json',
-      'Content-Type': 'application/json'
-    },
-    params: {
-      start_date: startDate,
-      end_date: endDate
-    }
+    method: 'GET', url: baseUrl + '/orders/total-orders-count',
+    headers: { Authorization: 'Bearer ' + token, Accept: 'application/json', 'x-store-id': storeId },
+    params: { start_date: startDate, end_date: endDate }
   });
-
-  console.log('Response:', res.data);
-
-  return typeof res.data === 'string'
-    ? JSON.parse(res.data)
-    : res.data;
+  const body = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  if (res.status < 200 || res.status >= 300 || body?.success !== true || !body?.data) {
+    throw new Error(body?.message || 'Unable to load POS closing.');
+  }
+  return body;
 }
 
 async getDailyShiftSummary(startDate = '', endDate = '') {

@@ -15,10 +15,30 @@ export class PosSettingsPage implements OnInit {
   form!: FormGroup;
   user: any;
   isLoadingSettings = false;
+  isLoadingCashSettings = false;
+  isSavingSafes = false;
+  savingToggles: Record<string, boolean> = {};
+  private savedToggleValues: Record<string, boolean> = {};
+  private savedSafesValue = false;
+  cashSettingsError = '';
+  private cashSettingsRequestId = 0;
+  private cashSettingsContext = '';
+  shopAddressError = '';
+  isSavingAddress = false;
+  private storeCurrency = '';
+  private storeTimezone = '';
+  isLoadingTaxonomies = false;
+  taxonomyError = '';
+  private taxonomyRequestId = 0;
+  private taxonomyStoreId = '';
+  private addressRequestId = 0;
+  private addressStoreId = '';
   emailError: string = '';
   phoneError: string = '';
   isAddingCategory = false;
+  categoryBusy: Record<number, boolean> = {};
   isAddingTag = false;
+  tagBusy: Record<number, boolean> = {};
   storeNameError: string = '';
 cityError: string = '';
 stateError: string = '';
@@ -33,9 +53,11 @@ tagError: string = '';
       pinaka_pos_email: '',
       pinaka_pos_phone: '',
       pinaka_pos_business_address: '',
+      pinaka_pos_business_address_line2: '',
       pinaka_pos_business_city: '',
       pinaka_pos_business_state: '',
-      pinaka_pos_business_postcode: ''
+      pinaka_pos_business_postcode: '',
+      country: ''
     },
     enableTaxes: false,
     enableCoupons: false,
@@ -109,6 +131,8 @@ validatePhone() {
       enable_service_charge: [false],
       enable_loyalty_points: [false]
     });
+    void this.loadSettings();
+    if (this.authService.isMerchantSession()) void this.loadTaxonomies();
   }
 
   /**
@@ -117,13 +141,128 @@ validatePhone() {
    */
   ionViewWillEnter() {
     this.loadSettings();
-    this.loadCategories();
-    this.loadTags();
+    if (this.authService.isMerchantSession()) void this.loadTaxonomies();
+    else { this.loadCategories(); this.loadTags(); }
   }
 
   /* ================= LOAD SETTINGS ================= */
 
-  async loadSettings() {
+  private applyShopAddress(store: any) {
+    this.storeCurrency = store.currency || '';
+    this.storeTimezone = store.timezone || '';
+    this.settings.address = {
+      pinaka_pos_name: store.storeName || '', pinaka_pos_email: store.storeEmail || '',
+      pinaka_pos_phone: store.phone || '', pinaka_pos_business_address: store.addressLine1 || '',
+      pinaka_pos_business_address_line2: store.addressLine2 || '',
+      pinaka_pos_business_city: store.city || '', pinaka_pos_business_state: store.state || '',
+      pinaka_pos_business_postcode: store.postalCode || '', country: store.country || ''
+    };
+  }
+
+  private async savePchShopAddress() {
+    this.isSavingAddress = true;
+    const storeSnapshot = localStorage.getItem('selected_store');
+    try {
+      const storeId = JSON.parse(storeSnapshot || 'null')?.id || '';
+      if (storeId !== this.addressStoreId || this.shopAddressError) throw new Error('Reload the shop address before saving.');
+      const address = this.settings.address;
+      const payload = {
+        name: address.pinaka_pos_name.trim(), store_email: address.pinaka_pos_email.trim(),
+        phone: address.pinaka_pos_phone.trim(), address_line1: address.pinaka_pos_business_address.trim(),
+        address_line2: (address.pinaka_pos_business_address_line2 || '').trim(),
+        city: address.pinaka_pos_business_city.trim(), state: address.pinaka_pos_business_state.trim(),
+        postal_code: address.pinaka_pos_business_postcode.trim(), country: address.country.trim(),
+        ...(this.storeCurrency ? { currency: this.storeCurrency } : {}),
+        ...(this.storeTimezone ? { timezone: this.storeTimezone } : {})
+      };
+      const result = await this.authService.updatePchStoreAddress(storeId, payload);
+      if (localStorage.getItem('selected_store') !== storeSnapshot) return;
+      this.applyShopAddress(result.store);
+      const selected = JSON.parse(storeSnapshot || 'null');
+      if (selected) localStorage.setItem('selected_store', JSON.stringify({ ...selected, storeName: result.store.storeName }));
+      try {
+        const stores = JSON.parse(localStorage.getItem('merchant_stores') || '[]');
+        if (Array.isArray(stores)) localStorage.setItem('merchant_stores', JSON.stringify(stores.map(store => store.id === storeId ? { ...store, storeName: result.store.storeName } : store)));
+      } catch {}
+      await this.presentToast(result.message, 'success');
+    } catch (error: any) {
+      await this.presentToast(error?.message || 'Failed to update shop address.', 'danger');
+    } finally {
+      this.isSavingAddress = false;
+    }
+  }
+
+  async loadShopAddress() {
+    let storeId = '';
+    try { storeId = JSON.parse(localStorage.getItem('selected_store') || 'null')?.id || ''; } catch {}
+    if (this.isLoadingSettings && this.addressStoreId === storeId) return;
+    const requestId = ++this.addressRequestId;
+    this.addressStoreId = storeId;
+    this.isLoadingSettings = true;
+    this.shopAddressError = '';
+    Object.keys(this.settings.address).forEach(key => this.settings.address[key] = '');
+    try {
+      const store = await this.authService.getPchStoreDetails(storeId);
+      if (requestId !== this.addressRequestId) return;
+      this.applyShopAddress(store);
+    } catch (error: any) {
+      if (requestId === this.addressRequestId) this.shopAddressError = error?.message || 'Unable to load shop address.';
+    } finally {
+      if (requestId === this.addressRequestId) this.isLoadingSettings = false;
+    }
+  }
+
+  async loadCashToggles() {
+    let merchantId = '';
+    let storeId = '';
+    try {
+      merchantId = JSON.parse(localStorage.getItem('merchant_data') || 'null')?.id || '';
+      storeId = JSON.parse(localStorage.getItem('selected_store') || 'null')?.id || '';
+    } catch {}
+    const context = merchantId + ':' + storeId;
+    if (this.isLoadingCashSettings && this.cashSettingsContext === context) return;
+    const requestId = ++this.cashSettingsRequestId;
+    this.cashSettingsContext = context;
+    this.isLoadingCashSettings = true;
+    this.cashSettingsError = '';
+    const keys = ['enable_safes', 'enable_safes_drop', 'enableTaxes', 'enableCoupons', 'sequentialCoupons', 'enable_cashback', 'enable_service_charge', 'enable_loyalty_points'];
+    keys.forEach(key => this.settings[key] = false);
+    this.settings.currency = '';
+    this.settings.currency_symbol = '';
+    this.currencies = {};
+    try {
+      const data = await this.authService.getPchCashSettings(merchantId, storeId);
+      if (requestId !== this.cashSettingsRequestId) return;
+      const toBool = (value: any) => value === true || value === 1 || value === '1' || value === 'true';
+      Object.assign(this.settings, {
+        enable_safes: toBool(data.enable_safes), enable_safes_drop: toBool(data.enable_safes_drop),
+        enableTaxes: toBool(data.tax_enabled), enableCoupons: toBool(data.coupons_enabled),
+        sequentialCoupons: toBool(data.calc_sequential_coupons),
+        enable_cashback: toBool(data.pinaka_pos_cashback_settings?.enabled),
+        enable_service_charge: toBool(data.pinaka_pos_service_charge_settings?.enabled),
+        enable_loyalty_points: toBool(data.pinaka_pos_enable_loyalty_points),
+        currency: data.selected_currency || '', currency_symbol: data.currency_symbol || ''
+      });
+      this.savedSafesValue = this.settings.enable_safes;
+      ['enable_safes_drop', 'enableTaxes', 'enableCoupons', 'sequentialCoupons', 'enable_cashback', 'enable_service_charge', 'enable_loyalty_points'].forEach(key => this.savedToggleValues[key] = this.settings[key]);
+      this.currencies = data.currencies || {};
+      this.form.patchValue({
+        enable_safes: this.settings.enable_safes, enable_safes_drop: this.settings.enable_safes_drop,
+        enable_cashback: this.settings.enable_cashback, enable_service_charge: this.settings.enable_service_charge,
+        enable_loyalty_points: this.settings.enable_loyalty_points, currency: this.settings.currency
+      }, { emitEvent: false });
+    } catch (error: any) {
+      if (requestId === this.cashSettingsRequestId) this.cashSettingsError = error?.message || 'Unable to load shop settings.';
+    } finally {
+      if (requestId === this.cashSettingsRequestId) this.isLoadingCashSettings = false;
+    }
+  }
+
+  async loadSettings() { 
+    if (this.authService.isMerchantSession()) {
+      await Promise.all([this.loadShopAddress(), this.loadCashToggles()]);
+      return;
+    }
     this.isLoadingSettings = true;
 
 
@@ -183,6 +322,7 @@ validatePhone() {
 
 
   async saveAddress() {
+    if (this.isSavingAddress || this.isLoadingSettings) return;
 
     if (
   this.storeNameError ||
@@ -207,6 +347,7 @@ validatePhone() {
       );
       return;
     }
+    if (this.authService.isMerchantSession()) { await this.savePchShopAddress(); return; }
     const payload = {
       shop_address: {
         pinaka_pos_name: this.settings.address.pinaka_pos_name,
@@ -241,7 +382,7 @@ validatePhone() {
   }
   async onCurrencyChange() {
 
-    if (this.isLoadingSettings) return;   // ✅ prevent auto trigger
+    if (this.isLoadingSettings || this.isLoadingCashSettings) return;   // ✅ prevent auto trigger
 
     const currency = this.form.value.currency;
 
@@ -255,7 +396,30 @@ validatePhone() {
       this.presentToast('Failed to update', 'danger');
     }
   }
+  async loadTaxonomies() {
+    let storeId = '';
+    try { storeId = JSON.parse(localStorage.getItem('selected_store') || 'null')?.id || ''; } catch {}
+    if (this.isLoadingTaxonomies && this.taxonomyStoreId === storeId) return;
+    const requestId = ++this.taxonomyRequestId;
+    this.taxonomyStoreId = storeId;
+    this.isLoadingTaxonomies = true;
+    this.taxonomyError = '';
+    this.categories = [];
+    this.tags = [];
+    try {
+      const data = await this.authService.getPchStoreTaxonomies(storeId);
+      if (requestId !== this.taxonomyRequestId) return;
+      this.categories = data.categories.map(category => ({ ...category, id: category.id, name: category.name }));
+      this.tags = data.tags.map(tag => ({ ...tag, id: tag.id, name: tag.name }));
+    } catch (error: any) {
+      if (requestId === this.taxonomyRequestId) this.taxonomyError = error?.message || 'Unable to load product categories and tags.';
+    } finally {
+      if (requestId === this.taxonomyRequestId) this.isLoadingTaxonomies = false;
+    }
+  }
+
   async loadCategories() {
+    if (this.authService.isMerchantSession()) { await this.loadTaxonomies(); return; }
     try {
       const res = await this.authService.getCategories(1, 100);
       this.categories = res.map((cat: any) => ({ name: cat.name, id: cat.id }));
@@ -289,11 +453,13 @@ validatePhone() {
 
   this.isAddingCategory = true;
 
-  const payload = { name };
+  const payload = { name, slug: this.createSlug(name), description: '', parent: 0 };
+  const storeSnapshot = localStorage.getItem('selected_store');
 
   try {
     const response = await this.authService.saveCategory(payload);
 
+    if (localStorage.getItem('selected_store') !== storeSnapshot) return;
     this.categories.push({
       id: response.id,
       name: response.name
@@ -301,11 +467,10 @@ validatePhone() {
 
     this.newCategory = '';
 
-    await this.presentToast('Category created successfully', 'success');
+    await this.presentToast(response.pchSyncWarning || 'Category created successfully', response.pchSyncWarning ? 'warning' : 'success');
 
-  } catch (err) {
-    console.error(err);
-    await this.presentToast('Failed to create category', 'danger');
+  } catch (err: any) {
+    await this.presentToast(err?.message || 'Failed to create category', 'danger');
   } finally {
     this.isAddingCategory = false;
   }
@@ -335,26 +500,18 @@ validatePhone() {
   }
 
 
-  async deleteCategory(category_id:number){
-
+  async deleteCategory(category_id: number) {
+    if (this.categoryBusy[category_id]) return;
+    this.categoryBusy[category_id] = true;
+    const storeSnapshot = localStorage.getItem('selected_store');
     try {
-
-      await this.authService.deleteCategory(category_id);
-
-      this.categories = this.categories.filter(
-        cat => cat.id !== category_id
-      );
-
-      await this.presentToast('Category deleted successfully','success');
-
-    } catch (err) {
-
-      console.error(err);
-
-      await this.presentToast('Failed to delete category','danger');
-
-    }
-
+      const response = await this.authService.deleteCategory(category_id);
+      if (localStorage.getItem('selected_store') !== storeSnapshot) return;
+      this.categories = this.categories.filter(category => category.id !== category_id);
+      await this.presentToast(response.pchSyncWarning || 'Category deleted successfully', response.pchSyncWarning ? 'warning' : 'success');
+    } catch (error: any) {
+      await this.presentToast(error?.message || 'Failed to delete category', 'danger');
+    } finally { this.categoryBusy[category_id] = false; }
   }
   /* ================= TOAST ================= */
 
@@ -369,6 +526,7 @@ validatePhone() {
   }
 
   async loadTags() {
+    if (this.authService.isMerchantSession()) { await this.loadTaxonomies(); return; }
     try {
       const res = await this.authService.getTags();
       this.tags = res.map((tag: any) => ({
@@ -409,11 +567,13 @@ validatePhone() {
 
   this.isAddingTag = true;
 
-  const payload = { name };
+  const payload = { name, slug: this.createSlug(name), description: '' };
+  const storeSnapshot = localStorage.getItem('selected_store');
 
   try {
     const res = await this.authService.createTag(payload);
 
+    if (localStorage.getItem('selected_store') !== storeSnapshot) return;
     this.tags.push({
       id: res.id,
       name: res.name
@@ -421,11 +581,10 @@ validatePhone() {
 
     this.newTag = '';
 
-    await this.presentToast('Tag created successfully','success');
+    await this.presentToast(res.pchSyncWarning || 'Tag created successfully', res.pchSyncWarning ? 'warning' : 'success');
 
-  } catch (err) {
-    console.error(err);
-    await this.presentToast('Failed to create tag','danger');
+  } catch (err: any) {
+    await this.presentToast(err?.message || 'Failed to create tag', 'danger');
   } finally {
     this.isAddingTag = false;
   }
@@ -454,31 +613,89 @@ validatePhone() {
     await alert.present();
   }
 
-  async deleteTag(tag: any){
-
-  try {
-
-    await this.authService.deleteTag(tag.id);
-
-    this.tags = this.tags.filter(t => t.id !== tag.id);
-
-    await this.presentToast('Tag deleted successfully','success');
-
-  } catch (err) {
-
-    console.error(err);
-
-    await this.presentToast('Failed to delete tag','danger');
-
+  async deleteTag(tag: any) {
+    if (this.tagBusy[tag.id]) return;
+    this.tagBusy[tag.id] = true;
+    const storeSnapshot = localStorage.getItem('selected_store');
+    try {
+      const response = await this.authService.deleteTag(tag.id);
+      if (localStorage.getItem('selected_store') !== storeSnapshot) return;
+      this.tags = this.tags.filter(item => item.id !== tag.id);
+      await this.presentToast(response.pchSyncWarning || 'Tag deleted successfully', response.pchSyncWarning ? 'warning' : 'success');
+    } catch (error: any) {
+      await this.presentToast(error?.message || 'Failed to delete tag', 'danger');
+    } finally { this.tagBusy[tag.id] = false; }
   }
-
-}
 
   /* ================= TOGGLE HANDLER ================= */
 
+  private async savePchToggle(event: any, key: string) {
+    if (this.savingToggles[key]) return;
+    const previous = this.savedToggleValues[key] ?? false;
+    const checked = !!event.detail.checked;
+    if (checked === previous) return;
+    this.savingToggles[key] = true;
+    const storeSnapshot = localStorage.getItem('selected_store');
+    try {
+      const storeId = JSON.parse(storeSnapshot || 'null')?.id || '';
+      const merchantId = JSON.parse(localStorage.getItem('merchant_data') || 'null')?.id || '';
+      const result = await this.authService.updatePchSettingToggle(merchantId, storeId, key, checked);
+      if (localStorage.getItem('selected_store') !== storeSnapshot) return;
+      this.savedToggleValues[key] = result.enabled;
+      this.settings[key] = result.enabled;
+      this.form.patchValue({ [key]: result.enabled }, { emitEvent: false });
+      await this.presentToast(result.message, 'success');
+    } catch (error: any) {
+      if (localStorage.getItem('selected_store') !== storeSnapshot) return;
+      this.settings[key] = previous;
+      this.form.patchValue({ [key]: previous }, { emitEvent: false });
+      if (event.target) event.target.checked = previous;
+      await this.presentToast(error?.message || 'Failed to update setting.', 'danger');
+    } finally {
+      this.savingToggles[key] = false;
+    }
+  }
+
+  private async savePchSafes(event: any) {
+    if (this.isSavingSafes) return;
+    const previous = this.savedSafesValue;
+    const checked = !!event.detail.checked;
+    if (checked === previous) return;
+    this.isSavingSafes = true;
+    const storeSnapshot = localStorage.getItem('selected_store');
+    try {
+      const storeId = JSON.parse(storeSnapshot || 'null')?.id || '';
+      const merchantId = JSON.parse(localStorage.getItem('merchant_data') || 'null')?.id || '';
+      const result = await this.authService.updatePchSafes(merchantId, storeId, checked);
+      if (localStorage.getItem('selected_store') !== storeSnapshot) return;
+      this.savedSafesValue = result.enabled;
+      this.settings.enable_safes = result.enabled;
+      this.form.patchValue({ enable_safes: result.enabled }, { emitEvent: false });
+      await this.presentToast(result.message, 'success');
+    } catch (error: any) {
+      if (localStorage.getItem('selected_store') !== storeSnapshot) return;
+      this.settings.enable_safes = previous;
+      this.form.patchValue({ enable_safes: previous }, { emitEvent: false });
+      if (event.target) event.target.checked = previous;
+      await this.presentToast(error?.message || 'Failed to update safes.', 'danger');
+    } finally {
+      this.isSavingSafes = false;
+    }
+  }
+
   async onToggleChange(event: any, key: string) {
 
-    if (this.isLoadingSettings) return;
+    if (this.isLoadingSettings || this.isLoadingCashSettings) return;
+
+    if (key === 'enable_safes' && this.authService.isMerchantSession()) {
+      await this.savePchSafes(event);
+      return;
+    }
+
+    if (this.authService.isMerchantSession() && ['enable_safes_drop', 'enableTaxes', 'enableCoupons', 'sequentialCoupons', 'enable_cashback', 'enable_service_charge', 'enable_loyalty_points'].includes(key)) {
+      await this.savePchToggle(event, key);
+      return;
+    }
 
     const checked = event.detail.checked;
     this.settings[key] = checked;
@@ -592,24 +809,18 @@ if (emojiRegex.test(data.name)) {
       return false; // ❌ stop alert from closing
     }
 
+    if (this.categoryBusy[category.id]) return false;
+    this.categoryBusy[category.id] = true;
+    const storeSnapshot = localStorage.getItem('selected_store');
     try {
-
-      const res = await this.authService.updateCategory(
-        category.id,
-        { name: newName, slug: this.createSlug(newName) }
-      );
-
-      category.name = res.name;
-
-      this.presentToast('Category updated successfully','success');
-
-    } catch (error) {
-
-      console.error(error);
-
-      this.presentToast('Failed to update category','danger');
-
-    }
+      const result = await this.authService.updateCategory(category.id, { name: newName, slug: this.createSlug(newName) });
+      if (localStorage.getItem('selected_store') !== storeSnapshot) return;
+      category.name = result.name;
+      await this.presentToast(result.pchSyncWarning || 'Category updated successfully', result.pchSyncWarning ? 'warning' : 'success');
+    } catch (error: any) {
+      await this.presentToast(error?.message || 'Failed to update category', 'danger');
+      return false;
+    } finally { this.categoryBusy[category.id] = false; }
 
   }
 }
@@ -662,24 +873,18 @@ if (emojiRegex.test(data.name)) {
       return false; // ❌ keep alert open
     }
 
+    if (this.tagBusy[tag.id]) return false;
+    this.tagBusy[tag.id] = true;
+    const storeSnapshot = localStorage.getItem('selected_store');
     try {
-
-      const res = await this.authService.updateTag(
-        tag.id,
-        { name: newName, slug: this.createSlug(newName) }
-      );
-
-      tag.name = res.name;
-
-      this.presentToast('Tag updated successfully','success');
-
-    } catch (error) {
-
-      console.error(error);
-
-      this.presentToast('Failed to update tag','danger');
-
-    }
+      const result = await this.authService.updateTag(tag.id, { name: newName, slug: this.createSlug(newName) });
+      if (localStorage.getItem('selected_store') !== storeSnapshot) return;
+      tag.name = result.name;
+      await this.presentToast(result.pchSyncWarning || 'Tag updated successfully', result.pchSyncWarning ? 'warning' : 'success');
+    } catch (error: any) {
+      await this.presentToast(error?.message || 'Failed to update tag', 'danger');
+      return false;
+    } finally { this.tagBusy[tag.id] = false; }
 
   }
 }

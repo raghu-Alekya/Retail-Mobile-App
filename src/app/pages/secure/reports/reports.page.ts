@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
@@ -11,15 +11,26 @@ import { AuthService } from 'src/app/services/auth/auth.service';
     styleUrls: ['./reports.page.scss'],
     standalone: false
 })
-export class ReportsPage implements AfterViewInit {
+export class ReportsPage implements AfterViewInit, OnDestroy {
 
   // ===== STATE =====
   currentMonth: string = '';
-  date: string = new Date().toISOString().substring(0, 10);
+  date: string = this.localDateKey(new Date());
   activeTab: 'sales' | 'shift' | 'inventory' = 'sales';
   salesFilter: 'daily' | 'weekly' | 'monthly' = 'daily';
+  salesLoading = false;
+  shiftLoading = false;
+  shiftError = '';
+  private shiftRequestId = 0;
+  private shiftRequestKey = '';
+  private shiftRenderTimer: ReturnType<typeof setTimeout>;
+  salesError = '';
+  private salesRequestId = 0;
+  private salesRequestKey = '';
+  private salesRenderTimer: ReturnType<typeof setTimeout>;
 
   // ===== CHART REFERENCES =====
+  @ViewChild('employeeDateInput') employeeDateInput?: ElementRef<HTMLInputElement>;
   @ViewChild('ordersChart') ordersChartRef!: ElementRef;
   @ViewChild('salesChart') salesChartRef!: ElementRef;
   @ViewChild('shiftOrdersChart') shiftOrdersChartRef!: ElementRef;
@@ -44,64 +55,116 @@ ordersPerEmployee: any[] = [];
 
   // ===== LIFECYCLE =====
   ionViewWillEnter() {
-    this.loadSales();
+    if (this.activeTab === 'shift') void this.loadShiftReport(this.date);
+    else void this.loadSales();
   }
 
-  ngAfterViewInit() {}
+  ngAfterViewInit() { void this.loadSales(); }
+
+  ngOnDestroy() {
+    this.salesRequestId++;
+    this.shiftRequestId++;
+    clearTimeout(this.shiftRenderTimer);
+    clearTimeout(this.salesRenderTimer);
+    this.ordersChart?.destroy(); this.salesChart?.destroy();
+    this.shiftOrdersChart?.destroy(); this.shiftSalesChart?.destroy();
+  }
 
   // ================= SALES =================
   async loadSales() {
-
-  this.sales = await this.authService.loadSales(this.salesFilter);
-
-  // ⭐ Set month name
-  const now = new Date();
-  this.currentMonth = now.toLocaleString('default', { month: 'long' });
-
-  setTimeout(() => {
-    this.buildOrdersChart();
-    this.buildSalesChart();
-  }, 100);
-
-}
+    let merchantId = '';
+    let storeId = '';
+    try {
+      merchantId = JSON.parse(localStorage.getItem('merchant_data') || 'null')?.id || '';
+      storeId = JSON.parse(localStorage.getItem('selected_store') || 'null')?.id || '';
+    } catch {}
+    const type = this.salesFilter;
+    const key = merchantId + ':' + storeId + ':' + type;
+    if (this.salesLoading && key === this.salesRequestKey) return;
+    const requestId = ++this.salesRequestId;
+    this.salesRequestKey = key;
+    this.salesLoading = true;
+    this.salesError = '';
+    this.sales = {};
+    clearTimeout(this.salesRenderTimer);
+    this.ordersChart?.destroy(); this.ordersChart = null;
+    this.salesChart?.destroy(); this.salesChart = null;
+    try {
+      const report = await this.authService.getPchSalesReport(type, merchantId, storeId);
+      if (requestId !== this.salesRequestId) return;
+      this.sales = report;
+      this.currentMonth = new Date().toLocaleString('default', { month: 'long' });
+      this.salesRenderTimer = setTimeout(() => {
+        if (requestId !== this.salesRequestId || this.activeTab !== 'sales') return;
+        this.buildOrdersChart();
+        this.buildSalesChart();
+      }, 100);
+    } catch (error: any) {
+      if (requestId === this.salesRequestId) this.salesError = error?.message || 'Unable to load sales report. Please try again.';
+    } finally {
+      if (requestId === this.salesRequestId) this.salesLoading = false;
+    }
+  }
   onSalesFilterChange(event: any) {
     this.salesFilter = event.detail.value;
     this.loadSales();
   }
 
   openDatePicker() {
-  const input = document.querySelector('input[type="date"]') as HTMLElement;
-  input?.click();
-}
+    const input = this.employeeDateInput?.nativeElement as (HTMLInputElement & { showPicker?: () => void }) | undefined;
+    if (!input) return;
+    input.focus();
+    try {
+      if (typeof input.showPicker === 'function') { input.showPicker(); return; }
+    } catch { /* Older WebViews fall back to the date input click. */ }
+    input.click();
+  }
 
   // ================= SHIFT REPORT =================
 async loadShiftReport(date: string) {
-
-  const res = await this.authService.loadEmployeeSales(date);
-
-  console.log("SHIFT DATA:", res);
-
-  this.shiftData = res;
-
-  if (!res.shifts || res.shifts.length === 0) {
-
-    this.totalSales = 0;
-    this.totalOrders = 0;
-
-    this.shiftOrdersChart?.destroy();
-    this.shiftSalesChart?.destroy();
-
-    return;
+  let merchantId = '';
+  let storeId = '';
+  try {
+    merchantId = JSON.parse(localStorage.getItem('merchant_data') || 'null')?.id || '';
+    storeId = JSON.parse(localStorage.getItem('selected_store') || 'null')?.id || '';
+  } catch {}
+  const key = merchantId + ':' + storeId + ':' + date;
+  if (this.shiftLoading && key === this.shiftRequestKey) return;
+  const requestId = ++this.shiftRequestId;
+  this.shiftRequestKey = key;
+  this.shiftError = '';
+  this.totalSales = 0;
+  this.totalOrders = 0;
+  this.shiftData = { date, total_sales: 0, total_orders: 0, shifts: [] };
+  clearTimeout(this.shiftRenderTimer);
+  this.shiftOrdersChart?.destroy(); this.shiftOrdersChart = null;
+  this.shiftSalesChart?.destroy(); this.shiftSalesChart = null;
+  if (this.isFutureDate(date)) { this.shiftLoading = false; return; }
+  this.shiftLoading = true;
+  try {
+    const report = await this.authService.getPchEmployeeSales(date, merchantId, storeId);
+    if (requestId !== this.shiftRequestId) return;
+    const employees = new Map<string, { shift_name: string; orders: number; sales: number }>();
+    report.shifts.forEach(shift => {
+      const name = shift.shift_name.trim() || 'Unknown employee';
+      const employee = employees.get(name) || { shift_name: name, orders: 0, sales: 0 };
+      employee.orders += shift.orders;
+      employee.sales += shift.sales;
+      employees.set(name, employee);
+    });
+    this.shiftData = { ...report, shifts: Array.from(employees.values()).map(employee => ({ ...employee, sales: Math.round(employee.sales * 100) / 100 })) };
+    this.totalSales = report.total_sales;
+    this.totalOrders = report.total_orders;
+    this.shiftRenderTimer = setTimeout(() => {
+      if (requestId !== this.shiftRequestId || this.activeTab !== 'shift') return;
+      this.buildShiftOrdersChart();
+      this.buildShiftSalesChart();
+    }, 100);
+  } catch (error: any) {
+    if (requestId === this.shiftRequestId) this.shiftError = error?.message || 'Unable to load employee sales. Please try again.';
+  } finally {
+    if (requestId === this.shiftRequestId) this.shiftLoading = false;
   }
-
-  this.totalSales = res.total_sales;
-  this.totalOrders = res.total_orders;
-
-  setTimeout(() => {
-    this.buildShiftOrdersChart();
-    this.buildShiftSalesChart();
-  }, 100);
-
 }
 
 onDateChange(event: any) {
@@ -118,18 +181,19 @@ onDateChange(event: any) {
 }
 
 
+private localDateKey(date: Date): string {
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
+}
+
 isFutureDate(date: string) {
-  return new Date(date) > new Date();
+  return date.slice(0, 10) > this.localDateKey(new Date());
 }
   // ================= TAB CHANGE =================
   onTabChange(event: any) {
     this.activeTab = event.detail.value;
 
     setTimeout(() => {
-      if (this.activeTab === 'sales') {
-        this.buildOrdersChart();
-        this.buildSalesChart();
-      }
+      if (this.activeTab === 'sales') void this.loadSales();
 
       if (this.activeTab === 'shift') {
         this.loadShiftReport(this.date);
@@ -201,10 +265,10 @@ isFutureDate(date: string) {
 
   // ================= SHIFT CHARTS =================
   buildShiftOrdersChart() {
-    if (!this.shiftData?.shifts?.length) return;
+    if (!this.shiftData?.shifts?.length || !this.shiftOrdersChartRef?.nativeElement) return;
 
     const labels = this.shiftData.shifts.map((s: any) =>
-      s.shift_name.replace('Shift Start- ', '').split(' 202')[0]
+      s.shift_name
     );
 
     const data = this.shiftData.shifts.map((s: any) => Number(s.orders));
@@ -234,7 +298,7 @@ isFutureDate(date: string) {
     if (!this.shiftData?.shifts?.length) return;
 
     const labels = this.shiftData.shifts.map((s: any) =>
-      s.shift_name.replace('Shift Start- ', '').split(' 202')[0]
+      s.shift_name
     );
 
     const data = this.shiftData.shifts.map((s: any) => Number(s.sales));

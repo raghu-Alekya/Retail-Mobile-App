@@ -13,6 +13,11 @@
 
 <ion-content class="settings-content">
   <div class="settings-wrapper">
+    <div *ngIf="isLoadingCashSettings" class="ion-text-center ion-padding"><ion-spinner name="crescent"></ion-spinner></div>
+    <div *ngIf="cashSettingsError" class="error-text" role="alert">
+      {{ cashSettingsError }}
+      <ion-button size="small" fill="clear" (click)="loadCashToggles()">Retry</ion-button>
+    </div>
 
     <!-- ================= GENERAL SETTINGS ================= -->
     
@@ -27,12 +32,14 @@
         <ion-accordion value="address">
           <ion-item slot="header" button detail>
             <ion-label>Shop Address</ion-label>
-            <ion-note slot="end">
-              {{ settings.address.country }}
-            </ion-note>
           </ion-item>
 
           <div class="accordion-body" slot="content">
+            <div *ngIf="shopAddressError" class="error-text" role="alert">
+              {{ shopAddressError }}
+              <ion-button size="small" fill="clear" (click)="loadShopAddress()">Retry</ion-button>
+            </div>
+            <ion-spinner *ngIf="isLoadingSettings" name="crescent"></ion-spinner>
             <ion-item>
               <ion-input
                 placeholder="Store Name"
@@ -110,11 +117,16 @@
               </ion-input>
             </ion-item>
 
+            <ion-item>
+              <ion-input placeholder="Country" [(ngModel)]="settings.address.country"></ion-input>
+            </ion-item>
+
             <ion-button
               expand="block"
               class="save-address-btn"
               (click)="saveAddress()"
               [disabled]="
+                isSavingAddress || isLoadingSettings || !!shopAddressError ||
                 !!storeNameError ||
                 !!emailEmojiError ||
                 !!addressError ||
@@ -123,7 +135,7 @@
                 !!phoneError ||
                 !!emailError
               ">
-              Save Address
+              {{ isSavingAddress ? 'Saving...' : 'Save Address' }}
             </ion-button>
           </div>
         </ion-accordion>
@@ -134,6 +146,7 @@
         <ion-label>Enable Safe</ion-label>
         <ion-toggle
         slot="end"
+        [disabled]="isLoadingCashSettings || isSavingSafes"
         [(ngModel)]="settings.enable_safes"
         (ionChange)="onToggleChange($event,'enable_safes')">
       </ion-toggle>
@@ -143,6 +156,7 @@
         <ion-label>Enable Safe Drop</ion-label>
         <ion-toggle
           slot="end"
+          [disabled]="isLoadingCashSettings || savingToggles.enable_safes_drop"
           [(ngModel)]="settings.enable_safes_drop"
           (ionChange)="onToggleChange($event, 'enable_safes_drop')">
         </ion-toggle>
@@ -152,6 +166,7 @@
         <ion-label>Enable Taxes</ion-label>
         <ion-toggle
           slot="end"
+          [disabled]="isLoadingCashSettings || savingToggles.enableTaxes"
           [(ngModel)]="settings.enableTaxes"
           (ionChange)="onToggleChange($event, 'enableTaxes')">
         </ion-toggle>
@@ -161,6 +176,7 @@
         <ion-label>Enable Coupons</ion-label>
         <ion-toggle
           slot="end"
+          [disabled]="isLoadingCashSettings || savingToggles.enableCoupons"
           [(ngModel)]="settings.enableCoupons"
           (ionChange)="onToggleChange($event, 'enableCoupons')">
         </ion-toggle>
@@ -168,10 +184,11 @@
 
       <ion-item
         lines="none"
-        [disabled]="!settings.enableCoupons">
+        [disabled]="!settings.enableCoupons || isLoadingCashSettings || savingToggles.enableCoupons">
         <ion-label>Sequential Coupon Discount</ion-label>
         <ion-toggle
           slot="end"
+          [disabled]="isLoadingCashSettings || savingToggles.sequentialCoupons"
           [(ngModel)]="settings.sequentialCoupons"
           (ionChange)="onToggleChange($event, 'sequentialCoupons')">
         </ion-toggle>
@@ -207,6 +224,11 @@
 
 
       <div class="settings-card">
+      <div *ngIf="isLoadingTaxonomies" class="ion-text-center ion-padding"><ion-spinner name="crescent"></ion-spinner></div>
+      <div *ngIf="taxonomyError" class="error-text" role="alert">
+        {{ taxonomyError }}
+        <ion-button size="small" fill="clear" (click)="loadTaxonomies()">Retry</ion-button>
+      </div>
       <ion-accordion-group>
 
         <!-- Categories -->
@@ -227,7 +249,7 @@
                 slot="end"
                 size="small"
                 class="primary-btn"
-                [disabled]="isAddingCategory || !!categoryError"
+                [disabled]="isAddingCategory || isLoadingTaxonomies || !!categoryError"
                 (click)="addCategory()">
                 {{ isAddingCategory ? 'Adding...' : 'Add' }}
               </ion-button>
@@ -237,6 +259,7 @@
               {{ categoryError }}
             </div>
 
+            <p *ngIf="!isLoadingTaxonomies && !taxonomyError && categories.length === 0">No categories found.</p>
             <ion-item *ngFor="let cat of categories">
               <ion-label>{{ cat.name }}</ion-label>
                <!-- EDIT -->
@@ -244,6 +267,7 @@
                 fill="clear"
                 color="medium"
                 slot="end"
+                [disabled]="categoryBusy[cat.id] || isLoadingTaxonomies"
                 (click)="editCategory(cat)">
                 <ion-icon name="create-outline"></ion-icon>
               </ion-button>
@@ -251,6 +275,7 @@
                 fill="clear"
                 color="danger"
                 slot="end"
+                [disabled]="categoryBusy[cat.id] || isLoadingTaxonomies"
                 (click)="removeCategory(cat.id)">
                 <ion-icon name="trash-outline"></ion-icon>
               </ion-button>
@@ -276,7 +301,7 @@
                 slot="end"
                 size="small"
                 class="primary-btn"
-                [disabled]="isAddingTag || !!tagError"
+                [disabled]="isAddingTag || isLoadingTaxonomies || !!tagError"
                 (click)="addTag()">
                 {{ isAddingTag ? 'Adding...' : 'Add' }}
               </ion-button>
@@ -286,6 +311,7 @@
               {{ tagError }}
             </div>
 
+            <p *ngIf="!isLoadingTaxonomies && !taxonomyError && tags.length === 0">No tags found.</p>
             <ion-item *ngFor="let tag of tags">
               <ion-label>{{ tag.name }}</ion-label>
               <!-- EDIT -->
@@ -293,6 +319,7 @@
                 fill="clear"
                 color="medium"
                 slot="end"
+                [disabled]="tagBusy[tag.id] || isLoadingTaxonomies"
                 (click)="editTag(tag)">
                 <ion-icon name="create-outline"></ion-icon>
               </ion-button>
@@ -301,6 +328,7 @@
                 fill="clear"
                 color="danger"
                 slot="end"
+                [disabled]="tagBusy[tag.id] || isLoadingTaxonomies"
                 (click)="removeTag(tag)">
                 <ion-icon name="trash-outline"></ion-icon>
               </ion-button>
@@ -323,6 +351,7 @@
         <ion-label>Enable Cash Back</ion-label>
         <ion-toggle
           slot="end"
+          [disabled]="isLoadingCashSettings || savingToggles.enable_cashback"
           [(ngModel)]="settings.enable_cashback"
           (ionChange)="onToggleChange($event, 'enable_cashback')">
         </ion-toggle>
@@ -332,6 +361,7 @@
         <ion-label>Service Charge</ion-label>
         <ion-toggle
           slot="end"
+          [disabled]="isLoadingCashSettings || savingToggles.enable_service_charge"
           [(ngModel)]="settings.enable_service_charge"
           (ionChange)="onToggleChange($event, 'enable_service_charge')">
         </ion-toggle>
@@ -341,6 +371,7 @@
         <ion-label>Loyalty Points</ion-label>
         <ion-toggle
           slot="end"
+          [disabled]="isLoadingCashSettings || savingToggles.enable_loyalty_points"
           [(ngModel)]="settings.enable_loyalty_points"
           (ionChange)="onToggleChange($event, 'enable_loyalty_points')">
         </ion-toggle>

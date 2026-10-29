@@ -23,3 +23,6 @@ For custom backend ports, set PCH_API_URL and PCH_ORDERS_API_URL before running 
 pchApiBaseUrl and pchOrdersApiBaseUrl in src/environments/environment.ts and environment.prod.ts default to PCH. Change these for native local testing; use a reachable LAN address for a physical phone. Browser startup scripts control the development proxy only.
 
 These settings cover the migrated merchant login and dashboard status counts. Other legacy screen APIs are not migrated by this configuration.
+
+Sales reports use the PCH reports-new/sales route. Local mode routes reports to localhost:3006 using PCH_REPORTS_API_URL; restart the dev server after proxy changes. Native report builds use pchReportsApiBaseUrl.
+

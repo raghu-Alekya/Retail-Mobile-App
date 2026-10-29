@@ -368,3 +368,22 @@ ion-footer {
   transform: translateX(0px); /* reset iOS shift */
   font-size: 20px;
 }
+.employee-calendar-button {
+  --padding-start: 0;
+  --padding-end: 0;
+  margin-right: 12px;
+}
+.employee-date-input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 12px 0;
+}
+.employee-date-input::-webkit-calendar-picker-indicator {
+  display: none;
+}

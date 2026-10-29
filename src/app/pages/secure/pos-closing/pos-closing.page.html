@@ -30,7 +30,7 @@
 
         <div slot="end">
 
-          @if (isCustomFilterApplied) {
+          <ng-container *ngIf="isCustomFilterApplied; else filterArrow">
 
             <ion-icon
               name="close-outline"
@@ -38,19 +38,21 @@
               (click)="clearFilter($event)">
             </ion-icon>
 
-          } @else {
+          </ng-container><ng-template #filterArrow>
 
             <ion-icon
               name="chevron-forward-outline"
               class="arrow-icon">
             </ion-icon>
 
-          }
+          </ng-template>
 
         </div>
       </ion-item>
     </ion-card>
-  <ion-card class="sales-card">
+  <div *ngIf="loading" class="ion-text-center ion-padding"><ion-spinner name="crescent"></ion-spinner></div>
+  <div *ngIf="loadError" class="ion-text-center ion-padding" role="alert"><p>{{ loadError }}</p><ion-button size="small" (click)="retry()">Retry</ion-button></div>
+  <ion-card class="sales-card" *ngIf="!loading && !loadError">
 
     <!-- Header -->
     <div class="card-header">
@@ -170,7 +172,7 @@
 
 </ion-content>
 
-@if (isFilterModalOpen) {
+<ng-container *ngIf="isFilterModalOpen">
 
 <div
   class="filter-backdrop"
@@ -211,7 +213,7 @@
 
     <!-- DATE FILTER -->
 
-    @if (filterType === 'date') {
+    <ng-container *ngIf="filterType === 'date'">
 
   <!-- Date Field -->
   <div class="date-picker-box" (click)="showCalendar = true">
@@ -223,7 +225,7 @@
   </div>
 
   <!-- Calendar -->
-  @if (showCalendar) {
+  <ng-container *ngIf="showCalendar">
 
     <ion-datetime
       presentation="date"
@@ -231,14 +233,10 @@
       (ionChange)="onDateSelected($event)"
       class="inline-calendar">
     </ion-datetime>
-
-  }
-
-}
-
+</ng-container></ng-container>
     <!-- DATE RANGE FILTER -->
 
-    @if (filterType === 'range') {
+    <ng-container *ngIf="filterType === 'range'">
 
   <!-- From Date -->
 
@@ -250,7 +248,7 @@
     </span>
   </div>
 
-  @if (showFromCalendar) {
+  <ng-container *ngIf="showFromCalendar">
 
     <ion-datetime
       presentation="date"
@@ -258,9 +256,7 @@
       (ionChange)="onFromDateSelected($event)"
       class="inline-calendar">
     </ion-datetime>
-
-  }
-
+</ng-container>
   <!-- To Date -->
 
   <div class="date-picker-box" (click)="showToCalendar = true">
@@ -271,7 +267,7 @@
     </span>
   </div>
 
-  @if (showToCalendar) {
+  <ng-container *ngIf="showToCalendar">
 
     <ion-datetime
       presentation="date"
@@ -279,11 +275,7 @@
       (ionChange)="onToDateSelected($event)"
       class="inline-calendar">
     </ion-datetime>
-
-  }
-
-}
-
+</ng-container></ng-container>
     <ion-button
       expand="block"
       class="apply-btn"
@@ -294,13 +286,12 @@
   </div>
 
 </div>
-
-}
-
+</ng-container>
 <ion-modal
   [isOpen]="isDetailsModalOpen"
   cssClass="full-screen-modal"
   (didDismiss)="isDetailsModalOpen = false">
+  <ng-template>
 
   <ion-header>
   <ion-toolbar class="details-toolbar">
@@ -352,26 +343,22 @@
 
     <tbody>
 
-      @for (section of salesDetails; track $index) {
+      <ng-container *ngFor="let section of salesDetails">
 
-        @for (item of section.items; track item.name) {
+        <ng-container *ngFor="let item of section.items">
 
           <tr>
             <td>{{ item.name }}</td>
             <td>${{ item.net | number:'1.2-2' }}</td>
             <td>{{ item.percent }}</td>
           </tr>
-
-        }
-
+</ng-container>
         <tr class="subtotal-row">
           <td>Sub-total</td>
           <td>${{ section.subtotal | number:'1.2-2' }}</td>
           <td>{{ section.subtotalPercentage | number:'1.2-2' }}%</td>
         </tr>
-
-      }
-
+</ng-container>
     </tbody>
 
   </table>
@@ -379,4 +366,5 @@
 
   </ion-content>
 
+  </ng-template>
 </ion-modal>
