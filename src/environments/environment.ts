@@ -5,6 +5,7 @@
 export const environment = {
   production: false,
   pchApiBaseUrl: 'https://pch.alektasolutions.com/connector/api/v1',
+  pchReportsApiBaseUrl: 'https://pch.alektasolutions.com/connector/api/v1',
   pchOrdersApiBaseUrl: 'https://pch.alektasolutions.com/connector/api/v1',
   wcConsumerKey: 'ck_83bec8507685ab0020e74f463ed0e8a60601abb6',
   wcConsumerSecret: 'cs_92fdd47375a712c8c1cb326ae9c48615f126f247',

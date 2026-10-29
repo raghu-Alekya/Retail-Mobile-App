@@ -9,9 +9,7 @@
     <ion-title>Shifts</ion-title>
 
     <ion-buttons slot="end">
-      <ion-button fill="clear">
-        
-      </ion-button>
+<ion-button fill="clear" aria-label="Filter shifts by date" (click)="showDateModal = true"><ion-icon name="calendar-outline"></ion-icon></ion-button>
     </ion-buttons>
 
   </ion-toolbar>
@@ -21,6 +19,9 @@
 
 <!-- CONTENT (ALL CARDS HERE) -->
 <ion-content class="ion-padding">
+  <div *ngIf="loadError" class="ion-text-center ion-padding" role="alert"><p>{{ loadError }}</p><ion-button size="small" (click)="loadShifts()">Retry</ion-button></div>
+  <p *ngIf="!loading && !loadError && filteredShifts.length === 0" class="ion-text-center">No shifts found.</p>
+  <ion-chip *ngIf="selectedDateText" (click)="clearDateFilter()">{{ selectedDateText }} <ion-icon name="close-outline"></ion-icon></ion-chip>
 
   
 
@@ -78,7 +79,7 @@
           <ion-icon color="danger" name="ban-outline"></ion-icon>
           <span>Cancelled</span>
         </div>
-        <strong>{{shift.cancelled_orders}}</strong>
+        <strong>{{ shift.cancelled_orders ?? '—' }}</strong>
       </div>
 
       <div class="grid-item">
@@ -103,7 +104,7 @@
         <ion-icon color="success" name="cash-outline"></ion-icon>
         <span>Cash</span>
         </div>
-        <strong>${{ shift.cash | number:'1.2-2' }}</strong>
+        <strong>{{ shift.cash == null ? '—' : ('$' + (shift.cash | number:'1.2-2')) }}</strong>
       </div>
 
       <div class="grid-item">
@@ -172,12 +173,7 @@
 
 </ion-card>
 
-<ion-infinite-scroll threshold="100px" (ionInfinite)="loadShifts($event)">
-  <ion-infinite-scroll-content
-    loadingSpinner="bubbles"
-    loadingText="Loading more shifts...">
-  </ion-infinite-scroll-content>
-</ion-infinite-scroll>
+
 
 <ion-modal
   [isOpen]="showDateModal"
@@ -361,8 +357,12 @@
         <ion-spinner name="crescent"></ion-spinner>
       </div>
 
+      <div *ngIf="detailsError" class="ion-text-center ion-padding" role="alert">
+        <p>{{ detailsError }}</p>
+        <ion-button size="small" (click)="openShiftDetails(selectedShift)">Retry</ion-button>
+      </div>
       <!-- No Data -->
-      <div *ngIf="!detailsLoading && shiftDetails.length === 0" class="no-data">
+      <div *ngIf="!detailsLoading && !detailsError && shiftDetails.length === 0" class="no-data">
         No shift details found.
       </div>
 
@@ -385,7 +385,7 @@
               <div class="employee-name">{{ shift.user_name }}</div>
               <div class="employee-time">
                 {{shift.start_time | date:'hh:mm a'}} -
-                {{shift.end_time | date:'hh:mm a'}}
+                {{ shift.end_time ? (shift.end_time | date:'hh:mm a') : 'Open' }}
               </div>
             </div>
           </div>
@@ -408,7 +408,7 @@
             </div>
             <div class="payment-info">
               <span>Cash</span>
-              <strong>${{ shift.cash_total | number:'1.2-2' }}</strong>
+              <strong>{{ shift.cash_total == null ? '—' : ('$' + (shift.cash_total | number:'1.2-2')) }}</strong>
             </div>
           </div>
 
@@ -466,7 +466,7 @@
 
           <div class="status cancel">
             <span>Cancelled</span>
-            <strong>{{ shift.cancelled_orders }}</strong>
+            <strong>{{ shift.cancelled_orders ?? '—' }}</strong>
           </div>
 
           <div class="status void">

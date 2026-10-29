@@ -39,7 +39,7 @@ export class DiscountsPage implements OnInit {
     allDiscounts: any[] = []; /////////
     discountEmojiError = false;
     discountCodeEmojiError = false;
-  
+ 
     form = {
       code: '',
       discount_type: 'percent',
@@ -56,20 +56,20 @@ export class DiscountsPage implements OnInit {
       selectedDiscountProductPrice: '',
       discount_product_ids: [] as number[]
     };
-    
+   
     getDiscountCount(type: string): number {
-
+ 
     if (type === 'all') {
       return this.allDiscounts.length;
     }
-
+ 
     return this.allDiscounts.filter(
       d => d.type === type
     ).length;
   }
-
-    
-  
+ 
+   
+ 
     formSubmitted = false;
     constructor(
       private auth: AuthService,
@@ -77,72 +77,102 @@ export class DiscountsPage implements OnInit {
       private toastCtrl: ToastController,
       private apiConfig: ApiConfigService
     ) {}
-    wpBases = this.apiConfig.getBaseUrl();
+    wpBases = '';
   ngOnInit() {
+    try {
+      this.wpBases = this.apiConfig.getBaseUrl();
+    } catch {
+      this.wpBases = '';
+    }
     this.loadDiscounts();
   }
   formChanged = false;
-
+ 
 markChanged() {
   this.formChanged = true;
 }
   async loadDiscounts() {
     try {
       this.loading = true;
-      const res = await this.auth.getDiscounts(String(this.page), String(this.perPage)); 
-      /////////
-      //this.grouped = res.data?.data || {};
-      this.grouped = res.data?.data || {};
-      this.allDiscounts = this.flattenAll();
+      const res = await this.auth.getDiscounts(String(this.page), String(this.perPage));
+      const body = typeof res?.data === 'string' ? JSON.parse(res.data) : res?.data;
+ 
+      const list = Array.isArray(body)
+        ? body
+        : Array.isArray(body?.discounts)
+          ? body.discounts
+          : Array.isArray(body?.data)
+            ? body.data
+            : null;
+ 
+      if (list) {
+        this.allDiscounts = list.map((d: any) => ({
+          ...d,
+          code: d.code || d.name || '',
+          type: d.type || 'auto',
+          discount_type: d.discount_type || d.discountType || 'percent',
+          coupon_amount: d.coupon_amount ?? d.amount ?? 0,
+          start_date: d.start_date || d.startDate || d.date_starts || '',
+          expiry_date: d.expiry_date || d.expiryDate || d.date_expires || ''
+        }));
+      } else if (body?.data && typeof body.data === 'object') {
+        this.grouped = body.data;
+        this.allDiscounts = this.flattenAll();
+      } else if (body && typeof body === 'object') {
+        this.grouped = body;
+        this.allDiscounts = this.flattenAll();
+      } else {
+        this.allDiscounts = [];
+      }
+ 
       this.applySearchAndFilter();
-      ////////
     } catch (err) {
       this.presentToast('Failed to load discounts');
     } finally {
       this.loading = false;
     }
   }
-  
+ 
   onDiscountTypeChange(event: any) {
-
+ 
   const selectedType =
     event.detail.value;
-
+ 
   Object.assign(this.form, {
-
+ 
   type: selectedType,
-
+ 
   code: '',
   discount_type: '',
-
+ 
   amount: '',
   qty: '',
-
+ 
   product_id: '',
   discount_product_ids: [],
-
+ 
   usage_limit: '',
-
+ 
   date_starts: '',
   date_expires: '',
-
+ 
   pinaka_discount_auto_apply: 'no',
-
+ 
   selectedProductPrice: '',
   selectedDiscountProductPrice: ''
 });
-
+ 
   // reset UI values
   this.displayAmount = '0.00';
   this.rawDigits = '';
-
+ 
   // reset searches
   this.productSearch = '';
   this.discountSearch = '';
-
+ 
   // reset selected products
   this.selectedDiscountProducts = [];
-
+ 
   // reset suggestions
   this.productSuggestions = [];
   this.discountSuggestions = [];
@@ -152,45 +182,45 @@ markChanged() {
     event?.detail?.value ??
     event?.target?.value ??
     '';
-
+ 
   // Block emojis
   if (this.containsEmoji(value)) {
     value = value.replace(
       /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu,
       ''
     );
-
+ 
     this.productSearch = value;
     this.emojiError = true;
     return;
   }
-
+ 
   this.emojiError = false;
-
+ 
   clearTimeout(this.searchTimeout);
-
+ 
   if (!value) {
     this.showSuggestions = false;
     this.productSuggestions = [];
     return;
   }
-
+ 
   this.searchTimeout = setTimeout(() => {
     this.fetchProducts(value);
   }, 300);
 }
-
+ 
   async fetchProducts(query: string) {
     try {
       const res = await this.auth.searchProducts(query);
-
+ 
       this.productSuggestions = res || [];
       this.showSuggestions = true;
     } catch (err) {
       console.error('Product search failed', err);
     }
   }
-
+ 
   selectProduct(p: any) {
     this.form.product_id = p.id;
     this.selectedProductName = p.name;
@@ -199,35 +229,35 @@ markChanged() {
     this.showSuggestions = false;
   }
   async onDiscountSearch(event: any) {
-
+ 
   let term =
     event?.detail?.value ??
     event?.target?.value ??
     '';
-
+ 
   // Block emojis
   if (this.containsEmoji(term)) {
     term = term.replace(
       /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu,
       ''
     );
-
+ 
     this.discountSearch = term;
     this.discountEmojiError = true;
     this.discountSuggestions = [];
     return;
   }
-
+ 
   this.discountEmojiError = false;
-
+ 
   clearTimeout(this.searchTimeout);
-
+ 
   this.searchTimeout = setTimeout(async () => {
     if (!term || term.length < 2) {
       this.discountSuggestions = [];
       return;
     }
-
+ 
     try {
       const res: any = await this.auth.searchProducts(term);
       this.discountSuggestions = Array.isArray(res) ? res : [];
@@ -237,53 +267,53 @@ markChanged() {
     }
   }, 300);
 }
-
+ 
 onDiscountCodeChange(value: string) {
-
+ 
   if (this.containsEmoji(value)) {
     this.form.code = value.replace(
       /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu,
       ''
     );
-
+ 
     this.discountCodeEmojiError = true;
     return;
   }
-
+ 
   this.discountCodeEmojiError = false;
   this.form.code = value;
   this.markChanged();
 }
-
-
+ 
+ 
   selectDiscountProduct(product: any) {
-
+ 
     // ❌ Prevent selecting same product as main product
   if (Number(product.id) === Number(this.form.product_id)) {
-
+ 
     this.showValidationError(
       'Main Product and Discounted Product cannot be the same'
     );
-
+ 
     return;
   }
-
+ 
   // prevent duplicates
   if (
     this.selectedDiscountProducts.find(
       p => p.id === product.id
     )
   ) return;
-
+ 
   // add selected product
   this.selectedDiscountProducts.push(product);
-
+ 
   // store IDs
   this.form.discount_product_ids =
     this.selectedDiscountProducts.map(
       p => p.id
     );
-
+ 
   // ✅ store discounted product price
     this.form.selectedDiscountProductPrice =
     String(
@@ -291,7 +321,7 @@ onDiscountCodeChange(value: string) {
       product.regular_price ||
       0
     );
-
+ 
   // clear search
   this.discountSearch = '';
   this.discountSuggestions = [];
@@ -299,26 +329,26 @@ onDiscountCodeChange(value: string) {
   removeDiscountProduct(id: number) {
     this.selectedDiscountProducts =
       this.selectedDiscountProducts.filter(p => p.id !== id);
-
+ 
     this.form.discount_product_ids =
       this.selectedDiscountProducts.map(p => p.id);
   }
-
+ 
   flattenAll(): any[] {
   const all: any[] = [];
-
+ 
   Object.keys(this.grouped).forEach(key => {
     if (Array.isArray(this.grouped[key])) {
       all.push(...this.grouped[key]);
     }
   });
-
+ 
   // 🔹 Sort newest first
   return all.sort((a, b) => b.id - a.id);
 }
-
-
-  
+ 
+ 
+ 
     openCreate() {
       this.emojiError = false;
   this.discountEmojiError = false;
@@ -331,21 +361,21 @@ onDiscountCodeChange(value: string) {
       this.discountSuggestions = [];
       this.selectedDiscountProducts = [];
       this.form.discount_product_ids = [];
-      
+     
     }
-  
+ 
     async openEdit(coupon: any) {
-
+ 
       this.emojiError = false;
   this.discountEmojiError = false;
   this.discountCodeEmojiError = false;
-
+ 
   // Add these
   this.discountSearch = '';
   this.discountSuggestions = [];
   this.productSuggestions = [];
       // console.log(coupon);
-      
+     
       this.filter_type = coupon.type;
       this.editingCoupon = coupon;
       this.formChanged = false;  
@@ -353,36 +383,36 @@ onDiscountCodeChange(value: string) {
         code: coupon.code,
         discount_type: coupon.discount_type,
         amount: Number(coupon.coupon_amount).toFixed(2),
-
+ 
         date_starts:
           coupon.start_date?.substring(0, 10),
-
+ 
         date_expires:
           coupon.expiry_date?.substring(0, 10),
-
+ 
         pinaka_discount_auto_apply:
           coupon.pinaka_discount_auto_apply,
-
+ 
         usage_limit:
           coupon.usage_limit,
-
+ 
         product_id:
           coupon.product_id,
-
+ 
         product_label:
           coupon.product_label,
-
+ 
         selectedProductPrice:
           coupon.selectedProductPrice,
-
+ 
         selectedDiscountProductPrice: '',
-
+ 
         type:
           coupon.type,
-
+ 
         qty:
           coupon.qty,
-
+ 
         discount_product_ids:
           coupon.discount_product_ids
       };
@@ -394,7 +424,7 @@ onDiscountCodeChange(value: string) {
   ).toString();
       this.showSuggestions = false;
       this.productSuggestions = [];
-
+ 
       if (coupon.product_label) {
         this.restoreProduct(coupon.product_label);
       } else {
@@ -402,40 +432,40 @@ onDiscountCodeChange(value: string) {
         this.selectedProductName = '';
       }
       if (coupon.discount_product_ids?.length) {
-
+ 
         try {
-
+ 
           const res: any =
             await this.auth.getProductsByIds(
               coupon.discount_product_ids
             );
-
+ 
           this.selectedDiscountProducts =
             res?.data || [];
-
+ 
           console.log(
             'Discount Products:',
             this.selectedDiscountProducts
           );
-
-
+ 
+ 
           // Restore Mix n Match discounted product price
           if (
             coupon.type === 'mix_match' &&
             this.selectedDiscountProducts.length
           ) {
-
+ 
             const firstProduct =
               this.selectedDiscountProducts[0];
-
-
+ 
+ 
             // fetch full product details
             const productDetails: any =
               await this.auth.getProductById(
                 firstProduct.id
               );
-
-
+ 
+ 
             this.form.selectedDiscountProductPrice =
               String(
                 productDetails.price ||
@@ -443,37 +473,48 @@ onDiscountCodeChange(value: string) {
                 productDetails.sale_price ||
                 '0.00'
               );
-
-
+ 
+ 
             console.log(
               'Discount Product Price:',
               this.form.selectedDiscountProductPrice
             );
           }
-
-
+ 
+ 
         } catch (e) {
-
+ 
           console.error(
             'Failed to load discounted products',
             e
           );
-
+ 
         }
-
+ 
       }
-
+ 
       this.showForm = true;
     }
     async restoreProduct(query: string) {
       try {
+        if (this.auth.isMerchantSession() || !this.wpBases) {
+          const results: any = await this.auth.searchProducts(query);
+          const list = Array.isArray(results) ? results : (results?.products || []);
+          if (list.length) {
+            const p = list[0];
+            this.selectedProductName = p.name;
+            this.productSearch = p.name;
+          }
+          return;
+        }
+ 
         const res = await axios.get(
         `${this.wpBases}/wp-json/wc/v3/products?search=${query}&per_page=10`,
         {
           headers: this.getAuthHeaders()
         }
       );
-      
+     
         if (res.data && res.data.length) {
           const p = res.data[0];
           console.log(p);
@@ -486,7 +527,7 @@ onDiscountCodeChange(value: string) {
     }
     async saveCoupon() {
       this.formSubmitted = true;
-
+ 
       if (!this.isFormValid()) {
         return;
       }
@@ -497,9 +538,9 @@ onDiscountCodeChange(value: string) {
         await this.auth.createDiscount(this.form);
         prevfilter = 'all';
       }
-      
+     
       this.showForm = false;
-      this.resetForm();     
+      this.resetForm();    
       await this.loadDiscounts();
       this.setFilter(prevfilter);
     }
@@ -517,7 +558,7 @@ onDiscountCodeChange(value: string) {
           return false;
         }
       }
-
+ 
       // Mix & Match: Main product and discounted products should not be same
       if (
         f.type === 'mix_match' &&
@@ -546,111 +587,111 @@ onDiscountCodeChange(value: string) {
       }
       console.log('Amount value:', f.amount);
       console.log('Discount type:', f.discount_type);
-
+ 
       const amount = parseFloat(
         String(f.amount || '').replace(/[^0-9.]/g, '')
       );
-
+ 
       console.log('Parsed amount:', amount);
-
+ 
       if (isNaN(amount)) {
-
+ 
         this.showValidationError(
           'Please enter a valid amount'
         );
-
+ 
         return false;
       }
-
+ 
       if (amount < 0) {
-
+ 
         this.showValidationError(
           'Discount amount cannot be negative'
         );
-
+ 
         return false;
       }
-
+ 
       if (amount === 0) {
-
+ 
         this.showValidationError(
           'Discount amount must be greater than 0'
         );
-
+ 
         return false;
       }
-
+ 
       if (
         f.discount_type === 'percent' &&
         amount > 100
       ) {
-
+ 
         this.showValidationError(
           'Percentage discount cannot exceed 100%'
         );
-
+ 
         return false;
       }
     // Fixed amount validation with product price
       if (f.discount_type !== 'percent') {
-
+ 
         let productPrice = 0;
-
-
+ 
+ 
         // Mix n Match use discounted product price
         if (f.type === 'mix_match') {
-
+ 
           productPrice =
             Number(
               f.selectedDiscountProductPrice || 0
             );
-
+ 
         } else {
-
+ 
           // Auto and Multipack use main product price
           productPrice =
             Number(
               f.selectedProductPrice || 0
             );
-
+ 
         }
-
-
+ 
+ 
         if (
           productPrice > 0 &&
           amount >= productPrice
         ) {
-
+ 
           this.showValidationError(
             'Discount amount should be less than product price'
           );
-
+ 
           return false;
         }
-
+ 
       }
           // Usage limit validation (Auto + Multipack)
     if (
       f.type === 'auto' ||
       f.type === 'multipack'
     ) {
-
+ 
       const usageLimit =
         Number(f.usage_limit);
-
-
+ 
+ 
       if (
         !Number.isInteger(usageLimit) ||
         usageLimit < 1
       ) {
-
+ 
         this.showValidationError(
           'Usage limit must be greater than or equal to 1'
         );
-
+ 
         return false;
       }
-
+ 
     }
       // normalize value
       f.amount = amount.toString();
@@ -701,24 +742,24 @@ onDiscountCodeChange(value: string) {
         text: 'Delete',
         role: 'destructive',
         handler: async () => {
-
+ 
           await this.auth.deleteDiscount(coupon.id, coupon.type);
-
+ 
           // close modal AFTER delete
           this.showForm = false;
-
+ 
           // reset form
           this.resetForm();
-
+ 
           // reload discounts
           await this.loadDiscounts();
-
+ 
           this.presentToast('Discount deleted successfully');
         }
       }
     ]
   });
-
+ 
   await alert.present();
 }
     resetForm() {
@@ -761,67 +802,68 @@ onDiscountCodeChange(value: string) {
     this.activeFilter = type;
     this.applySearchAndFilter();
   }
-
+ 
   onSearch(event: any) {
     this.searchTerm =
       event?.detail?.value ??
       event?.target?.value ??
       '';
-
+ 
     this.applySearchAndFilter();
   }
-
+ 
   applySearchAndFilter() {
-
+ 
   let filtered = [...this.allDiscounts];
-
+ 
   // 🔹 Sort by newest start_date
   filtered.sort((a, b) => {
     const dateA = new Date(a.start_date || 0).getTime();
     const dateB = new Date(b.start_date || 0).getTime();
     return dateB - dateA;
   });
-
+ 
   // 🔹 Apply Filter
   if (this.activeFilter !== 'all') {
     filtered = filtered.filter(d =>
       d.type?.toLowerCase().includes(this.activeFilter)
     );
   }
-
+ 
   // 🔹 Apply Search
   if (this.searchTerm?.trim()) {
     const term = this.searchTerm.toLowerCase().trim();
-
+ 
     filtered = filtered.filter(d =>
-      d.code?.toLowerCase().includes(term)
+      d.code?.toLowerCase().includes(term) ||
+      d.name?.toLowerCase().includes(term)
     );
   }
-
+ 
   this.discounts = filtered;
 }
-
+ 
 close() {
   this.emojiError = false;
   this.discountEmojiError = false;
   this.discountCodeEmojiError = false;
-
+ 
   this.productSearch = '';
   this.discountSearch = '';
   this.discountSuggestions = [];
   this.productSuggestions = [];
-
+ 
   this.showForm = false;
 }
 closeKeyboard() {
-
+ 
   const active =
     document.activeElement as HTMLElement;
-
+ 
   active?.blur();
 }
-
-
+ 
+ 
 onAutoApplyChange(event: any) {
   this.form.pinaka_discount_auto_apply =
     event.detail.checked ? 'yes' : 'no';
@@ -830,48 +872,48 @@ formatPrice(price: any): string {
   return '$' + Number(price || 0).toFixed(2);
 }
 onAmountInput(event: any) {
-
+ 
   let value =
     event?.detail?.value ??
     event?.target?.value ??
     '';
-
+ 
   // Prevent negative values
   if (value.includes('-')) {
-
+ 
     value = value.replace(/-/g, '');
-
+ 
     this.showValidationError(
       'Discount amount cannot be negative'
     );
   }
-
+ 
   // Keep only digits
   this.rawDigits = value.replace(/\D/g, '');
-
+ 
   const amount =
     Number(this.rawDigits || '0') / 100;
-
+ 
   this.displayAmount =
     amount.toFixed(2);
-
+ 
   this.form.amount =
     amount.toFixed(2);
-
+ 
   this.markChanged();
 }
-
+ 
 emojiError = false;
-
+ 
 containsEmoji(value: string): boolean {
-
+ 
   if (!value) {
     return false;
   }
-
+ 
   const emojiRegex =
     /(\p{Emoji_Presentation}|\p{Extended_Pictographic})/gu;
-
+ 
   return emojiRegex.test(value);
 }
 //ends here

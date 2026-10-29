@@ -28,6 +28,11 @@
 
 
 <ion-content class="reports-content">
+  <div *ngIf="activeTab === 'sales' && salesLoading" class="ion-text-center ion-padding"><ion-spinner name="crescent"></ion-spinner></div>
+  <div *ngIf="activeTab === 'sales' && salesError" class="ion-text-center ion-padding" role="alert">
+    <p>{{ salesError }}</p>
+    <ion-button size="small" (click)="loadSales()">Retry</ion-button>
+  </div>
 
   <!-- SALES FILTER (Daily / Weekly / Monthly) -->
   <div *ngIf="activeTab === 'sales'" class="sales-filter">
@@ -107,22 +112,22 @@
 
   <!-- SALES PER EMPLOYEE -->
   <ng-container *ngIf="activeTab === 'shift'">
+    <div *ngIf="shiftLoading" class="ion-text-center ion-padding"><ion-spinner name="crescent"></ion-spinner></div>
+    <div *ngIf="shiftError" class="ion-text-center ion-padding" role="alert">
+      <p>{{ shiftError }}</p>
+      <ion-button size="small" (click)="loadShiftReport(date)">Retry</ion-button>
+    </div>
 
     <!-- Date Picker -->
     <ion-item lines="none" class="date-input">
-      <ion-icon name="calendar-outline" slot="start"></ion-icon>
-
-      <ion-input
-        type="date"
-        [(ngModel)]="date"
-        (ionChange)="onDateChange($event)">
-      </ion-input>
-
+      <ion-button slot="start" fill="clear" class="employee-calendar-button" aria-label="Choose employee sales date" (click)="openDatePicker()">
+        <ion-icon slot="icon-only" name="calendar-outline"></ion-icon>
+      </ion-button>
+      <input #employeeDateInput class="employee-date-input" type="date" aria-label="Employee sales date" [value]="date" (change)="onDateChange($event)" />
     </ion-item>
 
-
     <!-- Summary -->
-    <ion-card class="summary-card">
+    <ion-card class="summary-card" *ngIf="!shiftLoading && !shiftError">
       <ion-card-content>
         <h3>Total Sales</h3>
         <h1>$ {{ shiftData?.total_sales || 0 | number:'1.2-2' }}</h1>
@@ -149,7 +154,7 @@
             📅 Future dates cannot have sales
           </div>
 
-          <div class="no-data" *ngIf="!isFutureDate(date) && shiftData?.shifts?.length === 0">
+          <div class="no-data" *ngIf="!shiftLoading && !shiftError && !isFutureDate(date) && shiftData?.shifts?.length === 0">
             🚫 No sales data for this date
           </div>
 
@@ -176,7 +181,7 @@
             📅 Future dates cannot have orders
           </div>
 
-          <div class="no-data" *ngIf="!isFutureDate(date) && shiftData?.shifts?.length === 0">
+          <div class="no-data" *ngIf="!shiftLoading && !shiftError && !isFutureDate(date) && shiftData?.shifts?.length === 0">
             🚫 No orders for this date
           </div>
 

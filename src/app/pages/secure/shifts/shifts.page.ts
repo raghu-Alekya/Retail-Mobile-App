@@ -15,6 +15,11 @@ export class ShiftsPage implements OnInit {
 filteredShifts: any[] = [];
   shifts: any[] = [];   
   loading = false;
+  loadError = '';
+  private reportRows: any[] = [];
+  private loadRequestId = 0;
+  private loadingStoreId = '';
+  private pendingLoad: Promise<void> | null = null;
   search = '';         // optional (staff name, etc.)      // open / closed filter
 
   fromDateApi = '';
@@ -38,6 +43,8 @@ selectedShift: any = null;
 isDetailsModalOpen = false;
 shiftDetails: any[] = [];
 detailsLoading = false;
+detailsError = '';
+private detailsRequestId = 0;
 filteredShiftDetails: any[] = [];
 
   constructor(
@@ -61,30 +68,24 @@ goBack() {
   }
 
   async openShiftDetails(shift: any) {
-
-  this.detailsLoading = true;
-
-  try {
-
-    const date = shift.date; // Example: 2026-07-22
-
-    const res = await this.authService.getShiftDetails(date);
-
-    if (res.success) {
-      this.shiftDetails = res.data;
-  this.filteredShiftDetails = [...this.shiftDetails];
-  this.isDetailsModalOpen = true;
-    } else {
-      this.shiftDetails = [];
-  this.filteredShiftDetails = [];
+    const requestId = ++this.detailsRequestId;
+    this.selectedShift = shift;
+    this.shiftDetails = [];
+    this.filteredShiftDetails = [];
+    this.detailsError = '';
+    this.detailsLoading = true;
+    this.isDetailsModalOpen = true;
+    try {
+      const rows = await this.authService.getShiftDetailsByDate(shift.date, this.loadingStoreId);
+      if (requestId !== this.detailsRequestId) return;
+      this.shiftDetails = rows;
+      this.filteredShiftDetails = [...rows];
+    } catch (error: any) {
+      if (requestId === this.detailsRequestId) this.detailsError = error?.message || 'Unable to load shift details.';
+    } finally {
+      if (requestId === this.detailsRequestId) this.detailsLoading = false;
     }
-
-  } catch (e) {
-    console.error(e);
   }
-
-  this.detailsLoading = false;
-}
 
 onShiftDetailsSearch(event: any) {
 
@@ -102,6 +103,9 @@ onShiftDetailsSearch(event: any) {
 }
 
 closeShiftDetails() {
+  ++this.detailsRequestId;
+  this.detailsLoading = false;
+  this.detailsError = '';
   this.isDetailsModalOpen = false;
   this.shiftDetails = [];
   this.filteredShiftDetails = [];
@@ -140,67 +144,55 @@ getThemeClass(index: number): string {
   }
 
   /**
-   * Mock data – remove after API integration
+   * Load daily summaries for the selected dashboard store
    */
 
- async loadShifts(event?: any) {
+  ionViewWillEnter() { void this.loadShifts(); }
 
-  this.loading = true;
-
-  try {
-
-    const res = await this.authService.getDailyShiftSummary(
-      this.fromDateApi,
-      this.toDateApi
-    );
-
-    console.log("Daily Summary:", res);
-
-    if (res?.success && Array.isArray(res.data)) {
-
-  this.shifts = res.data;
-  this.filteredShifts = [...this.shifts];
-
-} else {
-
-  this.shifts = [];
-  this.filteredShifts = [];
-
-}
-
-  } catch (e) {
-
-    console.error(e);
-
+  async loadShifts(event?: any) {
+    let storeId = '';
+    try { storeId = JSON.parse(localStorage.getItem('selected_store') || 'null')?.id || ''; } catch {}
+    if (this.pendingLoad && this.loadingStoreId === storeId) {
+      try { await this.pendingLoad; } finally { event?.target?.complete(); }
+      return;
+    }
+    const requestId = ++this.loadRequestId;
+    this.loadingStoreId = storeId;
+    this.loading = true;
+    this.loadError = '';
+    this.shifts = [];
+    this.filteredShifts = [];
+    this.reportRows = [];
+    this.closeShiftDetails();
+    this.pendingLoad = (async () => {
+      try {
+        const rows = await this.authService.getPchDailyShiftSummary(storeId);
+        if (requestId !== this.loadRequestId) return;
+        this.shifts = rows.map(row => ({ ...row, date: String(row.date || '').slice(0, 10), employee_names: [] }))
+          .sort((a, b) => b.date.localeCompare(a.date));
+        this.filterShifts();
+      } catch (error: any) {
+        if (requestId === this.loadRequestId) this.loadError = error?.message || 'Unable to load shifts. Please try again.';
+      } finally {
+        if (requestId === this.loadRequestId) { this.loading = false; this.pendingLoad = null; }
+      }
+    })();
+    try { await this.pendingLoad; } finally { event?.target?.complete(); }
   }
 
-  this.loading = false;
-  event?.target.complete();
-
-}
-
- 
+  private filterShifts() {
+    const search = this.search.trim().toLowerCase();
+    this.filteredShifts = this.shifts.filter(shift =>
+      (!this.fromDateApi || shift.date >= this.fromDateApi) && (!this.toDateApi || shift.date <= this.toDateApi) &&
+      (!search || shift.date.includes(search) || shift.employee_names.some((name: string) => name.toLowerCase().includes(search))));
+  }
 
   onSearch(event: any) {
-
-  const value = (event.target.value || '').toLowerCase();
-
-  if (!value) {
-
-    this.filteredShifts = [...this.shifts];
-    return;
-
+    this.search = String(event.target.value || '');
+    this.filterShifts();
   }
 
-  this.filteredShifts = this.shifts.filter((item: any) =>
-    item.date?.toLowerCase().includes(value)
-  );
-
-}
-
-
-
-
+  closeCalendar() { this.calendarMode = null; }
 
 async applyDateFilter() {
 
@@ -252,7 +244,7 @@ async applyDateFilter() {
   this.showDateModal = false;
   this.calendarMode = null;
 
-  await this.loadShifts();
+  this.filterShifts();
 }
 
 async clearDateFilter() {
@@ -266,10 +258,7 @@ async clearDateFilter() {
   this.selectedDateText = '';
 
   this.filterType = '';
-  this.shifts = [];
-  this.filteredShifts = [];
-
-  await this.loadShifts();
+  this.filterShifts();
 }
 
 switchToDateTab() {

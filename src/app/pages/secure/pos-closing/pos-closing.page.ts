@@ -10,6 +10,11 @@ import { NavController } from '@ionic/angular';
 export class PosClosingPage implements OnInit {
 
   loading = false;
+  loadError = '';
+  private requestId = 0;
+  private activeStart = '';
+  private activeEnd = '';
+  private activeKey = '';
   isFilterModalOpen = false;
 
   filterType: 'date' | 'range' = 'date';
@@ -133,7 +138,7 @@ async clearFilter(event?: Event) {
 }
 
   formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
   }
 
   get absPayouts(): number {
@@ -198,15 +203,33 @@ async clearFilter(event?: Event) {
   this.isFilterModalOpen = false;
 }
 
+  ionViewWillEnter() {
+    if (this.activeStart) void this.loadPosClosing(this.activeStart, this.activeEnd);
+  }
+
+  retry() { void this.loadPosClosing(this.activeStart, this.activeEnd); }
+
   async loadPosClosing(startDate: string, endDate: string) {
+    let storeId = '';
+    try { storeId = JSON.parse(localStorage.getItem('selected_store') || 'null')?.id || ''; } catch {}
+    const key = [storeId, startDate, endDate].join('|');
+    if (this.loading && this.activeKey === key) return;
+    const requestId = ++this.requestId;
+    this.activeKey = key;
+    this.activeStart = startDate;
+    this.activeEnd = endDate;
+    this.loadError = '';
+    this.isDetailsModalOpen = false;
+    this.salesDetails = [];
+    this.merchantName = '';
 
     this.loading = true;
 
     try {
 
-      const response = await this.authService.getPosClosing(startDate, endDate);
+      const response = await this.authService.getPosClosing(startDate, endDate, storeId);
 
-      console.log(response);
+      if (requestId !== this.requestId) return;
 
       if (response.success) {
 
@@ -216,7 +239,7 @@ async clearFilter(event?: Event) {
 
         this.salesDetails = [
         {
-          items: response.data.categories.map((category: any) => ({
+          items: (response.data.categories || []).map((category: any) => ({
             name: category.name,
             net: category.total_sales,
             percent: category.sales_percentage + '%'
@@ -228,10 +251,10 @@ async clearFilter(event?: Event) {
 
       }
 
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      if (requestId === this.requestId) this.loadError = e?.message || 'Unable to load POS closing.';
     } finally {
-      this.loading = false;
+      if (requestId === this.requestId) this.loading = false;
     }
   }
 
